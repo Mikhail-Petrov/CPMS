@@ -1,0 +1,52 @@
+		<div class="col-md-3 left_col" th:fragment="navbar">
+          <div class="left_col scroll-view">
+            <div class="navbar nav_title" style="border: 0;">
+              <a th:href="@{/}" class="site_title"> <span th:text="'CPMS'"></span></a>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <!-- menu profile quick info -->
+            <div class="profile">
+                <a th:href="@{/security/me}">
+              <div class="profile_pic">
+              	<th:block th:if="${!isAuthenticated}">
+                	<img th:src="@{/resources/images/no-user.png}" class="img-circle profile_img"></img>
+                </th:block>
+                <th:block th:if="${isAuthenticated}">
+                	<img th:src="@{/resources/images/user.png}" class="img-circle profile_img"></img>
+                </th:block>
+              </div>
+              <div class="profile_info">
+                <span th:text="${isAdmin} ? #{role.admin} : (${isResident} ? #{role.resident} : #{role.anonym})"></span>
+                <h2 th:text="${username}">></h2>
+              </div>
+                </a>
+            </div>
+
+
+            <br />
+
+
+            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+              <div class="menu_section">
+                <h3 th:text="#{navbar.navigation}"></h3>
+                <ul class="nav side-menu">
+                  <!-- <li><a><i class="fa fa-info"></i> Статистика <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="index.html">Общая статистика</a></li>
+                      <li><a href="index.html">1</a></li>
+                      <li><a href="index.html">2</a></li>
+                    </ul>
+                  </li>  -->
+                  <li><a th:href="@{/dashboard}"><i class="fa fa-edit"></i> <span th:text="#{navbar.new.controlpanel}"></span></a></li>
+                  <li><a th:href="@{/viewer}"><i class="fa fa-cogs"></i>
+                  	<span th:if="${isAdmin}"> <span th:text="#{navbar.new.searchadm}"></span></span>
+                  	<span th:if="${!isAdmin}"> <span th:text="#{navbar.new.search}"></span></span>
+                  </a></li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>

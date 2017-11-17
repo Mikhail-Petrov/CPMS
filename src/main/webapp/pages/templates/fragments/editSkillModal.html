@@ -1,0 +1,68 @@
+<div th:fragment="skillModalForm" th:remove="tag">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+	<div class="modal-body">
+		<div id="viewSkillBlock">
+		<div clss="modal-header">
+			<h3><span id="skillName">Name</span></h3>
+		</div>
+  		<p><span id="skillAbout">About</span></p>
+  		<p><span id="skillLevels">Levels</span></p>
+  		<p th:text="#{skill.levels}"></p>
+		<table class="table table-striped">
+			<tbody id="levelsView">
+			</tbody>
+		</table>
+  		<div class="input-group">
+			<a id="rememberLink" onclick="#">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.remember}">Remember</button>
+				</span>
+			</a>
+			<a id="editLink" th:if="${isAdmin or isResident}" href="#">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.edit}">Edit</button>
+				</span>
+			</a>
+			<a id="deleteLink" th:if="${isAdmin or isResident}" href="#">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
+				</span>
+			</a>
+			<a id="approveLink" th:if="${isAdmin}" href="#">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.approve}">Approve</button>
+				</span>
+			</a>
+  		</div>
+  		</div>
+  		<div th:if="${isAdmin or isResident}" class="collection-object force-width">
+  		<h3><span id="skillName" th:text="#{skillPopup.child}"></span></h3>
+  		<form action="#" th:action="@{/editor/skill/alternativeAsync}" th:object="${skill}" method="post" id="skillCreate">
+  			<input type="hidden" th:field="*{id}" class="input-wide" th:value="0"/>
+  			<p th:text="#{editor.skill.name}"></p>
+			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_en}"/></p>
+			<p><input type="text" class="form-control" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_ru}"/></p>
+			<p th:text="#{editor.skill.description}"></p>
+			<p><textarea type="textarea" class="form-control" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_en}"></textarea></p>
+			<p><textarea type="textarea" class="form-control" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_ru}"></textarea></p>
+			<p th:text="#{editor.skill.maxlevel}"></p>
+			<p><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
+			<input type="hidden" id="parentId" th:field="*{parent}" th:value="null"/>
+			<p><input type="submit" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+			<p th:text="#{skillPopup.editor.level}"></p>
+			<table class="table table-striped">
+				<tbody id="levelsPost">
+				</tbody>
+			</table>
+			<p><input type="submit" class="btn btn-primary btn-block" value="+" onclick="$(levelsNum).val(parseInt($(levelsNum).val())+1); $(levelsNum).trigger('input'); return false"/></p>
+  		</form>
+  		</div>
+  	</div>
+  	</div>
+	</div>
+	</div>
+			
+<div th:fragment="profileCreationSuccess" th:remove="tag">
+  <p>Form successfully submitted</p>
+</div>

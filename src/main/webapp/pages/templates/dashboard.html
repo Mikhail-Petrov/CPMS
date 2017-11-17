@@ -1,0 +1,20 @@
+			<div class="row" th:if="${isAdmin}">
+                <div class="col-md-12">
+                    <div class="x_panel">
+                       	<a th:href="@{/dashboard/index}">
+                       		<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.index}"></button>
+						</a>
+                  	</div>
+                 </div>
+            </div>
+            <div class="row" th:if="${isAdmin}">
+                <div class="col-md-12">
+                    <div class="x_panel">
+                       	<a th:href="@{/security/register}">
+                       		<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.register}"></button>
+						</a>
+                  	</div>
+                 </div>
+            </div>
+			<div th:replace="fragments/operations :: operations"></div>
+			<div th:replace="fragments/applications :: applications"></div>

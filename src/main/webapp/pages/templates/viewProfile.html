@@ -1,0 +1,262 @@
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h3 th:text="${profile.presentationName}"></h3>
+                            </div>
+                            <div class="x_content">
+                                <p><span th:text="${profile.website}"></span></p>
+                                <p><span th:text="${profile.address}"></span></p>
+								<p><span th:text="${profile.email}"></span></p>
+								<p><span th:text="${profile.about}"></span></p>
+                                <br/>
+                                <p><b><span th:text="#{profile.competencies}"></span></b></p>
+                                <table class="table table-responsive table-striped">
+                                    <tr th:each="competency : ${profile.competencies}">
+                                        <td>
+                                            <span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level}"></span>
+                                            <div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isAdmin}">
+                                            	<a th:href="@{/editor/competency/delete(id=${competency.id}, profileId=${profile.id})}">
+                                            		<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
+                                                </a>
+                                                <a th:href="@{/editor/{profileId}/competency(id=${competency.id}, profileId=${profile.id})}">
+                                                	<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span th:text="#{profile.evidence}"></span>
+                                            <button type="button" class="btn btn-success" th:onclick="'openEvidenceModal(' + ${competency.id} + ')'" th:if="${isAdmin}"><i class="fa fa-plus"></i></button>
+                                            <table class="table table-responsive table-striped">
+                                    			<tr th:each="evidence : ${competency.evidence}">
+                                    				<td>
+														<b><span th:text="${evidence.description}">Description</span></b>
+														<p><span th:text="#{profile.evidence.type}"></span> <span th:text="${evidence.type}">Type</span></p>
+														<p>
+															<span th:text="#{profile.evidence.acquired}"></span>
+															<span th:text="${evidence.acquiredDate}">Acquired Date</span>
+														</p>
+														<p>
+															<span th:text="#{profile.evidence.expires}"></span>
+															<span th:if="${evidence.expirationDate} != null"
+									 							th:text="${evidence.expirationDate}">Expiration Date</span>
+															<span th:if="${evidence.expirationDate} == null"
+									 							th:text="#{profile.evidence.expires.never}">Never</span>
+														</p>
+														<p th:if="${isAdmin}">
+															<a th:if="${isAdmin}" href="evidence.html" 
+																th:href="@{/editor/{profileId}/{competencyId}/evidence(profileId=${profile.id},competencyId=${competency.id},id=${evidence.id})}">
+																<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
+															</a>
+															<a th:if="${isAdmin}" href="evidence.html" 
+																th:href="@{/editor/evidence/delete(competencyId=${competency.id}, profileId=${profile.id}, id=${evidence.id})}">
+																<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
+															</a>
+														</p>
+													</td>
+                                    			</tr>
+                                    		</table>
+                                        </td>
+                                    </tr>
+                                </table>
+
+								<th:block th:if="${isAdmin}">
+	                                <div class="row">
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.competency.add}"></button>
+	                                    </div>
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    	<a th:href="@{/editor/profile(id=${profile.id})}">
+	                                        	<button type="button" class="btn btn-warning btn-block" th:text="#{profile.edit}"></button>
+	                                        </a>
+	                                    </div>
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    	<a th:href="@{/editor/profile/delete(id=${profile.id})}">
+	                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{profile.delete}"></button>
+	                                        </a>
+	                                    </div>
+	                                </div>
+	                                <br/>
+                                </th:block>
+                                <div class="row">
+                                    <div class="col-md-3 col-md-offset-8" style="padding-right: 0px;">
+                                        <select class="form-control" id="actions">
+                                            <option th:text="#{profile.compare.profile}" value="1"></option>
+                                            <option th:text="#{profile.compare.task}" value="2"></option>
+                                            <option th:text="#{profile.remember}" value="3"></option>
+                                            <option th:text="#{dashboard.aggregate.header}" value="4"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1" style="padding-left: 0px;">
+                                        <button type="button" class="btn btn-primary btn-block" id="check_actions" onclick="javascript:profileSelect()"><i class="fa fa-check"></i></button>
+                                    </div>
+                                </div>
+                                
+                         		<script th:inline="javascript">
+                         		/*<![CDATA[*/
+                         		var header = /*[[#{layout.notification}]]*/ null;
+                         		var profileId = /*[[${profile.id}]]*/
+                         		
+                         		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                        	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                        	    var headers = {};
+                        	    headers[csrfHeader] = csrfToken;
+                         		           
+                         		function profileSelect() {
+                         			var val = $("#actions").val();
+                         			var message = null;
+                         			var address = null;
+                         			
+                         			var inputArgs = [];
+                            	    inputArgs.push(profileId);
+                         			
+                         			if (val == 1) {
+                         				address = /*[[@{/dashboard/compareProfile}]]*/ null;
+                         			} else if (val == 2) {
+                         				address = /*[[@{/dashboard/compareTask}]]*/ null;
+                         			} else if (val == 3) {
+                         				address = /*[[@{/dashboard/rememberProfile}]]*/ null;
+                         			} else if (val == 4) {
+                         				var address = /*[[@{/dashboard/aggregatePossibilities}]]*/ null;
+                         				window.location.href = address + "?profile=" + profileId;
+                         				return;
+                         			} else {
+                         				return;
+                         			}
+                         			
+                         			$.ajax({
+                         				url : address,
+                         				type: 'POST',
+                         				dataType: 'json',
+                         				contentType: 'application/json; charset=utf-8',
+                         				data : JSON.stringify(inputArgs),
+                         				headers: headers,
+                         				success: function (res) {
+                         					document.getElementById('notificationBody').innerHTML=res.message;
+                         					document.getElementById('notificationHeader').innerHTML=header;
+                         					$('#notificationModal').modal('show'); 
+                         				},
+                         				error: function (xhRequest, ErrorText, thrownError) {
+                         					document.getElementById('notificationBody').innerHTML="Error.";
+                         					document.getElementById('notificationHeader').innerHTML=header;
+                         					$('#notificationModal').modal('show');
+                         					
+                         					console.log('xhRequest: ' + xhRequest + "\n");
+                         					console.log('ErrorText: ' + ErrorText + "\n");
+                         					console.log('thrownError: ' + thrownError + "\n");
+                         					console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                         				}
+                         			});
+                         		}
+                         		/*]]>*/
+                         		</script>
+
+                                <style>
+                                    p {
+                                        text-indent: 20px;
+                                    }
+                                    #check_actions {
+                                        border-radius: 0 3px 3px 0 !important;
+                                    }
+                                    #actions {
+                                        background-color: #337ab7;
+                                        color: white;
+                                        border-color: #2e6da4;
+                                        border-radius: 3px 0 0 3px;
+                                        border-left: none;
+                                    }
+                                    #actions:hover {
+                                        background-color: #206090;
+                                        border-color: #204d74;
+                                    }
+                                </style>
+
+                            </div>
+
+                        </div>
+                        <div th:replace="fragments/residentApplications :: residentApplications"></div>
+                    </div>
+                </div>
+                
+              	<th:block th:if="${isAdmin}">
+                	<div class="modal fade" id="createCompetencyModal" tabindex="-1" role="dialog" aria-labelledby="createCompetencyModal" aria-hidden="true">
+                    	<div th:replace="fragments/editCompetencyModal :: competencyModalForm"></div>
+                	</div>
+                	<script type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
+                	<script>
+                	var submitCompetencyForm = function() {
+                	  	var $form = $('#competencyCreate');
+                	    
+                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                	    var headers = {};
+                	    headers[csrfHeader] = csrfToken;
+                	    
+                	    $.ajax({
+                	      url: $form.attr('action'),
+                	      type: 'post',
+                	      data: $form.serialize(),
+                	      headers: headers,
+                	      success: function(response) {
+                	        if (response.indexOf("Form successfully submitted") === -1) {
+                	        	$form.replaceWith(response);
+                	        } else {
+                	        	location.reload();
+                	        }
+                	      },
+                	      error: function (xhRequest, ErrorText, thrownError) {
+                				console.log('xhRequest: ' + xhRequest + "\n");
+                	            console.log('ErrorText: ' + ErrorText + "\n");
+                	            console.log('thrownError: ' + thrownError + "\n");
+                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                	      }
+                	});
+                	}
+                	</script>
+                	
+                	<div class="modal fade" id="evidenceModal" tabindex="-1" role="dialog" aria-labelledby="evidenceModalLabel" aria-hidden="true">
+                		<div th:replace="fragments/editEvidenceModal :: evidenceModalForm"></div>
+                	</div>
+                	<script th:inline="javascript">
+                	/*<![CDATA[*/
+                	var competencyId = 0;
+                	
+                	var openEvidenceModal = function(newCompetencyId) {
+                		$('#evidenceModal').modal();
+                		competencyId = newCompetencyId;
+                	}
+                	           
+                	var submitEvidenceForm = function() {
+                	  	var $form = $('#evidenceCreate');
+                	  	
+                	  	var postAddr = /*[[@{/editor/}]]*/ null;
+                	  	var profileId = /*[[${profile.id}]]*/ null;
+                	    
+                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                	    var headers = {};
+                	    headers[csrfHeader] = csrfToken;
+                	    
+                	    $.ajax({
+                	      url: postAddr + profileId + '/' + competencyId + '/evidenceAsync',
+                	      type: 'post',
+                	      data: $form.serialize(),
+                	      headers: headers,
+                	      success: function(response) {
+                	        if (response.indexOf("Form successfully submitted") === -1) {
+                	        	$form.replaceWith(response);
+                	        } else {
+                	        	location.reload();
+                	        }
+                	      },
+                	      error: function (xhRequest, ErrorText, thrownError) {
+                				console.log('xhRequest: ' + xhRequest + "\n");
+                	            console.log('ErrorText: ' + ErrorText + "\n");
+                	            console.log('thrownError: ' + thrownError + "\n");
+                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                	      }
+                	});
+                	}
+                	/*]]>*/
+                	</script>
+                </th:block>

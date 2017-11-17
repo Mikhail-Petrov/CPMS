@@ -1,0 +1,177 @@
+				<div class="row">
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h3 th:text="${task.presentationName}"></h3>
+                            </div>
+                            <div class="x_content">
+								<p><span th:text="${task.about}">About</span></p>
+								<br/>
+								<p><b><span th:text="#{task.requirements}"></span></b></p>
+								<table class="table table-responsive table-striped">
+									<tr th:each="requirement : ${task.requirements}">
+										<td>
+											<span th:text="${requirement.skill.presentationName} + ' - ' + ${requirement.level}"></span>
+											<div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isAdmin}">
+												<a th:href="@{/editor/requirement/delete(id=${requirement.id}, taskId=${task.id})}">
+													<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
+												</a>
+												<a th:href="@{/editor/{taskId}/requirement(id=${requirement.id}, taskId=${task.id})}">
+													<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
+												</a>
+											</div>
+										</td>
+									</tr>
+								</table>
+								
+								<th:block th:if="${isAdmin}">
+	                                <div class="row">
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createRequirementModal" th:text="#{task.requirement.add}"></button>
+	                                    </div>
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    	<a th:href="@{/editor/task(id=${task.id})}">
+	                                        	<button type="button" class="btn btn-warning btn-block" th:text="#{task.edit}"></button>
+	                                        </a>
+	                                    </div>
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    	<a th:href="@{/editor/task/delete(id=${task.id})}">
+	                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{task.delete}"></button>
+	                                        </a>
+	                                    </div>
+	                                </div>
+	                                <br/>
+                                </th:block>
+                                
+                                <div class="row">
+                                    <div class="col-md-3 col-md-offset-8" style="padding-right: 0px;">
+                                        <select class="form-control" id="actions">
+                                            <option th:text="#{task.remember}" value="1"></option>
+                                            <option th:text="#{task.compare}" value="2"></option>
+                                            <option th:text="#{dashboard.tasksearch.header}" value="3"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1" style="padding-left: 0px;">
+                                        <button type="button" class="btn btn-primary btn-block" id="check_actions" onclick="javascript:taskSelect()"><i class="fa fa-check"></i></button>
+                                    </div>
+                                </div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<script th:inline="javascript">
+                         		/*<![CDATA[*/
+                         		var header = /*[[#{layout.notification}]]*/ null;
+                         		var taskId = /*[[${task.id}]]*/
+                         		
+                         		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                        	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                        	    var headers = {};
+                        	    headers[csrfHeader] = csrfToken;
+                         		           
+                         		function taskSelect() {
+                         			var val = $("#actions").val();
+                         			var message = null;
+                         			var address = null;
+                         			
+                         			var inputArgs = [];
+                         			
+                         			if (val == 1) {
+                         				address = /*[[@{/dashboard/rememberTask}]]*/ null;
+                         				inputArgs.push(taskId);
+                         			} else if (val == 2) {
+                         				address = /*[[@{/dashboard/compareTask}]]*/ null;
+                         				inputArgs.push('');
+                         				inputArgs.push(taskId);
+                         			} else if (val == 3) {
+                         				address = /*[[@{/dashboard//taskSearch}]]*/ null;
+                         				window.location.href = address + "?task=" + taskId;
+                         				return;
+                         			} else {
+                         				return;
+                         			}
+                         			
+                         			$.ajax({
+                         				url : address,
+                         				type: 'POST',
+                         				dataType: 'json',
+                         				contentType: 'application/json; charset=utf-8',
+                         				data : JSON.stringify(inputArgs),
+                         				headers: headers,
+                         				success: function (res) {
+                         					document.getElementById('notificationBody').innerHTML=res.message;
+                         					document.getElementById('notificationHeader').innerHTML=header;
+                         					$('#notificationModal').modal('show'); 
+                         				},
+                         				error: function (xhRequest, ErrorText, thrownError) {
+                         					document.getElementById('notificationBody').innerHTML="Error.";
+                         					document.getElementById('notificationHeader').innerHTML=header;
+                         					$('#notificationModal').modal('show');
+                         					
+                         					console.log('xhRequest: ' + xhRequest + "\n");
+                         					console.log('ErrorText: ' + ErrorText + "\n");
+                         					console.log('thrownError: ' + thrownError + "\n");
+                         					console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                         				}
+                         			});
+                         		}
+                         		/*]]>*/
+           		</script>
+
+				<style>
+	                  p {
+	                      text-indent: 20px;
+	                  }
+	                  #check_actions {
+	                      border-radius: 0 3px 3px 0 !important;
+	                  }
+	                  #actions {
+	                      background-color: #337ab7;
+	                      color: white;
+	                      border-color: #2e6da4;
+	                      border-radius: 3px 0 0 3px;
+	                      border-left: none;
+	                  }
+	                  #actions:hover {
+	                      background-color: #206090;
+	                      border-color: #204d74;
+	                  }
+	          	</style>
+                                
+              	<th:block th:if="${isAdmin}">
+                	<div class="modal fade" id="createRequirementModal" tabindex="-1" role="dialog" aria-labelledby="createRequirementModal" aria-hidden="true">
+                    	<div th:replace="fragments/editRequirementModal :: requirementModalForm"></div>
+                	</div>
+                	<script type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
+                	<script>
+                	var submitRequirementForm = function() {
+                	  	var $form = $('#requirementCreate');
+                	    
+                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                	    var headers = {};
+                	    headers[csrfHeader] = csrfToken;
+                	    
+                	    $.ajax({
+                	      url: $form.attr('action'),
+                	      type: 'post',
+                	      data: $form.serialize(),
+                	      headers: headers,
+                	      success: function(response) {
+                	        if (response.indexOf("Form successfully submitted") === -1) {
+                	        	$form.replaceWith(response);
+                	        } else {
+                	        	location.reload();
+                	        }
+                	      },
+                	      error: function (xhRequest, ErrorText, thrownError) {
+                				console.log('xhRequest: ' + xhRequest + "\n");
+                	            console.log('ErrorText: ' + ErrorText + "\n");
+                	            console.log('thrownError: ' + thrownError + "\n");
+                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                	      }
+                	});
+                	}
+                	</script>
+                </th:block>

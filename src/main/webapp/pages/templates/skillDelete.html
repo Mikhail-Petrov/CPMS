@@ -1,0 +1,45 @@
+<div class="collection-object">
+	<h2><span th:text="${skill.presentationName}"></span></h2>
+	<hr/>
+	<p><span th:text="#{skill.delete.warning}"></span></p>
+	<hr/>
+	<th:block th:if="${not #lists.isEmpty(profilesList)}">
+		<h2><span th:text="#{skill.delete.profiles}"></span></h2>
+			<table class="table table-striped">
+				<tbody>
+				<tr th:each="profile : ${profilesList}" >
+					<td>
+						<p>
+							<a th:href="@{/viewer/profile(id=${profile.id})}">
+								<span th:text="${profile.presentationName}"></span>
+							</a>
+						</p>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		<hr/>
+	</th:block>
+	<th:block th:if="${not #lists.isEmpty(tasksList)}">
+		<h2><span th:text="#{skill.delete.tasks}"></span></h2>
+			<table class="table table-striped">
+				<tbody>
+				<tr th:each="task : ${tasksList}" >
+					<td>
+						<p>
+							<a th:href="@{/viewer/task(id=${task.id})}">
+								<span th:text="${task.presentationName}"></span>
+							</a>
+						</p>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		<hr/>
+	</th:block>
+	<a th:href="@{/editor/skill/delete/force(id=${skill.id})}">
+		<span class="input-group-btn">
+			<button class="btn btn-lg" type="submit" th:text="#{skill.delete.force}">Delete</button>
+		</span>
+	</a>
+</div>

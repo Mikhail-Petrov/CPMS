@@ -1,0 +1,60 @@
+			<div class="collection-object">
+			<h2><span th:text="${skill.presentationName}">Name</span></h2>
+			<hr/>
+			<p><span th:text="${skill.about}">About</span></p>
+			<hr/>
+			<p><span th:text="#{skill.levels}"></span> 1-<span th:text="${skill.maxLevel}">Max Level</span></p>
+			<hr/>
+			<p>
+				<span th:text="#{skill.parent} + ' '"></span>
+				<span th:if="${skill.parent == null}" th:text="#{skill.no_parent}">No Parent</span>
+				<a th:if="${skill.parent != null}" th:href="@{/viewer/skill(id=${skill.parent.id},returnUrl=@{/viewer/skill(id=${skill.id})})}">
+					<span th:text="${skill.parent.presentationName}">Parent</span>
+				</a>
+			</p>
+			<hr/>
+			<p th:text="#{skill.levels}"></p>
+			<table class="table table-striped">
+				<tbody>
+				<tr th:each="level : ${levels}">
+					<td>
+						<p>
+							<span th:text="${level.level} + ' - ' + ${level.about}"></span>
+							<a th:if="${level.id} > 0 and ${isAdmin}"
+								th:href="@{/editor/{skillId}/skillLevel(skillId=${skill.id}, level=${level.level})}">
+								<button class="btn btn-lg" type="submit" th:text="#{skill.level.edit}">Edit Skill Level</button>
+							</a><a th:if="${level.id} == 0 and ${isAdmin}"
+								th:href="@{/editor/{skillId}/skillLevel(skillId=${skill.id}, level=${level.level})}">
+								<button class="btn btn-lg" type="submit" th:text="#{skill.level.define}">Define Skill Level</button>
+							</a>
+						</p>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			<hr/>
+			<p th:text="#{skill.children}"></p>
+			<table class="table table-striped">
+				<tbody>
+				<tr th:each="child : ${skill.children}" >
+					<td>
+						<p>
+							<a th:href="@{/viewer/skill(id=${child.id},returnUrl=@{/viewer/skill(id=${skill.id})})}">
+								<span th:text="${child.presentationName}">A Skill</span>
+							</a>
+						</p>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			<hr/>
+			<p><a th:if="${isAdmin}" href="#" 
+				th:href="@{/editor/skill/delete(id=${skill.id})}">
+				<button class="btn btn-lg" type="submit" th:text="#{skill.delete}">Delete Skill</button>
+			</a></p><p><a th:if="${isAdmin}" href="#" 
+				th:href="@{/editor/skill(id=${skill.id})}">
+				<button class="btn btn-lg" type="submit" th:text="#{skill.edit}">Edit Skill</button>
+			</a></p>
+			<hr th:if="${isAdmin}" />
+			<p><button class="btn btn-lg" value="Add Skill to remembered" title="Add Skill to remembered" th:text="#{skill.remember}" th:onclick="'ajaxDialog(\'/dashboard/rememberSkill\', \''+${skill.id}+'\'); return false;'">Add Skill to remembered</button></p>
+			</div>

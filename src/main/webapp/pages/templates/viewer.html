@@ -1,0 +1,417 @@
+	<script type="text/javascript" th:src="@{/resources/js/tableLoader.js}"></script>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/resources/css/my.css}" href="/resources/css/my.css" />
+	
+	<style>
+        a {
+            cursor: pointer;
+        }
+    </style>
+
+    <style>
+        /* контейнер просто содержит узлы.
+        Узел сам будет отвечать за свой отступ */
+        .Container {
+            padding: 0;
+            margin: 0;
+        }
+
+        .Container li {
+            list-style-type: none; /* убрать кружочки/точечки */
+        }
+
+        /* узел отодвинут от левой стенки контейнера на 18px
+        благодаря этим отступам вложенные узлы формируют иерархию*/
+        .Node {
+            margin-left: 18px;
+            zoom: 1; /* спецсвойство против багов IE6,7. Ставит hasLayout */
+        }
+
+        /* Корневой узел от родительского контейнера не отодвинут.
+           Ему же не надо демонстрировать отступом, чей он сын.
+           Это правило идет после .Node, поэтому имеет более высокий приоритет
+           Так что class="Node IsRoot" дает margin-left:0
+        */
+        .IsRoot {
+            margin-left: 0;
+        }
+
+        /* иконка скрытого/раскрытого поддерева или листа
+           сами иконки идут дальше, здесь общие свойства*/
+        .Expand {
+            width: 18px;
+            height: 18px;
+            /* принцип двухколоночной верстки. */
+            /* float:left и width дива Expand + margin-left дива Content */
+            float: left;
+        }
+
+        /* содержание (заголовок) узла */
+        .Content {
+            /* чтобы не налезать на Expand */
+            margin-left:18px;
+            /* высота заголовка - как минимум равна Expand
+                Т.е правая колонка всегда выше или равна левой.
+                Иначе нижний float будет пытаться разместиться на получившейся ступеньке
+            */
+            min-height: 18px;
+        }
+
+        /* все правила после * html выполняет только IE6 */
+        * html .Content {
+            height: 18px; /* аналог min-height для IE6 */
+        }
+        /* открытое поддерево */
+        .ExpandOpen .Expand {
+            background-image: url(/resources/images/minus.gif);
+        }
+
+        /* закрытое поддерево */
+        .ExpandClosed .Expand {
+            background-image: url(/resources/images/plus.gif);
+        }
+
+        /* лист */
+        .ExpandLeaf .Expand {
+            background-image: url(/resources/images/leaf.gif);
+        }
+
+        .Node {
+            margin-left: 18px;
+            zoom: 1;
+            /* линия слева образуется повторяющимся фоновым рисунком */
+            background-image : url(/resources/images/i.gif);
+            background-position : top left;
+            background-repeat : repeat-y;
+        }
+
+        /* это правило - ниже .Node, поэтому имеет больший приоритет */
+        .IsLast {
+            /* добавить соединительную черточку наверх */
+            background-image: url(/resources/images/i_half.gif);
+            background-repeat : no-repeat;
+        }
+        .ExpandOpen .Container {
+            display: block;
+        }
+
+        .ExpandClosed .Container {
+            display: none;
+        }
+        .ExpandOpen .Expand, .ExpandClosed .Expand {
+            cursor: pointer; /* иконки скрытия-раскрытия */
+        }
+
+        .ExpandLeaf .Expand {
+            cursor: auto; /* листовой узел */
+        }
+        .ExpandLoading   {
+            width: 18px;
+            height: 18px;
+            float: left;
+            background-image: url(/resources/images/expand_loading.gif);
+        }
+
+    </style>
+    
+    <style>
+            .right_col {
+                font-size: 15px;
+            }
+        </style>
+
+                <div class="row">
+                   <div class="col-md-6">
+                       <div class="x_panel">
+                           <div class="x_title">
+                                <h3 th:text="#{navbar.search.profiles}"></h3>
+                           </div>
+                           <div class="x_content">
+                               <table id="profilesTable" class="table table-responsive table-striped">
+                               		<thead>
+                               			<tr>
+                               				<th data-field="name"><span th:text="#{viewer.new.name}"></span></th>
+                               			</tr>
+                               		</thead>
+                               		<tbody>
+                               		</tbody>
+                               </table>
+
+                               <div class="row">
+                                   <div class="col-lg-6 col-lg-offset-3 text-center">
+                                       <nav aria-label="Page navigation">
+                                           <ul class="pagination" style="margin: 0px;">
+                                               <li class="page-item">
+                                                   <a class="page-link" href="#" aria-label="Previous" th:onclick="'javascript:previousProfilePage()'">
+                                                       <span aria-hidden="true">&laquo;</span>
+                                                       <span class="sr-only">Previous</span>
+                                                   </a>
+                                               </li>
+                                               <th:block th:each="i : ${#numbers.sequence( 1, profilePages, 1)}">
+                                               	<li class="page-item" th:id="'profilePageButton' + ${i}"><a class="page-link" href="#" th:onclick="'javascript:changeProfilePage('+${i}+');'"><span th:text="${i}"></span></a></li>
+                                               </th:block> 
+                                               <li class="page-item">
+                                                   <a class="page-link" href="#" aria-label="Next" th:onclick="'javascript:nextProfilePage()'">
+                                                       <span aria-hidden="true">&raquo;</span>
+                                                       <span class="sr-only">Next</span>
+                                                   </a>
+                                               </li>
+                                           </ul>
+                                       </nav>
+                                   </div>
+                                   <div class="col-lg-1" th:if="${isAdmin}">
+                                       <button type="button" class="btn btn-success pull-left" data-toggle="modal"
+                                               data-target="#createProfileModal"><i class="fa fa-plus"></i></button>
+                                   </div>
+                               </div>
+                               <script th:inline="javascript">
+                               /*<![CDATA[*/
+                                    var profilePage = null;
+                               
+                               		var profileTotalPages = /*[[${profilePages}]]*/ 1;
+                                          
+                                    var profileAddr = /*[[@{/viewer/profile}]]*/ '/viewer/profile';
+                                    
+                                    var profileLoadUrl = /*[[@{/viewer/ajaxProfiles}]]*/ '/viewer/ajaxProfiles'
+                                          
+                            	    var profileTable = $('#profilesTable');
+                                    
+                                    profileTable.bootstrapTable({
+                            	    	onClickRow: function(row, element, field) {
+                            	    		window.location.href = profileAddr + '?id=' + row.id;
+                            	        }
+                            	    });
+                                    
+                                    var changeProfilePage = function(page) {
+                                    	if (profilePage != null) {
+                                    		$('#profilePageButton' + profilePage).removeClass('active');
+                                    	}
+                                    	profilePage = page;
+                                    	$('#profilePageButton' + page).addClass('active');
+                                    	tableChangePage(profilePage, profileTable, profileLoadUrl);
+                                    }
+                                    
+                                    changeProfilePage(1);
+                                    
+                                    var nextProfilePage = function() {
+                                    	if (profilePage < profileTotalPages) {
+                                    		changeProfilePage(profilePage + 1);
+                                    	}
+                                    }
+                                    
+                                    var previousProfilePage = function() {
+                                    	if (profilePage > 1) {
+                                    		changeProfilePage(profilePage - 1);
+                                    	}
+                                    }
+                            	/*]]>*/
+                               </script>
+                           </div>
+                       </div>
+                   </div>
+                    <div class="col-md-6">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h3 th:text="#{navbar.search.tasks}"></h3>
+                            </div>
+                            <div class="x_content">
+                                <table id="tasksTable" class="table table-responsive table-striped">
+                                    <thead>
+                               			<tr>
+                               				<th data-field="name"><span th:text="#{viewer.new.name}"></span></th>
+                               			</tr>
+                               		</thead>
+                               		<tbody>
+                               		</tbody>
+                                </table>
+                                <div class="row">
+                                    <div class="col-lg-6 col-lg-offset-3 text-center">
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination" style="margin: 0px;">
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#" aria-label="Previous" th:onclick="'javascript:previousTaskPage()'">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                        <span class="sr-only">Previous</span>
+                                                    </a>
+                                                </li>
+                                                <th:block th:each="j : ${#numbers.sequence( 1, taskPages, 1)}">
+                                               		<li class="page-item" th:id="'taskPageButton' + ${j}"><a class="page-link" href="#" th:onclick="'javascript:changeTaskPage('+${j}+');'"><span th:text="${j}"></span></a></li>
+                                               	</th:block> 
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#" aria-label="Next" th:onclick="'javascript:nextTaskPage()'">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                        <span class="sr-only">Next</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                    <div class="col-lg-1" th:if="${isAdmin}">
+                                        <button type="button" class="btn btn-success pull-left" data-toggle="modal" data-target="#createTaskModal"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <script th:inline="javascript">
+                               /*<![CDATA[*/
+                                    var taskPage = null;
+                               
+                               		var taskTotalPages = /*[[${taskPages}]]*/ 1;
+                                          
+                                    var taskAddr = /*[[@{/viewer/task}]]*/ '/viewer/task';
+                                    
+                                    var taskLoadUrl = /*[[@{/viewer/ajaxTasks}]]*/ '/viewer/ajaxTasks'
+                                          
+                            	    var taskTable = $('#tasksTable');
+                                    
+                                    taskTable.bootstrapTable({
+                            	    	onClickRow: function(row, element, field) {
+                            	    		window.location.href = taskAddr + '?id=' + row.id;
+                            	        }
+                            	    });
+                                    
+                                    var changeTaskPage = function(page) {
+                                    	if (taskPage != null) {
+                                    		$('#taskPageButton' + taskPage).removeClass('active');
+                                    	}
+                                    	taskPage = page;
+                                    	$('#taskPageButton' + page).addClass('active');
+                                    	tableChangePage(taskPage, taskTable, taskLoadUrl);
+                                    }
+                                    
+                                    changeTaskPage(1);
+                                    
+                                    var nextTaskPage = function() {
+                                    	if (taskPage < taskTotalPages) {
+                                    		changeTaskPage(taskPage + 1);
+                                    	}
+                                    }
+                                    
+                                    var previousTaskPage = function() {
+                                    	if (taskPage > 1) {
+                                    		changeTaskPage(taskPage - 1);
+                                    	}
+                                    }
+                            	/*]]>*/
+                               </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+				<div class="modal fade" id="createSkillModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+                    <div th:replace="fragments/editSkillModal :: skillModalForm"></div>
+                </div>
+                <script>
+                	var submitSkillForm = function() {
+                	  	var $form = $('#skillCreate');
+                	    
+                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                	    var headers = {};
+                	    headers[csrfHeader] = csrfToken;
+                	    
+                	    $.ajax({
+                	      url: $form.attr('action'),
+                	      type: 'post',
+                	      data: $form.serialize(),
+                	      headers: headers,
+                	      success: function(response) {
+                	        if (response.indexOf("Form successfully submitted") === -1) {
+                	        	$form.replaceWith(response);
+                	        } else {
+                	        	location.reload();
+                	        }
+                	      },
+                	      error: function (xhRequest, ErrorText, thrownError) {
+                				console.log('xhRequest: ' + xhRequest + "\n");
+                	            console.log('ErrorText: ' + ErrorText + "\n");
+                	            console.log('thrownError: ' + thrownError + "\n");
+                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                	      }
+                	});
+                	}
+                </script>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title row">
+                                <h3 style="float: left;" th:text="#{navbar.search.skills}"></h3>
+                                <div th:if="${isAdmin or isResident}" style="float: right; margin-top: 5px;">
+                                       <button type="button" class="btn btn-success pull-left" data-toggle="modal"
+                                               onclick="ajaxSkillDialog('/viewer/ajaxSkill', '0')"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </div>
+                            <div class="x_content" th:include="fragments/skillTree :: skillTree"></div>
+                        </div>
+                    </div>
+                </div>
+
+				<th:block th:if="${isAdmin}">
+                <div class="modal fade" id="createProfileModal" tabindex="-1" role="dialog" aria-labelledby="createProfileModalLabel" aria-hidden="true">
+                	<div th:replace="fragments/editProfileModal :: profileModalForm"></div>
+                </div>
+                <script>
+                	var submitProfileForm = function() {
+                	  	var $form = $('#profileCreate');
+                	    
+                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                	    var headers = {};
+                	    headers[csrfHeader] = csrfToken;
+                	    
+                	    $.ajax({
+                	      url: $form.attr('action'),
+                	      type: 'post',
+                	      data: $form.serialize(),
+                	      headers: headers,
+                	      success: function(response) {
+                	        if (response.indexOf("Form successfully submitted") === -1) {
+                	        	$form.replaceWith(response);
+                	        } else {
+                	        	location.reload();
+                	        }
+                	      },
+                	      error: function (xhRequest, ErrorText, thrownError) {
+                				console.log('xhRequest: ' + xhRequest + "\n");
+                	            console.log('ErrorText: ' + ErrorText + "\n");
+                	            console.log('thrownError: ' + thrownError + "\n");
+                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                	      }
+                	});
+                	}
+                </script>
+
+                <div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+                    <div th:replace="fragments/editTaskModal :: taskModalForm"></div>
+                </div>
+                <script>
+                	var submitTaskForm = function() {
+                	  	var $form = $('#taskCreate');
+                	    
+                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                	    var headers = {};
+                	    headers[csrfHeader] = csrfToken;
+                	    
+                	    $.ajax({
+                	      url: $form.attr('action'),
+                	      type: 'post',
+                	      data: $form.serialize(),
+                	      headers: headers,
+                	      success: function(response) {
+                	        if (response.indexOf("Form successfully submitted") === -1) {
+                	        	$form.replaceWith(response);
+                	        } else {
+                	        	location.reload();
+                	        }
+                	      },
+                	      error: function (xhRequest, ErrorText, thrownError) {
+                				console.log('xhRequest: ' + xhRequest + "\n");
+                	            console.log('ErrorText: ' + ErrorText + "\n");
+                	            console.log('thrownError: ' + thrownError + "\n");
+                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                	      }
+                	});
+                	}
+                </script>
+                </th:block>

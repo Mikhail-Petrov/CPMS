@@ -1,0 +1,9 @@
+			<div class="collection-object">
+				<h3 th:text="#{index.rebuild}">Rebuild index</h3>
+				<hr/>
+				<p th:text="#{index.line1}">In case you think that searching is broken or a lot of entities were added into the database without proper indexing you can force search engine to rebuild all indexes using this button.</p>
+				<p th:text="#{index.line2}">Please not that this is a complicated procedure that might take a large time to complete and will make this system's search unusable for a short duration of time.</p>
+				<form th:action="@{/dashboard/index}" method="post">
+					<input class="btn btn-lg" type="submit" value="Rebuild" th:value="#{index.rebuild}"></input>
+				</form>
+			</div>

@@ -1,0 +1,27 @@
+			<div class="collection-object">
+				<div th:replace="fragments/search :: search (${address},${useSearch},${search},${manual})"></div>
+			</div>
+			<div class="collection-object">
+				<div th:replace="fragments/pageable (${total},${current},${address},${search},${manual})"></div>
+			</div>
+			<div class="collection-object">
+			<table class="collection-table table table-striped">
+				<tbody>
+				<tr th:each="object : ${objectsList}" >
+					<td>
+						<div id="obj">
+							<h3><a th:href="@{${objectAddress}(id=${object.id},returnUrl=@{${address}(page=(${current}),search=${search})})}">
+								<span th:text="${object.presentationName}">An object</span>
+							</a></h3>
+						</div>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			</div>
+			<div th:if="${isAdmin} and ${canAdd}" class="collection-object">
+				<a th:href="@{${objectAddAddress}}"><button class="btn btn-lg" type="submit" th:text="#{page.create}">Create new</button></a>
+			</div>
+			<div class="collection-object">
+				<div th:replace="fragments/pageable (${total},${current},${address},${seacrh},${manual})"></div>
+			</div>

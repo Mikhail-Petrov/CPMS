@@ -1,0 +1,30 @@
+		<div class="collection-object">
+		<form action="#" th:action="@{/editor/profile}" th:object="${company}" method="post">
+			<h3 th:if="${create}" th:text="#{firstline.create.profile} ">Create company profile</h3>
+			<h3 th:if="${!create}" th:text="#{firstline.update.profile}">Update company profile</h3>
+			<hr/>
+			<input type="hidden" th:field="*{id}" />
+			<p th:text="#{editor.company.title}"></p>
+			<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Name Error</p>
+			<p><input class="form-control" type="text" th:field="*{title}" placeholder="Company name (EN)" th:placeholder="#{editor.placeholder.title_en}"/></p>
+			<p><input class="form-control" type="text" th:field="*{title_RU}" placeholder="Company name (RU)" th:placeholder="#{editor.placeholder.title_ru}"/>
+				<span th:if="${#fields.hasErrors('title_RU')}" th:errors="*{title_RU}">Name Error</span></p>
+			<p th:text="#{editor.company.website}"></p>
+			<p><input class="form-control" type="text" th:field="*{website}" placeholder="Site" th:placeholder="#{editor.placeholder.website}"/>
+				<span th:if="${#fields.hasErrors('website')}" th:errors="*{website}">Name Error</span></p>
+			<p th:text="#{editor.company.address}"></p>
+			<p th:if="${#fields.hasErrors('address')}" th:errors="*{address}">Name Error</p>
+			<p><input class="form-control" type="text" th:field="*{address}" placeholder="Address (EN)" th:placeholder="#{editor.placeholder.address_en}"/></p>
+			<p><input class="form-control" type="text" th:field="*{address_RU}" placeholder="Address (RU)" th:placeholder="#{editor.placeholder.address_ru}"/>
+				<span th:if="${#fields.hasErrors('address_RU')}" th:errors="*{address_RU}">Name Error</span></p>
+			<p th:text="#{editor.company.description}"></p>
+			<p th:if="${#fields.hasErrors('about')}" th:errors="*{about}">Name Error</p>
+			<p><textarea class="form-control" type="textarea" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}"></textarea></p>
+			<p><textarea class="form-control" type="textarea" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
+				<span th:if="${#fields.hasErrors('about_RU')}" th:errors="*{about_RU}">Name Error</span></p>
+			<p th:text="#{editor.company.email}"></p>
+			<p><input class="form-control" type="text" th:field="*{email}" placeholder="e-mail"/>
+				<span th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Name Error</span></p>
+			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
+		</form>
+		</div>

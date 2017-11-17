@@ -1,0 +1,46 @@
+		<!-- top navigation -->
+        <div class="top_nav" th:fragment="top-navbar">
+          <div class="nav_menu">
+            <nav>
+              <div class="nav toggle">
+                <a id="menu_toggle"><i class="fa fa-bars" onclick="document.cookie = 'menuHidden=' + $('body').hasClass('nav-md')"></i></a>
+              </div>
+
+              <ul class="nav navbar-nav navbar-right enforce-auto-width">
+                <li class="">
+                  <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  	<th:block th:if="${!isAuthenticated}">
+                    	<img th:src="@{/resources/images/no-user.png}" alt="" /><span th:text="${username}"></span>
+                    </th:block>
+                    <th:block th:if="${isAuthenticated}">
+                    		<img th:src="@{/resources/images/user.png}" alt="" /><span th:text="${username}"></span>
+                    </th:block>
+                    </a>
+                    <span class="fa fa-angle-down"></span>
+                  <ul class="dropdown-menu dropdown-usermenu pull-right">
+                    <li><a th:href="@{/security/me}" th:text="#{navbar.new.profile}"></a></li>
+                    <li><a href="javascript:;" th:text="#{navbar.new.help}"></a></li>
+                    <li th:if="${isAuthenticated}">
+                    	<form th:action="@{/security/logout}" id="logout-post" method="post"></form>
+                    	<a href="#" onclick="document.getElementById('logout-post').submit()"><i class="fa fa-sign-out pull-right"></i><span th:text="#{me.logout}"></span></a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+              
+              <ul class="langbar-list">
+				<li class="langbar-li">
+					<a id="lang_en" href="?language=ru" class="icon">
+						<img th:src="@{/resources/images/flag_ru.png}" class="langbar-img"/>
+					</a>
+				</li>
+				<li class="langbar-li">
+					<a id="lang_ru" href="?language=en" class="icon">
+						<img th:src="@{/resources/images/flag_en.png}" class="langbar-img"/>
+					</a>
+				</li>
+			</ul>
+            </nav>
+          </div>
+        </div>
+        <!-- /top navigation -->

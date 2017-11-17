@@ -1,0 +1,30 @@
+		<div class="collection-object">
+		<form action="#" th:action="@{/editor/skill}" th:object="${skill}" method="post">
+			<h3 th:if="${create}" th:text="#{firstline.create.skill}">Create a new Skill</h3>
+			<h3 th:if="${!create}" th:text="#{firstline.change.skill}">Change Skill</h3>
+			<hr/>
+			<input type="hidden" th:field="*{id}" />
+			<p th:text="#{editor.skill.name}"></p>
+			<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</p>
+			<p><input type="text" class="input-wide" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}"/></p>
+			<p><input type="text" class="input-wide" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}"/>
+				<span th:if="${#fields.hasErrors('name_RU')}" th:errors="*{name_RU}">Name Error</span></p>
+			<p th:text="#{editor.skill.description}"></p>
+			<p th:if="${#fields.hasErrors('about')}" th:errors="*{about}">Name Error</p>
+			<p><textarea type="textarea" class="input-wide" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}"></textarea></p>
+			<p><textarea type="textarea" class="input-wide" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
+				<span th:if="${#fields.hasErrors('about_RU')}" th:errors="*{about_RU}">Name Error</span></p>
+			<p th:text="#{editor.skill.maxlevel}"></p>
+			<p><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100"/>
+				<span th:if="${#fields.hasErrors('maxLevel')}" th:errors="*{maxLevel}">Name Error</span></p>
+			<p th:text="#{editor.skill.parent}"></p>
+			<p><span th:text="#{editor.parentskill}"></span> <select th:field="*{parent}">
+				<option th:value="null"
+					th:text="#{editor.noparent}">No parent</option>
+  				<option th:each="skillInList : ${skillsList}" 
+          			th:value="${skillInList.id}" 
+          			th:text="${skillInList.name}">A skill</option>
+			</select></p>
+			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
+		</form>
+		</div>

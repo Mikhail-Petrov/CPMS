@@ -1,0 +1,179 @@
+				<div class="row" th:fragment="operations">
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h3 th:text="#{dashboard.search}"></h3>
+                            </div>
+                            <div class="x_content">
+                                <table class="table table-responsive table-striped">
+                                    <tr>
+                                        <td>
+                                            <span th:text="#{dashboard.remembered.profile}"></span>
+                                        </td>
+                                        <td>
+											<a th:if="${sessionData.profile} != null" href="#" th:href="@{/viewer/profile(id=${sessionData.profile.id})}">
+												<span th:text="${sessionData.profile.presentationName}"></span>
+											</a>
+											<span th:if="${sessionData.profile} == null" th:text="#{dashboard.remembered.none}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span th:text="#{dashboard.remembered.task}"></span>
+                                        </td>
+                                        <td>
+                                            <a th:if="${sessionData.task} != null" href="#" th:href="@{/viewer/task(id=${sessionData.task.id})}">
+                                            	<span th:text="${sessionData.task.name}"></span>
+                                           	</a>
+											<span th:if="${sessionData.task} == null" th:text="#{dashboard.remembered.none}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span th:text="#{dashboard.remembered.skills} + ' '"></span>
+                                        </td>
+                                        <td>
+                                            <table class="table table-striped">
+												<tr th:each="skill : ${sessionData.skills}">
+													<td>
+														<p><a href="#" th:href="@{/viewer/skill(id=${skill.id})}"><span th:text="${skill.presentationName}">A Skill</span></a></p>
+														<div class="btn-group" role="group" style="margin-left: 10px;">
+															<a href="#" th:href="@{/dashboard/skill/remove(id=${skill.id})}">
+																<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
+															</a>
+														</div>
+													</td>
+												</tr>
+											</table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span th:text="#{dashboard.remembered.competencies}"></span>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                                    data-target="#competencyModal">
+                                            	<span th:text="#{dashboard.remembered.operations.add}"></span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:each="competency,index : ${sessionData.competencies}">
+										<td>
+											<p><span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level}">A competency</span></p>
+											<p><a href="competency.html" th:href="@{/dashboard/competency/remove(index=${index.index})}">
+												<button class="btn btn-lg" type="submit" th:text="#{dashboard.remembered.operations.remove}">Remove</button>
+											</a></p>
+										</td>
+									</tr>
+                                </table>
+
+
+                                <div class="row">
+                                    <div class="col-md-3 col-lg-3 col-sm-4 col-xs-6">
+                                        <form action="#" th:action="@{/dashboard/competencySearch}" method="post">
+											<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.competencysearch.header}"></button>
+										</form>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 col-sm-4 col-xs-6">
+                                    	<form action="#" th:action="@{/dashboard/profilesRange}" method="post">
+											<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.range.header}"></button>
+										</form>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 col-sm-4 col-xs-6" th:if="${sessionData.profile} != null">
+	                                    <form action="#" th:action="@{/dashboard/aggregatePossibilities}" method="post">
+											<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.aggregate.header}"></button>
+										</form>
+									</div>
+									<div class="col-md-3 col-lg-3 col-sm-4 col-xs-6" th:if="${sessionData.task} != null">
+										<a href="#" th:href="@{/dashboard/taskSearch}">
+											<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.tasksearch.header}"></button>
+										</a>
+									</div>
+									<div class="col-md-3 col-lg-3 col-sm-4 col-xs-6" th:if="${sessionData.task} != null and ${sessionData.profile} != null">
+										<button class="btn btn-primary btn-block" value="Compare Task with Profile" th:text="#{dashboard.compare}" th:onclick="'ajaxDialog(\'/dashboard/compareTask\'); return false;'" ></button>
+									</div>
+									<div class="col-md-3 col-lg-3 col-sm-4 col-xs-6" th:if="${sessionData.profile} != null">
+										<form action="#" th:action="@{/dashboard/subprofile}" method="post">
+											<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.subprofile.header}"></button>
+										</form>
+									</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                    <div class="modal fade" id="competencyModal" tabindex="-1" role="dialog" aria-labelledby="competencyModalLabel" aria-hidden="true">
+	                    <form id="competencyCreate" action="#" th:action="@{'/dashboard/competency/addAsync'}" th:object="${competency}" method="post">
+		                    <div class="modal-dialog" role="document">
+		                        <div class="modal-content">
+		                            <div class="modal-header">
+		                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		                                    <span aria-hidden="true">&times;</span>
+		                                </button>
+		                                <h4 class="modal-title" id="competencyModalLabel" th:text="#{editor.create} + ' ' + #{editor.competency}"></h4>
+		                            </div>
+		                            <div class="modal-body">
+		                            	<div class="row" th:if="${#fields.hasErrors('*')}">
+		                            		<ul th:if="${#fields.hasErrors('*')}">
+		                            			<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+		                            		</ul>
+		                            	</div>
+		                            	<input type="hidden" th:field="*{id}" />
+		                                <div class="row">
+		                                	<p th:text="#{editor.level}"></p>
+											<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
+											<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
+		                                </div>
+		                                <hr class="separator" />
+		                                <div class="row">
+		                                    <p th:text="#{editor.competency.skill}"></p>
+											<p><select th:field="*{skill}" id="skillSelector">
+		  										<option th:each="skillInList : ${skillsList}" 
+		          									th:value="${skillInList.id}" 
+		          									th:text="${skillInList.name}">A skill</option>
+											</select></p>
+		                                </div>
+		                            </div>
+		                            <div class="modal-footer">
+		                                <button type="button" class="btn btn-primary" onclick="javascript:submitCompetencyForm();return false;" th:text="#{editor.create}"></button>
+		                            </div>
+		                        </div>
+		                    </div>
+	                    </form>
+	                    
+	                    <script type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
+	                    <script th:inline="javascript">
+	                    var submitCompetencyForm = function() {
+	                	  	var $form = $('#competencyCreate');
+	                	    
+	                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+	                	    var headers = {};
+	                	    headers[csrfHeader] = csrfToken;
+	                	    
+	                	    $.ajax({
+	                	      url: $form.attr('action'),
+	                	      type: 'post',
+	                	      data: $form.serialize(),
+	                	      headers: headers,
+	                	      success: function(response) {
+	                	        if (response.indexOf("Form successfully submitted") === -1) {
+	                	        	$form.replaceWith(response);
+	                	        } else {
+	                	        	location.reload();
+	                	        }
+	                	      },
+	                	      error: function (xhRequest, ErrorText, thrownError) {
+	                				console.log('xhRequest: ' + xhRequest + "\n");
+	                	            console.log('ErrorText: ' + ErrorText + "\n");
+	                	            console.log('thrownError: ' + thrownError + "\n");
+	                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+	                	      }
+	                	});
+	                	}
+	                    </script>
+	                    
+	                </div>
+                </div>

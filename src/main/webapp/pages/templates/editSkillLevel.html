@@ -1,0 +1,15 @@
+		<div class="collection-object">
+		<form action="#" th:action="@{/editor/{skillId}/skillLevel(skillId=${skillId})}" th:object="${skillLevel}" method="post">
+			<h3 th:if="${create}" th:text="#{firstline.create.skilllevel}">Create new skill level</h3>
+			<h3 th:if="${!create}" th:text="#{firstline.update.skilllevel}">Update skill level</h3>
+			<hr/>
+			<input type="hidden" th:field="*{id}" />
+			<p th:text="#{editor.skilllevel.description}"></p>
+			<p th:if="${#fields.hasErrors('about')}" th:errors="*{about}">Name Error</p>
+			<p><textarea type="textarea" class="input-wide" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}"></textarea></p>
+			<p><textarea type="textarea" class="input-wide" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
+				<span th:if="${#fields.hasErrors('about_RU')}" th:errors="*{about_RU}">Name Error</span></p>
+			<input type="hidden" th:field="*{level}" th:value="level" />
+			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
+		</form>
+		</div>

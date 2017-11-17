@@ -1,0 +1,27 @@
+		<div class="collection-object">
+		<form action="#" th:action="@{${postAddress}}" th:object="${competency}" method="post">
+			<h3 th:if="${create}" th:text="#{firstline.create.competency}">Create new competency</h3>
+			<h3 th:if="${!create}" th:text="#{firstline.update.competency}">Update competency</h3>
+			<hr/>
+			<div class="row" th:if="${#fields.hasErrors('*')}">
+            	<ul th:if="${#fields.hasErrors('*')}">
+                	<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+                </ul>
+            </div>
+			<input type="hidden" th:field="*{id}" />
+			<p th:text="#{editor.competency.line1}"></p>
+			<p th:text="#{editor.level}"></p>
+			<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
+			<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/>
+				<span th:if="${#fields.hasErrors('level')}" th:errors="*{level}">Error</span></p>
+			<p th:text="#{editor.competency.skill}"></p>
+			<p><select th:field="*{skill}" id="skillSelector">
+  				<option th:each="skillInList : ${skillsList}" 
+          			th:value="${skillInList.id}" 
+          			th:text="${skillInList.name}">A skill</option>
+			</select>
+			<script type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
+			<span th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}">Error</span></p>
+			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
+		</form>
+		</div>

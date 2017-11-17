@@ -1,0 +1,46 @@
+<div th:fragment="pageable (total,current,address,search,manual)" xmlns:th="http://www.thymeleaf.org">
+	<div class="input-group" th:if="${search == null}">
+		<a th:if="${current} &gt; 1" th:href="@{${address}(page=(${current} - 1))} + (${manual != null}? ${manual} : '')" id="pagePrevious">
+			<span class="input-group-btn">
+				<button class="btn btn-lg" type="submit" th:text="#{page.previous}">Previous Page</button>
+			</span>
+		</a>
+		<a th:if="${current} &lt; 2" href="#" id="pagePrevious">
+			<span class="input-group-btn">
+				<button class="btn btn-lg" type="submit" th:text="#{page.previous}">Previous Page</button>
+			</span>
+		</a>
+		<a th:if="${current} &lt; ${total}" th:href="@{${address}(page=(${current} + 1))} + (${manual != null}? ${manual} : '')" id="pageNext">
+			<span class="input-group-btn">
+				<button class="btn btn-lg" type="submit" th:text="#{page.next}">Next Page</button>
+			</span>
+		</a>
+		<a th:if="${current} &gt; ${total - 1}" href="#" id="pageNext">
+			<span class="input-group-btn">
+				<button class="btn btn-lg" type="submit" th:text="#{page.next}">Next Page</button>
+			</span>
+		</a>
+	</div>
+	<div class="input-group" th:if="${search != null}">
+		<a th:if="${current} &gt; 1" th:href="@{${address}(page=(${current} - 1),search=${search})} + (${manual != null}? ${manual} : '')" id="pagePrevious">
+			<span class="input-group-btn">
+				<button class="btn btn-lg" type="submit" th:text="#{page.previous}">Previous Page</button>
+			</span>
+		</a>
+		<a th:if="${current} &lt; 2" href="#" id="pagePrevious">
+			<span class="input-group-btn">
+				<button class="btn btn-lg" type="submit" th:text="#{page.previous}">Previous Page</button>
+			</span>
+		</a>
+		<a th:if="${current} &lt; ${total}" th:href="@{${address}(page=(${current} + 1),search=${search})} + (${manual != null}? ${manual} : '')" id="pageNext">
+			<span class="input-group-btn">
+				<button class="btn btn-lg" type="submit" th:text="#{page.next}">Next Page</button>
+			</span>
+		</a>
+		<a th:if="${current} &gt; ${total - 1}" href="#" id="pageNext">
+			<span class="input-group-btn">
+				<button class="btn btn-lg" type="submit" th:text="#{page.next}">Next Page</button>
+			</span>
+		</a>
+	</div>
+</div>

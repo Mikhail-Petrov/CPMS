@@ -1,0 +1,97 @@
+{"properties": [
+  {
+    "name": "db.driver.class",
+    "type": "java.lang.String",
+    "description": "A description for 'db.driver.class'"
+  },
+  {
+    "name": "db.driver.name",
+    "type": "java.lang.String",
+    "description": "A description for 'db.driver.name'"
+  },
+  {
+    "name": "db.host",
+    "type": "java.lang.String",
+    "description": "A description for 'db.host'"
+  },
+  {
+    "name": "db.port",
+    "type": "java.lang.String",
+    "description": "A description for 'db.port'"
+  },
+  {
+    "name": "db.name",
+    "type": "java.lang.String",
+    "description": "A description for 'db.name'"
+  },
+  {
+    "name": "db.login",
+    "type": "java.lang.String",
+    "description": "A description for 'db.login'"
+  },
+  {
+    "name": "db.password",
+    "type": "java.lang.String",
+    "description": "A description for 'db.password'"
+  },
+  {
+    "name": "hibernate.hbm2ddl.auto",
+    "type": "java.lang.String",
+    "description": "A description for 'hibernate.hbm2ddl.auto'"
+  },
+  {
+    "name": "hibernate.dialect",
+    "type": "java.lang.String",
+    "description": "A description for 'hibernate.dialect'"
+  },
+  {
+    "name": "dataSource.password",
+    "type": "java.lang.String",
+    "description": "A description for 'dataSource.password'"
+  },
+  {
+    "name": "dataSource.driverClassName",
+    "type": "java.lang.String",
+    "description": "A description for 'dataSource.driverClassName'"
+  },
+  {
+    "name": "dataSource.url",
+    "type": "java.lang.String",
+    "description": "A description for 'dataSource.url'"
+  },
+  {
+    "name": "dataSource.username",
+    "type": "java.lang.String",
+    "description": "A description for 'dataSource.username'"
+  },
+  {
+    "name": "hibernate.testing.hbm2ddl.auto",
+    "type": "java.lang.String",
+    "description": "A description for 'hibernate.testing.hbm2ddl.auto'"
+  },
+  {
+    "name": "hibernate.testing.dialect",
+    "type": "java.lang.String",
+    "description": "A description for 'hibernate.testing.dialect'"
+  },
+  {
+    "name": "dataSource.testing.password",
+    "type": "java.lang.String",
+    "description": "A description for 'dataSource.testing.password'"
+  },
+  {
+    "name": "dataSource.testing.username",
+    "type": "java.lang.String",
+    "description": "A description for 'dataSource.testing.username'"
+  },
+  {
+    "name": "dataSource.testing.url",
+    "type": "java.lang.String",
+    "description": "A description for 'dataSource.testing.url'"
+  },
+  {
+    "name": "dataSource.testing.driverClassName",
+    "type": "java.lang.String",
+    "description": "A description for 'dataSource.testing.driverClassName'"
+  }
+]}

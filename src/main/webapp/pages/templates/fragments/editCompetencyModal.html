@@ -1,0 +1,83 @@
+			<div th:fragment="competencyModalForm" th:remove="tag">		
+				<form id="competencyCreate" action="#" th:action="@{'/editor/' + ${profile.id} + '/competencyAsync'}" th:object="${competency}" method="post">
+					<div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" th:text="#{editor.create} + ' ' + #{editor.competency}"></h4>
+                            </div>
+                            <div class="modal-body">
+                            	<div class="row" th:if="${#fields.hasErrors('*')}">
+                            		<ul th:if="${#fields.hasErrors('*')}">
+                            			<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+                            		</ul>
+                            	</div>
+                            	<input type="hidden" th:field="*{id}" />
+                                <div class="row">
+                                	<p th:text="#{editor.level}"></p>
+									<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
+									<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
+                                </div>
+                                <hr class="separator" />
+                                <div class="row">
+                                    <p th:text="#{editor.competency.skill}"></p>
+									<p><select th:field="*{skill}" id="skillSelector">
+  										<option th:each="skillInList : ${skillsList}" 
+          									th:value="${skillInList.id}" 
+          									th:text="${skillInList.name}">A skill</option>
+									</select></p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="javascript:submitCompetencyForm();return false;" th:text="#{editor.create}"></button>
+                            </div>
+                        </div>
+                    </div>
+            	</form>
+			</div>
+			
+			<div th:fragment="competencyDashboardModalForm" th:remove="tag">		
+				<form id="competencyCreate" action="#" th:action="@{'/dashboard/competency/addAsync'}" th:object="${competency}" method="post">
+					<div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" th:text="#{editor.create} + ' ' + #{editor.competency}"></h4>
+                            </div>
+                            <div class="modal-body">
+                            	<div class="row" th:if="${#fields.hasErrors('*')}">
+                            		<ul th:if="${#fields.hasErrors('*')}">
+                            			<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+                            		</ul>
+                            	</div>
+                            	<input type="hidden" th:field="*{id}" />
+                                <div class="row">
+                                	<p th:text="#{editor.level}"></p>
+									<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
+									<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
+                                </div>
+                                <hr class="separator" />
+                                <div class="row">
+                                    <p th:text="#{editor.competency.skill}"></p>
+									<p><select th:field="*{skill}" id="skillSelector">
+  										<option th:each="skillInList : ${skillsList}" 
+          									th:value="${skillInList.id}" 
+          									th:text="${skillInList.name}">A skill</option>
+									</select></p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="javascript:submitCompetencyForm();return false;" th:text="#{editor.create}"></button>
+                            </div>
+                        </div>
+                    </div>
+            	</form>
+			</div>
+			
+<div th:fragment="competencyCreationSuccess" th:remove="tag">
+  <p>Form successfully submitted</p>
+</div>

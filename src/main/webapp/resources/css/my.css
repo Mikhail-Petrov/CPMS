@@ -1,0 +1,4 @@
+.table-responsive > tbody {
+	text-decoration: underline;
+	cursor: pointer;
+}

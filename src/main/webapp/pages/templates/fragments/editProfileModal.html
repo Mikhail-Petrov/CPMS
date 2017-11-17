@@ -1,0 +1,71 @@
+			<div th:fragment="profileModalForm" th:remove="tag">
+                <form id="profileCreate" action="#" th:action="@{/editor/profileAsync}" th:object="${company}" method="post">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="createProfileModalLabel" th:text="#{editor.create} + ' ' + #{editor.company}"></h4>
+                            </div>
+                            <div class="modal-body">
+                            	<div class="row" th:if="${#fields.hasErrors('*')}">
+                            		<ul th:if="${#fields.hasErrors('*')}">
+                            			<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+                            		</ul>
+                            	</div>
+                            	<input type="hidden" th:field="*{id}" />
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" placeholder="Название компании (En)" th:field="*{title}" th:placeholder="#{editor.placeholder.title_en}"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" placeholder="Название компании (Ru)" th:field="*{title_RU}" th:placeholder="#{editor.placeholder.title_ru}"/>
+                                    </div>
+                                </div>
+                                <hr class="separator"/>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Адрес веб-сайта" th:field="*{website}" th:placeholder="#{editor.placeholder.website}"/>
+                                    </div>
+                                </div>
+                                <hr class="separator"/>
+                                <div class="row" style="margin-bottom: 15px;">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Адрес (En)" th:field="*{address}" th:placeholder="#{editor.placeholder.address_en}"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Адрес (Ru)" th:field="*{address_RU}" th:placeholder="#{editor.placeholder.address_ru}"/>
+                                    </div>
+                                </div>
+                                <hr class="separator"/>
+                                <div class="row" style="margin-bottom: 15px;">
+                                    <div class="col-md-12">
+                                        <textarea class="form-control" type="textarea" placeholder="Описание (En)" th:field="*{about}" th:placeholder="#{editor.placeholder.description_en}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea class="form-control" type="textarea" placeholder="Описание (Ru)" th:field="*{about_RU}" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
+                                    </div>
+                                </div>
+                                <hr class="separator"/>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="e-mail" th:field="*{email}"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="javascript:submitProfileForm();return false;" th:text="#{editor.create}"></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+			</div>
+			
+<div th:fragment="profileCreationSuccess" th:remove="tag">
+  <p>Form successfully submitted</p>
+</div>

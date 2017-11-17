@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+				<div class="row" th:if="${isAdmin}" th:fragment="applications">
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h3 th:text="#{dashboard.applications.header}"></h3>
+                            </div>
+                            <div class="x-content">
+                            	<form action="#" th:action="@{/applications/actions}" th:object="${applicationsForm}" method="post">
+	                                <table class="table table-responsive table-striped">
+	                                    <thead>
+	                                        <tr>
+	                                            <td>
+	                                                <span th:text="#{dashboard.applications.action}"></span>
+	                                            </td>
+	                                            <td>
+	                                                <span th:text="#{dashboard.applications.application}"></span>
+	                                            </td>
+	                                            <td>
+	                                                <span th:text="#{dashboard.applications.evidence}"></span>
+	                                            </td>
+	                                        </tr>
+	                                    </thead>
+	                                    <tr th:each="competencyApplication,iterStat : ${competencyApplications}">
+	                                        <td>
+	                                        	<p><select class="form-control"
+													th:id="'nodes[' + ${iterStat.index} + '].state'" 
+													th:name="'nodes[' + ${iterStat.index} + '].state'">
+							  						<option 
+							  							th:each="state : ${T(com.cpms.web.ApplicationsPostFormNodeState).values()}" 
+							  							th:value="${state}" 
+							  							th:text="#{'dashboard.applications.state.' + __${state}__}"></option>
+												</select></p>
+	                                        </td>
+	                                        <td>
+	                                        	<input type="hidden" 
+													th:id="'nodes[' + ${iterStat.index} + '].applicationId'" 
+													th:name="'nodes[' + ${iterStat.index} + '].applicationId'"
+													th:value="${competencyApplication.id}"/>
+												<p><span th:text="${competencyApplication.presentationName}"></span></p>
+												<p><span th:text="${competencyApplication.competencyPresentationName}"></span></p>
+												<p>
+													<span th:text="#{dashboard.applications.submittedby} + ' '"></span>
+													<a th:href="${competencyApplication.owner} == null ? '#' : @{/viewer/profile(id=${competencyApplication.owner.id})}" href="#">
+														<span th:text="${competencyApplication.owner} == null ? #{dashboard.applications.not_found} : ${competencyApplication.owner.presentationName}"></span>
+													</a>
+												</p>
+												<p>
+													<span th:text="#{dashboard.applications.skills} + ' '"></span>
+													<span th:text="${competencyApplication.skill} == null ? #{dashboard.applications.not_found} : ${competencyApplication.skill.presentationName}"></span>
+												</p>
+	                                        </td>
+	                                        <td>
+												<table class="table table-condensed table-striped">
+													<tr th:each="evidence,iterStatInner : ${competencyApplication.evidence}">
+														<td>
+															<p>
+															<input type="hidden" 
+																th:id="'nodes[' + ${iterStat.index} + '].evidence[' + ${iterStatInner.index} + '].evidenceId'" 
+																th:name="'nodes[' + ${iterStat.index} + '].evidence[' + ${iterStatInner.index} + '].evidenceId'"
+																th:value="${evidence.id}"/>	
+															<input type="checkbox" 
+																th:id="'nodes[' + ${iterStat.index} + '].evidence[' + ${iterStatInner.index} + '].approved'" 
+																th:name="'nodes[' + ${iterStat.index} + '].evidence[' + ${iterStatInner.index} + '].approved'"
+																th:checked="true"/>
+															</p>
+															<p>
+																<span th:text="${evidence.description}">Description</span>
+															</p>
+															<p><span th:text="${evidence.type}">Type</span></p>
+															<p>
+																<span th:text="#{dashboard.applications.evidence.acquired} + ' '"></span>
+																<span th:text="${evidence.acquiredDate}">Acquired Date</span>
+															</p>
+															<p>
+																<span th:text="#{dashboard.applications.evidence.expires} + ' '"></span>
+																<span th:if="${evidence.expirationDate} != null"
+																 	th:text="${evidence.expirationDate}">Expiration Date</span>
+																<span th:if="${evidence.expirationDate} == null"
+																 	th:text="#{dashboard.applications.evidence.expires.never}">Never</span>
+															</p>
+														</td>
+													</tr>
+												</table>
+	                                        </td>
+	                                    </tr>
+	                                </table>
+	                                <div class="row">
+	                                    <div class="col-md-3 col-lg-3 col-cm-4 col-xs-6 col-lg-offset-9">
+	                                        <button type="submit" th:text="#{dashboard.applications.execute}" value="execute" class="btn btn-primary btn-block"></button>
+	                                    </div>
+	                                </div>
+	                        	</form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+</html>

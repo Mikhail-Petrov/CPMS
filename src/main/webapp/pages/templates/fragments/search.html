@@ -1,0 +1,12 @@
+<div th:fragment="search (address,useSearch,search,manual)" xmlns:th="http://www.thymeleaf.org">	
+	<th:object th:if="${useSearch}">
+		<form th:action="@{${address}} + (${manual != null}? ${manual} : '')" method="get">
+			<div class="input-group text-center">
+				<input type="text" name="search" id="search" th:value="${search}" placeholder="Enter your search request" th:placeholder="#{page.search.placeholder}" class="form-control input-lg"/>
+				<span class="input-group-btn">
+					<button class="btn btn-lg" type="submit" th:text="#{page.search.submit}">Search</button>
+				</span>
+			</div>
+		</form>
+	</th:object>
+</div>

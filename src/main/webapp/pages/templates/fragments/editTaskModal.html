@@ -1,0 +1,48 @@
+			<div th:fragment="taskModalForm" th:remove="tag">
+				<form id="taskCreate" action="#" th:action="@{/editor/taskAsync}" th:object="${task}" method="post">
+					<div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title" id="createTaskLabel" th:text="#{editor.create} + ' ' + #{editor.task}"></h4>
+                            </div>
+                            <div class="modal-body">
+                            	<div class="row" th:if="${#fields.hasErrors('*')}">
+                            		<ul th:if="${#fields.hasErrors('*')}">
+                            			<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+                            		</ul>
+                            	</div>
+                            	<input type="hidden" th:field="*{id}" />
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" th:field="*{name}" placeholder="Task name (EN)" th:placeholder="#{editor.placeholder.task_name_en}"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" th:field="*{name_RU}" placeholder="Task name (RU)" th:placeholder="#{editor.placeholder.task_name_ru}"/>
+                                    </div>
+                                </div>
+                                <hr class="separator"/>
+                                <div class="row" style="margin-bottom: 15px;">
+                                    <div class="col-md-12">
+                                        <textarea class="form-control" type="textarea" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea class="form-control" type="textarea" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="javascript:submitTaskForm();return false;" th:text="#{editor.create}"></button>
+                            </div>
+                        </div>
+                    </div>
+				</form>
+			</div>
+			
+<div th:fragment="taskCreationSuccess" th:remove="tag">
+	<p>Form successfully submitted</p>
+</div>

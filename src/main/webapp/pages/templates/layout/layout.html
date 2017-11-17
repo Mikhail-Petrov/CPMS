@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8" />
+		<th:block th:replace="fragments/compatibility-meta-include :: compatibility-meta-include" />
+		<th:block th:if="${_NAMED_TITLE}">
+			<title th:text="${_VIEW_TITLE}">CPMS</title>
+		</th:block>
+		<th:block th:if="${_NAMED_TITLE} == null">
+			<title th:text="#{${_VIEW_TITLE}}">CPMS</title>
+		</th:block>
+		<th:block th:if="${_FORCE_CSRF}">
+			<meta name="_csrf" th:content="${_csrf.token}"/>
+			<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+		</th:block>
+		<th:block th:replace="fragments/css-full-include :: css-full-include"></th:block>
+	</head>
+	<body th:class="${navClass}">
+		<div class="container body">
+      		<div class="main_container">
+				<div th:replace="fragments/navbar :: navbar"></div>
+				<div th:replace="fragments/navbarTop :: top-navbar"></div>
+				<th:block th:replace="fragments/js-full-include :: js-full-include"></th:block>
+				<div class="right_col" role="main">
+					<div th:replace="${_VIEW_TEMPLATE}"></div>
+				</div>
+				<div th:replace="fragments/popup"></div>
+        		<footer>
+          			<div class="pull-right">
+
+          			</div>
+          			<div class="clearfix"></div>
+        		</footer>
+			</div>
+		</div>
+	</body>
+</html>

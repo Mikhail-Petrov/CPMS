@@ -1,0 +1,16 @@
+		<div class="navbar-offset">
+		<th:block th:if="${isAuthenticated}">
+		<form action="#" th:action="@{/security/logout}" method="post">
+			<input type="submit" value="Logout" th:value="#{me.logout}"/>
+		</form>
+		</th:block>
+		<p><span th:text="#{me.username} + ' ' + ${username}"></span></p>
+		<p><span th:text="#{me.admin} + ' ' + (${isAdmin}?#{me.admin.true}:#{me.admin.false})"></span></p>
+		<p th:text="#{me.roles}">Roles:</p>
+		<th:object th:each="authority : ${authorities}">
+			<p><span th:text="${authority}"></span></p>
+		</th:object>
+		<th:object th:if="${isResident}">
+		<a th:href="@{/viewer/profile(id=${profileId})}" th:text="#{me.profile}"></a>
+		</th:object>
+		</div>
