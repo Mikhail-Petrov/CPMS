@@ -1,29 +1,65 @@
-		<div class="collection-object">
-		<form action="#" th:action="@{/editor/{taskId}/requirement(taskId=${taskId})}" th:object="${requirement}" method="post">
-			<h3 th:if="${create}" th:text="#{firstline.create.requirement}">Create new requirement</h3>
-			<h3 th:if="${!create}" th:text="#{firstline.update.requirement}">Update requirement</h3>
-			<hr/>
-			<input type="hidden" th:field="*{id}" />
-			<p th:text="#{editor.requirement.line1}"></p>
-			<p th:text="#{editor.level}"></p>
-			<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
-			<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/>
-				<span th:if="${#fields.hasErrors('level')}" th:errors="*{level}">Error</span></p>
-			<p id="levelDescription" text="1"></p>
-<script type="text/javascript">
-$(levelNumber).on("input", function() {
-	$(levelDescription).html($(levelNumber).val());
-});
-$(levelNumber).trigger("input");
-</script>
-			<p th:text="#{editor.requirement.skill}"></p>
-			<p><select th:field="*{skill}" id="skillSelector">
-  				<option th:each="skillInList : ${skillsList}" 
-          			th:value="${skillInList.id}" 
-          			th:text="${skillInList.name}">A skill</option>
+
+<div class="collection-object">
+	<form action="#"
+		th:action="@{/editor/{taskId}/requirement(taskId=${taskId})}"
+		th:object="${requirement}" method="post">
+		<h3 th:if="${create}" th:text="#{firstline.create.requirement}">Create
+			new requirement</h3>
+		<h3 th:if="${!create}" th:text="#{firstline.update.requirement}">Update
+			requirement</h3>
+		<hr />
+		<input type="hidden" th:field="*{id}" />
+		<p th:text="#{editor.requirement.line1}"></p>
+		<p th:text="#{editor.level}"></p>
+		<p>
+			<span th:text="#{editor.maxlevel}"></span> <span id="maxLevel"
+				th:text="#{editor.select_skill}"></span>.
+		</p>
+		<p>
+			<input type="number" th:field="*{level}" min="1" max="100"
+				id="levelNumber" /> <span th:if="${#fields.hasErrors('level')}"
+				th:errors="*{level}">Error</span>
+		</p>
+		<p id="levelDescription" text="1"></p>
+		<p th:text="#{editor.requirement.skill}"></p>
+		<p>
+			<select th:field="*{skill}" id="skillSelector">
+				<option th:each="skillInList : ${skillsList}"
+					th:value="${skillInList.id}" th:text="${skillInList.name}">A
+					skill</option>
 			</select>
-			<script type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
-			<span th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}">Name Error</span></p>
-			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
-		</form>
-		</div>
+			<script type="text/javascript"
+				th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
+			<span th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}">Name
+				Error</span>
+		</p><!--   -->
+		<script th:inline="javascript">
+		/*<![CDATA[*/
+			
+			function updateLevelDescription() {
+				var skillLevels = /*[[${skillLevels}]]*/null;
+				var skill = $(skillSelector).val();
+				var level = $(levelNumber).val();
+				if (level == 0)
+					level = 1;
+				var value = "";
+				if (skillLevels != null)
+					value = skillLevels[skill][level - 1];
+				else
+					value = levelNumber;
+				$(levelDescription).html(value);
+			
+		}
+			$(levelNumber).on("input", function() {updateLevelDescription()});
+			$(skillSelector).on("input", function() {updateLevelDescription()});
+			$(levelNumber).trigger("input");
+
+		/*]]>*/
+		</script>
+		<p>
+			<input type="submit"
+				th:value="${create}? #{editor.create} : #{editor.update}"
+				value="submit" />
+		</p>
+	</form>
+</div>

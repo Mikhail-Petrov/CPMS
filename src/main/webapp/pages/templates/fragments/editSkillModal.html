@@ -41,8 +41,8 @@
   		<form action="#" th:action="@{/editor/skill/alternativeAsync}" th:object="${skill}" method="post" id="skillCreate">
   			<input type="hidden" th:field="*{id}" class="input-wide" th:value="0"/>
   			<p th:text="#{editor.skill.name}"></p>
-			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_en}"/></p>
-			<p><input type="text" class="form-control" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_ru}"/></p>
+			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="skill_name" onblur="addCheck(this, 5, 100)"/></p>
+			<p><input type="text" class="form-control" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_ru}" id="skill_name_ru" onblur="addCheck(this, 5, 100)"/></p>
 			<p th:text="#{editor.skill.description}"></p>
 			<p><textarea type="textarea" class="form-control" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_en}"></textarea></p>
 			<p><textarea type="textarea" class="form-control" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_ru}"></textarea></p>
@@ -62,6 +62,7 @@
   	</div>
 	</div>
 	</div>
+	
 			
 <div th:fragment="profileCreationSuccess" th:remove="tag">
   <p>Form successfully submitted</p>

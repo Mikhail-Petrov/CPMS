@@ -30,7 +30,7 @@ import org.springframework.context.annotation.ComponentScan;
 		//SimpleModule.class,
 		ErrorMvcAutoConfiguration.class})
 public class RunAsSpringBootApplication {
-//templates
+//form-control
 	 public static void main(String[] args) {
 		 SpringApplication.run(RunAsSpringBootApplication.class, args);
 	 }

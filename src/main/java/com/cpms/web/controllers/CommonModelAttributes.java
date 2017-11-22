@@ -46,7 +46,7 @@ public class CommonModelAttributes {
 	@ModelAttribute("username")
 	public String username(Principal principal) {
 		if (!isAuthenticated(principal)) {
-			return UserSessionData.localizeText("РђРЅРѕРЅРёРјРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ", "Anonymous User");
+			return UserSessionData.localizeText("Анонимный пользователь", "Anonymous User");
 		}
 		UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) principal;
 		return user.getName();
@@ -57,7 +57,7 @@ public class CommonModelAttributes {
 		return userHasRole(request, RoleTypes.ADMIN);
 	}
 
-	@ModelAttribute("remember")
+	/*@ModelAttribute("remember")
 	public static void remember(HttpServletRequest request) {
 		// dropdowned = !dropdowned;
 	}
@@ -65,7 +65,7 @@ public class CommonModelAttributes {
 	@ModelAttribute("isDropdowned")
 	public boolean isDropdowned(HttpServletRequest request) {
 		return dropdowned;
-	}
+	}*/
 
 	@ModelAttribute("isResident")
 	public Boolean isResident(HttpServletRequest request) {

@@ -3,6 +3,10 @@ package com.cpms.web.controllers;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -14,12 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cpms.data.entities.Skill;
+import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.web.SkillUtils;
+import com.cpms.web.UserSessionData;
 
 /**
  * Handles task requirement CRUD web application requests.
@@ -70,6 +77,7 @@ public class EditorRequirement {
 		model.addAttribute("skillsList", 
 				SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
 		model.addAttribute("create", create);
+		model.addAttribute("skillLevels", getSkillLevels(facade.getSkillDAO().getAll()));
 		return "editRequirement";
 	}
 	
@@ -121,6 +129,17 @@ public class EditorRequirement {
 		}
 		task = facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
+	}
+	
+	private Map<Long, List<String>> getSkillLevels(List<Skill> skills){
+		Map<Long, List<String>> result = new HashMap<Long, List<String>>();
+		for (Skill skill : skills) {
+			result.put(skill.getId(), new ArrayList<>());
+			for (SkillLevel skillLevel : skill.getFullSkillLevels())
+				result.get(skill.getId()).add(UserSessionData.localizeText(
+						skillLevel.getAbout_RU(), skillLevel.getAbout()));
+		}
+		return result;
 	}
 	
 	@RequestMapping(path = "/requirement/delete", 
