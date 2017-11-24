@@ -46,7 +46,7 @@ public class CommonModelAttributes {
 	@ModelAttribute("username")
 	public String username(Principal principal) {
 		if (!isAuthenticated(principal)) {
-			return UserSessionData.localizeText("Анонимный пользователь", "Anonymous User");
+			return UserSessionData.localizeText("РђРЅРѕРЅРёРјРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ", "Anonymous User");
 		}
 		UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) principal;
 		return user.getName();

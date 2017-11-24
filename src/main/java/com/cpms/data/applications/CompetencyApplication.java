@@ -185,9 +185,8 @@ public class CompetencyApplication extends AbstractDomainObject {
 
 	@Override
 	public String getPresentationName() {
-		//return "Competency Application #" + id;
 		return UserSessionData.localizeText(
-				"Заявка компетенции №", "Competency Application #") + id;
+				"Р—Р°СЏРІРєР° РєРѕРјРїРµС‚РµРЅС†РёРё в„–", "Competency Application #") + id;
 	}
 	
 	public String getCompetencyPresentationName() {
@@ -196,7 +195,7 @@ public class CompetencyApplication extends AbstractDomainObject {
 			return UserSessionData.localizeText(getSkill().getName_RU(), getSkill().getName())
 					 + " - " + getLevel();
 		} else {
-			return UserSessionData.localizeText("Скилл не найден", "Skill not found");
+			return UserSessionData.localizeText("РЈРјРµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ", "Skill not found");
 		}
 	}
 
