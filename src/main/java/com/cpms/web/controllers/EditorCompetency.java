@@ -59,6 +59,8 @@ public class EditorCompetency {
 			bindingResult.rejectValue("skill", "error.skill",
 					"Such skill is already used.");
 		}
+		model.addAttribute("skillLevels", EditorRequirement.getSkillLevels(
+				facade.getSkillDAO().getAll()));
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("skillsList", 
 					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));

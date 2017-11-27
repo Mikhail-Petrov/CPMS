@@ -131,7 +131,7 @@ public class EditorRequirement {
 		return "redirect:/viewer/task?id=" + task.getId();
 	}
 	
-	private Map<Long, List<String>> getSkillLevels(List<Skill> skills){
+	static Map<Long, List<String>> getSkillLevels(List<Skill> skills){
 		Map<Long, List<String>> result = new HashMap<Long, List<String>>();
 		for (Skill skill : skills) {
 			result.put(skill.getId(), new ArrayList<>());

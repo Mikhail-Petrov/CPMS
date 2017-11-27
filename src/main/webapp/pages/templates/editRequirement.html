@@ -32,13 +32,15 @@
 				th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
 			<span th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}">Name
 				Error</span>
-		</p><!--   -->
+		</p>
 		<script th:inline="javascript">
 		/*<![CDATA[*/
 			
-			function updateLevelDescription() {
+			function updateLevelDescription(skillChanged) {
 				var skillLevels = /*[[${skillLevels}]]*/null;
 				var skill = $(skillSelector).val();
+				if (skillChanged)
+					$(levelNumber).val(1);
 				var level = $(levelNumber).val();
 				if (level == 0)
 					level = 1;
@@ -49,9 +51,11 @@
 					value = levelNumber;
 				$(levelDescription).html(value);
 			
+				if (skillChanged)
+					$(levelNumber).trigger("input");
 		}
-			$(levelNumber).on("input", function() {updateLevelDescription()});
-			$(skillSelector).on("input", function() {updateLevelDescription()});
+			$(levelNumber).on("input", function() {updateLevelDescription(false)});
+			$(skillSelector).on("input", function() {updateLevelDescription(true)});
 			$(levelNumber).trigger("input");
 
 		/*]]>*/

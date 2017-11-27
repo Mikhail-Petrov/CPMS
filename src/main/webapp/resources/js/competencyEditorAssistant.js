@@ -1,5 +1,3 @@
-/*<![CDATA[*/
-
 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 var csrfToken = $("meta[name='_csrf']").attr("content");
 var headers = {};
@@ -11,7 +9,7 @@ $( '#skillSelector' ).on('change', function() {
 	inputArgs.push(skill);
 	if (skill != null && skill > 0) {
 		$.ajax({
-			url : /*[[@{/viewer/ajaxSkill}]]*/ '/viewer/ajaxSkill',
+			url : rootPath + 'viewer/ajaxSkill',
 			type: 'POST',
 			dataType: 'json',
 			contentType: 'application/json; charset=utf-8',
@@ -29,5 +27,3 @@ $( '#skillSelector' ).on('change', function() {
 });
 
 $( '#skillSelector' ).trigger('change')
-
-/*]]>*/
