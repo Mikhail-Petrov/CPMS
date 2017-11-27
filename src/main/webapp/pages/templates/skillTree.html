@@ -1,6 +1,6 @@
 			<div th:replace="fragments/skillPopup"></div>
 			<div th:if="${isAdmin or isResident}" class="collection-object">
-				<a onclick="ajaxSkillDialog('/viewer/ajaxSkill', '0')">
+				<a th:onclick="ajaxSkillDialog('@{/viewer/ajaxSkill}', '0')">
 					<span class="input-group-btn">
 						<button class="btn btn-lg" type="submit" th:text="#{tree.create}">Create Root Skill</button>
 					</span>
@@ -14,7 +14,7 @@
 			/*<![CDATA[*/
 			    
 			    var skillTreeHeader = /*[[#{tree.header}]]*/ 'Skill Tree';
-				var skillDraft = '/resources/images/dtree/skill-draft.gif'
+				var skillDraft = './resources/images/dtree/skill-draft.gif'
 			           
 			    d = new dTree('d');       
 			    d.add(0,-1,skillTreeHeader);       
@@ -30,8 +30,8 @@
 		   								skills[parent][i].id,
 		   								null,
 		   								null,
-		   								'/resources/images/dtree/skill-draft.gif',
-		   								'/resources/images/dtree/skill-draft.gif');
+		   								'./resources/images/dtree/skill-draft.gif',
+		   								'./resources/images/dtree/skill-draft.gif');
 		   					} else {
 		   						d.add(skills[parent][i].id,
 		   								parent,
@@ -87,14 +87,14 @@
 						document.getElementById('skillName').innerHTML=res.name;
 						document.getElementById('skillAbout').innerHTML=res.about;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
-						document.getElementById('rememberLink').setAttribute('onclick', "ajaxDialog('/dashboard/rememberSkill', '" + res.id + "'); return false;");
+						document.getElementById('rememberLink').setAttribute('onclick', "ajaxDialog('./dashboard/rememberSkill', '" + res.id + "'); return false;");
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
 						if (admin) {
-							document.getElementById('editLink').setAttribute('href', '/editor/skill?id=' + res.id);
+							document.getElementById('editLink').setAttribute('href', './editor/skill?id=' + res.id);
 							document.getElementById('parentId').setAttribute('value', res.id);
-							document.getElementById('deleteLink').setAttribute('href', '/editor/skill/delete?id=' + res.id);
+							document.getElementById('deleteLink').setAttribute('href', './editor/skill/delete?id=' + res.id);
 							if (!resident && res.draft) {
-								document.getElementById('approveLink').setAttribute('href', '/editor/skill/approve?id=' + res.id);
+								document.getElementById('approveLink').setAttribute('href', './editor/skill/approve?id=' + res.id);
 								$('#approveLink').show();
 							} else {
 								$('#approveLink').hide();

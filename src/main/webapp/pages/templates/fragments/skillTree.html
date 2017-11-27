@@ -1,7 +1,7 @@
 			<div th:fragment="skillTree" th:remove="tag">
 			<script th:inline="javascript">
 			/*<![CDATA[*/
-				var skillDraft = '/resources/images/dtree/skill-draft.gif'
+				var skillDraft = './resources/images/dtree/skill-draft.gif'
 			           
 			    d = new dTree('d');       
 			    d.add(0,-1,'');       
@@ -17,8 +17,8 @@
 		   								skills[parent][i].id,
 		   								null,
 		   								null,
-		   								'/resources/images/dtree/skill-draft.gif',
-		   								'/resources/images/dtree/skill-draft.gif');
+		   								'./resources/images/dtree/skill-draft.gif',
+		   								'./resources/images/dtree/skill-draft.gif');
 		   					} else {
 		   						d.add(skills[parent][i].id,
 		   								parent,
@@ -69,14 +69,14 @@
 						document.getElementById('skillName').innerHTML=res.name;
 						document.getElementById('skillAbout').innerHTML=res.about;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
-						document.getElementById('rememberLink').setAttribute('onclick', "ajaxDialog('/dashboard/rememberSkill', '" + res.id + "'); return false;");
+						document.getElementById('rememberLink').setAttribute('onclick', "ajaxDialog('./dashboard/rememberSkill', '" + res.id + "'); return false;");
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
 						if (admin) {
-							document.getElementById('editLink').setAttribute('href', '/editor/skill?id=' + res.id);
+							document.getElementById('editLink').setAttribute('href', './editor/skill?id=' + res.id);
 							document.getElementById('parentId').setAttribute('value', res.id);
-							document.getElementById('deleteLink').setAttribute('href', '/editor/skill/delete?id=' + res.id);
+							document.getElementById('deleteLink').setAttribute('href', './editor/skill/delete?id=' + res.id);
 							if (!resident && res.draft) {
-								document.getElementById('approveLink').setAttribute('href', '/editor/skill/approve?id=' + res.id);
+								document.getElementById('approveLink').setAttribute('href', './editor/skill/approve?id=' + res.id);
 								$('#approveLink').show();
 							} else {
 								$('#approveLink').hide();
@@ -108,9 +108,9 @@
 					res += "<span>" + levels[i].level + " - " + levels[i].about + "</span>";
 					if (admin) {
 						if (levels[i].id > 0) {
-							res += "<a href=\"/editor/" + skillId + "/skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelEdit + "</button>";
+							res += "<a href=\"./editor/" + skillId + "./skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelEdit + "</button>";
 						} else {
-							res += "<a href=\"/editor/" + skillId + "/skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelDefine + "</button>";
+							res += "<a href=\"./editor/" + skillId + "./skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelDefine + "</button>";
 						}
 					}
 					res += "</p></td></tr>\n";
