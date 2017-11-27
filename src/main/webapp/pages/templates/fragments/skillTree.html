@@ -17,8 +17,10 @@
 		   								skills[parent][i].id,
 		   								null,
 		   								null,
-		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif',
-		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif');
+		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif'
+		   								,
+		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif'
+		   								);
 		   					} else {
 		   						d.add(skills[parent][i].id,
 		   								parent,
@@ -107,10 +109,11 @@
 					res += "<tr><td><p>";
 					res += "<span>" + levels[i].level + " - " + levels[i].about + "</span>";
 					if (admin) {
+						res += "<a href=\""+/*[[@{/editor}]]*/ "/editor";
 						if (levels[i].id > 0) {
-							res += "<a href=\"./editor/" + skillId + "./skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelEdit + "</button>";
+							res += "/" + skillId + "/skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelEdit + "</button>";
 						} else {
-							res += "<a href=\"./editor/" + skillId + "./skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelDefine + "</button>";
+							res += "/" + skillId + "/skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelDefine + "</button>";
 						}
 					}
 					res += "</p></td></tr>\n";

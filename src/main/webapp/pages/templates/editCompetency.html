@@ -20,7 +20,7 @@
           			th:value="${skillInList.id}" 
           			th:text="${skillInList.name}">A skill</option>
 			</select>
-			<script type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
+			<script th:inline="javascript" type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
 			<span th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}">Error</span></p>
 			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
 		</form>

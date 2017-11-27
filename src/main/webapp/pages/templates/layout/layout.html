@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+	<script th:inline="javascript">
+		var rootPath = /*[[@{/}]]*/ "/test";
+	</script>
 	<head>
 		<meta charset="utf-8" />
 		<th:block th:replace="fragments/compatibility-meta-include :: compatibility-meta-include" />

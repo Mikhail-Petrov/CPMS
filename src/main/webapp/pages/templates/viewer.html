@@ -9,69 +9,65 @@
     </style>
 
     <style>
-        /* контейнер просто содержит узлы.
-        Узел сам будет отвечать за свой отступ */
+        /* лЇ­у¦Є­ж® рђ±®ті¬ тЇҐҐс§©І н±ўнј».
+        Ф§ж© тЎЄ вґ¤ж° піўжё уєЎ§нћєн±±гЇ© пі±уґ­ */
         .Container {
             padding: 0;
             margin: 0;
         }
 
         .Container li {
-            list-style-type: none; /* убрать кружочки/точечки */
+            list-style-type: none; /* н±‹н± уєЎЄсґ§®оЃ®н¶ЇуЇёҐоЃ®н¶ */
         }
 
-        /* узел отодвинут от левой стенки контейнера на 18px
-        благодаря этим отступам вложенные узлы формируют иерархию*/
+        /* н±ўн¶« пі®еЈЁоґІ п° м¦ўп§ ті¦­л¦ лЇ­у¦Є­ж±  оћ 18px
+        в¬ дЇ¤б±ї у©Є пі±уґ° кЎўмЇ¦ж®­гЎіи¬» нµїн±¬й±ірЎ©ҐсЎ±µйјЄ/
         .Node {
             margin-left: 18px;
-            zoom: 1; /* спецсвойство против багов IE6,7. Ставит hasLayout */
+            zoom: 1; /* т°¦¶тЈЇ©тіЈ® рђ±®у©  вЎЈп  IE6,7. ТІбЈЁрџ§ЎsLayout */
         }
 
-        /* Корневой узел от родительского контейнера не отодвинут.
-           Ему же не надо демонстрировать отступом, чей он сын.
-           Это правило идет после .Node, поэтому имеет более высокий приоритет
-           Так что class="Node IsRoot" дает margin-left:0
+        /* Л®с®¦ўп§ н±ўн¶« п° сЇҐЁу¦¬јт«ЇЈмЎЄп®ІжЄ­ж±  оЈ пі®еЈЁоґІ.
+           Ж¬сЎ§Ґ оЈ оЎ¤мЎ¤ж­®оІІс©±®гЎІ пі±уґ°®кЄ оЃљн· п« тј«®
+           ЮІмЎЇсЎЈЁм¬ йҐҐрЎ°®т¬Ј .Node, рђЇЅуЇ­і й­Ґж° вЇ«жЈ гј±п«ЁзЎЇс©Ї°йіҐић          У иЎ·у¬џЈlass="Node IsRoot" еЎҐрџ¬Ўrgin-left:0
         */
         .IsRoot {
             margin-left: 0;
         }
 
-        /* иконка скрытого/раскрытого поддерева или листа
-           сами иконки идут дальше, здесь общие свойства*/
+        /* й«®о«  т«±»уЇ¤®/сЎІЄсјі®д¬ рђЇ¤е¦°жЈ  й¬Ё м©±ућ€           тЎ­Ё й«®о«Ё йҐірЎҐ мЅёгЄ иҐҐтєЎ®вєЁгЎ±гЇ©тіЈ */
         .Expand {
             width: 18px;
             height: 18px;
-            /* принцип двухколоночной верстки. */
-            /* float:left и width дива Expand + margin-left дива Content */
+            /* рђ±Ёо·ЁгґµлЇ«п®®оЃєнї© г¦°ті«Ё. */
+            /* float:left жџ·idth е©ўнћ№нї…xpand + margin-left е©ўнћ№нїѓontent */
             float: left;
         }
 
-        /* содержание (заголовок) узла */
+        /* тЇҐҐс§Ў­йЈ (иЎЈп¬®гЇЄ) н±ўнј  */
         .Content {
-            /* чтобы не налезать на Expand */
+            /* о‚ЋнїЎ оЈ оЎ«жЁ уєЎ­нћ№нї…xpand */
             margin-left:18px;
-            /* высота заголовка - как минимум равна Expand
-                Т.е правая колонка всегда выше или равна левой.
-                Иначе нижний float будет пытаться разместиться на получившейся ступеньке
-            */
+            /* гј±пі  иЎЈп¬®г«  - лЎЄ й­ікЎ°бЈ­нћ№нї…xpand
+                Р®гЎЇсЎЈ  лЇ«п®Єнћєн±ўт¦¤¤нћєн±ўгЎЁм¦ сЎЈ­нћєн±«жЈ®з¬Љ                Й­бёҐ о©¦о©© float вґ¤ж° рђјІбіјтЅЎ°бЁ¬жІІйіјтЅЎ­нћєн±Їп¬іоЃ¦ніёжЄ± тіґЇж®јлЈЉ            */
             min-height: 18px;
         }
 
-        /* все правила после * html выполняет только IE6 */
+        /* гІҐ рђ± г©«нћєн±ЇпІ«гћЄ html гјЇп¬­ж° уЇ¬јл¬ IE6 */
         * html .Content {
-            height: 18px; /* аналог min-height для IE6 */
+            height: 18px; /* б® мЇЈ min-height е¬ї IE6 */
         }
-        /* открытое поддерево */
+        /* піЄсјі®гЎЇпҐ¤ж±Ґг¬ */
         .ExpandOpen .Expand {
             background-image: url(/resources/images/minus.gif);
         }
 
-        /* закрытое поддерево */
+        /* иЎЄсјі®гЎЇпҐ¤ж±Ґг¬ */
         .ExpandClosed .Expand {
             background-image: url(/resources/images/plus.gif);
         }
 
-        /* лист */
+        /* м©±рћЁЇ
         .ExpandLeaf .Expand {
             background-image: url(/resources/images/leaf.gif);
         }
@@ -79,15 +75,15 @@
         .Node {
             margin-left: 18px;
             zoom: 1;
-            /* линия слева образуется повторяющимся фоновым рисунком */
+            /* м©­йЅ т¬¦ўнћєн±®в± иґҐуІЅ рђЇўуЇ±їй­± нµѕнѕ®гј¬ с©Ііо«®кћЄ/
             background-image : url(/resources/images/i.gif);
             background-position : top left;
             background-repeat : repeat-y;
         }
 
-        /* это правило - ниже .Node, поэтому имеет больший приоритет */
+        /* у¬ЎЇсЎЈЁм¬ - о©¦гћ®Node, рђЇЅуЇ­і й­Ґж° вЇ«й§ рђ±Ёп±Ёу¦° */
         .IsLast {
-            /* добавить соединительную черточку наверх */
+            /* еЇЎбЈЁуєЎ±п¦¤й®Ёу¦¬јоґѕ оЃ›н±ІпёЄсЎ® г¦°ућЁЇ
             background-image: url(/resources/images/i_half.gif);
             background-repeat : no-repeat;
         }
@@ -99,11 +95,11 @@
             display: none;
         }
         .ExpandOpen .Expand, .ExpandClosed .Expand {
-            cursor: pointer; /* иконки скрытия-раскрытия */
+            cursor: pointer; /* й«®о«Ё т«±»у©Ѕ­сЎІЄсјіЁ */
         }
 
         .ExpandLeaf .Expand {
-            cursor: auto; /* листовой узел */
+            cursor: auto; /* м©±уЇЈ®зЎіи¦« */
         }
         .ExpandLoading   {
             width: 18px;
@@ -338,7 +334,7 @@
                                 <h3 style="float: left;" th:text="#{navbar.search.skills}"></h3>
                                 <div th:if="${isAdmin or isResident}" style="float: right; margin-top: 5px;">
                                        <button type="button" class="btn btn-success pull-left" data-toggle="modal"
-                                               onclick="ajaxSkillDialog('/viewer/ajaxSkill', '0')"><i class="fa fa-plus"></i></button>
+                                               onclick="ajaxSkillDialog(rootPath + 'viewer/ajaxSkill', '0')"><i class="fa fa-plus"></i></button>
                                 </div>
                             </div>
                             <div class="x_content" th:include="fragments/skillTree :: skillTree"></div>
