@@ -9,7 +9,7 @@ $( '#skillSelector' ).on('change', function() {
 	inputArgs.push(skill);
 	if (skill != null && skill > 0) {
 		$.ajax({
-			url : './viewer/ajaxSkill',
+			url : /*[[@{/viewer/ajaxSkill}]]*/ '/viewer/ajaxSkill',
 			type: 'POST',
 			dataType: 'json',
 			contentType: 'application/json; charset=utf-8',

@@ -14,7 +14,7 @@
 			/*<![CDATA[*/
 			    
 			    var skillTreeHeader = /*[[#{tree.header}]]*/ 'Skill Tree';
-				var skillDraft = './resources/images/dtree/skill-draft.gif'
+				var skillDraft = /*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif'
 			           
 			    d = new dTree('d');       
 			    d.add(0,-1,skillTreeHeader);       
@@ -30,8 +30,8 @@
 		   								skills[parent][i].id,
 		   								null,
 		   								null,
-		   								'./resources/images/dtree/skill-draft.gif',
-		   								'./resources/images/dtree/skill-draft.gif');
+		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif',
+		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif');
 		   					} else {
 		   						d.add(skills[parent][i].id,
 		   								parent,
@@ -208,4 +208,4 @@
 			/*]]>*/
 			</script>
 			</div>
-			<script type="text/javascript" th:src="@{/resources/js/dtree.js}"></script>
+			<script type="text/javascript" th:src="@{/resources/js/dtree.js}" th:inline="javascript"></script>

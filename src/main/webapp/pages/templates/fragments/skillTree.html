@@ -1,7 +1,7 @@
 			<div th:fragment="skillTree" th:remove="tag">
 			<script th:inline="javascript">
 			/*<![CDATA[*/
-				var skillDraft = './resources/images/dtree/skill-draft.gif'
+				var skillDraft = /*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif'
 			           
 			    d = new dTree('d');       
 			    d.add(0,-1,'');       
@@ -17,8 +17,8 @@
 		   								skills[parent][i].id,
 		   								null,
 		   								null,
-		   								'./resources/images/dtree/skill-draft.gif',
-		   								'./resources/images/dtree/skill-draft.gif');
+		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif',
+		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif');
 		   					} else {
 		   						d.add(skills[parent][i].id,
 		   								parent,

@@ -1,4 +1,4 @@
-/*--------------------------------------------------|
+/*<![CDATA[*//*--------------------------------------------------|
 | dTree 2.05 | www.destroydrop.com/javascript/tree/ |
 |---------------------------------------------------|
 | Copyright (c) 2002-2003 Geir Landr�               |
@@ -39,7 +39,7 @@ function dTree(objName) {
 		useStatusText		: false,
 		closeSameLevel	: false,
 		inOrder					: false
-	}		this.icon = {			root				: './resources/images/dtree/base.gif',			folder			: './resources/images/dtree/skill.gif',			folderOpen	: './resources/images/dtree/skill.gif',			node				: './resources/images/dtree/skill.gif',			empty				: './resources/images/dtree/empty.gif',			line				: './resources/images/dtree/line.gif',			join				: './resources/images/dtree/join.gif',			joinBottom	: './resources/images/dtree/joinbottom.gif',			plus				: './resources/images/dtree/plus.gif',			plusBottom	: './resources/images/dtree/plusbottom.gif',			minus				: './resources/images/dtree/minus.gif',			minusBottom	: './resources/images/dtree/minusbottom.gif',			nlPlus			: './resources/images/dtree/nolines_plus.gif',			nlMinus			: './resources/images/dtree/nolines_minus.gif'		};
+	}		this.icon = {			root				: /*[[@{/resources/images/dtree/base.gif}]]*/ '/resources/images/dtree/base.gif',			folder			: /*[[@{/resources/images/dtree/skill.gif}]]*/ '/resources/images/dtree/skill.gif',			folderOpen	: /*[[@{/resources/images/dtree/skill.gif}]]*/ '/resources/images/dtree/skill.gif',			node				: /*[[@{/resources/images/dtree/skill.gif}]]*/ '/resources/images/dtree/skill.gif',			empty				: /*[[@{/resources/images/dtree/empty.gif}]]*/ '/resources/images/dtree/empty.gif',			line				: /*[[@{/resources/images/dtree/line.gif}]]*/ '/resources/images/dtree/line.gif',			join				: /*[[@{/resources/images/dtree/join.gif}]]*/ '/resources/images/dtree/join.gif',			joinBottom	: /*[[@{/resources/images/dtree/joinbottom.gif}]]*/ '/resources/images/dtree/joinbottom.gif',			plus				: /*[[@{/resources/images/dtree/plus.gif}]]*/ '/resources/images/dtree/plus.gif',			plusBottom	: /*[[@{/resources/images/dtree/plusbottom.gif}]]*/ '/resources/images/dtree/plusbottom.gif',			minus				: /*[[@{/resources/images/dtree/minus.gif}]]*/ '/resources/images/dtree/minus.gif',			minusBottom	: /*[[@{/resources/images/dtree/minusbottom.gif}]]*/ '/resources/images/dtree/minusbottom.gif',			nlPlus			: /*[[@{/resources/images/dtree/nolines_plus.gif}]]*/ '/resources/images/dtree/nolines_plus.gif',			nlMinus			: /*[[@{/resources/images/dtree/nolines_minus.gif}]]*/ '/resources/images/dtree/nolines_minus.gif'		};
 	this.obj = objName;
 	this.aNodes = [];
 	this.aIndent = [];
@@ -114,7 +114,7 @@ dTree.prototype.node = function(node, nodeId) {
 			str += '<img id="i' + this.obj + nodeId + '" src="' + ((node._io) ? node.iconOpen : node.icon) + '" alt="" />';		}
 	}
 	if (node.url) {
-		str += '<a id="s' + this.obj + nodeId + '" class="' + ((this.config.useSelection) ? ((node._is ? 'nodeSel' : 'node')) : 'node') + '" href="#"' 		+ ' onclick="ajaxSkillDialog(\'./viewer/ajaxSkill\', \'' + node.url + '\')"';
+		str += '<a id="s' + this.obj + nodeId + '" class="' + ((this.config.useSelection) ? ((node._is ? 'nodeSel' : 'node')) : 'node') + '" href="#"' 		+ ' onclick="ajaxSkillDialog(\'' + /*[[@{/viewer/ajaxSkill}]]*/ '/viewer/ajaxSkill' + '\', \'' + node.url + '\')"';
 		if (node.title) str += ' title="' + node.title + '"';
 		if (node.target) str += ' target="' + node.target + '"';
 		if (this.config.useStatusText) str += ' onmouseover="window.status=\'' + node.name + '\';return true;" onmouseout="window.status=\'\';return true;" ';
@@ -134,7 +134,7 @@ dTree.prototype.node = function(node, nodeId) {
 	}
 	this.aIndent.pop();
 	return str;
-};
+};/*]]>*/
 
 // Adds the empty and line icons
 dTree.prototype.indent = function(node, nodeId) {
