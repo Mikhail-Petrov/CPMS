@@ -27,6 +27,9 @@
 				<div class="right_col" role="main">
 					<div th:replace="${_VIEW_TEMPLATE}"></div>
 				</div>
+				<div class="modal fade" id="help" tabindex="-1" role="dialog" aria-labelledby="helpLabel" aria-hidden="true">
+                    <div th:replace="fragments/help :: help"></div>
+                </div>
 				<div th:replace="fragments/popup"></div>
         		<footer>
           			<div class="pull-right">

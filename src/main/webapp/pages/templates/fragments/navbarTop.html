@@ -19,7 +19,7 @@
                     <span class="fa fa-angle-down"></span>
                   <ul class="dropdown-menu dropdown-usermenu pull-right">
                     <li><a th:href="@{/security/me}" th:text="#{navbar.new.profile}"></a></li>
-                    <li><a href="javascript:;" th:text="#{navbar.new.help}"></a></li>
+                    <li><a href="javascript:;" th:text="#{navbar.new.help}" onclick="$('#help').modal('show')"></a></li>
                     <li th:if="${isAuthenticated}">
                     	<form th:action="@{/security/logout}" id="logout-post" method="post"></form>
                     	<a href="#" onclick="document.getElementById('logout-post').submit()"><i class="fa fa-sign-out pull-right"></i><span th:text="#{me.logout}"></span></a>

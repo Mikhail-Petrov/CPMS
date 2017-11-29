@@ -1,30 +1,142 @@
-		<div class="collection-object">
-		<form action="#" th:action="@{/editor/skill}" th:object="${skill}" method="post">
-			<h3 th:if="${create}" th:text="#{firstline.create.skill}">Create a new Skill</h3>
-			<h3 th:if="${!create}" th:text="#{firstline.change.skill}">Change Skill</h3>
-			<hr/>
-			<input type="hidden" th:field="*{id}" />
-			<p th:text="#{editor.skill.name}"></p>
-			<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</p>
-			<p><input type="text" class="input-wide" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}" onblur="addCheck(this, 5, 100)"/></p>
-			<p><input type="text" class="input-wide" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}" onblur="addCheck(this, 5, 100)"/>
-				<span th:if="${#fields.hasErrors('name_RU')}" th:errors="*{name_RU}">Name Error</span></p>
-			<p th:text="#{editor.skill.description}"></p>
-			<p th:if="${#fields.hasErrors('about')}" th:errors="*{about}">Name Error</p>
-			<p><textarea type="textarea" class="input-wide" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}"></textarea></p>
-			<p><textarea type="textarea" class="input-wide" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
-				<span th:if="${#fields.hasErrors('about_RU')}" th:errors="*{about_RU}">Name Error</span></p>
-			<p th:text="#{editor.skill.maxlevel}"></p>
-			<p><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100"/>
-				<span th:if="${#fields.hasErrors('maxLevel')}" th:errors="*{maxLevel}">Name Error</span></p>
-			<p th:text="#{editor.skill.parent}"></p>
-			<p><span th:text="#{editor.parentskill}"></span> <select th:field="*{parent}">
-				<option th:value="null"
-					th:text="#{editor.noparent}">No parent</option>
-  				<option th:each="skillInList : ${skillsList}" 
-          			th:value="${skillInList.id}" 
-          			th:text="${skillInList.name}">A skill</option>
-			</select></p>
-			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
-		</form>
-		</div>
+
+<div class="collection-object">
+	<form action="#" th:action="@{/editor/skill}" th:object="${skill}"
+		method="post">
+		<h3 th:if="${create}" th:text="#{firstline.create.skill}">Create
+			a new Skill</h3>
+		<h3 th:if="${!create}" th:text="#{firstline.change.skill}">Change
+			Skill</h3>
+		<hr />
+		<input type="hidden" th:field="*{id}" />
+		<p th:text="#{editor.skill.name}"></p>
+		<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name
+			Error</p>
+		<p>
+			<input type="text" class="input-wide" th:field="*{name}"
+				placeholder="Skill name (EN)"
+				th:placeholder="#{editor.placeholder.skill_name_en}"
+				onblur="addCheck(this, 5, 100)" />
+		</p>
+		<p>
+			<input type="text" class="input-wide" th:field="*{name_RU}"
+				placeholder="Skill name (RU)"
+				th:placeholder="#{editor.placeholder.skill_name_ru}"
+				onblur="addCheck(this, 5, 100)" /> <span
+				th:if="${#fields.hasErrors('name_RU')}" th:errors="*{name_RU}">Name
+				Error</span>
+		</p>
+		<p th:text="#{editor.skill.description}"></p>
+		<p th:if="${#fields.hasErrors('about')}" th:errors="*{about}">Name
+			Error</p>
+		<p>
+			<textarea type="textarea" class="input-wide" th:field="*{about}"
+				placeholder="About (EN)"
+				th:placeholder="#{editor.placeholder.description_en}"></textarea>
+		</p>
+		<p>
+			<textarea type="textarea" class="input-wide" th:field="*{about_RU}"
+				placeholder="About (RU)"
+				th:placeholder="#{editor.placeholder.description_ru}"></textarea>
+			<span th:if="${#fields.hasErrors('about_RU')}"
+				th:errors="*{about_RU}">Name Error</span>
+		</p>
+		<p th:text="#{editor.skill.maxlevel}"></p>
+		<p>
+			<span th:text="#{editor.maxlevel}"></span> <input type="number"
+				th:field="*{maxLevel}" min="1" max="100" id="levelsNum" /> <span
+				th:if="${#fields.hasErrors('maxLevel')}" th:errors="*{maxLevel}">Name
+				Error</span>
+		</p>
+		<p th:text="#{editor.skill.parent}"></p>
+		<p>
+			<span th:text="#{editor.parentskill}"></span> <select
+				th:field="*{parent}">
+				<option th:value="null" th:text="#{editor.noparent}">No
+					parent</option>
+				<option th:each="skillInList : ${skillsList}"
+					th:value="${skillInList.id}" th:text="${skillInList.name}">A
+					skill</option>
+			</select>
+		</p>
+		<p>
+			<input type="submit"
+				th:value="${create}? #{editor.create} : #{editor.update}"
+				value="submit" />
+		</p>
+		<p th:text="#{skillPopup.editor.level}"></p>
+		<table class="table table-striped">
+			<tbody id="levelsPost">
+			</tbody>
+		</table>
+		<p>
+			<input type="submit" value="+"
+				onclick="$(levelsNum).val(parseInt($(levelsNum).val())+1); $(levelsNum).trigger('input'); return false" />
+		</p>
+	</form>
+</div>
+
+<script th:inline="javascript">
+			/*<![CDATA[*/
+			function ajaxSkillDialog(requestUrl) {
+				
+				var admin = /*[[${isAdmin}]]*/ false;
+				var resident = /*[[${isResident}]]*/ false;	
+				
+				admin = admin || resident;
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+				
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
+						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			
+			var treeSkillLevelEdit = /*[[#{skill.level.edit}]]*/ 'Edit Skill Level';
+			var treeSkillLevelDefine = /*[[#{skill.level.define}]]*/ 'Define Skill Level';
+			
+			function generateLevelTable(levels, admin, skillId) {
+				res="";
+				for (i = 0; i < levels.length; i++) {
+					res += "<tr><td><p>";
+					res += "<span>" + levels[i].level + " - " + levels[i].about + "</span>";
+					if (admin) {
+						res += "<a href=\""+/*[[@{/editor}]]*/ "/editor";
+						if (levels[i].id > 0) {
+							res += "/" + skillId + "/skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelEdit + "</button>";
+						} else {
+							res += "/" + skillId + "/skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelDefine + "</button>";
+						}
+					}
+					res += "</p></td></tr>\n";
+				}
+				return res;
+			}
+			/*]]>*/
+			</script>
+<script>
+ajaxSkillDialog(rootPath + 'editor/ajaxSkill', '0');
+</script>

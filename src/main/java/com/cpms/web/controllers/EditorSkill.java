@@ -9,14 +9,17 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
@@ -32,6 +35,8 @@ import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.User;
 import com.cpms.web.SkillPostForm;
 import com.cpms.web.SkillUtils;
+import com.cpms.web.ajax.IAjaxAnswer;
+import com.cpms.web.ajax.SkillAnswer;
 
 /**
  * Handles skill CRUD web application requests.
@@ -392,5 +397,32 @@ public class EditorSkill {
 		facade.getSkillDAO().update(skill);
 		//return "redirect:/viewer/tree";
 		return "redirect:/viewer";
+	}
+	
+
+	@ResponseBody
+	@RequestMapping(value = "/ajaxSkill",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxSkill(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json);
+		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
+			long id = Long.parseLong(values.get(0).toString());
+			if (id > 0) {
+				Skill skill = facade.getSkillDAO().getOne(id)
+						.localize(LocaleContextHolder.getLocale());
+				return new SkillAnswer(skill, true);
+			} else {
+				SkillAnswer answer = new SkillAnswer();
+				answer.setName("Skill Tree Root");
+				answer.setAbout("Skill Tree Root");
+				answer.setId(0);
+				answer.setSuccessful(true);
+				answer.setMaxLevel(1);
+				return answer;
+			}
+		} else {
+			return new SkillAnswer();
+		}
 	}
 }
