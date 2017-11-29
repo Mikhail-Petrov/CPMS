@@ -15,12 +15,13 @@
                             		</ul>
                             	</div>
                             	<input type="hidden" th:field="*{id}" />
+  			<p th:text="#{editor.task.name}"></p>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" th:field="*{name}" placeholder="Task name (EN)" th:placeholder="#{editor.placeholder.task_name_en}"/>
+                                        <input type="text" class="form-control" th:field="*{name}" placeholder="Task name (EN)" th:placeholder="#{editor.placeholder.task_name_en}" onblur="addCheck(this, 5, 100)"/>
                                     </div>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" th:field="*{name_RU}" placeholder="Task name (RU)" th:placeholder="#{editor.placeholder.task_name_ru}"/>
+                                        <input type="text" class="form-control" th:field="*{name_RU}" placeholder="Task name (RU)" th:placeholder="#{editor.placeholder.task_name_ru}" onblur="addCheck(this, 5, 100)"/>
                                     </div>
                                 </div>
                                 <hr class="separator"/>

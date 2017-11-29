@@ -6,13 +6,9 @@
 			<input type="hidden" th:field="*{id}" />
 			<p th:text="#{editor.skill.name}"></p>
 			<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</p>
-			<p><input type="text" class="input-wide" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}"/></p>
-			<p><input type="text" class="input-wide" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}"/>
+			<p><input type="text" class="input-wide" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}" onblur="addCheck(this, 5, 100)"/></p>
+			<p><input type="text" class="input-wide" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}" onblur="addCheck(this, 5, 100)"/>
 				<span th:if="${#fields.hasErrors('name_RU')}" th:errors="*{name_RU}">Name Error</span></p>
-			<script>
-				addCheck($(name), 5, 100);
-				addCheck($(name_RU), 5, 100);
-			</script>
 			<p th:text="#{editor.skill.description}"></p>
 			<p th:if="${#fields.hasErrors('about')}" th:errors="*{about}">Name Error</p>
 			<p><textarea type="textarea" class="input-wide" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}"></textarea></p>

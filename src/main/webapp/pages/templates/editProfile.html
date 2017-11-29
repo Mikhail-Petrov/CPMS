@@ -6,8 +6,8 @@
 			<input type="hidden" th:field="*{id}" />
 			<p th:text="#{editor.company.title}"></p>
 			<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Name Error</p>
-			<p><input class="form-control" type="text" th:field="*{title}" placeholder="Company name (EN)" th:placeholder="#{editor.placeholder.title_en}"/></p>
-			<p><input class="form-control" type="text" th:field="*{title_RU}" placeholder="Company name (RU)" th:placeholder="#{editor.placeholder.title_ru}"/>
+			<p><input class="form-control" type="text" th:field="*{title}" placeholder="Company name (EN)" th:placeholder="#{editor.placeholder.title_en}" onblur="addCheck(this, 3, 100)"/></p>
+			<p><input class="form-control" type="text" th:field="*{title_RU}" placeholder="Company name (RU)" th:placeholder="#{editor.placeholder.title_ru}" onblur="addCheck(this, 3, 100)"/>
 				<span th:if="${#fields.hasErrors('title_RU')}" th:errors="*{title_RU}">Name Error</span></p>
 			<p th:text="#{editor.company.website}"></p>
 			<p><input class="form-control" type="text" th:field="*{website}" placeholder="Site" th:placeholder="#{editor.placeholder.website}"/>

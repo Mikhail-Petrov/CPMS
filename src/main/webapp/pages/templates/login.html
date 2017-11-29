@@ -1,6 +1,6 @@
 			<form class="form-signin" action="#" th:action="@{/security/login}" method="post">
 				<h2 class="form-signin-heading" th:text="#{login.header}">Please sign in</h2>
-				<input class="form-login-password input-email" type="text" id="username" name="username" placeholder="Enter Username" th:placeholder="#{login.username}" required="required" autofocus="autofocus"/>
+				<input class="form-login-password input-email" type="text" id="username" name="username" placeholder="Enter Username" th:placeholder="#{login.username}" required="required" autofocus="autofocus" onblur="addCheck(this, 1, 0)"/>
 				<input class="form-login-password input-password" type="password" id="password" name="password" placeholder="Enter Password" th:placeholder="#{login.password}" required="required"/>
 				<button class="btn-lg btn-primary btn-block" type="submit" th:text="#{login.login}">Login</button>
 			</form>

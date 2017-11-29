@@ -1,7 +1,7 @@
 		<div class="navbar-offset">
 		<form action="#" th:action="@{/security/register}" th:object="${registrationForm}" method="post">
-			<p><input type="text" th:field="*{username}" placeholder="Username" th:placeholder="#{register.username}"/></p>
-			<p><input type="text" th:field="*{password}" placeholder="Password" th:placeholder="#{register.password}"/></p>
+			<p><input type="text" th:field="*{username}" placeholder="Username" th:placeholder="#{register.username}" onblur="addCheck(this, 1, 0)"/></p>
+			<p><input type="text" th:field="*{password}" placeholder="Password" th:placeholder="#{register.password}" onblur="addCheck(this, 1, 0)"/></p>
 			<p><span th:text="#{register.permissions}">Permissions:</span></p>
 			<p><span th:text="#{role.admin} + ': '"></span><input type="checkbox" th:field="*{adminRole}" value="false"/></p>
 			<p><span th:text="#{role.resident} + ': '"></span><input type="checkbox" th:field="*{residentRole}" value="false"/></p>

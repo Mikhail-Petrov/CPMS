@@ -6,8 +6,8 @@
 			<input type="hidden" th:field="*{id}" />
 			<p th:text="#{editor.task.name}"></p>
 			<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</p>
-			<p><input type="text" class="input-wide" th:field="*{name}" placeholder="Task name (EN)" th:placeholder="#{editor.placeholder.task_name_en}"/></p>
-			<p><input type="text" class="input-wide" th:field="*{name_RU}" placeholder="Task name (RU)" th:placeholder="#{editor.placeholder.task_name_ru}"/>
+			<p><input type="text" class="input-wide" th:field="*{name}" placeholder="Task name (EN)" th:placeholder="#{editor.placeholder.task_name_en}" onblur="addCheck(this, 5, 100)"/></p>
+			<p><input type="text" class="input-wide" th:field="*{name_RU}" placeholder="Task name (RU)" th:placeholder="#{editor.placeholder.task_name_ru}" onblur="addCheck(this, 5, 100)"/>
 				<span th:if="${#fields.hasErrors('name_RU')}" th:errors="*{name_RU}">Name Error</span></p>
 			<p th:text="#{editor.task.description}"></p>
 			<p th:if="${#fields.hasErrors('about')}" th:errors="*{about}">Name Error</p>

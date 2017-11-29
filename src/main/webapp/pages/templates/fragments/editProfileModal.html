@@ -15,12 +15,13 @@
                             		</ul>
                             	</div>
                             	<input type="hidden" th:field="*{id}" />
+   			<p th:text="#{editor.company.title}"></p>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" placeholder="Название компании (En)" th:field="*{title}" th:placeholder="#{editor.placeholder.title_en}"/>
+                                        <input type="text" class="form-control" placeholder="Название компании (En)" th:field="*{title}" th:placeholder="#{editor.placeholder.title_en}" onblur="addCheck(this, 3, 100)"/>
                                     </div>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" placeholder="Название компании (Ru)" th:field="*{title_RU}" th:placeholder="#{editor.placeholder.title_ru}"/>
+                                        <input type="text" class="form-control" placeholder="Название компании (Ru)" th:field="*{title_RU}" th:placeholder="#{editor.placeholder.title_ru}" onblur="addCheck(this, 3, 100)"/>
                                     </div>
                                 </div>
                                 <hr class="separator"/>
