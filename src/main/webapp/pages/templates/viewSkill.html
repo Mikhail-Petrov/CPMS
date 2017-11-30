@@ -56,5 +56,5 @@
 				<button class="btn btn-lg" type="submit" th:text="#{skill.edit}">Edit Skill</button>
 			</a></p>
 			<hr th:if="${isAdmin}" />
-			<p><button class="btn btn-lg" value="Add Skill to remembered" title="Add Skill to remembered" th:text="#{skill.remember}" th:onclick="'ajaxDialog(\'/dashboard/rememberSkill\', \''+${skill.id}+'\'); return false;'">Add Skill to remembered</button></p>
+			<p><button class="btn btn-lg" value="Add Skill to remembered" title="Add Skill to remembered" th:text="#{skill.remember}" th:onclick="'my_ajaxDialog(\'/dashboard/rememberSkill\', \''+${skill.id}+'\'); return false;'">Add Skill to remembered</button></p>
 			</div>

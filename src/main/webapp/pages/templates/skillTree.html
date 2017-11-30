@@ -89,7 +89,7 @@
 						document.getElementById('skillName').innerHTML=res.name;
 						document.getElementById('skillAbout').innerHTML=res.about;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
-						document.getElementById('rememberLink').setAttribute('onclick', "ajaxDialog('./dashboard/rememberSkill', '" + res.id + "'); return false;");
+						document.getElementById('rememberLink').setAttribute('onclick', "my_ajaxDialog('./dashboard/rememberSkill', '" + res.id + "'); return false;");
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
 						if (admin) {
 							document.getElementById('editLink').setAttribute('href', './editor/skill?id=' + res.id);

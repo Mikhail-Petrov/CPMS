@@ -1,7 +1,7 @@
 			<div th:fragment="skillTree" th:remove="tag">
 			<script th:inline="javascript">
 			/*<![CDATA[*/
-				var skillDraft = /*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif'
+				var skillDraft = /*[[@{/resources/images/dtree/skill-draft.gif}]]*/ rootPath + 'resources/images/dtree/skill-draft.gif'
 			           
 			    d = new dTree('d');       
 			    d.add(0,-1,'');       
@@ -17,9 +17,9 @@
 		   								skills[parent][i].id,
 		   								null,
 		   								null,
-		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif'
+		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ rootPath + 'resources/images/dtree/skill-draft.gif'
 		   								,
-		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ '/resources/images/dtree/skill-draft.gif'
+		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ rootPath + 'resources/images/dtree/skill-draft.gif'
 		   								);
 		   					} else {
 		   						d.add(skills[parent][i].id,
@@ -71,7 +71,7 @@
 						document.getElementById('skillName').innerHTML=res.name;
 						document.getElementById('skillAbout').innerHTML=res.about;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
-						document.getElementById('rememberLink').setAttribute('onclick', "ajaxDialog('./dashboard/rememberSkill', '" + res.id + "'); return false;");
+						document.getElementById('rememberLink').setAttribute('onclick', "my_ajaxDialog('" + rootPath + "dashboard/rememberSkill', '" + res.id + "'); return false;");
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
 						if (admin) {
 							document.getElementById('editLink').setAttribute('href', './editor/skill?id=' + res.id);
