@@ -49,7 +49,7 @@
 			<p th:text="#{editor.skill.maxlevel}"></p>
 			<p><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
 			<input type="hidden" id="parentId" th:field="*{parent}" th:value="null"/>
-			<p><input type="submit" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+			<p><input type="submit" id="skillSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
 			<p th:text="#{skillPopup.editor.level}"></p>
 			<table class="table table-striped">
 				<tbody id="levelsPost">

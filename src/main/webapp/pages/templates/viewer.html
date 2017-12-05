@@ -156,8 +156,9 @@
                                        </nav>
                                    </div>
                                    <div class="col-lg-1" th:if="${isAdmin}">
-                                       <button type="button" class="btn btn-success pull-left" data-toggle="modal"
-                                               data-target="#createProfileModal"><i class="fa fa-plus"></i></button>
+                                       <button type="button" class="btn btn-success pull-left"
+                                        onclick="$('#createProfileModal').modal('show')"><i class="fa fa-plus"></i></button>
+                                        	 <!-- data-toggle="modal" data-target="#createProfileModal" -->
                                    </div>
                                </div>
                                <script th:inline="javascript">

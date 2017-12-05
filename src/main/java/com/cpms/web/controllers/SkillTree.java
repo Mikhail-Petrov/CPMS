@@ -105,7 +105,7 @@ public class SkillTree {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id > 0) {
 				Skill skill = facade.getSkillDAO().getOne(id)
-						.localize(LocaleContextHolder.getLocale());
+						;//.localize(LocaleContextHolder.getLocale());
 				return new SkillAnswer(skill, true);
 			} else {
 				SkillAnswer answer = new SkillAnswer();

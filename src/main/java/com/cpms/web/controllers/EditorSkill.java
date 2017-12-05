@@ -360,8 +360,11 @@ public class EditorSkill {
 					request.getPathInfo()); 
 		}
 		Skill newSkill = new Skill();
-		Skill parent = facade.getSkillDAO().getOne(recievedSkill.getParent());
-		newSkill.setParent(parent);
+		if (recievedSkill.getId() == 0) {
+			Skill parent = facade.getSkillDAO().getOne(recievedSkill.getParent());
+			newSkill.setParent(parent);
+		} else
+			newSkill = facade.getSkillDAO().getOne(recievedSkill.getParent());
 		newSkill.setMaxLevel(recievedSkill.getMaxLevel());
 		newSkill.setName(recievedSkill.getName());
 		newSkill.setName_RU(recievedSkill.getName_RU());
@@ -375,15 +378,26 @@ public class EditorSkill {
 		}
 		int levelIndex = 1;
 		checkNotChildrenOfDraft(request, newSkill);
-		for(SkillLevel level : recievedSkill.getLevels()) {
-			SkillLevel newLevel = new SkillLevel();
-			newLevel.setAbout(level.getAbout());
-			newLevel.setAbout_RU(level.getAbout_RU());
-			newLevel.setLevel(levelIndex);
+		for(SkillLevel level : newSkill.getLevels()) {
+			if (recievedSkill.getLevels().size() < levelIndex)
+				newSkill.removeLevel(level);
+			else {
+				level.setAbout(level.getAbout());
+				level.setAbout_RU(level.getAbout_RU());
+			}
 			levelIndex++;
+		}
+		for(; levelIndex <= recievedSkill.getLevels().size(); levelIndex++) {
+			SkillLevel newLevel = new SkillLevel();
+			newLevel.setAbout(recievedSkill.getLevels().get(levelIndex-1).getAbout());
+			newLevel.setAbout_RU(recievedSkill.getLevels().get(levelIndex-1).getAbout_RU());
+			newLevel.setLevel(levelIndex);
 			newSkill.addLevel(newLevel);
 		}
-		facade.getSkillDAO().insert(newSkill);
+		if (recievedSkill.getId() == 0)
+			facade.getSkillDAO().insert(newSkill);
+		else
+			facade.getSkillDAO().update(newSkill);
 		return "redirect:/viewer";
 	}
 	

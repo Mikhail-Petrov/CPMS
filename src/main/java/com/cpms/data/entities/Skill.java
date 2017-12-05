@@ -343,6 +343,11 @@ public class Skill extends AbstractDomainObject {
 		return localizeBilingualField(getName(), name_RU, locale);
 	}
 
+	public String getPresentationAbout() {
+		Locale locale = LocaleContextHolder.getLocale();
+		return localizeBilingualField(getAbout(), about_RU, locale);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Skill localize(Locale locale) {

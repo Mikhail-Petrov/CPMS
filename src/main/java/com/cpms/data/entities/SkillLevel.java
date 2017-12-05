@@ -15,6 +15,8 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
+import org.springframework.context.i18n.LocaleContextHolder;
+
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.data.validation.BilingualValidation;
 import com.cpms.exceptions.DataAccessException;
@@ -112,6 +114,11 @@ public class SkillLevel extends AbstractDomainObject {
 	@Override
 	public String getPresentationName() {
 		return about;
+	}
+
+	public String getPresentationAbout() {
+		Locale locale = LocaleContextHolder.getLocale();
+		return localizeBilingualField(getAbout(), about_RU, locale);
 	}
 
 	@SuppressWarnings("unchecked")

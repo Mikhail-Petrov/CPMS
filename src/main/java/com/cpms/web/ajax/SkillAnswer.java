@@ -16,25 +16,25 @@ public class SkillAnswer implements IAjaxAnswer {
 
 	private long id;
 	private int maxLevel;
-	private String name, about;
+	private String name, about, name_ru, name_en, about_ru, about_en;
 	private boolean successful = false;
-	private List<SkillLevel> levels;
+	private List<SkillLevelAnswer> levels;
 	private boolean draft = false;
 	
 	public SkillAnswer(Skill source, boolean successful) {
 		id = source.getId();
 		maxLevel = source.getMaxLevel();
 		name = source.getPresentationName();
-		about = source.getAbout();
+		name_ru = source.getName_RU();
+		name_en = source.getName();
+		about = source.getPresentationAbout();
+		about_ru = source.getAbout_RU();
+		about_en = source.getAbout();
 		this.successful = successful;
-		levels = new ArrayList<SkillLevel>();
+		levels = new ArrayList<SkillLevelAnswer>();
 		draft = source.isDraft();
 		for (SkillLevel level : source.getFullSkillLevels()) {
-			SkillLevel newLevel = new SkillLevel();
-			newLevel.setId(level.getId());
-			newLevel.setAbout(level.getAbout());
-			newLevel.setAbout_RU(level.getAbout_RU());
-			newLevel.setLevel(level.getLevel());
+			SkillLevelAnswer newLevel = new SkillLevelAnswer(level, true);
 			levels.add(newLevel);
 		}
 	}
@@ -43,9 +43,13 @@ public class SkillAnswer implements IAjaxAnswer {
 		id = 0;
 		maxLevel = 0;
 		name = "Skill not found";
+		setName_ru("Умение не найдено");
+		setName_en("Skill not found");
 		about = "Skill not found";
+		setAbout_ru("Умение не найдено");
+		setAbout_en("Skill not found");
 		successful = false;
-		levels = new ArrayList<SkillLevel>();
+		levels = new ArrayList<SkillLevelAnswer>();
 	}
 
 	public long getId() {
@@ -88,11 +92,11 @@ public class SkillAnswer implements IAjaxAnswer {
 		this.successful = successful;
 	}
 
-	public List<SkillLevel> getLevels() {
+	public List<SkillLevelAnswer> getLevels() {
 		return levels;
 	}
 
-	public void setLevels(List<SkillLevel> levels) {
+	public void setLevels(List<SkillLevelAnswer> levels) {
 		this.levels = levels;
 	}
 
@@ -102,6 +106,62 @@ public class SkillAnswer implements IAjaxAnswer {
 
 	public void setDraft(boolean draft) {
 		this.draft = draft;
+	}
+
+	/**
+	 * @return the name_ru
+	 */
+	public String getName_ru() {
+		return name_ru;
+	}
+
+	/**
+	 * @param name_ru the name_ru to set
+	 */
+	public void setName_ru(String name_ru) {
+		this.name_ru = name_ru;
+	}
+
+	/**
+	 * @return the name_en
+	 */
+	public String getName_en() {
+		return name_en;
+	}
+
+	/**
+	 * @param name_en the name_en to set
+	 */
+	public void setName_en(String name_en) {
+		this.name_en = name_en;
+	}
+
+	/**
+	 * @return the about_ru
+	 */
+	public String getAbout_ru() {
+		return about_ru;
+	}
+
+	/**
+	 * @param about_ru the about_ru to set
+	 */
+	public void setAbout_ru(String about_ru) {
+		this.about_ru = about_ru;
+	}
+
+	/**
+	 * @return the about_en
+	 */
+	public String getAbout_en() {
+		return about_en;
+	}
+
+	/**
+	 * @param about_en the about_en to set
+	 */
+	public void setAbout_en(String about_en) {
+		this.about_en = about_en;
 	}
 	
 }
