@@ -114,6 +114,7 @@ public class SkillTree {
 				answer.setId(0);
 				answer.setSuccessful(true);
 				answer.setMaxLevel(1);
+				answer.setParentId(null);
 				return answer;
 			}
 		} else {

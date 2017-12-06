@@ -83,6 +83,24 @@ public class Viewer {
 		}
 		return values;
 	}
+
+	private void addSkillsListToModel(Model model, Principal principal,
+			HttpServletRequest request) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+			User owner = userDAO.getByUsername((
+					(UsernamePasswordAuthenticationToken)principal
+					).getName());
+			List<Skill> skills = facade.getSkillDAO().getAll();
+			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+			List<Skill> skills = skillDao.getAllIncludingDrafts();
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+		} else {
+			model.addAttribute("skillsList", 
+					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+		}
+	}
 	
 	@RequestMapping(value = {"/", ""},
 			method = RequestMethod.GET)
@@ -119,6 +137,7 @@ public class Viewer {
 		} else {
 			model.addAttribute("skills", SkillTree.produceTree(facade.getSkillDAO().getAll()));
 		}
+		addSkillsListToModel(model, principal, request);
 		return "viewer";
 	}
 

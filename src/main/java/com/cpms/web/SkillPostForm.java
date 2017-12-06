@@ -25,7 +25,7 @@ public class SkillPostForm {
 	
 	private int maxLevel;
 	
-	private long parent;
+	private String parent;
 
 	private List<SkillLevel> levels;
 	
@@ -65,11 +65,11 @@ public class SkillPostForm {
 		this.maxLevel = maxLevel;
 	}
 
-	public long getParent() {
+	public String getParent() {
 		return parent;
 	}
 
-	public void setParent(long parent) {
+	public void setParent(String parent) {
 		this.parent = parent;
 	}
 

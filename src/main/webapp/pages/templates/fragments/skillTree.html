@@ -128,7 +128,11 @@
 						if (admin) {
 							//document.getElementById('editLink').setAttribute('href', './editor/skill?id=' + res.id);
 							document.getElementById('editLink').setAttribute('onclick','ajaxSkillDialog(\'' + rootPath + 'viewer/ajaxSkill\', -' + res.id + '); return false;');
-							document.getElementById('parentId').setAttribute('value', res.id);
+							//document.getElementById('parentId').setAttribute('value', res.id);
+							if (res.parentId == null)
+								$('#parentSelect option[value=""]').prop('selected', true);
+							else
+								$('#parentSelect option[value="' + res.parentId + '"]').prop('selected', true);
 							document.getElementById('deleteLink').setAttribute('href', './editor/skill/delete?id=' + res.id);
 							if (!resident && res.draft) {
 								document.getElementById('approveLink').setAttribute('href', './editor/skill/approve?id=' + res.id);
@@ -160,7 +164,7 @@
 							    while (res.levels.length < totalLevels.length) {
 							    	totalLevels.pop();
 							    }
-							    
+							    // Remember id of the changed skill
 							    $("#id").val(res.id);
 							}
 							else {
@@ -172,6 +176,8 @@
 								$("#levelsNum").val(1);
 								var totalLevels = [""];
 						    	totalLevels[0] = new SkillLevel();
+							    // Forget skill id
+							    $("#id").val(0);
 							}
 						    document.getElementById("levelsPost").innerHTML=generateLevelFormTable(totalLevels);
 						}

@@ -48,7 +48,17 @@
 			<p><textarea type="textarea" class="form-control" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_ru}"></textarea></p>
 			<p th:text="#{editor.skill.maxlevel}"></p>
 			<p><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
-			<input type="hidden" id="parentId" th:field="*{parent}" th:value="null"/>
+		<p th:text="#{editor.skill.parent}"></p>
+		<p>
+			<span th:text="#{editor.parentskill}"></span> <select id="parentSelect"
+				th:field="*{parent}">
+				<option th:value="null" th:text="#{editor.noparent}">No
+					parent</option>
+				<option th:each="skillInList : ${skillsList}"
+					th:value="${skillInList.id}" th:text="${skillInList.name}">A
+					skill</option>
+			</select>
+		</p>
 			<p><input type="submit" id="skillSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
 			<p th:text="#{skillPopup.editor.level}"></p>
 			<table class="table table-striped">

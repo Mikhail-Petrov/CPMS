@@ -15,6 +15,7 @@ import com.cpms.data.entities.SkillLevel;
 public class SkillAnswer implements IAjaxAnswer {
 
 	private long id;
+	private String parentId;
 	private int maxLevel;
 	private String name, about, name_ru, name_en, about_ru, about_en;
 	private boolean successful = false;
@@ -30,6 +31,10 @@ public class SkillAnswer implements IAjaxAnswer {
 		about = source.getPresentationAbout();
 		about_ru = source.getAbout_RU();
 		about_en = source.getAbout();
+		if (source.getParent() == null)
+			parentId = null;
+		else
+			parentId = String.format("%d", source.getParent().getId());
 		this.successful = successful;
 		levels = new ArrayList<SkillLevelAnswer>();
 		draft = source.isDraft();
@@ -162,6 +167,20 @@ public class SkillAnswer implements IAjaxAnswer {
 	 */
 	public void setAbout_en(String about_en) {
 		this.about_en = about_en;
+	}
+
+	/**
+	 * @return the parentId
+	 */
+	public String getParentId() {
+		return parentId;
+	}
+
+	/**
+	 * @param parentId the parentId to set
+	 */
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
 	}
 	
 }
