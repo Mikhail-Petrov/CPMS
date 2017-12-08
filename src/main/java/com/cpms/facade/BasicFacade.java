@@ -11,6 +11,7 @@ import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.operations.interfaces.*;
+import com.cpms.security.entities.User;
 
 /**
  * {@link ICPMSFacade} pattern configured implementation.

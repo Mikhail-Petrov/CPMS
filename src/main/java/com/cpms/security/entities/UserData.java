@@ -1,0 +1,45 @@
+package com.cpms.security.entities;
+
+import java.util.List;
+
+import com.cpms.security.RoleTypes;
+
+/**
+ * Entity that contains user data for users table
+ * 
+ * @author Михаил
+ *
+ */
+
+public class UserData {
+	public long id, profileId;
+	public String name, password, profileName = null;
+	public boolean isAdmin, isResident;
+	public List<Role> roles;
+
+	public UserData(User user) {
+		this.id = user.getId();
+		this.name = user.getUsername();
+		this.password = user.getPassword();
+		this.roles = user.getRoles();
+
+		this.isAdmin = checkRole(RoleTypes.ADMIN);
+		this.isResident= checkRole(RoleTypes.RESIDENT);
+		
+		if (this.isResident)
+			this.profileId = user.getProfileId();
+		else
+			this.profileId = 0;
+	}
+	
+	public void setProfileName(String profileName) {
+		this.profileName = profileName;
+	}
+	
+	private boolean checkRole(RoleTypes type) {
+		for (Role role : this.roles)
+			if (role.getRolename().equals(type.toString()))
+				return true;
+		return false;
+	}
+}

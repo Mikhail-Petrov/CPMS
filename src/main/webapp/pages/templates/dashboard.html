@@ -16,5 +16,14 @@
                   	</div>
                  </div>
             </div>
+            <div class="row" th:if="${isAdmin}">
+                <div class="col-md-12">
+                    <div class="x_panel">
+                       	<a th:href="@{/security/users}">
+                       		<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.users}"></button>
+						</a>
+                  	</div>
+                 </div>
+            </div>
 			<div th:replace="fragments/operations :: operations"></div>
 			<div th:replace="fragments/applications :: applications"></div>

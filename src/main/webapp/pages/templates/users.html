@@ -1,0 +1,54 @@
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="x_panel" th:if="${isAdmin}">
+			<div class="x_title">
+				<h3 th:text="#{users.management.title}"></h3>
+			</div>
+			<div class="x_content">
+				<table class="table table-responsive table-striped">
+					<thead>
+						<tr>
+							<th><span th:text="#{users.management.name}"></span></th>
+							<th><span th:text="#{users.management.admin}"></span></th>
+							<th><span th:text="#{users.management.resident}"></span></th>
+							<th><span th:text="#{users.management.profile}"></span></th>
+							<th><span th:text="#{users.management.roles}"></span></th>
+							<th></th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="user : ${usersList}">
+							<td th:text="${user.name}"></td>
+							<td th:text="(${user.isAdmin}?#{me.admin.true}:#{me.admin.false})"></td>
+							<td
+								th:text="(${user.isResident}?#{users.management.true}:#{users.management.false})"></td>
+							<td th:if="${user.profileName}!=null">
+								<a th:href="@{/viewer/profile(id=${user.profileId})}" th:text="${user.name}"></a>
+							</td>
+							<td th:if="${user.profileName}==null">
+								<p th:text="#{users.management.blank}"></p>
+							</td>
+							<td><p th:each="role : ${user.roles}">
+								<span th:text="${role.rolename}"></span>
+							</p></td>
+							<td th:text="#{users.management.change}"></td>
+							<td th:text="#{users.management.delete}"></td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+
+		</div>
+		<div class="x_panel" th:if="!${isAdmin}">
+			<div class="x_title">
+				<h3 th:text="#{users.management.unauth.title}"></h3>
+			</div>
+			<div class="x_content">
+				<span th:text="#{users.management.unauth.content}"></span>
+			</div>
+		</div>
+	</div>
+</div>
