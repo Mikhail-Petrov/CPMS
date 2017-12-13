@@ -17,6 +17,7 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.cpms.security.RoleTypes;
+import com.cpms.web.controllers.Security;
 
 /**
  * Security config, which configures web application groups and permissions
@@ -41,8 +42,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			AuthenticationManagerBuilder auth)
 			throws Exception {
 		auth.inMemoryAuthentication()
-			.withUser("admin")
-			.password("admin")
+			.withUser(Security.adminName)
+			.password(Security.adminPassword)
 			.roles(RoleTypes.ADMIN.toString());
 		auth.authenticationProvider(provider);
 	}

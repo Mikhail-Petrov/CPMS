@@ -23,8 +23,8 @@ public class UserData {
 		this.password = user.getPassword();
 		this.roles = user.getRoles();
 
-		this.isAdmin = checkRole(RoleTypes.ADMIN);
-		this.isResident= checkRole(RoleTypes.RESIDENT);
+		this.isAdmin = user.checkRole(RoleTypes.ADMIN);
+		this.isResident= user.checkRole(RoleTypes.RESIDENT);
 		
 		if (this.isResident)
 			this.profileId = user.getProfileId();
@@ -34,12 +34,5 @@ public class UserData {
 	
 	public void setProfileName(String profileName) {
 		this.profileName = profileName;
-	}
-	
-	private boolean checkRole(RoleTypes type) {
-		for (Role role : this.roles)
-			if (role.getRolename().equals(type.toString()))
-				return true;
-		return false;
 	}
 }

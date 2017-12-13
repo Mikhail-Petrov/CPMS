@@ -127,5 +127,16 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 	public List<User> getAll() {
 		return userRepository.findAll();
 	}
+
+	@Override
+	public User getByUserID(Long userId) {
+		if (userId == null) {
+			throw new DataAccessException("Null value.");
+		}
+		if (userId <= 0) {
+			throw new DataAccessException("This is not a persisted user.");
+		}
+		return userRepository.retrieveUserByUserId(userId);
+	}
 	
 }

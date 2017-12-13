@@ -29,6 +29,14 @@ public interface IUserDAO {
 	 * @return first user found with this username
 	 */
 	public User getByUsername(String username);
+
+	/**
+	 * Finds user by his user id. Useful when working with Principal object.
+	 * 
+	 * @param userId user's id
+	 * @return user found with this userId
+	 */
+	public User getByUserID(Long userId);
 	
 	/**
 	 * Counts all users saved.

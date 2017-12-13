@@ -8,10 +8,12 @@ package com.cpms.security;
  */
 public class RegistrationForm {
 	
-	private String username;
-	private String password;
-	private boolean adminRole = false;
-	private boolean residentRole = false;
+	public Long id;
+	public Long profileId;
+	public String username;
+	public String password;
+	public boolean adminRole = false;
+	public boolean residentRole = false;
 	
 	public String getUsername() {
 		return username;
@@ -43,6 +45,34 @@ public class RegistrationForm {
 	
 	public void setResidentRole(boolean residentRole) {
 		this.residentRole = residentRole;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the profileId
+	 */
+	public Long getProfileId() {
+		return profileId;
+	}
+
+	/**
+	 * @param profileId the profileId to set
+	 */
+	public void setProfileId(Long profileId) {
+		this.profileId = profileId;
 	}
 	
 }

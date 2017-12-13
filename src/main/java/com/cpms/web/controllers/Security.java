@@ -16,10 +16,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.ProfileData;
+import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.exceptions.WrongUserProfileException;
 import com.cpms.security.RegistrationForm;
@@ -39,6 +43,8 @@ import com.cpms.web.UserSessionData;
 @RequestMapping(path = "/security/")
 public class Security {
 
+	public static String adminName = "admin", adminPassword = "admin";
+
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
@@ -52,10 +58,35 @@ public class Security {
 	private UserSessionData sessionData;
 
 	@RequestMapping(path = "/register", method = RequestMethod.GET)
-	public String register(Model model) {
-		model.addAttribute("_VIEW_TITLE", "title.register");
+	public String register(Model model, @RequestParam(name = "userId", required = false) Long id) {
+		boolean isCreate = false;
+		if (id == null || id == 0 || userDAO.getByUserID(id) == null)
+			isCreate = true;
+		if (isCreate)
+			model.addAttribute("_VIEW_TITLE", "title.register");
+		else
+			model.addAttribute("_VIEW_TITLE", "title.edit.user");
 		model.addAttribute("_FORCE_CSRF", true);
-		model.addAttribute("registrationForm", new RegistrationForm());
+		RegistrationForm form = new RegistrationForm();
+		Profile profile = sessionData.getProfile();
+		if (profile != null)
+			form.profileId = profile.getId();
+		if (!isCreate) {
+			User user = userDAO.getByUserID(id);
+			form.setId(id);
+			form.setAdminRole(user.checkRole(RoleTypes.ADMIN));
+			form.setResidentRole(user.checkRole(RoleTypes.RESIDENT));
+			form.setUsername(user.getUsername());
+			if (form.isResidentRole())
+				form.setProfileId(user.getProfileId());
+		}
+		model.addAttribute("registrationForm", form);
+		model.addAttribute("isCreate", isCreate);
+		List<ProfileData> profileList = new ArrayList<>();
+		for (Profile profileData : profileDAO.getAll())
+			profileList.add(new ProfileData(profileData,
+					form.profileId != null && profileData.getId() == form.profileId));
+		model.addAttribute("profileList", profileList);
 		return "register";
 	}
 
@@ -72,27 +103,50 @@ public class Security {
 			return "register";
 		}
 		User user = new User();
+		boolean isCreate = false;
+		if (registrationForm.id == null || registrationForm.id == 0 ||
+				userDAO.getByUserID(registrationForm.id) == null)
+			isCreate = true;
+		if (!isCreate)
+			user = userDAO.getByUserID(registrationForm.id);
 		user.setUsername(registrationForm.getUsername());
-		user.setPassword(registrationForm.getPassword());
+		if (isCreate || registrationForm.getPassword() != null && !registrationForm.getPassword().isEmpty())
+			user.setPassword(registrationForm.getPassword());
 		if (registrationForm.isAdminRole()) {
-			Role newRole = new Role();
-			newRole.setRolename(RoleTypes.ADMIN.toString());
-			user.addRole(newRole);
+			if (!user.checkRole(RoleTypes.ADMIN)) {
+				Role newRole = new Role();
+				newRole.setRolename(RoleTypes.ADMIN.toString());
+				user.addRole(newRole);
+			}
+		} else {
+			Role role = new Role();
+			role.setRolename(RoleTypes.ADMIN.toString());
+			user.removeRole(role);
 		}
 		if (registrationForm.isResidentRole()) {
-			Role newRole = new Role();
-			newRole.setRolename(RoleTypes.RESIDENT.toString());
-			user.addRole(newRole);
-			correctProfileCheck(sessionData.getProfile(), request);
-			user.setProfileId(sessionData.getProfile().getId());
+			if (!user.checkRole(RoleTypes.RESIDENT)) {
+				Role newRole = new Role();
+				newRole.setRolename(RoleTypes.RESIDENT.toString());
+				user.addRole(newRole);
+			}
+			correctProfileCheck(profileDAO.getOne(registrationForm.getProfileId()), request);
+			user.setProfileId(registrationForm.getProfileId());
+		} else {
+			Role role = new Role();
+			role.setRolename(RoleTypes.RESIDENT.toString());
+			user.removeRole(role);
+			user.setProfileId(null);
 		}
-		userDAO.insertUser(user);
-		return "redirect:/";
+		if (isCreate)
+			userDAO.insertUser(user);
+		else
+			userDAO.updateUser(user);
+		return "redirect:/security/users";
 	}
 
 	private void correctProfileCheck(Profile profile, HttpServletRequest request) {
 		if (profile == null) {
-			throw new WrongUserProfileException("You have no remembered profile", request.getPathInfo());
+			throw new WrongUserProfileException("You have no chosen profile", request.getPathInfo());
 		}
 		if (userDAO.getByProfile(profile) != null) {
 			throw new WrongUserProfileException("There is already a user with such profile.", request.getPathInfo());
@@ -119,6 +173,13 @@ public class Security {
 			}
 		}
 		return res;
+	}
+
+	@RequestMapping(path = { "/delete" }, method = RequestMethod.GET)
+	public String profileDelete(Model model, @RequestParam(name = "userId", required = true) Long id) {
+		User user = userDAO.getByUserID(id);
+		userDAO.deleteUser(user);
+		return "redirect:/security/users";
 	}
 
 	@RequestMapping(path = "/login", method = RequestMethod.GET)

@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
+import com.cpms.security.RoleTypes;
 import com.cpms.security.SecurityUser;
 
 /**
@@ -129,10 +130,21 @@ public class User extends AbstractDomainObject {
 		if (roles == null) {
 			this.getRoles();
 		}
-		if (roles.contains(role)) {
-			roles.remove(role);
-			role.setOwner(null);
-		}
+		for (Role userRole : new ArrayList<Role>(roles))
+			if (userRole.getRolename().equals((role.getRolename()))) {
+				roles.remove(userRole);
+				userRole.setOwner(null);
+			}
+	}
+	
+	public boolean checkRole(RoleTypes type) {
+		return checkRole(type.toString());
+	}
+	public boolean checkRole(String roleName) {
+		for (Role role : this.roles)
+			if (role.getRolename().equals(roleName))
+				return true;
+		return false;
 	}
 
 	@Override
