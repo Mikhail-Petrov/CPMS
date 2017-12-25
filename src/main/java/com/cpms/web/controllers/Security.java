@@ -104,11 +104,13 @@ public class Security {
 		}
 		User user = new User();
 		boolean isCreate = false;
-		if (registrationForm.id == null || registrationForm.id == 0 ||
-				userDAO.getByUserID(registrationForm.id) == null)
+		Long userId = registrationForm.id;
+		if (userId == null)
+			userId = 0L;
+		if (userId == 0 || userDAO.getByUserID(userId) == null)
 			isCreate = true;
 		if (!isCreate)
-			user = userDAO.getByUserID(registrationForm.id);
+			user = userDAO.getByUserID(userId);
 		user.setUsername(registrationForm.getUsername());
 		if (isCreate || registrationForm.getPassword() != null && !registrationForm.getPassword().isEmpty())
 			user.setPassword(registrationForm.getPassword());
@@ -129,7 +131,7 @@ public class Security {
 				newRole.setRolename(RoleTypes.RESIDENT.toString());
 				user.addRole(newRole);
 			}
-			correctProfileCheck(profileDAO.getOne(registrationForm.getProfileId()), request);
+			correctProfileCheck(profileDAO.getOne(registrationForm.getProfileId()), request, userId);
 			user.setProfileId(registrationForm.getProfileId());
 		} else {
 			Role role = new Role();
@@ -144,11 +146,12 @@ public class Security {
 		return "redirect:/security/users";
 	}
 
-	private void correctProfileCheck(Profile profile, HttpServletRequest request) {
+	private void correctProfileCheck(Profile profile, HttpServletRequest request, long userId) {
 		if (profile == null) {
 			throw new WrongUserProfileException("You have no chosen profile", request.getPathInfo());
 		}
-		if (userDAO.getByProfile(profile) != null) {
+		User profileUser = userDAO.getByProfile(profile);
+		if (profileUser != null && profileUser.getId() != userId) {
 			throw new WrongUserProfileException("There is already a user with such profile.", request.getPathInfo());
 		}
 	}
