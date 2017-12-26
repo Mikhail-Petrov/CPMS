@@ -57,16 +57,6 @@ public class CommonModelAttributes {
 		return userHasRole(request, RoleTypes.ADMIN);
 	}
 
-	/*@ModelAttribute("remember")
-	public static void remember(HttpServletRequest request) {
-		// dropdowned = !dropdowned;
-	}
-
-	@ModelAttribute("isDropdowned")
-	public boolean isDropdowned(HttpServletRequest request) {
-		return dropdowned;
-	}*/
-
 	@ModelAttribute("isResident")
 	public Boolean isResident(HttpServletRequest request) {
 		return userHasRole(request, RoleTypes.RESIDENT);

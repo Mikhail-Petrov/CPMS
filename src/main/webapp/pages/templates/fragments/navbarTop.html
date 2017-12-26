@@ -30,16 +30,27 @@
               
               <ul class="langbar-list">
 				<li class="langbar-li">
-					<a id="lang_en" href="?language=ru" class="icon">
+					<a id="lang_ru" href="?language=ru" class="icon">
 						<img th:src="@{/resources/images/flag_ru.png}" class="langbar-img"/>
 					</a>
 				</li>
 				<li class="langbar-li">
-					<a id="lang_ru" href="?language=en" class="icon">
+					<a id="lang_en" href="?language=en" class="icon">
 						<img th:src="@{/resources/images/flag_en.png}" class="langbar-img"/>
 					</a>
 				</li>
-			</ul>
+			  </ul>
+			  <script>
+			  var loc = String(document.location);
+			  if (loc.indexOf("?") >= 0) {
+				  // <!--
+				  loc = loc + "&";
+				  loc = loc.replace('language=en&', '').replace('language=ru&', '');
+				  // -->
+				  document.getElementById('lang_en').setAttribute('href', loc + 'language=en');
+				  document.getElementById('lang_ru').setAttribute('href', loc + 'language=ru');
+			  }
+			  </script>
             </nav>
           </div>
         </div>

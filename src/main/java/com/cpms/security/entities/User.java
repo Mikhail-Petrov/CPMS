@@ -60,6 +60,10 @@ public class User extends AbstractDomainObject {
 		return hashed;
 	}
 	
+	public void setHashed(boolean hashed) {
+		this.hashed = hashed;
+	}
+	
 	public Long getProfileId() {
 		return profileId;
 	}

@@ -114,6 +114,8 @@ public class Security {
 		user.setUsername(registrationForm.getUsername());
 		if (isCreate || registrationForm.getPassword() != null && !registrationForm.getPassword().isEmpty())
 			user.setPassword(registrationForm.getPassword());
+		else
+			user.setHashed(true);
 		if (registrationForm.isAdminRole()) {
 			if (!user.checkRole(RoleTypes.ADMIN)) {
 				Role newRole = new Role();
