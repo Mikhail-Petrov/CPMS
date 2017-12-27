@@ -12,6 +12,7 @@ public class SkillLevelAnswer implements IAjaxAnswer {
 
 	private long id;
 	private String about, about_ru, about_en;
+	private int level;
 	private boolean successful = false;
 	
 	public SkillLevelAnswer(SkillLevel source, boolean successful) {
@@ -19,6 +20,7 @@ public class SkillLevelAnswer implements IAjaxAnswer {
 		about = source.getPresentationAbout();
 		about_ru = source.getAbout_RU();
 		about_en = source.getAbout();
+		level = source.getLevel();
 		this.successful = successful;
 	}
 	
@@ -27,6 +29,7 @@ public class SkillLevelAnswer implements IAjaxAnswer {
 		about = "Skill Level not found";
 		setAbout_ru("Уровень умения не найдено");
 		setAbout_en("Skill Level not found");
+		level = 0;
 		successful = false;
 	}
 
@@ -80,6 +83,20 @@ public class SkillLevelAnswer implements IAjaxAnswer {
 	 */
 	public void setAbout_en(String about_en) {
 		this.about_en = about_en;
+	}
+
+	/**
+	 * @return the level
+	 */
+	public int getLevel() {
+		return level;
+	}
+
+	/**
+	 * @param level the level to set
+	 */
+	public void setLevel(int level) {
+		this.level = level;
 	}
 	
 }
