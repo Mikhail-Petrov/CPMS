@@ -205,14 +205,6 @@
 				for (i = 0; i < levels.length; i++) {
 					res += "<tr><td><p>";
 					res += "<span>" + levels[i].level + " - " + levels[i].about + "</span>";
-					if (admin) {
-						res += "<a href=\""+/*[[@{/editor}]]*/ "/editor";
-						if (levels[i].id > 0) {
-							res += "/" + skillId + "/skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelEdit + "</button>";
-						} else {
-							res += "/" + skillId + "/skillLevel?level=" + levels[i].level + "\"><button class=\"btn btn-primary btn-block\" type=\"submit\">" + treeSkillLevelDefine + "</button>";
-						}
-					}
 					res += "</p></td></tr>\n";
 				}
 				return res;

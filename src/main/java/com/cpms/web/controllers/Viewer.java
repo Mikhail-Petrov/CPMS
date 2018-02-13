@@ -227,7 +227,7 @@ public class Viewer {
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("competency", new Competency());
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+					SkillUtils.sortAndAddIndents(skillDao.getAllIncludingDrafts()));
 			model.addAttribute("evidence", new Evidence());
 			model.addAttribute("types", Arrays.asList(EvidenceType.values()));
 		}
@@ -282,7 +282,7 @@ public class Viewer {
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("requirement", new TaskRequirement());
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+					SkillUtils.sortAndAddIndents(skillDao.getAllIncludingDrafts()));
 		}
 		Task task = facade.getTaskDAO().getOne(id);
 		model.addAttribute("backPath", returnUrl);

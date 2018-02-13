@@ -155,7 +155,8 @@ public class EditorSkill {
 			throw new SessionExpiredException(null);
 		}
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
-			recievedSkill.setDraft(true);
+			if (!CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN))
+				recievedSkill.setDraft(true);
 			recievedSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName()).getId());
@@ -304,7 +305,8 @@ public class EditorSkill {
 		newSkill.setAbout_RU(recievedSkill.getAbout_RU());
 		newSkill.setAbout(recievedSkill.getAbout());
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
-			newSkill.setDraft(true);
+			if (!CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN))
+				newSkill.setDraft(true);
 			newSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName()).getId());
@@ -384,7 +386,8 @@ public class EditorSkill {
 		newSkill.setAbout_RU(recievedSkill.getAbout_RU());
 		newSkill.setAbout(recievedSkill.getAbout());
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
-			newSkill.setDraft(true);
+			if (!CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN))
+				newSkill.setDraft(true);
 			newSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName()).getId());
