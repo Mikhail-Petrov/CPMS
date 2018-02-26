@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="updateLevelDescription">
+<script th:inline="javascript">
+/*<![CDATA[*/
+	
+	function updateLevelDescription(skillChanged) {
+		var skillLevels = /*[[${skillLevels}]]*/null;
+		var skill = $(skillSelector).val();
+		if (skillChanged)
+			$(levelNumber).val(1);
+		var level = $(levelNumber).val();
+		if (level == 0)
+			level = 1;
+		var value = "";
+		if (skillLevels != null)
+			value = skillLevels[skill][level - 1];
+		else
+			value = levelNumber;
+		$(levelDescription).html(value);
+	
+		if (skillChanged)
+			$(levelNumber).trigger("input");
+}
+	$(levelNumber).on("input", function() {updateLevelDescription(false)});
+	$(skillSelector).on("input", function() {updateLevelDescription(true)});
+	$(levelNumber).trigger("input");
+
+/*]]>*/
+</script>
+</th:block>
+</html>

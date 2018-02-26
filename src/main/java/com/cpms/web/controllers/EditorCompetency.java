@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.SkillLevel;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
@@ -59,11 +60,10 @@ public class EditorCompetency {
 			bindingResult.rejectValue("skill", "error.skill",
 					"Such skill is already used.");
 		}
-		model.addAttribute("skillLevels", EditorRequirement.getSkillLevels(
-				facade.getSkillDAO().getAll()));
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("skillsList", 
 					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 			model.addAttribute("profile", profile);
 			return ("fragments/editCompetencyModal :: competencyModalForm");
 		}
@@ -125,6 +125,7 @@ public class EditorCompetency {
 		model.addAttribute("create", create);
 		model.addAttribute("skillsList", 
 				SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 		model.addAttribute("postAddress", "/editor/" + profileId + "/competency");
 		return "editCompetency";
 	}
@@ -147,6 +148,7 @@ public class EditorCompetency {
 		boolean create = (recievedCompetency.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("create", create);
+			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 			model.addAttribute("skillsList", 
 					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
 			model.addAttribute("postAddress", "/editor/" + profileId + "/competency");

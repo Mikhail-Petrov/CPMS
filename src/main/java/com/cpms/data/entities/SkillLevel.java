@@ -1,6 +1,10 @@
 package com.cpms.data.entities;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +24,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.data.validation.BilingualValidation;
 import com.cpms.exceptions.DataAccessException;
+import com.cpms.web.UserSessionData;
 
 /**
  * Entity class for skill level.
@@ -133,4 +138,14 @@ public class SkillLevel extends AbstractDomainObject {
 		return returnValue;
 	}
 	
+	public static Map<Long, List<String>> getSkillLevels(List<Skill> skills){
+		Map<Long, List<String>> result = new HashMap<Long, List<String>>();
+		for (Skill skill : skills) {
+			result.put(skill.getId(), new ArrayList<>());
+			for (SkillLevel skillLevel : skill.getFullSkillLevels())
+				result.get(skill.getId()).add(UserSessionData.localizeText(
+						skillLevel.getAbout_RU(), skillLevel.getAbout()));
+		}
+		return result;
+	}
 }

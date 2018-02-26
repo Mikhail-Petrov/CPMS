@@ -33,6 +33,7 @@ import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Evidence;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
+import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.WrongJsonException;
@@ -228,6 +229,7 @@ public class Viewer {
 			model.addAttribute("competency", new Competency());
 			model.addAttribute("skillsList", 
 					SkillUtils.sortAndAddIndents(skillDao.getAllIncludingDrafts()));
+			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 			model.addAttribute("evidence", new Evidence());
 			model.addAttribute("types", Arrays.asList(EvidenceType.values()));
 		}
@@ -283,6 +285,7 @@ public class Viewer {
 			model.addAttribute("requirement", new TaskRequirement());
 			model.addAttribute("skillsList", 
 					SkillUtils.sortAndAddIndents(skillDao.getAllIncludingDrafts()));
+			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 		}
 		Task task = facade.getTaskDAO().getOne(id);
 		model.addAttribute("backPath", returnUrl);
