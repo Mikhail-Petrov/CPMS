@@ -126,6 +126,7 @@
 											<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
 											<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
 		                                </div>
+		<p id="levelDescription" text="1"></p>
 		                                <hr class="separator" />
 		                                <div class="row">
 		                                    <p th:text="#{editor.competency.skill}"></p>
@@ -136,6 +137,7 @@
 											</select></p>
 		                                </div>
 		                            </div>
+		<th:block th:replace="fragments/updateLevelDescription :: updateLevelDescription"></th:block>
 		                            <div class="modal-footer">
 		                                <button type="button" class="btn btn-primary" onclick="javascript:submitCompetencyForm();return false;" th:text="#{editor.create}"></button>
 		                            </div>

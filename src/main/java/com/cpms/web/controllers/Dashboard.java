@@ -19,6 +19,7 @@ import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
 import com.cpms.exceptions.NoSessionProfileException;
 import com.cpms.exceptions.SessionExpiredException;
@@ -71,6 +72,7 @@ public class Dashboard {
 		model.addAttribute("create", true);
 		model.addAttribute("skillsList", 
 				SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("competencyApplications",
 					applicationsService.retrieveSuggestedCompetencies());

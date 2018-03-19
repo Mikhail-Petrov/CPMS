@@ -31,6 +31,23 @@
 									</select></p>
                                 </div>
 		<th:block th:replace="fragments/updateLevelDescription :: updateLevelDescription"></th:block>
+								<p th:if="!${isResident}">
+									<span th:text="#{editor.competency.newskill} + ': '"></span><input type="checkbox" id="newSkill"
+										value="false"/>
+								</p>
+								
+                                <div th:if="!${isResident}" id="newSkillForm">
+							  		<form action="#" th:action="@{/editor/skill/alternativeAsync}" th:object="${competency}" method="post" id="skillCreate">
+										<p><input type="submit" id="skillSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+										<p th:text="#{skillPopup.editor.level}"></p>
+										<table class="table table-striped">
+											<tbody id="levelsPost">
+											</tbody>
+										</table>
+										<p><input type="submit" class="btn btn-primary btn-block" value="+" onclick="$(levelsNum).val(parseInt($(levelsNum).val())+1); $(levelsNum).trigger('input'); return false"/></p>
+							  			<p><input type="submit" id="skillSubmitButton2" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+									</form>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" onclick="javascript:submitCompetencyForm();return false;" th:text="#{editor.create}"></button>
@@ -38,6 +55,12 @@
                         </div>
                     </div>
             	</form>
+							<script th:if="!${isResident}">
+								$("#newSkill").on("change", function() {
+									$("#newSkillForm").prop("hidden", !$("#newSkill").prop('checked'));
+								});
+								$("#newSkill").trigger("change");
+							</script>
 			</div>
 			
 			<div th:fragment="competencyDashboardModalForm" th:remove="tag">		
@@ -62,6 +85,7 @@
 									<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
 									<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
                                 </div>
+		<p id="levelDescription" text="1"></p>
                                 <hr class="separator" />
                                 <div class="row">
                                     <p th:text="#{editor.competency.skill}"></p>
@@ -71,6 +95,7 @@
           									th:text="${skillInList.name}">A skill</option>
 									</select></p>
                                 </div>
+		<th:block th:replace="fragments/updateLevelDescription :: updateLevelDescription"></th:block>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" onclick="javascript:submitCompetencyForm();return false;" th:text="#{editor.create}"></button>
