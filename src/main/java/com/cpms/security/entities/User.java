@@ -142,7 +142,7 @@ public class User extends AbstractDomainObject {
 	}
 	
 	public boolean checkRole(RoleTypes type) {
-		return checkRole(type.toString());
+		return checkRole(type.toRoleName());
 	}
 	public boolean checkRole(String roleName) {
 		for (Role role : this.getRoles())

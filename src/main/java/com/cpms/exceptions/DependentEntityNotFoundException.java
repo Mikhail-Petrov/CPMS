@@ -1,6 +1,7 @@
 package com.cpms.exceptions;
 
 import com.cpms.data.DomainObject;
+import com.cpms.web.UserSessionData;
 
 /**
  * Thrown in case an entity was requested to find it's child entity, but
@@ -21,18 +22,20 @@ public class DependentEntityNotFoundException extends WebException {
 			String path) {
 		super(
 				dependent.getCanonicalName()
-					+ " of "
+					+ UserSessionData.localizeText(" ", " of ")
 					+ owner.getCanonicalName()
-					+ " that you have requested was not found.",
-				"Entity of type " 
+					+ UserSessionData.localizeText(", который вы запрашивали, не был найден.",
+							" that you have requested was not found."),
+					UserSessionData.localizeText("Сущность типа ", "Entity of type ") 
 					+ dependent.getCanonicalName()
-					+ " with id of "
+					+ UserSessionData.localizeText(" с идентификатором ", " with id of ")
 					+ dependentId
-					+ " of owner "
+					+ UserSessionData.localizeText(" владельца ", " of owner ")
 					+ owner.getCanonicalName()
-					+ " with id of "
+					+ UserSessionData.localizeText(" с идентификатором ", " with id of ")
 					+ ownerId
-					+ " requested and not found.",
+					+ UserSessionData.localizeText(", которая была запрошена, не найдена",
+							" requested and not found."),
 					cause,
 					path);
 					
@@ -46,18 +49,20 @@ public class DependentEntityNotFoundException extends WebException {
 			String path) {
 		super(
 				dependent.getCanonicalName()
-					+ " of "
-					+ owner.getCanonicalName()
-					+ " that you have requested was not found.",
-				"Entity of type " 
-					+ dependent.getCanonicalName()
-					+ " with id of "
-					+ dependentId
-					+ " of owner "
-					+ owner.getCanonicalName()
-					+ " with id of "
-					+ ownerId
-					+ " requested and not found.",
+				+ UserSessionData.localizeText(" ", " of ")
+				+ owner.getCanonicalName()
+				+ UserSessionData.localizeText(", который вы запрашивали, не был найден.",
+						" that you have requested was not found."),
+				UserSessionData.localizeText("Сущность типа ", "Entity of type ") 
+				+ dependent.getCanonicalName()
+				+ UserSessionData.localizeText(" с идентификатором ", " with id of ")
+				+ dependentId
+				+ UserSessionData.localizeText(" владельца ", " of owner ")
+				+ owner.getCanonicalName()
+				+ UserSessionData.localizeText(" с идентификатором ", " with id of ")
+				+ ownerId
+				+ UserSessionData.localizeText(", которая была запрошена, не найдена",
+						" requested and not found."),
 					path);
 					
 	}

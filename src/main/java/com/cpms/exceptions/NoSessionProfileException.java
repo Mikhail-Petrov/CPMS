@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import com.cpms.web.UserSessionData;
+
 /**
  * Thrown when there needs to be a profile remembered within user context,
  * but there is none.
@@ -11,13 +13,15 @@ package com.cpms.exceptions;
 public class NoSessionProfileException extends WebException {
 
 	public NoSessionProfileException(Exception cause, String path) {
-		super("You need to remember the profile first.",
-				"Access without profile being remembered.", cause, path);
+		super(UserSessionData.localizeText("Сперва нужно запомнить профиль", 
+				"You need to remember the profile first."), UserSessionData.localizeText(
+				"Доступ без учета профиля.", "Access without profile being remembered."), cause, path);
 	}
 	
 	public NoSessionProfileException(String path) {
-		super("You need to remember the profile first.",
-				"Access without profile being remembered.", path);
+		super(UserSessionData.localizeText("Сперва нужно запомнить профиль", 
+				"You need to remember the profile first."), UserSessionData.localizeText(
+				"Доступ без учета профиля.", "Access without profile being remembered."), path);
 	}
 
 }

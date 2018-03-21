@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import com.cpms.web.UserSessionData;
+
 /**
  * Thrown when session data seems to be lost.
  * 
@@ -10,12 +12,16 @@ package com.cpms.exceptions;
 public class SessionExpiredException extends WebException {
 
 	public SessionExpiredException(Exception cause, String path) {
-		super("It seems that you were away for too long and your session has expired!",
+		super(UserSessionData.localizeText(
+				"Кажется, вы слишком долго отсутствовали, и ваша сессия истекла!", 
+				"It seems that you were away for too long and your session has expired!"),
 				"Session expiration.", cause, path);
 	}
 	
 	public SessionExpiredException(String path) {
-		super("It seems that you were away for too long and your session has expired!",
+		super(UserSessionData.localizeText(
+				"Кажется, вы слишком долго отсутствовали, и ваша сессия истекла!", 
+				"It seems that you were away for too long and your session has expired!"),
 				"Session expiration.", path);
 	}
 

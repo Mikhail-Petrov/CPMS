@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import com.cpms.web.UserSessionData;
+
 /**
  * Thrown when user has attempted to access wrong page.
  * 
@@ -10,12 +12,16 @@ package com.cpms.exceptions;
 public class WrongPageException extends WebException {
 
 	public WrongPageException(String explanation, Exception cause, String path) {
-		super("The page that you have tried to access does not exist.", 
+		super(UserSessionData.localizeText(
+				"Страница, к который вы пытаетесь получить доступ, не существует.",
+				"The page that you have tried to access does not exist."), 
 				explanation, cause, path);
 	}
 	
 	public WrongPageException(String explanation, String path) {
-		super("The page that you have tried to access does not exist.", 
+		super(UserSessionData.localizeText(
+				"Страница, к который вы пытаетесь получить доступ, не существует.",
+				"The page that you have tried to access does not exist."), 
 				explanation, path);
 	}
 

@@ -150,11 +150,14 @@ public class Security {
 
 	private void correctProfileCheck(Profile profile, HttpServletRequest request, long userId) {
 		if (profile == null) {
-			throw new WrongUserProfileException("You have no chosen profile", request.getPathInfo());
+			throw new WrongUserProfileException(UserSessionData.localizeText(
+					"Вы не выбрали профиль", "You have no chosen profile"), request.getPathInfo());
 		}
 		User profileUser = userDAO.getByProfile(profile);
 		if (profileUser != null && profileUser.getId() != userId) {
-			throw new WrongUserProfileException("There is already a user with such profile.", request.getPathInfo());
+			throw new WrongUserProfileException(UserSessionData.localizeText(
+					"Уже есть пользователь с таким профилем",
+					"There is already a user with such profile."), request.getPathInfo());
 		}
 	}
 

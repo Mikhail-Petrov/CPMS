@@ -35,6 +35,7 @@ import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.User;
 import com.cpms.web.SkillPostForm;
 import com.cpms.web.SkillUtils;
+import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.SkillAnswer;
 
@@ -338,9 +339,12 @@ public class EditorSkill {
 					&& (level.getAbout().length() >= 0 && level.getAbout().length() <= 1000)
 					&& (level.getAbout_RU().length() >= 0 && level.getAbout_RU().length() <= 1000);
 		}
+		String invSkill = UserSessionData.localizeText(
+				"Отправлен некорректный навык!", "Invalid skill submitted!");
 		if (!longEnough) {
-			throw new ManualValidationException("Invalid skill submitted!",
-					"One of skill levels is shorter than 10 or longer than 1000 symbols.",
+			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
+							"Один из уровней навыка короче 10 или длиннее 1000 символов.",
+							"One of skill levels is shorter than 10 or longer than 1000 symbols."),
 					request.getPathInfo());
 		}
 		if (recievedSkill.getName() != null && recievedSkill.getName().length() < 5) {
@@ -350,22 +354,24 @@ public class EditorSkill {
 			recievedSkill.setName_RU(null);
 		}
 		if (recievedSkill.getName() == null && recievedSkill.getName_RU() == null) {
-			throw new ManualValidationException("Invalid skill submitted!",
-					"Please fill in at least one name for a skill.",
+			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
+							"Пожалуйста, заполните как минимум одно название для навыка.",
+							"Please fill in at least one name for a skill."),
 					request.getPathInfo()); 
 		}
 		if ((recievedSkill.getName() != null && recievedSkill.getName().length() > 100) 
 				|| (recievedSkill.getName_RU() != null && recievedSkill.getName_RU().length() > 100)) {
-			throw new ManualValidationException("Invalid skill submitted!",
-					"Skill's name should not be longer than 100 symbols.",
+			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
+							"Название навыка не должно быть длиннее 100 символов.",
+							"Skill's name should not be longer than 100 symbols."),
 					request.getPathInfo()); 
 		}
 		if (!((recievedSkill.getAbout().length() >= 0 && 
 				recievedSkill.getAbout().length() <= 1000)
 				&& (recievedSkill.getAbout_RU().length() >= 0 && 
 						recievedSkill.getAbout_RU().length() <= 1000))) {
-			throw new ManualValidationException("Invalid skill submitted!",
-					"Description is longer than 1000 symbols.",
+			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
+							"Описание длиннее 1000 символов.", "Description is longer than 1000 symbols."),
 					request.getPathInfo()); 
 		}
 		Skill newSkill = new Skill();

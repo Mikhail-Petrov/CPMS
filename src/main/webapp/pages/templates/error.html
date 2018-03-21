@@ -1,6 +1,46 @@
-		<div class="navbar-offset">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<script th:inline="javascript">
+		var rootPath = /*[[@{/}]]*/ "/test";
+	</script>
+	<head>
+		<meta charset="utf-8" />
+		<th:block th:replace="fragments/compatibility-meta-include :: compatibility-meta-include" />
+		<th:block th:if="${_NAMED_TITLE}">
+			<title th:text="${_VIEW_TITLE}">CPMS</title>
+		</th:block>
+		<th:block th:if="${_NAMED_TITLE} == null">
+			<title th:text="#{${_VIEW_TITLE}}">CPMS</title>
+		</th:block>
+		<th:block th:if="${_FORCE_CSRF}">
+			<meta name="_csrf" th:content="${_csrf.token}"/>
+			<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+		</th:block>
+		<th:block th:replace="fragments/css-full-include :: css-full-include"></th:block>
+	</head>
+	<body class="nav-md">
+		<div class="container body">
+      		<div class="main_container">
+				<div th:replace="fragments/navbar :: navbar"></div>
+				<div th:replace="fragments/navbarTop :: top-navbar"></div>
+				<th:block th:replace="fragments/js-full-include :: js-full-include"></th:block>
+				<div class="right_col" role="main">
 		<h1><span th:text="${message}"></span></h1>
 		<th:block th:if="${description} != null">
 			<b><span th:text="${description}"></span></b>
 		</th:block>
+				</div>
+				<div class="modal fade" id="help" tabindex="-1" role="dialog" aria-labelledby="helpLabel" aria-hidden="true">
+                    <div th:replace="fragments/help :: help"></div>
+                </div>
+				<div th:replace="fragments/popup"></div>
+        		<footer>
+          			<div class="pull-right">
+
+          			</div>
+          			<div class="clearfix"></div>
+        		</footer>
+			</div>
 		</div>
+	</body>
+</html>

@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import com.cpms.web.UserSessionData;
+
 /**
  * Thrown when JSON parsing utility found unknown JSON format.
  * 
@@ -10,11 +12,11 @@ package com.cpms.exceptions;
 public class WrongJsonException extends CPMSException {
 
 	public WrongJsonException(String json, Exception cause) {
-		super("Wrong JSON recieved:\n" + json, cause);
+		super(UserSessionData.localizeText("Получен неверный JSON:\n", "Wrong JSON recieved:\n") + json, cause);
 	}
 
 	public WrongJsonException(String json) {
-		super("Wrong JSON recieved:\n" + json);
+		super(UserSessionData.localizeText("Получен неверный JSON:\n", "Wrong JSON recieved:\n") + json);
 	}
 	
 }
