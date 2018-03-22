@@ -8,11 +8,14 @@ import java.util.stream.Collectors;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.security.RoleTypes;
 import com.cpms.web.UserSessionData;
 
@@ -25,6 +28,10 @@ import com.cpms.web.UserSessionData;
 @ControllerAdvice
 public class CommonModelAttributes {
 	static boolean dropdowned = true;
+
+	@Autowired
+	@Qualifier("userDAO")
+	private IUserDAO userDAO;
 
 	@ModelAttribute("isAuthenticated")
 	public boolean isAuthenticated(Principal principal) {
@@ -50,6 +57,17 @@ public class CommonModelAttributes {
 		}
 		UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) principal;
 		return user.getName();
+	}
+	
+	@ModelAttribute("companyId")
+	public long companyId(Principal principal) {
+		if (!isAuthenticated(principal)) {
+			return 0;
+		}
+		String username = ((UsernamePasswordAuthenticationToken) principal).getName();
+		if (username.equals(Security.adminName))
+			return 0;
+		return userDAO.getByUsername(username).getProfileId().longValue();
 	}
 
 	@ModelAttribute("isAdmin")

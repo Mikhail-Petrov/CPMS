@@ -10,6 +10,25 @@
 								<p><span th:text="${profile.email}"></span></p>
 								<p><span th:text="${profile.about}"></span></p>
                                 <br/>
+
+								<th:block th:if="${isAdmin}">
+	                                <div class="row">
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.competency.add}"></button>
+	                                    </div>
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    	<a th:href="@{/editor/profile(id=${profile.id})}">
+	                                        	<button type="button" class="btn btn-warning btn-block" th:text="#{profile.edit}"></button>
+	                                        </a>
+	                                    </div>
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    	<a th:href="@{/editor/profile/delete(id=${profile.id})}">
+	                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{profile.delete}"></button>
+	                                        </a>
+	                                    </div>
+	                                </div>
+	                                <br/>
+                                </th:block>
                                 <p><b><span th:text="#{profile.competencies}"></span></b></p>
                                 <table class="table table-responsive table-striped">
                                     <tr th:each="competency : ${profile.competencies}">
@@ -60,24 +79,6 @@
                                     </tr>
                                 </table>
 
-								<th:block th:if="${isAdmin}">
-	                                <div class="row">
-	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
-	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.competency.add}"></button>
-	                                    </div>
-	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
-	                                    	<a th:href="@{/editor/profile(id=${profile.id})}">
-	                                        	<button type="button" class="btn btn-warning btn-block" th:text="#{profile.edit}"></button>
-	                                        </a>
-	                                    </div>
-	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
-	                                    	<a th:href="@{/editor/profile/delete(id=${profile.id})}">
-	                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{profile.delete}"></button>
-	                                        </a>
-	                                    </div>
-	                                </div>
-	                                <br/>
-                                </th:block>
                                 <div class="row">
                                     <div class="col-md-3 col-md-offset-8" style="padding-right: 0px;">
                                         <select class="form-control" id="actions">
