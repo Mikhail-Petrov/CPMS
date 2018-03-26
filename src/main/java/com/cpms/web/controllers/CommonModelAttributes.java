@@ -43,10 +43,11 @@ public class CommonModelAttributes {
 	public String navClass(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
 		boolean menuHidden = false;
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals("menuHidden"))
-				menuHidden = cookie.getValue().equals("true");
-		}
+		if (cookies != null)
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("menuHidden"))
+					menuHidden = cookie.getValue().equals("true");
+			}
 		return menuHidden ? "nav-sm" : "nav-md";
 	}
 	

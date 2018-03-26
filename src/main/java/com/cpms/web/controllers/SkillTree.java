@@ -27,6 +27,7 @@ import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.User;
 import com.cpms.web.SkillNameIdTuple;
+import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.SkillAnswer;
 
@@ -80,6 +81,7 @@ public class SkillTree {
 		}
 		model.addAttribute("useSearch", true);
 		model.addAttribute("search", search);
+		model.addAttribute("skillTitle", UserSessionData.localizeText("уровень", "skill"));
 		if (search != null && search != "") {
 			List<Skill> found =
 					facade.getSkillDAO().searchRange(search, Skill.class, 0, 1);

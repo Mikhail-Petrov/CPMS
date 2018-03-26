@@ -53,7 +53,8 @@
 				res="";
 				for (i = 0; i < totalLevels.length; i++) {
 					res += "<tr><td><p>";
-					res += "<span>" + (i + 1) + " уровень: </span>";
+					res += "<span>" + (i + 1) + " " + /*[[#{skill.level}]]*/ "skill";
+					res += ": </span>";
 					res += "</p>"
 					
 					res += "<p><textarea type=\"textarea\" "; 
@@ -181,11 +182,19 @@
 							}
 						    document.getElementById("levelsPost").innerHTML=generateLevelFormTable(totalLevels);
 						}
+						var skillName = "";
 						if (res.id > 0 && !isChange) {
 							$("#viewSkillBlock").show();
+							$("#newSkillForm").hide();
+							$('#parentSelect option[value="' + res.id + '"]').prop('selected', true);
+							skillName = /*[[#{skillPopup.child}]]*/ 'Create a Child';
 						} else {
 							$("#viewSkillBlock").hide();
+							$("#newSkillForm").show();
+							skillName = /*[[#{skillPopup.new}]]*/ 'Create a Skill';
 						}
+						document.getElementById('skillFormTitle').innerHTML =
+							"<span id=\"skillName\">" + skillName + "</span>";
 						$('#createSkillModal').modal('show');
 					},
 					error: function (xhRequest, ErrorText, thrownError) {
