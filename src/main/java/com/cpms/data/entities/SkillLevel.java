@@ -142,6 +142,8 @@ public class SkillLevel extends AbstractDomainObject {
 		Map<Long, List<String>> result = new HashMap<Long, List<String>>();
 		for (Skill skill : skills) {
 			result.put(skill.getId(), new ArrayList<>());
+			result.get(skill.getId()).add(UserSessionData.localizeText(
+					skill.getAbout_RU(), skill.getAbout()));
 			for (SkillLevel skillLevel : skill.getFullSkillLevels())
 				result.get(skill.getId()).add(UserSessionData.localizeText(
 						skillLevel.getAbout_RU(), skillLevel.getAbout()));

@@ -122,13 +122,6 @@
 		                            	</div>
 		                            	<input type="hidden" th:field="*{id}" />
 		                                <div class="row">
-		                                	<p th:text="#{editor.level}"></p>
-											<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
-											<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
-		                                </div>
-		<p id="levelDescription" text="1"></p>
-		                                <hr class="separator" />
-		                                <div class="row">
 		                                    <p th:text="#{editor.competency.skill}"></p>
 											<p><select th:field="*{skill}" id="skillSelector">
 		  										<option th:each="skillInList : ${skillsList}" 
@@ -136,6 +129,14 @@
 		          									th:text="${skillInList.name}">A skill</option>
 											</select></p>
 		                                </div>
+		<p id="skillDescription" text="1"></p>
+		                                <hr class="separator" />
+		                                <div class="row">
+		                                	<p th:text="#{editor.level}"></p>
+											<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
+											<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
+		                                </div>
+		<p id="levelDescription" text="1"></p>
 		                            </div>
 		<th:block th:replace="fragments/updateLevelDescription :: updateLevelDescription"></th:block>
 		                            <div class="modal-footer">

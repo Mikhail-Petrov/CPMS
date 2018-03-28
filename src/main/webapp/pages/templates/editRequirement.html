@@ -9,18 +9,6 @@
 			requirement</h3>
 		<hr />
 		<input type="hidden" th:field="*{id}" />
-		<p th:text="#{editor.requirement.line1}"></p>
-		<p th:text="#{editor.level}"></p>
-		<p>
-			<span th:text="#{editor.maxlevel}"></span> <span id="maxLevel"
-				th:text="#{editor.select_skill}"></span>.
-		</p>
-		<p>
-			<input type="number" th:field="*{level}" min="1" max="100"
-				id="levelNumber" /> <span th:if="${#fields.hasErrors('level')}"
-				th:errors="*{level}">Error</span>
-		</p>
-		<p id="levelDescription" text="1"></p>
 		<p th:text="#{editor.requirement.skill}"></p>
 		<p>
 			<select th:field="*{skill}" id="skillSelector">
@@ -33,6 +21,19 @@
 			<span th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}">Name
 				Error</span>
 		</p>
+		<p id="skillDescription" text="1"></p>
+		<p th:text="#{editor.requirement.line1}"></p>
+		<p th:text="#{editor.level}"></p>
+		<p>
+			<span th:text="#{editor.maxlevel}"></span> <span id="maxLevel"
+				th:text="#{editor.select_skill}"></span>.
+		</p>
+		<p>
+			<input type="number" th:field="*{level}" min="1" max="100"
+				id="levelNumber" /> <span th:if="${#fields.hasErrors('level')}"
+				th:errors="*{level}">Error</span>
+		</p>
+		<p id="levelDescription" text="1"></p>
 		<th:block th:replace="fragments/updateLevelDescription :: updateLevelDescription"></th:block>
 		<p>
 			<input type="submit"

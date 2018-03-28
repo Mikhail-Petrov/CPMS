@@ -121,6 +121,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				}
 			})
           	.permitAll()
+          	.defaultSuccessUrl("/", true)
           	.and()
       .logout()
       		.clearAuthentication(true)
