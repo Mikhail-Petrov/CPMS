@@ -90,6 +90,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           		.permitAll()
              .antMatchers("/editor/skill", "/editor/skill/alternative",
               			"/editor/skill/delete", "/editor/skill/delete/force",
+              			"/editor/profile",
               			"/editor/*/skillLevel", "/editor/skill/alternativeAsync")
               	.hasAnyRole(RoleTypes.RESIDENT.toString(), RoleTypes.ADMIN.toString())
           	.antMatchers("/editor","/editor/**")

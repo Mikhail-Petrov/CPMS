@@ -92,6 +92,9 @@ public class Skill extends AbstractDomainObject {
 	@Column(name = "owner", nullable = true)
 	private Long owner;
 	
+	@Column(name = "TYPE", nullable = true, length = 100)
+	private String type;
+	
 	//TODO see if you can fetch this lazily with hibernate
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "parent")
 	@Cascade({CascadeType.DETACH})
@@ -139,6 +142,14 @@ public class Skill extends AbstractDomainObject {
 
 	public void setAbout_RU(String about_RU) {
 		this.about_RU = about_RU;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public Long getOwner() {

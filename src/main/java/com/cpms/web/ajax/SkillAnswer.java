@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
+import com.cpms.web.UserSessionData;
 
 /**
  * AJAX answer that returns information about a certain skill.
@@ -17,10 +18,13 @@ public class SkillAnswer implements IAjaxAnswer {
 	private long id;
 	private String parentId;
 	private int maxLevel;
-	private String name, about, name_ru, name_en, about_ru, about_en;
+	private String name, about, name_ru, name_en, about_ru, about_en, type;
 	private boolean successful = false;
 	private List<SkillLevelAnswer> levels;
 	private boolean draft = false;
+	public final static String[] types = {"class", "skill", "knowledge", "communicative"};
+	public final static String[] types_ru = {"класс", "навык", "знания", "коммуникативные способности"}; 
+	public final static String[] types_en = {"class", "experience", "knowledge", "communication abilities"}; 
 	
 	public SkillAnswer(Skill source, boolean successful) {
 		id = source.getId();
@@ -31,6 +35,7 @@ public class SkillAnswer implements IAjaxAnswer {
 		about = source.getPresentationAbout();
 		about_ru = source.getAbout_RU();
 		about_en = source.getAbout();
+		setType(source.getType());
 		if (source.getParent() == null)
 			parentId = null;
 		else
@@ -55,6 +60,7 @@ public class SkillAnswer implements IAjaxAnswer {
 		setAbout_en("Skill not found");
 		successful = false;
 		levels = new ArrayList<SkillLevelAnswer>();
+		setType(types[0]);
 	}
 
 	public long getId() {
@@ -181,6 +187,27 @@ public class SkillAnswer implements IAjaxAnswer {
 	 */
 	public void setParentId(String parentId) {
 		this.parentId = parentId;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		/*for (int i = 0; i < types.length; i++)
+			if (type.equals(types_en[i]) || type.equals(types_ru[i]))
+				return types[i];
+		return types[0];*/
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = UserSessionData.localizeText(types_ru[0], types_en[0]);
+		for (int i = 1; i < types.length; i++)
+			if (types[i].equals(type))
+				this.type = UserSessionData.localizeText(types_ru[i], types_en[i]);
 	}
 	
 }

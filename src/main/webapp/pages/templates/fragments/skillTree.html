@@ -123,6 +123,7 @@
 					success: function (res) {
 						document.getElementById('skillName').innerHTML=res.name;
 						document.getElementById('skillAbout').innerHTML=res.about;
+						document.getElementById('skillType').innerHTML=res.type;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
 						document.getElementById('rememberLink').setAttribute('onclick', "my_ajaxDialog('" + rootPath + "dashboard/rememberSkill', '" + res.id + "'); return false;");
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
@@ -193,7 +194,8 @@
 							$("#newSkillForm").show();
 							skillName = /*[[#{skillPopup.new}]]*/ 'Create a Skill';
 						}
-						document.getElementById('skillFormTitle').innerHTML =
+						if (admin)
+						document.getElementById('skillFormTitle').innerHTML=
 							"<span id=\"skillName\">" + skillName + "</span>";
 						$('#createSkillModal').modal('show');
 					},

@@ -92,8 +92,9 @@ public class EditorSkill {
 				if (oldSkill.getOwner() == null ||
 						owner.getId() != oldSkill.getOwner().longValue() ||
 						!oldSkill.isDraft()) {
-					throw new AccessDeniedException(
-							"You are not allowed to edit this skill.", null);
+					throw new AccessDeniedException(UserSessionData.localizeText(
+							"У вас недостаточно прав для редактирования этого умения.",
+							"You are not allowed to edit this skill."), null);
 				}
 			}
 		}
@@ -103,13 +104,7 @@ public class EditorSkill {
 			BindingResult bindingResult,
 			Skill recievedSkill,
 			HttpServletRequest request) {
-		if (recievedSkill.getParent() != null && 
-				recievedSkill.getParent().isDraft() &&
-				CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
-			throw new ManualValidationException("Invalid skill submitted!",
-					"You can't create children of a draft skill, approve it's parent first.",
-					null);
-		}
+		checkNotChildrenOfDraft(request, recievedSkill);
 	}
 	
 	private void checkNotChildrenOfDraft(
@@ -118,8 +113,11 @@ public class EditorSkill {
 		if (recievedSkill.getParent() != null && 
 				recievedSkill.getParent().isDraft() &&
 				CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
-			throw new ManualValidationException("Invalid skill submitted!",
-					"You can't create children of a draft skill, approve it's parent first.",
+			throw new ManualValidationException(UserSessionData.localizeText(
+					"Отправлено некорректное умение", "Invalid skill submitted!"),
+					UserSessionData.localizeText(
+							"Неподтверждённое умение не может иметь дочерние умения, сперва необходимо подтвердить его.",
+							"You can't create children of a draft skill, approve it's parent first."),
 					null);
 		}
 	}
@@ -184,6 +182,7 @@ public class EditorSkill {
 			skill.setMaxLevel(recievedSkill.getMaxLevel());
 			skill.setName_RU(recievedSkill.getName_RU());
 			skill.setAbout_RU(recievedSkill.getAbout_RU());
+			skill.setType(recievedSkill.getType());
 			skill = facade.getSkillDAO().update(skill);
 		}
 		//return "redirect:/viewer/tree";
@@ -305,6 +304,7 @@ public class EditorSkill {
 		newSkill.setName_RU(recievedSkill.getName_RU());
 		newSkill.setAbout_RU(recievedSkill.getAbout_RU());
 		newSkill.setAbout(recievedSkill.getAbout());
+		newSkill.setType(recievedSkill.getType());
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
 			if (!CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN))
 				newSkill.setDraft(true);
@@ -391,6 +391,7 @@ public class EditorSkill {
 		newSkill.setName_RU(recievedSkill.getName_RU());
 		newSkill.setAbout_RU(recievedSkill.getAbout_RU());
 		newSkill.setAbout(recievedSkill.getAbout());
+		newSkill.setType(recievedSkill.getType());
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
 			if (!CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN))
 				newSkill.setDraft(true);

@@ -11,9 +11,9 @@
 								<p><span th:text="${profile.about}"></span></p>
                                 <br/>
 
-								<th:block th:if="${isAdmin}">
+								<th:block th:if="${isAdmin or isOwner}">
 	                                <div class="row">
-	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    <div th:if="${isAdmin}" class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
 	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.competency.add}"></button>
 	                                    </div>
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
@@ -21,7 +21,7 @@
 	                                        	<button type="button" class="btn btn-warning btn-block" th:text="#{profile.edit}"></button>
 	                                        </a>
 	                                    </div>
-	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    <div th:if="${isAdmin}" class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
 	                                    	<a th:href="@{/editor/profile/delete(id=${profile.id})}">
 	                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{profile.delete}"></button>
 	                                        </a>
@@ -79,7 +79,7 @@
                                     </tr>
                                 </table>
 
-                                <div class="row">
+                                <!-- div class="row">
                                     <div class="col-md-3 col-md-offset-8" style="padding-right: 0px;">
                                         <select class="form-control" id="actions">
                                             <option th:text="#{profile.compare.profile}" value="1"></option>
@@ -91,7 +91,7 @@
                                     <div class="col-md-1" style="padding-left: 0px;">
                                         <button type="button" class="btn btn-primary btn-block" id="check_actions" onclick="javascript:profileSelect()"><i class="fa fa-check"></i></button>
                                     </div>
-                                </div>
+                                </div-->
                                 
                          		<script th:inline="javascript">
                          		/*<![CDATA[*/
@@ -175,7 +175,9 @@
                             </div>
 
                         </div>
+              	<th:block th:if="${!isAdmin}">
                         <div th:replace="fragments/residentApplications :: residentApplications"></div>
+                </th:block>
                     </div>
                 </div>
                 
