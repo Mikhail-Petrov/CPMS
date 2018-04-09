@@ -7,7 +7,6 @@
 			<h3><span id="skillName">Name</span></h3>
 		</div>
   		<p><span id="skillAbout">About</span></p>
-  		<p><span id="skillType">Class</span></p>
   		<p><span id="skillLevels">Levels</span></p>
   		<p th:text="#{skill.levels}"></p>
 		<table class="table table-striped">
@@ -37,7 +36,8 @@
 			</a>
   		</div>
   		<th:block th:if="${isAdmin or isResident}">
-  		<span id="createTypeLabel" th:text="#{page.create}"></span> <select id="childTypeSelect">
+  		<span id="createTypeLabel" th:text="#{page.create}" hidden="true"></span>
+  		<select id="childTypeSelect" hidden="true">
 				<option th:value="class" th:text="#{skill.types.class}">
 					class</option>
 				<option th:value="skill" th:text="#{skill.types.skill}">
@@ -73,9 +73,9 @@
 			<p><textarea type="textarea" class="form-control" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_en}"></textarea></p>
 			<p th:text="#{editor.skill.maxlevel}"></p>
 			<p><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
-		<p th:text="#{editor.skill.type}"></p>
-		<select id="childType" th:field="*{type}">
-				<option th:value="class" th:text="#{skill.types.class}">
+		<p th:text="#{editor.skill.type}" hidden="true"></p>
+		<select id="childType" th:field="*{type}" hidden="true">
+				<option th:value="class" th:text="#{skill.types.class}" selected="true">
 					class</option>
 				<option th:value="skill" th:text="#{skill.types.skill}">
 					experience</option>

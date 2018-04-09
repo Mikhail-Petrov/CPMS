@@ -50,6 +50,38 @@ public class CommonModelAttributes {
 			}
 		return menuHidden ? "nav-sm" : "nav-md";
 	}
+
+	// Gets current page in Profiles view
+	@ModelAttribute("profilePage")
+	public int profilePage(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		int page = 1;
+		if (cookies != null)
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("profilePage"))
+					try {
+						page = Integer.parseInt(cookie.getValue());
+					} catch (NumberFormatException e) {
+					}
+			}
+		return page > 0 ? page : 1;
+	}
+
+	// Gets current page in Tasks view
+	@ModelAttribute("taskPage")
+	public int taskPage(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		int page = 1;
+		if (cookies != null)
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("taskPage"))
+					try {
+						page = Integer.parseInt(cookie.getValue());
+					} catch (NumberFormatException e) {
+					}
+			}
+		return page > 0 ? page : 1;
+	}
 	
 	@ModelAttribute("username")
 	public String username(Principal principal) {

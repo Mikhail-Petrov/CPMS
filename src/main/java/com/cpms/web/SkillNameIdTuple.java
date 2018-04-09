@@ -4,6 +4,7 @@ public class SkillNameIdTuple {
 	private long id;
 	private String name;
 	private boolean draft;
+	private String type;
 	public long getId() {
 		return id;
 	}
@@ -21,5 +22,11 @@ public class SkillNameIdTuple {
 	}
 	public void setDraft(boolean draft) {
 		this.draft = draft;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 }

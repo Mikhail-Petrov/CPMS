@@ -180,6 +180,7 @@
                             	    });
                                     
                                     var changeProfilePage = function(page) {
+                                    	document.cookie = 'profilePage='+page;
                                     	if (profilePage != null) {
                                     		$('#profilePageButton' + profilePage).removeClass('active');
                                     	}
@@ -188,7 +189,8 @@
                                     	tableChangePage(profilePage, profileTable, profileLoadUrl);
                                     }
                                     
-                                    changeProfilePage(1);
+                                    var startPage =  /*[[${profilePage}]]*/ 1;
+                                    changeProfilePage(startPage);
                                     
                                     var nextProfilePage = function() {
                                     	if (profilePage < profileTotalPages) {
@@ -266,6 +268,7 @@
                             	    });
                                     
                                     var changeTaskPage = function(page) {
+                                    	document.cookie = 'taskPage='+page;
                                     	if (taskPage != null) {
                                     		$('#taskPageButton' + taskPage).removeClass('active');
                                     	}
@@ -273,8 +276,10 @@
                                     	$('#taskPageButton' + page).addClass('active');
                                     	tableChangePage(taskPage, taskTable, taskLoadUrl);
                                     }
+
                                     
-                                    changeTaskPage(1);
+                                    var startPage =  /*[[${taskPage}]]*/ 1;
+                                    changeTaskPage(startPage);
                                     
                                     var nextTaskPage = function() {
                                     	if (taskPage < taskTotalPages) {

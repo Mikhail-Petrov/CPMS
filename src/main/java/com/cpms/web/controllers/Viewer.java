@@ -119,6 +119,11 @@ public class Viewer {
 			model.addAttribute("task", new Task());
 		}
 		
+		String[][] defLevels = {{"Foundation", "Основы"}, {"Intermediate", "Средний уровень"},
+				{"Advanced", "Продвинутый уровень"},
+				{"Highly specialised", "Высокоспециализированный уровень"}};
+		model.addAttribute("defaultLevels", defLevels);
+		
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
 			User owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal

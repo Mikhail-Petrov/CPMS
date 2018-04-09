@@ -10,11 +10,11 @@
 |--------------------------------------------------*/
 
 // Node object
-function Node(id, pid, name, url, title, target, icon, iconOpen, open) {
+function Node(id, pid, name, url, type, title, target, icon, iconOpen, open) {
 	this.id = id;
 	this.pid = pid;
 	this.name = name;
-	this.url = url;
+	this.url = url;	this.type = type;
 	this.title = title;
 	this.target = target;
 	this.icon = icon;
@@ -39,7 +39,7 @@ function dTree(objName) {
 		useStatusText		: false,
 		closeSameLevel	: false,
 		inOrder					: false
-	}		this.icon = {			root				: rootPath + 'resources/images/dtree/base.gif1',			folder			: rootPath + 'resources/images/dtree/skill.gif',			folderOpen	: rootPath + 'resources/images/dtree/skill.gif',			node				: rootPath + 'resources/images/dtree/skill.gif',			empty				: rootPath + 'resources/images/dtree/empty.gif',			line				: rootPath + 'resources/images/dtree/line.gif',			join				: rootPath + 'resources/images/dtree/join.gif',			joinBottom	: rootPath + 'resources/images/dtree/joinbottom.gif',			plus				: rootPath + 'resources/images/dtree/plus.gif',			plusBottom	: rootPath + 'resources/images/dtree/plusbottom.gif',			minus				: rootPath + 'resources/images/dtree/minus.gif',			minusBottom	: rootPath + 'resources/images/dtree/minusbottom.gif',			nlPlus			:  rootPath + 'resources/images/dtree/nolines_plus.gif',			nlMinus			:  rootPath + 'resources/images/dtree/nolines_minus.gif'		};
+	}		this.icon = {			root				: rootPath + 'resources/images/dtree/base.gif1',			folder			: rootPath + 'resources/images/dtree/skill.gif',			folderOpen	: rootPath + 'resources/images/dtree/skill.gif',			node				: rootPath + 'resources/images/dtree/skill.gif',			experience			: rootPath + 'resources/images/dtree/experience.gif',			empty				: rootPath + 'resources/images/dtree/empty.gif',			line				: rootPath + 'resources/images/dtree/line.gif',			join				: rootPath + 'resources/images/dtree/join.gif',			joinBottom	: rootPath + 'resources/images/dtree/joinbottom.gif',			plus				: rootPath + 'resources/images/dtree/plus.gif',			plusBottom	: rootPath + 'resources/images/dtree/plusbottom.gif',			minus				: rootPath + 'resources/images/dtree/minus.gif',			minusBottom	: rootPath + 'resources/images/dtree/minusbottom.gif',			nlPlus			:  rootPath + 'resources/images/dtree/nolines_plus.gif',			nlMinus			:  rootPath + 'resources/images/dtree/nolines_minus.gif'		};
 	this.obj = objName;
 	this.aNodes = [];
 	this.aIndent = [];
@@ -50,8 +50,8 @@ function dTree(objName) {
 };
 
 // Adds a new node to the node array
-dTree.prototype.add = function(id, pid, name, url, title, target, icon, iconOpen, open) {
-	this.aNodes[this.aNodes.length] = new Node(id, pid, name, url, title, target, icon, iconOpen, open);
+dTree.prototype.add = function(id, pid, name, url, type, title, target, icon, iconOpen, open) {
+	this.aNodes[this.aNodes.length] = new Node(id, pid, name, url, type, title, target, icon, iconOpen, open);
 };
 
 // Open/close all nodes
@@ -105,12 +105,11 @@ dTree.prototype.addNode = function(pNode) {
 dTree.prototype.node = function(node, nodeId) {
 	var str = '<div class="' + (nodeId == 0 ? 'dTreeHeader' : 'dTreeNode') + '">' + this.indent(node, nodeId);
 	if (this.config.useIcons) {
-		if (!node.icon) node.icon = (this.root.id == node.pid) ? this.icon.root : ((node._hc) ? this.icon.folder : this.icon.node);
-		if (!node.iconOpen) node.iconOpen = (node._hc) ? this.icon.folderOpen : this.icon.node;
+		if (!node.icon) node.icon = (this.root.id == node.pid) ? this.icon.root : ((node._hc) ? this.icon.folder : this.icon.node);				if (!node.iconOpen) node.iconOpen = (node._hc) ? this.icon.folderOpen : this.icon.node;
 		if (this.root.id == node.pid) {
 			node.icon = this.icon.root;
 			node.iconOpen = this.icon.root;
-		}		if (nodeId > 0) {
+		}		//if (node.type == "skill") node.icon = this.icon.experience;		//if (node.type == "skill") node.iconOpen = this.icon.experience;		if (nodeId > 0) {
 			str += '<img id="i' + this.obj + nodeId + '" src="' + ((node._io) ? node.iconOpen : node.icon) + '" alt="" />';		}
 	}
 	if (node.url) {

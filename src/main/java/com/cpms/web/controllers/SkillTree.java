@@ -129,17 +129,17 @@ public class SkillTree {
 		for(Skill skill : skills) {
 			if (skill.getParent() == null) {
 				addToTree(result, (long)0, skill.getId(), 
-						skill.getPresentationName(), skill.isDraft());
+						skill.getPresentationName(), skill.isDraft(), skill.getType());
 			} else {
 				addToTree(result, skill.getParent().getId(), skill.getId(), 
-						skill.getPresentationName(), skill.isDraft());
+						skill.getPresentationName(), skill.isDraft(), skill.getType());
 			}
 		}
 		return result;
 	}
 	
 	public static void addToTree(Map<Long, List<SkillNameIdTuple>> tree, 
-			Long parent, Long child, String childName, boolean isDraft) {
+			Long parent, Long child, String childName, boolean isDraft, String type) {
 		if (!tree.containsKey(parent)) {
 			tree.put(parent, new ArrayList<SkillNameIdTuple>());
 		}
@@ -147,6 +147,7 @@ public class SkillTree {
 		tuple.setId(child);
 		tuple.setName(childName);
 		tuple.setDraft(isDraft);
+		tuple.setType(type);
 		tree.get(parent).add(tuple);
 	}
 

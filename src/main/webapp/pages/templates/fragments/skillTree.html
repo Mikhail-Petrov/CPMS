@@ -16,6 +16,7 @@
 		   								parent,
 		   								skills[parent][i].name,
 		   								skills[parent][i].id,
+		   								skills[parent][i].type,
 		   								null,
 		   								null,
 		   								/*[[@{/resources/images/dtree/skill-draft.gif}]]*/ rootPath + 'resources/images/dtree/skill-draft.gif'
@@ -26,7 +27,8 @@
 		   						d.add(skills[parent][i].id,
 		   								parent,
 		   								skills[parent][i].name,
-		   								skills[parent][i].id);
+		   								skills[parent][i].id,
+		   								skills[parent][i].type);
 		   					}
 		   				}
 		   			}
@@ -83,9 +85,9 @@
 			}
 			
 			class SkillLevel{
-				constructor() {
-					this.about = "";
-					this.about_RU = "";
+				constructor(about, about_RU) {
+					this.about = about;
+					this.about_RU = about_RU;
 				}
 			}
 			
@@ -123,7 +125,6 @@
 					success: function (res) {
 						document.getElementById('skillName').innerHTML=res.name;
 						document.getElementById('skillAbout').innerHTML=res.about;
-						document.getElementById('skillType').innerHTML=res.type;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
 						document.getElementById('rememberLink').setAttribute('onclick', "my_ajaxDialog('" + rootPath + "dashboard/rememberSkill', '" + res.id + "'); return false;");
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
@@ -151,17 +152,17 @@
 								$("#levelsNum").val(res.maxLevel);
 								// Copy levels
 								var totalLevels = [""];
-						    	totalLevels[0] = new SkillLevel();
+						    	totalLevels[0] = new SkillLevel("","");
 								for (var i = 0; i < res.levels.length; i++) {
 									//$("#levels[" + i + "].about").val(res.levels[i].about_en);
 									//$("#levels[" + i + "].about_RU").val(res.levels[i].about_ru);
 
 						    		totalLevels[i].about = res.levels[i].about_en;
 						    		totalLevels[i].about_RU = res.levels[i].about_ru;
-							    	totalLevels.push(new SkillLevel());
+							    	totalLevels.push(new SkillLevel("",""));
 								}
 							    while (res.levels.length > totalLevels.length) {
-							    	totalLevels.push(new SkillLevel());
+							    	totalLevels.push(new SkillLevel("",""));
 							    }
 							    while (res.levels.length < totalLevels.length) {
 							    	totalLevels.pop();
@@ -175,9 +176,12 @@
 								$("#skill_name_ru").val("");
 								$("#about").val("");
 								$("#about_RU").val("");
-								$("#levelsNum").val(1);
+								$("#levelsNum").val(4);
 								var totalLevels = [""];
-						    	totalLevels[0] = new SkillLevel();
+								var defLevels = /*[[${defaultLevels}]]*/ [["", ""]];
+						    	totalLevels[0] = new SkillLevel(defLevels[0][0], defLevels[0][1]);
+						    	for (var i = 1; i < defLevels.length; i++)
+							    	totalLevels.push(new SkillLevel(defLevels[i][0], defLevels[i][1]));
 							    // Forget skill id
 							    $("#id").val(0);
 							}
@@ -226,12 +230,12 @@
 			/*<![CDATA[*/
 			           
 			var totalLevels = [""];
-			totalLevels[0] = new SkillLevel();
+			totalLevels[0] = new SkillLevel("","");
 			
 			$( "#levelsNum" ).on("input", function() {
 			    var levels = $(this).val()
 			    while (levels > totalLevels.length) {
-			    	totalLevels.push(new SkillLevel());
+			    	totalLevels.push(new SkillLevel("",""));
 			    }
 			    while (levels < totalLevels.length) {
 			    	totalLevels.pop();
@@ -241,7 +245,7 @@
 			    		totalLevels[i].about = document.getElementById('levels[' + i + '].about').value;
 			    		totalLevels[i].about_RU = document.getElementById('levels[' + i + '].about_RU').value;
 			    	} else {
-			    		totalLevels[i] = new SkillLevel();
+			    		totalLevels[i] = new SkillLevel("","");
 			    	}
 			    }
 			    document.getElementById("levelsPost").innerHTML=generateLevelFormTable(totalLevels);
