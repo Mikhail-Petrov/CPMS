@@ -299,55 +299,6 @@
                     </div>
                 </div>
 
-				<div class="modal fade" id="createSkillModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
-                    <div th:replace="fragments/editSkillModal :: skillModalForm"></div>
-                </div>
-                <script>
-                	var submitSkillForm = function() {
-                	  	var $form = $('#skillCreate');
-                	    
-                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-                	    var csrfToken = $("meta[name='_csrf']").attr("content");
-                	    var headers = {};
-                	    headers[csrfHeader] = csrfToken;
-                	    
-                	    $.ajax({
-                	      url: $form.attr('action'),
-                	      type: 'post',
-                	      data: $form.serialize(),
-                	      headers: headers,
-                	      success: function(response) {
-                	        if (response.indexOf("Form successfully submitted") === -1) {
-                	        	$form.replaceWith(response);
-                	        } else {
-                	        	location.reload();
-                	        }
-                	      },
-                	      error: function (xhRequest, ErrorText, thrownError) {
-                				console.log('xhRequest: ' + xhRequest + "\n");
-                	            console.log('ErrorText: ' + ErrorText + "\n");
-                	            console.log('thrownError: ' + thrownError + "\n");
-                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
-                	      }
-                	});
-                	}
-                </script>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="x_panel">
-                            <div class="x_title row">
-                                <h3 style="float: left;" th:text="#{navbar.search.skills}"></h3>
-                                <div th:if="${isAdmin or isResident}" style="float: right; margin-top: 5px;">
-                                       <button type="button" class="btn btn-success pull-left" data-toggle="modal"
-                                               onclick="ajaxSkillDialog(rootPath + 'viewer/ajaxSkill', '0')"><i class="fa fa-plus"></i></button>
-                                </div>
-                            </div>
-                            <div class="x_content" th:include="fragments/skillTree :: skillTree"></div>
-                        </div>
-                    </div>
-                </div>
-
 				<th:block th:if="${isAdmin}">
                 <div class="modal fade" id="createProfileModal" tabindex="-1" role="dialog" aria-labelledby="createProfileModalLabel" aria-hidden="true">
                 	<div th:replace="fragments/editProfileModal :: profileModalForm"></div>

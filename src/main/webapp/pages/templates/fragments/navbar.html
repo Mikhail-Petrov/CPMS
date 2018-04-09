@@ -44,6 +44,7 @@
                   	<span th:if="${isAdmin}"> <span th:text="#{navbar.new.searchadm}"></span></span>
                   	<span th:if="${!isAdmin}"> <span th:text="#{navbar.new.search}"></span></span>
                   </a></li>
+                  <li><a th:href="@{/skills}"><i class="fa fa-cogs"></i> <span th:text="#{navbar.search.skills}"></span></a></li>
                 </ul>
               </div>
             </div>

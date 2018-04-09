@@ -186,7 +186,7 @@ public class EditorSkill {
 			skill = facade.getSkillDAO().update(skill);
 		}
 		//return "redirect:/viewer/tree";
-		return "redirect:/viewer";
+		return "redirect:/skills";
 	}
 	
 	@RequestMapping(path = {"/skill/delete"}, 
@@ -216,7 +216,7 @@ public class EditorSkill {
 		}
 		facade.getSkillDAO().delete(skill);
 		//return "redirect:/viewer/tree";
-		return "redirect:/viewer";
+		return "redirect:/skills";
 	}
 	
 	@RequestMapping(path = {"/skill/delete/force"}, 
@@ -244,7 +244,7 @@ public class EditorSkill {
 			});
 		facade.getSkillDAO().delete(skill);
 		//return "redirect:/viewer/tree";
-		return "redirect:/viewer";
+		return "redirect:/skills";
 	}
 	
 	@RequestMapping(path = "/skill/alternative", 
@@ -324,7 +324,7 @@ public class EditorSkill {
 		}
 		facade.getSkillDAO().insert(newSkill);
 		//return "redirect:/viewer/tree";
-		return "redirect:/viewer";
+		return "redirect:/skills";
 	}
 	
 	@RequestMapping(path = "/skill/alternativeAsync", 
@@ -421,7 +421,7 @@ public class EditorSkill {
 			facade.getSkillDAO().insert(newSkill);
 		else
 			facade.getSkillDAO().update(newSkill);
-		return "redirect:/viewer";
+		return "redirect:/skills";
 	}
 	
 	@RequestMapping(path = "/skill/approve", 
@@ -433,7 +433,7 @@ public class EditorSkill {
 		skill.setDraft(false);
 		facade.getSkillDAO().update(skill);
 		//return "redirect:/viewer/tree";
-		return "redirect:/viewer";
+		return "redirect:/skills";
 	}
 	
 
