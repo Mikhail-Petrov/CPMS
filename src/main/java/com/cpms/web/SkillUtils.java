@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cpms.data.entities.Skill;
+import com.cpms.web.controllers.Skills;
 
 /**
  * Static utility class which holds utility boilerplate code for skills.
@@ -50,7 +51,7 @@ public abstract class SkillUtils {
 				parentClone
 					.setName(getIndents(depth) + parent.getPresentationName());
 				sorted.add(parentClone);
-				parent.getChildren()
+				parent.getChildrenSorted()
 					.forEach(x -> dfs(x, sorted, unsorted, depth + 1));
 		}
 	}

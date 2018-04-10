@@ -89,7 +89,7 @@ public class Applications {
 				(UsernamePasswordAuthenticationToken)principal
 				).getName());
 		skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-		model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+		model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		model.addAttribute("postAddress", "/applications/suggest/competency");
 		return "editCompetency";
 	}

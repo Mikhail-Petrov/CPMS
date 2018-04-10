@@ -1,6 +1,8 @@
 package com.cpms.data.entities;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +35,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.data.validation.BilingualValidation;
 import com.cpms.exceptions.DataAccessException;
+import com.cpms.web.controllers.Skills;
 
 /**
  * Entity class for skill.
@@ -53,7 +56,7 @@ import com.cpms.exceptions.DataAccessException;
 	nullable = true, minlength = 5, maxlength = 100)
 @BilingualValidation(fieldOne="about", fieldTwo="about_RU", 
 	nullable = true, minlength = 0, maxlength = 1000)
-public class Skill extends AbstractDomainObject {
+public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -245,6 +248,13 @@ public class Skill extends AbstractDomainObject {
 		}
 		return new LinkedHashSet<Skill>(children);
 	}
+	
+	public List<Skill> getChildrenSorted() {
+		List<Skill> result = new ArrayList<Skill>();
+		for (Skill skill : getChildren())
+			result.add(skill);
+		return Skills.sortSkills(result);
+	}
 
 	public void setChildren(Set<Skill> children) {
 		if (this.children != null) {
@@ -375,6 +385,11 @@ public class Skill extends AbstractDomainObject {
 		getFullSkillLevels()
 			.forEach(x -> returnValue.addLevel(x.localize(locale)));
 		return returnValue;
+	}
+
+	@Override
+	public int compareTo(Skill o) {
+		return this.getPresentationName().compareTo(o.getPresentationName());
 	}
 	
 	

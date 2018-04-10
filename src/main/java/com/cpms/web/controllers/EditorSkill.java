@@ -71,13 +71,13 @@ public class EditorSkill {
 					).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			List<Skill> skills = skillDao.getAllIncludingDrafts();
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else {
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 		}
 	}
 	
@@ -399,18 +399,16 @@ public class EditorSkill {
 					(UsernamePasswordAuthenticationToken)principal
 					).getName()).getId());
 		}
-		int levelIndex = 1;
 		checkNotChildrenOfDraft(request, newSkill);
 		for(SkillLevel level : newSkill.getLevels()) {
-			if (recievedSkill.getLevels().size() < levelIndex)
+			if (recievedSkill.getLevels().size() < level.getLevel())
 				newSkill.removeLevel(level);
 			else {
-				level.setAbout(recievedSkill.getLevels().get(levelIndex-1).getAbout());
-				level.setAbout_RU(recievedSkill.getLevels().get(levelIndex-1).getAbout());
+				level.setAbout(recievedSkill.getLevels().get(level.getLevel()-1).getAbout());
+				level.setAbout_RU(recievedSkill.getLevels().get(level.getLevel()-1).getAbout_RU());
 			}
-			levelIndex++;
 		}
-		for(; levelIndex <= recievedSkill.getLevels().size(); levelIndex++) {
+		for(int levelIndex = newSkill.getLevels().size() + 1; levelIndex <= recievedSkill.getLevels().size(); levelIndex++) {
 			SkillLevel newLevel = new SkillLevel();
 			newLevel.setAbout(recievedSkill.getLevels().get(levelIndex-1).getAbout());
 			newLevel.setAbout_RU(recievedSkill.getLevels().get(levelIndex-1).getAbout_RU());

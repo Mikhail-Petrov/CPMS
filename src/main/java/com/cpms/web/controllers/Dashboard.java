@@ -71,7 +71,7 @@ public class Dashboard {
 		model.addAttribute("competency", new Competency());
 		model.addAttribute("create", true);
 		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("competencyApplications",

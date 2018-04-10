@@ -75,7 +75,7 @@ public class EditorRequirement {
 		model.addAttribute("taskId", taskId);
 		model.addAttribute("requirement", requirement);
 		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 		model.addAttribute("create", create);
 		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 		return "editRequirement";

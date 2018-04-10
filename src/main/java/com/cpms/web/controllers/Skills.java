@@ -3,6 +3,7 @@ package com.cpms.web.controllers;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -74,13 +75,13 @@ public class Skills {
 					).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			List<Skill> skills = skillDao.getAllIncludingDrafts();
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else {
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 		}
 	}
 	
@@ -111,21 +112,26 @@ public class Skills {
 					).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skills", SkillTree.produceTree(skills));
+			model.addAttribute("skills", SkillTree.produceTree(sortSkills(skills)));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
 		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("skills", 
-					SkillTree.produceTree(skillDao.getAllIncludingDrafts()));
+					SkillTree.produceTree(sortSkills(skillDao.getAllIncludingDrafts())));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
 		} else {
-			model.addAttribute("skills", SkillTree.produceTree(facade.getSkillDAO().getAll()));
+			model.addAttribute("skills", SkillTree.produceTree(sortSkills(facade.getSkillDAO().getAll())));
 		}
 		addSkillsListToModel(model, principal, request);
 		return "skills";
+	}
+	
+	public static List<Skill> sortSkills(List<Skill> skills) {
+		Collections.sort(skills);
+		return skills;
 	}
 
 }

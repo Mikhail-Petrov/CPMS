@@ -3,6 +3,7 @@ package com.cpms.web.controllers;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -125,7 +126,7 @@ public class SkillTree {
 	}
 	
 	public static Map<Long, List<SkillNameIdTuple>> produceTree(List<Skill> skills) {
-		Map<Long, List<SkillNameIdTuple>> result = new HashMap<Long, List<SkillNameIdTuple>>();
+		Map<Long, List<SkillNameIdTuple>> result = new LinkedHashMap<Long, List<SkillNameIdTuple>>();
 		for(Skill skill : skills) {
 			if (skill.getParent() == null) {
 				addToTree(result, (long)0, skill.getId(), 

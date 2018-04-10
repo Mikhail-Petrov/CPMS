@@ -93,13 +93,13 @@ public class Viewer {
 					).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			List<Skill> skills = skillDao.getAllIncludingDrafts();
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else {
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 		}
 	}
 	
@@ -233,7 +233,7 @@ public class Viewer {
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("competency", new Competency());
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(skillDao.getAllIncludingDrafts()));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
 			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 			model.addAttribute("evidence", new Evidence());
 			model.addAttribute("types", Arrays.asList(EvidenceType.values()));
@@ -289,7 +289,7 @@ public class Viewer {
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("requirement", new TaskRequirement());
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(skillDao.getAllIncludingDrafts()));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
 			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 		}
 		Task task = facade.getTaskDAO().getOne(id);

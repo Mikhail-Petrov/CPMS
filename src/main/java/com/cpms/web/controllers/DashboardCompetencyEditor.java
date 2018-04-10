@@ -47,7 +47,7 @@ public class DashboardCompetencyEditor {
 		model.addAttribute("competency", competency);
 		model.addAttribute("create", true);
 		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 		model.addAttribute("postAddress", "/dashboard/competency/add");
 		return "editCompetency";
 	}
@@ -77,7 +77,7 @@ public class DashboardCompetencyEditor {
 			if (bindingResult.hasErrors()) {
 				model.addAttribute("create", true);
 				model.addAttribute("skillsList", 
-						SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+						SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 				model.addAttribute("postAddress", "/dashboard/competency/add");
 				model.addAttribute("_VIEW_TITLE", "title.edit.competency");
 				model.addAttribute("_FORCE_CSRF", true);
@@ -112,7 +112,7 @@ public class DashboardCompetencyEditor {
 			}
 			if (bindingResult.hasErrors()) {
 				model.addAttribute("skillsList", 
-						SkillUtils.sortAndAddIndents(facade.getSkillDAO().getAll()));
+						SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 				return ("fragments/editCompetencyModal :: competencyDashboardModalForm");
 			}
 			sessionData.addCompetency(recievedCompetency);
