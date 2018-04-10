@@ -60,7 +60,7 @@
   		<div th:if="${isAdmin or isResident}" class="collection-object force-width" id="newSkillForm">
   		<h3 id="skillFormTitle"><span id="skillName" th:text="#{skillPopup.child}"></span></h3>
   		<form action="#" th:action="@{/editor/skill/alternativeAsync}" th:object="${skill}" method="post" id="skillCreate">
-  			<input type="hidden" th:field="*{id}" class="input-wide" th:value="0"/>
+  			<input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/>
   			<p th:text="#{editor.skill.name}"></p>
   			<span th:text="#{editor.placeholder.skill_name_ru}" text="Skill name (RU)"></span>:
 			<p><input type="text" class="form-control" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_ru}" id="skill_name_ru" onblur="addCheck(this, 5, 100)"/></p>

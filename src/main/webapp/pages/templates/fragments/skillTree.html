@@ -185,6 +185,17 @@
 							    // Forget skill id
 							    $("#id").val(0);
 							}
+						    // Hide this skill and its children from parent skill select list or show them all
+						    function checkParents(parents, id) {
+						    	for (var i=0; i<parents.length; i++)
+						    		if (parents[i] == id){
+						    			return true;
+						    		}
+						    	return false;
+						    }
+							var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
+						    for (var skill in skillsAndParents)
+								$('#parentSelect option[value="' + skill + '"]').prop('hidden', checkParents(skillsAndParents[skill], res.id));
 						    document.getElementById("levelsPost").innerHTML=generateLevelFormTable(totalLevels);
 						}
 						var skillName = "";

@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -67,22 +70,20 @@ public class Skills {
 		return values;
 	}
 
-	private void addSkillsListToModel(Model model, Principal principal,
-			HttpServletRequest request) {
+	private List<Skill> addSkillsListToModel(Principal principal, HttpServletRequest request) {
+		List<Skill> skills;
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
 			User owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
-			List<Skill> skills = facade.getSkillDAO().getAll();
+			skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
-			List<Skill> skills = skillDao.getAllIncludingDrafts();
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
+			skills = skillDao.getAllIncludingDrafts();
 		} else {
-			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
+			skills = facade.getSkillDAO().getAll();
 		}
+		return skills;
 	}
 	
 	@RequestMapping(value = {"/", ""},
@@ -125,7 +126,20 @@ public class Skills {
 		} else {
 			model.addAttribute("skills", SkillTree.produceTree(sortSkills(facade.getSkillDAO().getAll())));
 		}
-		addSkillsListToModel(model, principal, request);
+		List<Skill> allSkills = addSkillsListToModel(principal, request);
+		model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(
+				Skills.sortSkills(allSkills)));
+		Map<Long, ArrayList<Long>> skillsAndParents = new HashMap<>();
+		for (Skill skill : allSkills) {
+			ArrayList<Long> parents = new ArrayList<>();
+			Skill curSkill = skill;
+			do {
+				parents.add(curSkill.getId());
+				curSkill = curSkill.getParent();
+			} while (curSkill != null);
+			skillsAndParents.put(skill.getId(), parents);
+		}
+		model.addAttribute("skillsAndParents", skillsAndParents);
 		return "skills";
 	}
 	
