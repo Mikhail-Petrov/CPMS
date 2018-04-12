@@ -151,6 +151,8 @@
                 </script>
 
                 <div class="row">
+                                  	<span th:text="#{editor.filter}" text="Filter"></span>:
+									<p><input type="text" class="form-control" id="skillFilter"/></p>
                     <div class="col-md-12">
                         <div class="x_panel">
                             <div class="x_title row">
@@ -164,3 +166,30 @@
                         </div>
                     </div>
                 </div>
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+	function applyFilter() {
+		var filterText = $(skillFilter).val().toLowerCase();
+		var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
+		for (var skill in skillsAndParents) {
+			$('#dtn' + skill).prop('hidden', filterText!=="");
+		}
+		if (filterText == "")
+			return;
+		var toShow = [0];
+		for (var skill in skillsAndParents) {
+			var nodeId = $('#dtn' + skill).attr('nodeId');
+			if ($('#sd' + nodeId).html().toLowerCase().indexOf(filterText) > -1) {
+				for (var i = 0; i < skillsAndParents[skill].length; i++){
+					toShow.push(skillsAndParents[skill][i]);
+				}
+			}
+		}
+		for (var i = 0; i < toShow.length; i++) {
+			if ($('#dtn' + toShow[i]) !== null)
+				$('#dtn' + toShow[i]).prop('hidden', false);
+		}
+	}
+	$(skillFilter).on("input", function() {applyFilter()});
+	/*]]>*/
+	</script>

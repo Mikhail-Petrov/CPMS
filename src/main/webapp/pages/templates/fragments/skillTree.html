@@ -168,7 +168,7 @@
 							    	totalLevels.pop();
 							    }
 							    // Remember id of the changed skill
-							    $("#id").val(res.id);
+							    $("#selfId").val(res.id);
 							}
 							else {
 								// Clear all values
@@ -183,7 +183,7 @@
 						    	for (var i = 1; i < defLevels.length; i++)
 							    	totalLevels.push(new SkillLevel(defLevels[i][0], defLevels[i][1]));
 							    // Forget skill id
-							    $("#id").val(0);
+							    $("#selfId").val(0);
 							}
 						    // Hide this skill and its children from parent skill select list or show them all
 						    function checkParents(parents, id) {

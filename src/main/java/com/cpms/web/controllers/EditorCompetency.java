@@ -1,5 +1,7 @@
 package com.cpms.web.controllers;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
@@ -123,10 +126,12 @@ public class EditorCompetency {
 		}
 		model.addAttribute("competency", competency);
 		model.addAttribute("create", create);
+		List<Skill> allSkills = facade.getSkillDAO().getAll();
 		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
-		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(allSkills)));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(allSkills));
 		model.addAttribute("postAddress", "/editor/" + profileId + "/competency");
+		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(allSkills));
 		return "editCompetency";
 	}
 	

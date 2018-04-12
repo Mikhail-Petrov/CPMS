@@ -103,7 +103,7 @@ dTree.prototype.addNode = function(pNode) {
 
 // Creates the node icon, url and text
 dTree.prototype.node = function(node, nodeId) {
-	var str = '<div class="' + (nodeId == 0 ? 'dTreeHeader' : 'dTreeNode') + '">' + this.indent(node, nodeId);
+	var str = '<div class="' + (nodeId == 0 ? 'dTreeHeader' : 'dTreeNode') + '" id="dtn' + node.url +	'" nodeId="' + nodeId + '">' + this.indent(node, nodeId);
 	if (this.config.useIcons) {
 		if (!node.icon) node.icon = (this.root.id == node.pid) ? this.icon.root : ((node._hc) ? this.icon.folder : this.icon.node);				if (!node.iconOpen) node.iconOpen = (node._hc) ? this.icon.folderOpen : this.icon.node;
 		if (this.root.id == node.pid) {

@@ -15,14 +15,39 @@
                             		</ul>
                             	</div>
                             	<input type="hidden" th:field="*{id}" />
-                                <div class="row">
+                                  	<span th:text="#{editor.filter}" text="Filter"></span>
+									<p><input type="text" class="form-control" id="skillFilter"/></p>
                                     <p th:text="#{editor.competency.skill}"></p>
 									<p><select th:field="*{skill}" id="skillSelector">
   										<option th:each="skillInList : ${skillsList}" 
           									th:value="${skillInList.id}" 
           									th:text="${skillInList.name}">A skill</option>
 									</select></p>
-                                </div>
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+									function applyFilter() {
+										var filterText = $(skillFilter).val().toLowerCase();
+										var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
+										for (var skill in skillsAndParents) {
+											$('#skillSelector option[value="' + skill + '"]').prop('hidden', filterText!=="");
+										}
+										if (filterText == "")
+											return;
+										var toShow = [0];
+										for (var skill in skillsAndParents) {
+											if ($('#skillSelector option[value="' + skill + '"]').html().toLowerCase().indexOf(filterText) > -1) {
+												for (var i = 0; i < skillsAndParents[skill].length; i++){
+													toShow.push(skillsAndParents[skill][i]);
+												}
+											}
+										}
+										for (var i = 0; i < toShow.length; i++) {
+											$('#skillSelector option[value="' + toShow[i] + '"]').prop('hidden', false);
+										}
+									}
+									$(skillFilter).on("input", function() {applyFilter()});
+									/*]]>*/
+									</script>
 		<p id="skillDescription" text="1"></p>
                                 <hr class="separator" />
                                 <div class="row">

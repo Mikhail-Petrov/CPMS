@@ -251,6 +251,7 @@ public class Viewer {
 					model.addAttribute("isOwner", true);
 			}
 		}
+		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
 		
 		return "viewProfile";
 	}

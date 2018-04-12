@@ -129,6 +129,16 @@ public class Skills {
 		List<Skill> allSkills = addSkillsListToModel(principal, request);
 		model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(
 				Skills.sortSkills(allSkills)));
+		model.addAttribute("skillsAndParents", getSkillsAndParents(allSkills));
+		return "skills";
+	}
+	
+	public static List<Skill> sortSkills(List<Skill> skills) {
+		Collections.sort(skills);
+		return skills;
+	}
+	
+	public static Map<Long, ArrayList<Long>> getSkillsAndParents(List<Skill> allSkills) {
 		Map<Long, ArrayList<Long>> skillsAndParents = new HashMap<>();
 		for (Skill skill : allSkills) {
 			ArrayList<Long> parents = new ArrayList<>();
@@ -136,16 +146,12 @@ public class Skills {
 			do {
 				parents.add(curSkill.getId());
 				curSkill = curSkill.getParent();
+				if (parents.size() > 20)
+					break;
 			} while (curSkill != null);
 			skillsAndParents.put(skill.getId(), parents);
 		}
-		model.addAttribute("skillsAndParents", skillsAndParents);
-		return "skills";
-	}
-	
-	public static List<Skill> sortSkills(List<Skill> skills) {
-		Collections.sort(skills);
-		return skills;
+		return skillsAndParents;
 	}
 
 }
