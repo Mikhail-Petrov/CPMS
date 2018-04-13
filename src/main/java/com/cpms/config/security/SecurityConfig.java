@@ -112,7 +112,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           			.passwordParameter("password")
           	.loginProcessingUrl("/security/login")
           	//.failureUrl("/security/login?error")
-          	.failureHandler(new AuthenticationFailureHandler() {
+          	/*.failureHandler(new AuthenticationFailureHandler() {
 				
 				@Override
 				public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
@@ -120,7 +120,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 					// TODO Auto-generated method stub
 					throw exception;
 				}
-			})
+			})*/
           	.permitAll()
           	.defaultSuccessUrl("/", true)
           	.and()

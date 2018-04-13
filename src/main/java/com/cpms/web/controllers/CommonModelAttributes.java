@@ -98,7 +98,7 @@ public class CommonModelAttributes {
 			return 0;
 		}
 		String username = ((UsernamePasswordAuthenticationToken) principal).getName();
-		if (username.equals(Security.adminName))
+		if (username.equals(Security.adminName) || userDAO.getByUsername(username).getProfileId() == null)
 			return 0;
 		return userDAO.getByUsername(username).getProfileId().longValue();
 	}

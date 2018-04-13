@@ -191,8 +191,14 @@ public class Security {
 	}
 
 	@RequestMapping(path = "/login", method = RequestMethod.GET)
-	public String login(Model model) {
+	public String login(Model model,
+			@RequestParam(name = "error", required = false) String error) throws Exception {
 		model.addAttribute("_VIEW_TITLE", "title.login");
+		if (error != null)
+			error = UserSessionData.localizeText("Неправильное имя пользователя или пароль",
+					"Wrong username or password");
+		else error = "";
+		model.addAttribute("error", error);
 		return "login";
 	}
 

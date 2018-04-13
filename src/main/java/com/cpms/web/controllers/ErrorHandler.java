@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -31,6 +32,14 @@ public class ErrorHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
 	private static final String DEFAULT_ERROR_TEMPLATE = "error";
+
+	@ExceptionHandler(AuthenticationException.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public ModelAndView authenticationExceptionHandler(AuthenticationException exception) {
+		String message = UserSessionData.localizeText("Ошибка доступа к данным!", "Data access error has occured!");
+		logger.error(message, exception);
+		return handle(message, null);
+	}
 
 	@ExceptionHandler(DataAccessException.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
