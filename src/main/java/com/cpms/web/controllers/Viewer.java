@@ -299,6 +299,7 @@ public class Viewer {
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", task.getPresentationName());
 		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
 		return "viewTask";
 	}
 
