@@ -16,9 +16,10 @@
   				<option th:each="skillInList : ${skillsList}" 
           			th:value="${skillInList.id}" 
           			th:text="${skillInList.name}">A skill</option>
-			</select>
+			</select></p>
 	<script th:inline="javascript">
 			/*<![CDATA[*/
+	$('#skillSelector option[value="' + /*[[${competencySkill}]]*/ + '"]').prop('selected', true);
 	function applyFilter() {
 		var filterText = $(skillFilter).val().toLowerCase();
 		var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
@@ -49,8 +50,7 @@
 			<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/>
 				<span th:if="${#fields.hasErrors('level')}" th:errors="*{level}">Error</span></p>
 		<p id="levelDescription" text="1"></p>
-			<script th:inline="javascript" type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
-			<span th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}">Error</span></p>
+			<span th:if="${#fields.hasErrors('skill')}" th:errors="*{skill}">Error</span>
 		<th:block th:replace="fragments/updateLevelDescription :: updateLevelDescription"></th:block>
 			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
 		</form>

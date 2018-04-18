@@ -20,7 +20,6 @@ $( '#skillSelector' ).on('change', function() {
 				$('#levelNumber').attr({
 				       "max" : res.maxLevel
 				});
-				$('#levelNumber').val(1);
 			}
 		});
 	}

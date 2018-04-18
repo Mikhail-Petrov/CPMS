@@ -5,7 +5,15 @@
                                 <h3 th:text="${profile.presentationName}"></h3>
                             </div>
                             <div class="x_content">
-                                <p><span th:text="${profile.website}"></span></p>
+                                <p><a id="profileLink" th:text="${profile.website}" th:href="${profile.website}" target="_blank"></a></p>
+                                <script>
+                         		/*<![CDATA[*/
+                                var link = $("#profileLink").html();
+                                if ((link.indexOf("http://") !== 0) && (link.indexOf("https://") !== 0) &&
+                                		(link.indexOf("www.") !== 0))
+                                	$("#profileLink").prop('href', "http://" + link);
+                         		/*]]>*/
+                                </script>
                                 <p><span th:text="${profile.address}"></span></p>
 								<p><span th:text="${profile.email}"></span></p>
 								<p><span th:text="${profile.about}"></span></p>

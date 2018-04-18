@@ -73,11 +73,15 @@ public class EditorRequirement {
 			create = false;
 		}
 		model.addAttribute("taskId", taskId);
+		model.addAttribute("requirementSkill", create ? 0 : requirement.getSkill().getId());
+		requirement.setSkill(null);
 		model.addAttribute("requirement", requirement);
+		List<Skill> allSkills = facade.getSkillDAO().getAll();
 		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(allSkills)));
 		model.addAttribute("create", create);
-		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(allSkills));
+		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(allSkills));
 		return "editRequirement";
 	}
 	

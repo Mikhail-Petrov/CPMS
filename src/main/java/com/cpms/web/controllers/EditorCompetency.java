@@ -124,6 +124,8 @@ public class EditorCompetency {
 			}
 			create = false;
 		}
+		model.addAttribute("competencySkill", create ? 0 : competency.getSkill().getId());
+		competency.setSkill(null);
 		model.addAttribute("competency", competency);
 		model.addAttribute("create", create);
 		List<Skill> allSkills = facade.getSkillDAO().getAll();
