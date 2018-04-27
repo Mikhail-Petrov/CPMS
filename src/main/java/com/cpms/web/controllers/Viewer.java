@@ -225,6 +225,10 @@ public class Viewer {
 			HttpServletRequest request) {
 		Profile profile = facade.getProfileDAO().getOne(id);
 		model.addAttribute("profile", profile.localize(LocaleContextHolder.getLocale()));
+		List<String> competencies = new ArrayList<String>();
+		for (Competency comp : profile.getCompetencies())
+			competencies.add(comp.getSkill().getPresentationName());
+		model.addAttribute("profileCompetencies", competencies);
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", profile.getPresentationName());
@@ -296,6 +300,10 @@ public class Viewer {
 		Task task = facade.getTaskDAO().getOne(id);
 		model.addAttribute("backPath", returnUrl);
 		model.addAttribute("task", task.localize(LocaleContextHolder.getLocale()));
+		List<String> requirements = new ArrayList<String>();
+		for (TaskRequirement req : task.getRequirements())
+			requirements.add(req.getSkill().getPresentationName());
+		model.addAttribute("taskRequirements", requirements);
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", task.getPresentationName());
 		model.addAttribute("_FORCE_CSRF", true);

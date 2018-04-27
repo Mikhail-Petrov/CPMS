@@ -50,6 +50,10 @@ public class EditorRequirement {
 		model.addAttribute("_VIEW_TITLE", "title.edit.requirement");
 		model.addAttribute("_FORCE_CSRF", true);
 		Task task = facade.getTaskDAO().getOne(taskId);
+		List<String> requirements = new ArrayList<String>();
+		for (TaskRequirement req : task.getRequirements())
+			requirements.add(req.getSkill().getPresentationName());
+		model.addAttribute("profileCompetencies", requirements);
 		TaskRequirement requirement;
 		boolean create;
 		if (id == null) {
@@ -100,6 +104,14 @@ public class EditorRequirement {
 					"Skill's largest possible level is " + 
 							recievedRequirement.getSkill().getMaxLevel());
 		}
+		Task task = facade.getTaskDAO().getOne(taskId);
+		if (task
+				.getRequirements()
+				.stream()
+				.anyMatch(x -> x.getSkill().equals(recievedRequirement.getSkill()))) {
+			bindingResult.rejectValue("skill", "error.skill",
+					"Such skill is already used.");
+		}
 		boolean create = (recievedRequirement.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("_VIEW_TITLE", "title.edit.requirement");
@@ -109,7 +121,6 @@ public class EditorRequirement {
 			model.addAttribute("skillsList", facade.getSkillDAO().getAll());
 			return ("editRequirement");
 		}
-		Task task = facade.getTaskDAO().getOne(taskId);
 		TaskRequirement requirement;
 		if (create) {
 			task.addRequirement(recievedRequirement);

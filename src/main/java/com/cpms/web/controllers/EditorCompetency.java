@@ -152,6 +152,14 @@ public class EditorCompetency {
 					"Skill's largest possible level is " + 
 							recievedCompetency.getSkill().getMaxLevel());
 		}
+		Profile profile = facade.getProfileDAO().getOne(profileId);
+		if (profile
+				.getCompetencies()
+				.stream()
+				.anyMatch(x -> x.getSkill().equals(recievedCompetency.getSkill()))) {
+			bindingResult.rejectValue("skill", "error.skill",
+					"Such skill is already used.");
+		}
 		boolean create = (recievedCompetency.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("create", create);
@@ -163,7 +171,6 @@ public class EditorCompetency {
 			model.addAttribute("_FORCE_CSRF", true);
 			return ("editCompetency");
 		}
-		Profile profile = facade.getProfileDAO().getOne(profileId);
 		if (create) {
 			profile.addCompetency(recievedCompetency);
 		} else {

@@ -15,8 +15,16 @@
                             		</ul>
                             	</div>
                             	<input type="hidden" th:field="*{id}" />
+                            		<h2 id="errorfield"></h2>
                                   	<span th:text="#{editor.filter}" text="Filter"></span>
-									<p><input type="text" class="form-control" id="skillFilter"/></p>
+									<p><input type="text" class="form-control" id="skillFilter"/>
+									<script>
+									function clearFilter(){
+										$(skillFilter).val("");
+										$(skillFilter).trigger("input");
+									}
+									</script>
+									<span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
                                     <p th:text="#{editor.competency.skill}"></p>
 									<p><select th:field="*{skill}" id="skillSelector">
   										<option th:each="skillInList : ${skillsList}" 
@@ -31,6 +39,7 @@
 										for (var skill in skillsAndParents) {
 											$('#skillSelector option[value="' + skill + '"]').prop('hidden', filterText!=="");
 										}
+										$('#skillSelector').attr("size", 1);
 										if (filterText == "")
 											return;
 										var toShow = [0];
@@ -41,11 +50,31 @@
 												}
 											}
 										}
+										var selectSize = 0;
 										for (var i = 0; i < toShow.length; i++) {
+											if ($('#skillSelector option[value="' + toShow[i] + '"]').prop('hidden'))
+												selectSize++;
 											$('#skillSelector option[value="' + toShow[i] + '"]').prop('hidden', false);
 										}
+										$('#skillSelector').attr("size", selectSize);
 									}
-									$(skillFilter).on("input", function() {applyFilter()});
+									function checkExist() {
+										$('#skillSelector').attr("size", 1);
+										var selectedSkill = $('#skillSelector option:selected').html().replace("-- ", "");
+										while (selectedSkill.indexOf("-- ") > -1)
+											selectedSkill = selectedSkill.replace("-- ", "");
+										var profileCompetencies = /*[[${profileCompetencies}]]*/ null;
+										var errorMsg = /*[[#{editor.error.exists.competency}]]*/ "error";
+										$(errorfield).html("");
+										if (profileCompetencies !== null)
+											for (var i = 0; i < profileCompetencies.length; i++){
+												var competency = profileCompetencies[i];
+												if (competency == selectedSkill)
+													$(errorfield).html(errorMsg);
+											}
+									}
+									$(skillFilter).on("input", applyFilter);
+									document.getElementById('skillSelector').addEventListener("input", checkExist);
 									/*]]>*/
 									</script>
 		<p id="skillDescription" text="1"></p>

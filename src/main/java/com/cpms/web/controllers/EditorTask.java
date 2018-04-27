@@ -51,11 +51,18 @@ public class EditorTask {
 					"Skill's largest possible level is " + 
 							recievedRequirement.getSkill().getMaxLevel());
 		}
+		Task task = facade.getTaskDAO().getOne(taskId);
+		if (task
+				.getRequirements()
+				.stream()
+				.anyMatch(x -> x.getSkill().equals(recievedRequirement.getSkill()))) {
+			bindingResult.rejectValue("skill", "error.skill",
+					"Such skill is already used.");
+		}
 		boolean create = (recievedRequirement.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			return ("fragments/editCompetencyModal :: competencyModalForm");
 		}
-		Task task = facade.getTaskDAO().getOne(taskId);
 		if (create) {
 			task.addRequirement(recievedRequirement);
 		} else {
