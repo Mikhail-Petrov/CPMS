@@ -20,10 +20,12 @@ import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
+import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.web.SkillUtils;
+import com.cpms.web.UserSessionData;
 
 /**
  * Handles competency CRUD web application requests.
@@ -153,12 +155,22 @@ public class EditorCompetency {
 							recievedCompetency.getSkill().getMaxLevel());
 		}
 		Profile profile = facade.getProfileDAO().getOne(profileId);
+		Competency oldCompetency = profile
+				.getCompetencies()
+				.stream()
+				.filter(x -> x.getId() == recievedCompetency.getId())
+				.findFirst()
+				.orElse(null);
+		Skill oldCompetencySkill = oldCompetency == null ? null : oldCompetency.getSkill();
 		if (profile
 				.getCompetencies()
 				.stream()
-				.anyMatch(x -> x.getSkill().equals(recievedCompetency.getSkill()))) {
-			bindingResult.rejectValue("skill", "error.skill",
-					"Such skill is already used.");
+				.anyMatch(x -> x.getSkill().equals(recievedCompetency.getSkill())
+						&& !x.getSkill().equals(oldCompetencySkill))) {
+			//bindingResult.rejectValue("skill", "error.skill",
+					//"Such skill is already used.");
+			throw new DataAccessException(UserSessionData.localizeText(
+					"Компетенция с этим навыком уже существует.", "Such skill is already used."));
 		}
 		boolean create = (recievedCompetency.getId() == 0);
 		if (bindingResult.hasErrors()) {

@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskRequirement;
+import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
@@ -105,12 +107,22 @@ public class EditorRequirement {
 							recievedRequirement.getSkill().getMaxLevel());
 		}
 		Task task = facade.getTaskDAO().getOne(taskId);
+		TaskRequirement oldRequirement = task
+				.getRequirements()
+				.stream()
+				.filter(x -> x.getId() == recievedRequirement.getId())
+				.findFirst()
+				.orElse(null);
+		Skill oldRequirementSkill = oldRequirement == null ? null : oldRequirement.getSkill();
 		if (task
 				.getRequirements()
 				.stream()
-				.anyMatch(x -> x.getSkill().equals(recievedRequirement.getSkill()))) {
-			bindingResult.rejectValue("skill", "error.skill",
-					"Such skill is already used.");
+				.anyMatch(x -> x.getSkill().equals(recievedRequirement.getSkill())
+						&& !x.getSkill().equals(oldRequirementSkill))) {
+	//		bindingResult.rejectValue("skill", "error.skill",
+//					"Such skill is already used.");
+			throw new DataAccessException(UserSessionData.localizeText(
+					"Требование с этим навыком уже существует.", "Such skill is already used."));
 		}
 		boolean create = (recievedRequirement.getId() == 0);
 		if (bindingResult.hasErrors()) {

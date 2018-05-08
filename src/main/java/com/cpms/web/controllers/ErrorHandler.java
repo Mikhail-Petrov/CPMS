@@ -38,7 +38,7 @@ public class ErrorHandler {
 	public ModelAndView authenticationExceptionHandler(AuthenticationException exception) {
 		String message = UserSessionData.localizeText("Ошибка доступа к данным!", "Data access error has occured!");
 		logger.error(message, exception);
-		return handle(message, null);
+		return handle(message, exception.getMessage());
 	}
 
 	@ExceptionHandler(DataAccessException.class)
@@ -46,7 +46,7 @@ public class ErrorHandler {
 	public ModelAndView dataAccessExceptionHandler(DataAccessException exception) {
 		String message = UserSessionData.localizeText("Ошибка доступа к данным!", "Data access error has occured!");
 		logger.error(message, exception);
-		return handle(message, null);
+		return handle(message, exception.getMessage());
 	}
 
 	@ExceptionHandler(EntityNotFoundException.class)
@@ -55,7 +55,7 @@ public class ErrorHandler {
 		String message = UserSessionData.localizeText("Был запрошен несуществующий объект!",
 				"You have requested object that doesn't exist!");
 		logger.warn(message, exception);
-		return handle(message, null);
+		return handle(message, exception.getMessage());
 	}
 
 	@ExceptionHandler(Exception.class)
@@ -64,7 +64,7 @@ public class ErrorHandler {
 		String message = UserSessionData.localizeText("Произошла неизвестная ошибка.",
 				"An unknown error has happened.");
 		logger.error(message, exception);
-		return handle(message, null);
+		return handle(message, exception.getMessage());
 	}
 
 	@ExceptionHandler(WebException.class)
