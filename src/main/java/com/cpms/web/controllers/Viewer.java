@@ -29,6 +29,7 @@ import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.EvidenceType;
 import com.cpms.data.entities.Company;
+import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Evidence;
 import com.cpms.data.entities.Profile;
@@ -234,6 +235,7 @@ public class Viewer {
 		model.addAttribute("_VIEW_TITLE", profile.getPresentationName());
 		model.addAttribute("isOwner", false);
 		model.addAttribute("competency", new Competency());
+		model.addAttribute("competencies", new Competencies(id));
 		
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("skillsList", 

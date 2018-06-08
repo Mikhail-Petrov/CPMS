@@ -45,10 +45,20 @@
 	                                <br/>
                                 </th:block>
                                 <p><b><span th:text="#{profile.competencies}"></span></b></p>
+                                <form action="#" th:action="@{/editor/profile/saveChanges}" th:object="${competencies}" method="post">
+			<p><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
+			<input type="hidden" th:field="*{data}" id="competenciesData"/>
+			<input type="hidden" th:field="*{profileId}" th:value="${profile.id}"/>
+			<script>
+				function changeData(compId) {
+					var newData = compId + "," + $("#" + compId).val();
+					$(competenciesData).val($(competenciesData).val() + ";" + newData);
+				}
+			</script>
                                 <table class="table table-responsive table-striped">
                                     <tr th:each="competency : ${profile.competencies}">
                                         <td>
-                                            <span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level}"></span>
+                                            <span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level} + ' / ' + ${competency.skill.maxLevel}"></span>
                                             <div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isAdmin}">
                                             	<a th:href="@{/editor/competency/delete(id=${competency.id}, profileId=${profile.id})}">
                                             		<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
@@ -56,6 +66,7 @@
                                                 <a th:href="@{/editor/{profileId}/competency(id=${competency.id}, profileId=${profile.id})}">
                                                 	<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
                                                 </a>
+				<input type="number" min="1" th:max="${competency.skill.maxLevel}" th:id="${competency.id}" th:value="${competency.level}" th:onchange="'changeData(' + ${competency.id} + ');'"/>
                                             </div>
                                         </td>
                                         <td>
@@ -93,7 +104,7 @@
                                         </td>
                                     </tr>
                                 </table>
-
+                                </form>
                                 <!-- div class="row">
                                     <div class="col-md-3 col-md-offset-8" style="padding-right: 0px;">
                                         <select class="form-control" id="actions">

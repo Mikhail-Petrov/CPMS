@@ -1,5 +1,9 @@
 package com.cpms.web.controllers;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.data.entities.Company;
+import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.exceptions.DataAccessException;
+import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 
@@ -114,5 +120,40 @@ public class EditorProfile {
 		Profile profile = facade.getProfileDAO().getOne(id);
 		facade.getProfileDAO().delete(profile);
 		return "redirect:/viewer";
+	}
+
+	@RequestMapping(path = {"/profile/saveChanges"}, 
+			method = RequestMethod.POST)
+	public String profileSave(Model model, HttpServletRequest request,
+			@ModelAttribute("competencies") @Valid Competencies competencies,
+			BindingResult bindingResult) {
+		Profile profile = facade.getProfileDAO().getOne(competencies.getProfileId());
+		boolean change = false;
+		
+		HashMap<Long,Integer> changes = competencies.getChanges();
+		for (Entry<Long, Integer> compChange : changes.entrySet()) {
+			Competency competency = profile
+					.getCompetencies()
+					.stream()
+					.filter(x -> x.getId() == compChange.getKey())
+					.findFirst()
+					.orElse(null);
+			if (competency == null) {
+				throw new DependentEntityNotFoundException(
+						Profile.class,
+						Competency.class,
+						profile.getId(),
+						compChange.getKey(),
+						request.getPathInfo());
+			}
+			if (competency.getLevel() != compChange.getValue()) {
+				competency.setLevel(compChange.getValue());
+				change = true;
+			}
+		}
+		
+		if (change)
+			facade.getProfileDAO().update(profile);
+		return "redirect:/viewer/profile?id=" + profile.getId();
 	}
 }
