@@ -233,9 +233,9 @@ public class Viewer {
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", profile.getPresentationName());
 		model.addAttribute("isOwner", false);
+		model.addAttribute("competency", new Competency());
 		
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
-			model.addAttribute("competency", new Competency());
 			model.addAttribute("skillsList", 
 					SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
 			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
@@ -256,7 +256,8 @@ public class Viewer {
 			}
 		}
 		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
-		
+
+		model.addAttribute("objectType", "competency");
 		return "viewProfile";
 	}
 	

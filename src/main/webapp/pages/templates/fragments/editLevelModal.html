@@ -1,0 +1,29 @@
+<div th:fragment="levelModalForm" th:remove="tag">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+	<div class="modal-body">
+		<div id="viewObjectBlock">
+		<div clss="modal-header">
+			<h3><span id="objectName">Name</span></h3>
+		</div>
+  		<p><span id="objectAbout">About</span></p>
+  		</div>
+  		<th:block th:if="${objectType} == 'competency'">
+  		<div th:if="${isAdmin or isResident}" class="collection-object force-width" id="newObjectForm">
+  		<form action="#" th:action="@{/editor/competency/async}" th:object="${competency}" method="post" id="competencyCreate">
+  			<input type="hidden" id='competencyId' th:field="*{id}" class="input-wide" th:value="0"/>
+  			<input type="hidden" id='skillSelected' class="input-wide" th:value="0"/>
+            <div class="row">
+            	<p th:text="#{editor.level}"></p>
+				<p><span th:text="#{editor.maxlevel}"></span> <span id="compMaxLevel" th:text="#{editor.select_skill}"></span>.</p>
+				<p><input type="number" th:field="*{level}" min="1" max="100" id="compLevelNumber"/></p>
+            </div>
+			<p id="skillLevelDescription" text="1"></p>
+			<p><input type="submit" id="competencySubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+		</form>
+  		</div>
+		</th:block>
+  	</div>
+  	</div>
+	</div>
+</div>

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.data.entities.Company;
+import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.SessionExpiredException;

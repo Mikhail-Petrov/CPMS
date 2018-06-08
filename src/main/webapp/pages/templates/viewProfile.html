@@ -46,6 +46,20 @@
                                 </th:block>
                                 <p><b><span th:text="#{profile.competencies}"></span></b></p>
                                 <table class="table table-responsive table-striped">
+                                	<script>
+                                	var compId = 0;
+                                	var skillId = 0;
+                                	var compLvl = 1;
+                                	var ell = 2;
+									function openLevelForm(el) {
+										ell=el;
+										$(changeLevelModal).modal('show');
+										$(competencyId).val(compId);
+										$(skillSelected).val(skillId);
+										$(compLevelNumber).val(compLvl);
+										//$(objectName).html(el.prop('class'));
+									}
+                                	</script>
                                     <tr th:each="competency : ${profile.competencies}">
                                         <td>
                                             <span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level}"></span>
@@ -53,9 +67,10 @@
                                             	<a th:href="@{/editor/competency/delete(id=${competency.id}, profileId=${profile.id})}">
                                             		<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                                 </a>
-                                                <a th:href="@{/editor/{profileId}/competency(id=${competency.id}, profileId=${profile.id})}">
+												<span id="openLevelBut" class="btn btn-warning" onclick="openLevelForm(this);"><i class="fa fa-edit"></i></span>
+                                                <!-- a th:href="@{/editor/{profileId}/competency(id=${competency.id}, profileId=${profile.id})}">
                                                 	<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
-                                                </a>
+                                                </a-->
                                             </div>
                                         </td>
                                         <td>
@@ -277,4 +292,7 @@
                 	}
                 	/*]]>*/
                 	</script>
+				<div class="modal fade" id="changeLevelModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+                    <div th:replace="fragments/editLevelModal :: levelModalForm"></div>
+                </div>
                 </th:block>
