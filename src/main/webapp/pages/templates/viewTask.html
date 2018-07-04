@@ -5,25 +5,19 @@
                                 <h3 th:text="${task.presentationName}"></h3>
                             </div>
                             <div class="x_content">
-								<p><span th:text="${task.about}">About</span></p>
+								<p><span id="taskDescription" th:text="${task.about}">About</span></p>
 								<br/>
-								<p><b><span th:text="#{task.requirements}"></span></b></p>
-								<table class="table table-responsive table-striped">
-									<tr th:each="requirement : ${task.requirements}">
-										<td>
-											<span th:text="${requirement.skill.presentationName} + ' - ' + ${requirement.level}"></span>
-											<div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isAdmin}">
-												<a th:href="@{/editor/requirement/delete(id=${requirement.id}, taskId=${task.id})}">
-													<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
-												</a>
-												<a th:href="@{/editor/{taskId}/requirement(id=${requirement.id}, taskId=${task.id})}">
-													<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
-												</a>
-											</div>
-										</td>
-									</tr>
-								</table>
-								
+                               <script>
+                         		/*<![CDATA[*/
+                                var descr = "<p>" + $("#taskDescription").html() + "</p";
+                         		while (descr.indexOf("\n") > -1)
+                         			descr = descr.replace("\n", "</p><p>");
+                                $("#taskDescription").html(descr);
+                         		/*]]>*/
+                                </script>
+                       	<p><a th:href="@{/viewer/task/group(id=${task.id})}">
+			<button id="createGroup" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.create}"></button>
+						</a></p>
 								<th:block th:if="${isAdmin}">
 	                                <div class="row">
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
@@ -42,8 +36,35 @@
 	                                </div>
 	                                <br/>
                                 </th:block>
+								<p><b><span th:text="#{task.requirements}"></span></b></p>
+                                <form action="#" th:action="@{/editor/task/saveChanges}" th:object="${requirements}" method="post">
+			<p th:if="${isAdmin}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
+			<input type="hidden" th:field="*{data}" id="requirementsData"/>
+			<input type="hidden" th:field="*{taskId}" th:value="${task.id}"/>
+			<script>
+				function changeData(compId) {
+					var newData = compId + "," + $("#" + compId).val();
+					$(requirementsData).val($(requirementsData).val() + ";" + newData);
+				}
+			</script>
+								<table class="table table-responsive table-striped">
+									<tr th:each="requirement : ${task.requirements}">
+										<td>
+											<span th:text="${requirement.skill.presentationName} + ' - ' + ${requirement.level} + ' / ' + ${requirement.skill.maxLevel}"></span>
+											<div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isAdmin}">
+												<a th:href="@{/editor/requirement/delete(id=${requirement.id}, taskId=${task.id})}">
+													<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
+												</a>
+												<a th:href="@{/editor/{taskId}/requirement(id=${requirement.id}, taskId=${task.id})}">
+													<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
+												</a>
+				<input type="number" min="1" th:max="${requirement.skill.maxLevel}" th:id="${requirement.id}" th:value="${requirement.level}" th:onchange="'changeData(' + ${requirement.id} + ');'"/>
+											</div>
+										</td>
+									</tr>
+								</table>
                                 
-                                <div class="row">
+                                <!-- div class="row">
                                     <div class="col-md-3 col-md-offset-8" style="padding-right: 0px;">
                                         <select class="form-control" id="actions">
                                             <option th:text="#{task.remember}" value="1"></option>
@@ -54,7 +75,8 @@
                                     <div class="col-md-1" style="padding-left: 0px;">
                                         <button type="button" class="btn btn-primary btn-block" id="check_actions" onclick="javascript:taskSelect()"><i class="fa fa-check"></i></button>
                                     </div>
-                                </div>
+                                </div -->
+                                </form>
 							</div>
 						</div>
 					</div>

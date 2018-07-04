@@ -32,7 +32,9 @@ import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Evidence;
+import com.cpms.data.entities.Option;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
@@ -294,6 +296,7 @@ public class Viewer {
 		if (returnUrl == null) {
 			returnUrl = "/viewer/tasks";
 		}
+			model.addAttribute("requirements", new Requirements(id));
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
 			model.addAttribute("requirement", new TaskRequirement());
 			model.addAttribute("skillsList", 
@@ -314,4 +317,30 @@ public class Viewer {
 		return "viewTask";
 	}
 
+	@RequestMapping(path = {"/task/group"}, 
+			method = RequestMethod.GET)
+	public String createGroup(Model model,
+			@RequestParam(name = "id", required = true) Long id) {
+		model.addAttribute("_VIEW_TITLE", "users.management.title");
+		model.addAttribute("_FORCE_CSRF", true);
+		
+		Task task = facade.getTaskDAO().getOne(id);
+		model.addAttribute("task", task.localize(LocaleContextHolder.getLocale()));
+		model.addAttribute("options", findGroups(task));
+		return "group";
+	}
+	
+	private List<Option> findGroups(Task task) {
+		List<Option> result = new ArrayList<>();
+		List<Profile> profiles = facade.getProfileDAO().getAll();
+		Option o1 = new Option(task), o2 = new Option(task);
+		o1.addResident(profiles.get(0));
+		o1.addResident(profiles.get(1));
+		o1.addResident(profiles.get(2));
+		o2.addResident(profiles.get(3));
+		o2.addResident(profiles.get(4));
+		result.add(o1);
+		result.add(o2);
+		return result;
+	}
 }

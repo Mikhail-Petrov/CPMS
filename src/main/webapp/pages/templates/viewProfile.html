@@ -28,7 +28,7 @@
                                 </script>
 								<th:block th:if="${isAdmin or isOwner}">
 	                                <div class="row">
-	                                    <div th:if="${isAdmin}" class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
 	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.competency.add}"></button>
 	                                    </div>
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
@@ -46,7 +46,7 @@
                                 </th:block>
                                 <p><b><span th:text="#{profile.competencies}"></span></b></p>
                                 <form action="#" th:action="@{/editor/profile/saveChanges}" th:object="${competencies}" method="post">
-			<p><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
+			<p th:if="${isAdmin or isOwner}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
 			<input type="hidden" th:field="*{data}" id="competenciesData"/>
 			<input type="hidden" th:field="*{profileId}" th:value="${profile.id}"/>
 			<script>

@@ -1,0 +1,49 @@
+				<div class="row">
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h3 th:text="${task.presentationName}"></h3>
+                            </div>
+                            <div class="x_content">
+								<p><span id="taskDescription" th:text="${task.about}">About</span></p>
+								<br/>
+                               <script>
+                         		/*<![CDATA[*/
+                                var descr = "<p>" + $("#taskDescription").html() + "</p";
+                         		while (descr.indexOf("\n") > -1)
+                         			descr = descr.replace("\n", "</p><p>");
+                                $("#taskDescription").html(descr);
+                         		/*]]>*/
+                                </script>
+                                <table>
+                                <tr th:each="option : ${options}">
+                                	<td>
+                                		<p><b><span th:text="#{task.group.option} + ' ' + ${optionStat.count}"></span></b></p>
+                                		<table class="table table-responsive table-striped">
+										<thead>
+											<tr>
+												<th><span th:text="#{title.profiles}"></span></th>
+												<th><span th:text="#{landing.new.competencies}"></span></th>
+												<th><span th:text="#{profile.cost}"></span></th>
+											</tr>
+										</thead>
+                                		<tr th:each="resident : ${option.residents}">
+                                			<td>
+											<a th:href="@{/viewer/profile(id=${resident.id})}" th:text="${resident.name}"></a>
+											</td>
+											<td>
+											<p th:each="competency : ${resident.competencies}">
+												<span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level} + ' / ' + ${competency.skill.maxLevel}"></span>
+											</p></td>
+											<td>
+											<span th:text="${resident.cost}"></span>
+											</td>
+                                		</tr>
+                                		</table>
+                                	</td>
+                                </tr>
+                                </table>
+							</div>
+						</div>
+					</div>
+				</div>

@@ -1,5 +1,8 @@
 package com.cpms.web.controllers;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -14,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.DependentEntityNotFoundException;
@@ -168,5 +173,39 @@ public class EditorTask {
 		facade.getTaskDAO().delete(task);
 		return "redirect:/viewer/tasks";
 	}
-	
+
+	@RequestMapping(path = {"/task/saveChanges"}, 
+			method = RequestMethod.POST)
+	public String profileSave(Model model, HttpServletRequest request,
+			@ModelAttribute("requirements") @Valid Requirements requirements,
+			BindingResult bindingResult) {
+		Task task = facade.getTaskDAO().getOne(requirements.getTaskId());
+		boolean change = false;
+		
+		HashMap<Long,Integer> changes = requirements.getChanges();
+		for (Entry<Long, Integer> requirChange : changes.entrySet()) {
+			TaskRequirement requirement = task
+					.getRequirements()
+					.stream()
+					.filter(x -> x.getId() == requirChange.getKey())
+					.findFirst()
+					.orElse(null);
+			if (requirement == null) {
+				throw new DependentEntityNotFoundException(
+						Task.class,
+						TaskRequirement.class,
+						task.getId(),
+						requirChange.getKey(),
+						request.getPathInfo());
+			}
+			if (requirement.getLevel() != requirChange.getValue()) {
+				requirement.setLevel(requirChange.getValue());
+				change = true;
+			}
+		}
+		
+		if (change)
+			facade.getTaskDAO().update(task);
+		return "redirect:/viewer/task?id=" + task.getId();
+	}
 }
