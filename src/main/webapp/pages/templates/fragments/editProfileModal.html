@@ -58,6 +58,12 @@
                                         <input type="text" class="form-control" placeholder="e-mail" th:field="*{email}"/>
                                     </div>
                                 </div>
+                                <hr class="separator"/>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span th:text="#{editor.company.price}"></span> <input type="number" class="form-control" id="price" placeholder="Стоимость" th:field="*{price}" th:placeholder="#{editor.placeholder.price}" onblur="if ($(price).val()=='') $(price).val(0);"/>
+                                    </div>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" onclick="javascript:submitProfileForm();return false;" th:text="#{editor.create}"></button>

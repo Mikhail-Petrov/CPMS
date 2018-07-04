@@ -19,7 +19,7 @@ public class Resident {
 		for (Competency comp : profile.getCompetencies())
 			if (competencies.size() < 3)
 				competencies.add(comp);
-		cost = 0;
+		cost = profile.getPrice();
 	}
 	
 	public Set<Competency> getCompetencies() {

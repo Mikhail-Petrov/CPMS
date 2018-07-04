@@ -161,6 +161,7 @@ public final class Company extends Profile {
 		clone.setTitle_RU(title_RU);
 		clone.setAddress_RU(address_RU);
 		clone.setAbout_RU(about_RU);
+		clone.setPrice(getPrice());
 		return clone;
 	}
 
@@ -175,6 +176,7 @@ public final class Company extends Profile {
 		setTitle_RU(sourceCompany.getTitle_RU());
 		setAddress_RU(sourceCompany.getAddress_RU());
 		setAbout_RU(sourceCompany.getAbout_RU());
+		setPrice(sourceCompany.getPrice());
 	}
 	
 	@SuppressWarnings("unchecked")

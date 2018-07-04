@@ -15,6 +15,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -43,6 +45,9 @@ public abstract class Profile extends AbstractDomainObject {
 	@Column(name = "ID", nullable = false)
 	@DocumentId
 	private long id;
+	
+	@Column(name = "Price", nullable = false)
+	private int price;
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
@@ -72,6 +77,14 @@ public abstract class Profile extends AbstractDomainObject {
 
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
+	}
+	
+	public int getPrice() {
+		return price;
+	}
+	
+	public void setPrice(int price) {
+		this.price = price;
 	}
 
 	public void removeCompetency(Competency competency) {

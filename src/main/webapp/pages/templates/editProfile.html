@@ -31,6 +31,7 @@
 			<p th:text="#{editor.company.email}"></p>
 			<p><input class="form-control" type="text" th:field="*{email}" placeholder="e-mail"/>
 				<span th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Name Error</span></p>
+			<p><span th:text="#{editor.company.price}"></span> <input type="number" th:field="*{price}" min="0" id="price" onblur="if ($(price).val()=='') $(price).val(0);" /></p>
 			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
 		</form>
 		</div>
