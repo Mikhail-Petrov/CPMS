@@ -12,6 +12,22 @@
                       <div id="placeholder3xx3" class="demo-placeholder" style="width: 100%; height:250px;"></div>
                     </div>
                   </div>
+                  
+		<input type="text" id="vkid" class="form-control" placeholder="VK ID"/>
+		<p><a id="vklink">
+			<button class="btn btn-primary btn-block" type="submit" th:text="#{temp.vkform.button}"></button>
+		</a></p>
+			<script>
+			var initialVkLink = rootPath + "viewer/createCompetencyProfile?vkid=";
+			$(vkid).on("input", function() {
+				var vkHref = $(vkid).val();
+				if (vkHref == '' || vkHref == null)
+					vkHref = 0;
+				vkHref = initialVkLink  + vkHref ;
+				$("#vklink").prop("href", vkHref);
+			});
+			$(vkid).trigger("input");
+			</script>
                 </div>
               </div>
             </div>

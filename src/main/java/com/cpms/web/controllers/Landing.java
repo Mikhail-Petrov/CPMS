@@ -92,7 +92,8 @@ public class Landing {
 	private class SkillCompetencyAverageComparator<T extends AverageStat> implements Comparator<T> {
 		@Override
 		public int compare(T o1, T o2) {
-			return o1.getAverage() > o2.getAverage() ? 1 : o1.getAverage() < o2.getAverage() ? -1 : 0;
+			//return o1.getAverage() > o2.getAverage() ? 1 : o1.getAverage() < o2.getAverage() ? -1 : 0;
+			return Double.compare(o1.getAverage(), o2.getAverage());
 		}
 	}
 
