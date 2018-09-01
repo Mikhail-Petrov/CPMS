@@ -38,7 +38,7 @@ import com.cpms.exceptions.DataAccessException;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(name = "PROFILE")
-public abstract class Profile extends AbstractDomainObject {
+public abstract class Profile extends AbstractDomainObject implements Comparable<Profile> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -156,5 +156,10 @@ public abstract class Profile extends AbstractDomainObject {
 	 * Must be of the same entity class.
 	 */
 	public abstract void update(Profile source);
-	
+
+
+	@Override
+	public int compareTo(Profile p) {
+		return getPresentationName().compareTo(p.getPresentationName());
+	}
 }

@@ -1,6 +1,5 @@
 package com.cpms.web.controllers;
 
-import com.jayway.jsonpath.*;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -55,7 +54,11 @@ import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.User;
 import com.cpms.web.PagingUtils;
 import com.cpms.web.SkillUtils;
+import com.cpms.web.UserSessionData;
 //import com.fasterxml.jackson.databind.ObjectMapper;
+import com.cpms.web.ajax.IAjaxAnswer;
+import com.cpms.web.ajax.MessageAnswer;
+import com.jayway.jsonpath.JsonPath;
 
 /**
  * Viewer for profile and task entities.
@@ -86,6 +89,9 @@ public class Viewer {
 	@Qualifier("draftableSkillDAO")
 	private IDraftableSkillDaoExtension skillDao;
 
+	// Current status of the group finding
+	private String curStatus = "";
+	
 	@SuppressWarnings("unchecked")
 	public static List<Object> parseJsonObject(String json) {
 		ObjectMapper mapper = new ObjectMapper();
@@ -281,6 +287,7 @@ public class Viewer {
 
 	@RequestMapping(path = { "/task/group" }, method = RequestMethod.GET)
 	public String createGroup(Model model, @RequestParam(name = "id", required = true) Long id) {
+		curStatus = UserSessionData.localizeText("Формирование шаблона страницы", "");
 		model.addAttribute("_VIEW_TITLE", "users.management.title");
 		model.addAttribute("_FORCE_CSRF", true);
 
@@ -291,9 +298,12 @@ public class Viewer {
 	}
 
 	private List<Option> findGroups(Task task) {
+		curStatus = UserSessionData.localizeText("Получение списка резидентов", "Getting residents list");
 		List<Option> result = new ArrayList<>();
 		List<Profile> profiles = facade.getProfileDAO().getAll();
+		Collections.sort(profiles);
 		// create list of requirements and whether they are filled
+		curStatus = UserSessionData.localizeText("Создание списка требований", "Creating requirements list");
 		HashMap<Long, Boolean> reqFilled = new HashMap<>();
 		HashMap<Long, Integer> reqLevels = new HashMap<>();
 		for (TaskRequirement req : task.getRequirements()) {
@@ -302,6 +312,7 @@ public class Viewer {
 		}
 		int unfilled = reqFilled.size();
 		// check all residents
+		curStatus = UserSessionData.localizeText("Проверка резидентов", "Checking residents");
 		Option curOption = new Option(task);
 		int curIndex = 0, checked = 0;
 		while (!profiles.isEmpty()) {
@@ -309,6 +320,8 @@ public class Viewer {
 				if (curIndex >= profiles.size())
 					curIndex = 0;
 				Profile curProfile = profiles.get(curIndex);
+				curStatus = UserSessionData.localizeText("Проверка резидента " + curProfile.getPresentationName(),
+						"Checking resident " + curProfile.getPresentationName());
 				// check if this resident has some unfilled requirements
 				boolean hasUnfilled = false;
 				for (Competency comp : curProfile.getCompetencies()) {
@@ -323,6 +336,8 @@ public class Viewer {
 				}
 				// if he has then add to the group and remove from 'unchecked' list
 				if (hasUnfilled) {
+					curStatus = UserSessionData.localizeText("Добавление резидента " + curProfile.getPresentationName(),
+							"Adding resident " + curProfile.getPresentationName());
 					curOption.addResident(curProfile);
 					profiles.remove(curProfile);
 				} else {
@@ -347,9 +362,11 @@ public class Viewer {
 				// if all residents are checked, but there is no solution then remove someone
 				if (unfilled <= 0)
 					result.add(new Option(curOption));
+				curStatus = UserSessionData.localizeText("Оптимизация группы", "Group optimisation");
 				curOption.removeBadResident();
 				checked = 0;
 				// find unfilled requirements
+				curStatus = UserSessionData.localizeText("Обнаружение невыполненных требований", "Finding unfilled requirements");
 				unfilled = 0;
 				for (TaskRequirement req : task.getRequirements()) {
 					boolean curFilled = false;
@@ -372,7 +389,9 @@ public class Viewer {
 		}
 		if (unfilled == 0)
 			result.add(new Option(curOption));
+		curStatus = UserSessionData.localizeText("Сортировка вариантов", "Options sorting");
 		Collections.sort(result);
+		curStatus = UserSessionData.localizeText("Нормализация оптимальности", "Optimality normalisation");
 		double bestOptimality = result.get(0).getOptimality();
 		// set relative optimalities
 		if (bestOptimality != 0)
@@ -381,6 +400,14 @@ public class Viewer {
 		return result;
 	}
 
+	
+	@ResponseBody
+	@RequestMapping(value = "/task/getStatus",
+			method = RequestMethod.POST)
+	public IAjaxAnswer getGroupFormingStatus() {
+		return new MessageAnswer(curStatus + "...");
+	}
+	
 	@RequestMapping(path = { "/createCompetencyProfile" }, method = RequestMethod.GET)
 	public String createCompetencyProfile(Model model, @RequestParam(value = "vkid", required = true) String id) throws ClientProtocolException, IOException {
 		String userInfo = getUserInfo(id);

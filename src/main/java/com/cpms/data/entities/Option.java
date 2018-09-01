@@ -98,9 +98,13 @@ public class Option implements Comparable<Option> {
 		optimality = levels * reconcilability / (double) cost;
 	}
 	
+	double getWorstOptimality() {
+		return -requirements.size() - 1;
+	}
+	
 	public void removeBadResident() {
 		// find and remove worse resident
-		double bestOptimality = 0;
+		double bestOptimality = getWorstOptimality();
 		Resident worseRes = null;
 		Set<Resident> oldResidents = new HashSet<>(residents);
 		for (Resident resident : oldResidents) {

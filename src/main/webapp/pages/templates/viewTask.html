@@ -18,6 +18,7 @@
                        	<p><a th:href="@{/viewer/task/group(id=${task.id})}">
 			<button id="createGroup" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.create}"></button>
 						</a></p>
+						<p id="statusLbl">Status: 0</p>
 								<th:block th:if="${isAdmin}">
 	                                <div class="row">
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
@@ -138,6 +139,39 @@
                          				}
                          			});
                          		}
+                         		
+                         		function updateStatus() {
+                         			var address = /*[[@{/viewer/task/getStatus}]]*/ null;
+                             		
+                             		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                            	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                            	    var headers = {};
+                            	    headers[csrfHeader] = csrfToken;
+
+                         			$.ajax({
+                         				url : address,
+                         				type: 'POST',
+                         				dataType: 'json',
+                         				contentType: 'application/json; charset=utf-8',
+                         				data : JSON.stringify(''),
+                         				headers: headers,
+                         				success: function (res) {
+                                 			$(statusLbl).html(res.message);
+                                 			
+                                 			setTimeout(updateStatus, 2*1000);
+                         					console.log('1');
+                         				},
+                         				error: function (xhRequest, ErrorText, thrownError) {
+                         					
+                         					console.log('xhRequest: ' + xhRequest + "\n");
+                         					console.log('ErrorText: ' + ErrorText + "\n");
+                         					console.log('thrownError: ' + thrownError + "\n");
+                         				}
+                         			});
+                         		}
+                         		
+                         		$(createGroup).on("click", function() {updateStatus()});
+                         		//$(createGroup).on("click", function() {setInterval(updateStatus, 2*1000)});
                          		/*]]>*/
            		</script>
 
