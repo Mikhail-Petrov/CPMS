@@ -1,56 +1,87 @@
 package com.cpms.data.entities;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class Option implements Comparable<Option> {
 	private Set<Resident> residents;
 	private double optimality;
-	
+	private int sum;
+
 	private Task task;
 	private Set<TaskRequirement> requirements;
-	
+
 	public Option(Task task) {
 		this.task = task;
 		requirements = task.getRequirements();
 		optimality = 0;
+		sum = 0;
 		residents = new HashSet<>();
 	}
-	
+
 	public Option(Option option) {
 		task = option.task;
 		requirements = task.getRequirements();
 		residents = new HashSet<>();
 		option.residents.forEach(x -> residents.add(new Resident(x)));
 		calculateOptimality();
+		sum = option.getSum();
 		residents.forEach(x -> x.removeUnusedCompetencies(requirements));
 	}
-	
+
 	public Task getTask() {
 		return task;
 	}
-	public void setTask (Task task) {
+
+	public void setTask(Task task) {
 		this.task = task;
 	}
-	public Set<Resident> getResidents() {
-		return residents;
+
+	public List<Resident> getResidents() {
+		ArrayList<Resident> result = new ArrayList<>();
+		for (Resident resident : residents)
+			result.add(resident);
+		Collections.sort(result);
+		return result;
 	}
+
 	public void setResidents(Set<Resident> residents) {
 		this.residents = residents;
 	}
+
 	public double getOptimality() {
 		return optimality;
 	}
+
 	public void setOptimality(double optimality) {
 		this.optimality = optimality;
 	}
-	
+
+	public int getSum() {
+		return sum;
+	}
+
+	public void setSum(int sum) {
+		this.sum = sum;
+	}
+
 	public void addResident(Profile profile) {
 		residents.add(new Resident(profile));
+		HashMap<Long, Integer> reqLevels = new HashMap<>();
+		for (TaskRequirement req : requirements)
+			reqLevels.put(req.getSkill().getId(), req.getLevel());
+		for (Competency comp : profile.getCompetencies()) {
+			long curKey = comp.getSkill().getId();
+			if (reqLevels.containsKey(curKey) && comp.getLevel() >= reqLevels.get(curKey))
+				sum += profile.getPrice();
+		}
 	}
-	
+
 	private void calculateOptimality() {
 		if (residents.isEmpty()) {
 			optimality = 0;
@@ -97,11 +128,11 @@ public class Option implements Comparable<Option> {
 		double reconcilability = 1;
 		optimality = levels * reconcilability / (double) cost;
 	}
-	
+
 	double getWorstOptimality() {
 		return -requirements.size() - 1;
 	}
-	
+
 	public void removeBadResident() {
 		// find and remove worse resident
 		double bestOptimality = getWorstOptimality();
@@ -118,6 +149,14 @@ public class Option implements Comparable<Option> {
 			residents.add(resident);
 		}
 		residents.remove(worseRes);
+		HashMap<Long, Integer> reqLevels = new HashMap<>();
+		for (TaskRequirement req : requirements)
+			reqLevels.put(req.getSkill().getId(), req.getLevel());
+		for (Competency comp : worseRes.getCompetencies()) {
+			long curKey = comp.getSkill().getId();
+			if (reqLevels.containsKey(curKey) && comp.getLevel() >= reqLevels.get(curKey))
+				sum -= worseRes.getCost();
+		}
 		calculateOptimality();
 	}
 

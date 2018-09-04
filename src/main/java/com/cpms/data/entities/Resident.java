@@ -3,7 +3,7 @@ package com.cpms.data.entities;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class Resident {
+public class Resident implements Comparable<Resident> {
 	private Set<Competency> competencies;
 	private long cost, id;
 	private String name;
@@ -69,5 +69,10 @@ public class Resident {
 			if (!isUsed)
 				competencies.remove(comp);
 			}
+	}
+
+	@Override
+	public int compareTo(Resident r) {
+		return getName().compareTo(r.getName());
 	}
 }

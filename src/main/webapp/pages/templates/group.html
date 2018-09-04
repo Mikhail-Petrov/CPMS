@@ -19,6 +19,7 @@
                                 <tr th:each="option : ${options}">
                                 	<td>
                                 		<p><b><span th:text="#{task.group.option} + ' ' + ${optionStat.count} + '/' + ${optionStat.size} + ' (' + #{task.group.optimality} + ': ' + ${option.optimality} + '%)'"></span></b></p>
+                                		<p><b><span th:text="#{task.group.sum} + ': ' + ${option.sum}"></span></b></p>
                                 		<table class="table table-responsive table-striped">
 										<thead>
 											<tr>
