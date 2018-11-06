@@ -160,6 +160,6 @@ public abstract class Profile extends AbstractDomainObject implements Comparable
 
 	@Override
 	public int compareTo(Profile p) {
-		return getPresentationName().compareTo(p.getPresentationName());
+		return getPresentationName().toLowerCase().compareTo(p.getPresentationName().toLowerCase());
 	}
 }

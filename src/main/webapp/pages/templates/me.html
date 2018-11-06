@@ -13,4 +13,24 @@
 		<th:object th:if="${isResident}">
 		<a th:href="@{/viewer/profile(id=${profileId})}" th:text="#{me.profile}"></a>
 		</th:object>
+		<th:block th:if="${username}=='admin'">
+		<p><a th:href="@{/viewer/task/group/clear/residents}">
+		<button id="clearResidents" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.clear.residents}"></button>
+		</a></p><p><span th:text="'residents amount: ' + ${residentsCount}"></span></p>
+		<p><a th:href="@{/viewer/task/group/clear/requirements}">
+		<button id="clearRequirements" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.clear.requirements}"></button>
+		</a></p><p><span th:text="'requirements amount: ' + ${requirementsCount}"></span></p>
+		<p><a th:href="@{/viewer/task/group/clear/all}">
+		<button id="clearAll" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.clear.all}"></button>
+		</a></p>
+		<form action="#" th:action="@{/security/updateConfigs}" th:object="${testConfig}" method="post">
+		<table>
+		<tr><td th:text="#{test.config.testIteration}"></td><td><input type="number" th:field="*{testIteration}" min="1"/></td></tr>
+		<tr><td th:text="#{test.config.testLength}"></td><td><input type="number" th:field="*{testLength}" min="1"/></td></tr>
+		<tr><td th:text="#{test.config.genReqAmount}"></td><td><input type="number" th:field="*{genReqAmount}" min="0"/></td></tr>
+		<tr><td th:text="#{test.config.genResAmount}"></td><td><input type="number" th:field="*{genResAmount}" min="0"/></td></tr>
+		</table>
+		<input type="submit" class="btn btn-primary btn-block" th:value="#{profile.save}"/>
+		</form>
+		</th:block>
 		</div>

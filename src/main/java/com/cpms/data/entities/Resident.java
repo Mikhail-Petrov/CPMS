@@ -73,6 +73,6 @@ public class Resident implements Comparable<Resident> {
 
 	@Override
 	public int compareTo(Resident r) {
-		return getName().compareTo(r.getName());
+		return Long.compare(getCost(), r.getCost());// getName().toLowerCase().compareTo(r.getName().toLowerCase());
 	}
 }

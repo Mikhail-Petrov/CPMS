@@ -15,10 +15,17 @@
                                 $("#taskDescription").html(descr);
                          		/*]]>*/
                                 </script>
-                       	<p><a th:href="@{/viewer/task/group(id=${task.id})}">
+                       	<th:block th:if="${username}=='admin'"><p>
+                       	<a th:href="@{/viewer/task/group/generate/residents(id=${task.id})}">
+			<button id="generateResidents" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.generate.residents}"></button>
+						</a></p><p><span th:text="'residents amount: ' + ${residentsCount}"></span></p><p>
+                       	<a th:href="@{/viewer/task/group/generate/requirements(id=${task.id})}">
+			<button id="generateRequirements" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.generate.requirements}"></button>
+						</a></p><p><span th:text="'requirements amount: ' + ${requirementsCount}"></span></p></th:block>
+						<p><a th:href="@{/viewer/task/group(id=${task.id})}">
 			<button id="createGroup" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.create}"></button>
 						</a></p>
-						<p id="statusLbl">Status: 0</p>
+						<p id="statusLbl"></p>
 								<th:block th:if="${isAdmin}">
 	                                <div class="row">
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
@@ -158,7 +165,7 @@
                          				success: function (res) {
                                  			$(statusLbl).html(res.message);
                                  			
-                                 			setTimeout(updateStatus, 2*1000);
+                                 			setTimeout(updateStatus, 1*1000);
                          					console.log('1');
                          				},
                          				error: function (xhRequest, ErrorText, thrownError) {
@@ -171,6 +178,8 @@
                          		}
                          		
                          		$(createGroup).on("click", function() {updateStatus()});
+                         		$(generateResidents).on("click", function() {updateStatus()});
+                         		$(generateRequirements).on("click", function() {updateStatus()});
                          		//$(createGroup).on("click", function() {setInterval(updateStatus, 2*1000)});
                          		/*]]>*/
            		</script>

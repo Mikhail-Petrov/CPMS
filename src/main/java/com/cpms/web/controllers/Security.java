@@ -23,6 +23,9 @@ import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.ProfileData;
+import com.cpms.data.entities.Requirements;
+import com.cpms.data.entities.Task;
+import com.cpms.data.entities.TestConfig;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.exceptions.WrongUserProfileException;
@@ -52,6 +55,10 @@ public class Security {
 	@Autowired
 	@Qualifier(value = "profileDAO")
 	private IDAO<Profile> profileDAO;
+
+	@Autowired
+	@Qualifier(value = "taskDAO")
+	private IDAO<Task> taskDAO;
 
 	@Autowired
 	@Qualifier(value = "userSessionData")
@@ -210,7 +217,15 @@ public class Security {
 					.getProfileId();
 			model.addAttribute("profileId", ownerId.longValue());
 		}
+		model.addAttribute("residentsCount", profileDAO.count() + Viewer.generatedProfiles.size());
+		model.addAttribute("requirementsCount", Viewer.generatedReqs.size());
+		model.addAttribute("testConfig", new TestConfig());
 		return "me";
 	}
 
+	@RequestMapping(path = { "/updateConfigs" }, method = RequestMethod.POST)
+	public String updateConfigs(Model model, @ModelAttribute("testConfig") @Valid TestConfig testConfig) {
+		testConfig.updateConfigs();
+		return "redirect:/security/me";
+	}
 }

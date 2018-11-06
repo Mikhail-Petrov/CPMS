@@ -70,15 +70,15 @@ public class Option implements Comparable<Option> {
 		this.sum = sum;
 	}
 
-	public void addResident(Profile profile) {
-		residents.add(new Resident(profile));
+	public void addResident(Resident profile) {
+		residents.add(profile);
 		HashMap<Long, Integer> reqLevels = new HashMap<>();
 		for (TaskRequirement req : requirements)
 			reqLevels.put(req.getSkill().getId(), req.getLevel());
 		for (Competency comp : profile.getCompetencies()) {
 			long curKey = comp.getSkill().getId();
 			if (reqLevels.containsKey(curKey) && comp.getLevel() >= reqLevels.get(curKey))
-				sum += profile.getPrice();
+				sum += profile.getCost();
 		}
 	}
 
@@ -90,6 +90,8 @@ public class Option implements Comparable<Option> {
 		// for all requirements find best levels and required levels
 		HashMap<Long, Integer> bestLevels = new HashMap<>();
 		HashMap<Long, Integer> reqLevels = new HashMap<>();
+		HashMap<Long, Integer> bestAmounts = new HashMap<>();
+		HashMap<Long, Integer> bestCosts = new HashMap<>();
 		for (TaskRequirement req : requirements) {
 			long curKey = req.getSkill().getId();
 			bestLevels.put(curKey, 0);
@@ -101,9 +103,11 @@ public class Option implements Comparable<Option> {
 						break;
 					}
 			reqLevels.put(curKey, req.getLevel());
+			bestAmounts.put(curKey, 0);
+			bestCosts.put(curKey, 0);
 		}
 		// calculate cost and levels
-		long cost = 0;
+		int cost = 0;
 		double levels = 0;
 		for (Resident res : residents) {
 			for (Competency comp : res.getCompetencies()) {
@@ -114,16 +118,24 @@ public class Option implements Comparable<Option> {
 				}
 				if (reqLevels.containsKey(curKey) && comp.getLevel() >= reqLevels.get(curKey)) {
 					// for each 'good' resident's competency add his cost
-					cost += res.getCost();
+					bestCosts.put(curKey, bestCosts.get(curKey) + (int) res.getCost());
+					bestAmounts.put(curKey, bestAmounts.get(curKey) + 1);
 				}
 			}
 		}
 		// minus unfilled requirements
+		double toMinus = 0;
 		for (Map.Entry<Long, Integer> entry : bestLevels.entrySet()) {
 			int reqLevel = reqLevels.get(entry.getKey());
 			if (entry.getValue() < reqLevel)
-				levels -= 1 - entry.getValue() / reqLevel;
+				toMinus += 1 - entry.getValue() / reqLevel;
+			int reqAmount = bestAmounts.get(entry.getKey());
+			if (reqAmount > 0)
+				cost += bestCosts.get(entry.getKey()) / reqAmount;
 		}
+		sum = cost;
+		if (toMinus > 0)
+			levels = -toMinus;
 		// calculate Reconcilability
 		double reconcilability = 1;
 		optimality = levels * reconcilability / (double) cost;
@@ -152,11 +164,11 @@ public class Option implements Comparable<Option> {
 		HashMap<Long, Integer> reqLevels = new HashMap<>();
 		for (TaskRequirement req : requirements)
 			reqLevels.put(req.getSkill().getId(), req.getLevel());
-		for (Competency comp : worseRes.getCompetencies()) {
+		/*for (Competency comp : worseRes.getCompetencies()) {
 			long curKey = comp.getSkill().getId();
 			if (reqLevels.containsKey(curKey) && comp.getLevel() >= reqLevels.get(curKey))
 				sum -= worseRes.getCost();
-		}
+		}*/
 		calculateOptimality();
 	}
 
