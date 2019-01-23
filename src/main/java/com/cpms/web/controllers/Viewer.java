@@ -677,7 +677,7 @@ public class Viewer {
 	}
 
 	private String getUserInfo(String id) throws ClientProtocolException, IOException {
-		String s = "http://85.119.150.9:5000/api/vk?id=" + id;
+		String s = "http://192.168.0.109:5000/api/vk?id=" + id;
 		Content content = Request.Get(s).execute().returnContent();
 		String res = content.asString();
 		return res;
