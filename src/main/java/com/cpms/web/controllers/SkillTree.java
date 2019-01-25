@@ -61,7 +61,7 @@ public class SkillTree {
 		@RequestParam(name = "search", required = false) String search) {
 		model.addAttribute("_VIEW_TITLE", "title.tree");
 		model.addAttribute("_FORCE_CSRF", true);
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			User owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
@@ -71,7 +71,7 @@ public class SkillTree {
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("skills", 
 					produceTree(skillDao.getAllIncludingDrafts()));
 			Skill newSkill = new Skill();

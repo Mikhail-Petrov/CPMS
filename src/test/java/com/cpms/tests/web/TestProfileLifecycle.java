@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 		WebConfig.class, 
 		SecurityConfig.class})
 @WebAppConfiguration
-@WithMockUser(roles = {"ADMIN"})
+@WithMockUser(roles = {"MANAGER"})
 public class TestProfileLifecycle {
 	
 	private static String SAMPLE_TITLE = "FABLAB";

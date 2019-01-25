@@ -72,13 +72,13 @@ public class Skills {
 
 	private List<Skill> addSkillsListToModel(Principal principal, HttpServletRequest request) {
 		List<Skill> skills;
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			User owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
 			skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			skills = skillDao.getAllIncludingDrafts();
 		} else {
 			skills = facade.getSkillDAO().getAll();
@@ -97,7 +97,7 @@ public class Skills {
 				+ (countTasks % PagingUtils.PAGE_SIZE > 0 ? 1 : 0));
 		model.addAttribute("_VIEW_TITLE", "title.viewer");
 		model.addAttribute("_FORCE_CSRF", true);
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("company", new Company());
 			model.addAttribute("task", new Task());
 		}
@@ -107,7 +107,7 @@ public class Skills {
 				{"Highly specialised", "Высокоспециализированный уровень"}};
 		model.addAttribute("defaultLevels", defLevels);
 		
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			User owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
@@ -117,7 +117,7 @@ public class Skills {
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("skills", 
 					SkillTree.produceTree(sortSkills(skillDao.getAllIncludingDrafts())));
 			Skill newSkill = new Skill();

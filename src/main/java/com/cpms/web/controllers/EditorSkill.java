@@ -65,14 +65,14 @@ public class EditorSkill {
 	private void addSkillsListToModel(Model model, Principal principal,
 			HttpServletRequest request, boolean create) {
 		model.addAttribute("create", create);
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			User owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
 			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			List<Skill> skills = skillDao.getAllIncludingDrafts();
 			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else {
@@ -84,7 +84,7 @@ public class EditorSkill {
 	private void checkBelongs(Principal principal, Skill recievedSkill,
 			HttpServletRequest request) {
 		if (recievedSkill.getId() != 0) {
-			if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+			if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 				Skill oldSkill = facade.getSkillDAO().getOne(recievedSkill.getId());
 				User owner = userDAO.getByUsername((
 						(UsernamePasswordAuthenticationToken)principal
@@ -112,7 +112,7 @@ public class EditorSkill {
 			Skill recievedSkill) {
 		if (recievedSkill.getParent() != null && 
 				recievedSkill.getParent().isDraft() &&
-				CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+				CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			throw new ManualValidationException(UserSessionData.localizeText(
 					"Отправлено некорректное умение", "Invalid skill submitted!"),
 					UserSessionData.localizeText(
@@ -153,8 +153,8 @@ public class EditorSkill {
 		if (recievedSkill == null) {
 			throw new SessionExpiredException(null);
 		}
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
-			if (!CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN))
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
+			if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
 				recievedSkill.setDraft(true);
 			recievedSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
@@ -305,8 +305,8 @@ public class EditorSkill {
 		newSkill.setAbout_RU(recievedSkill.getAbout_RU());
 		newSkill.setAbout(recievedSkill.getAbout());
 		newSkill.setType(recievedSkill.getType());
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
-			if (!CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN))
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
+			if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
 				newSkill.setDraft(true);
 			newSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
@@ -392,8 +392,8 @@ public class EditorSkill {
 		newSkill.setAbout_RU(recievedSkill.getAbout_RU());
 		newSkill.setAbout(recievedSkill.getAbout());
 		newSkill.setType(recievedSkill.getType());
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
-			if (!CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN))
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
+			if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
 				newSkill.setDraft(true);
 			newSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
