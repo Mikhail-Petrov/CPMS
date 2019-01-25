@@ -48,7 +48,7 @@ public class EditorSkillLevel {
 	private void checkBelongs(Principal principal, Skill parentSkill,
 			HttpServletRequest request) {
 		if (parentSkill != null) {
-			if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+			if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 				User owner = userDAO.getByUsername((
 						(UsernamePasswordAuthenticationToken)principal
 						).getName());
