@@ -88,16 +88,16 @@ public class ErrorHandler {
 			if (auth.getPrincipal() instanceof User) {
 				User user = (User) auth.getPrincipal();
 				for (GrantedAuthority authority : user.getAuthorities()) {
-					if (authority.getAuthority().contains(RoleTypes.ADMIN.name()))
+					if (authority.getAuthority().contains(RoleTypes.MANAGER.name()))
 						isAdmin = true;
-					if (authority.getAuthority().contains(RoleTypes.RESIDENT.name()))
+					if (authority.getAuthority().contains(RoleTypes.EXPERT.name()))
 						isResident = true;
 				}
 				username = user.getUsername();
 			} else if (auth.getPrincipal() instanceof SecurityUser) {
 				SecurityUser secUser = (SecurityUser) auth.getPrincipal();
-				isAdmin = secUser.checkRole(RoleTypes.ADMIN);
-				isResident = secUser.checkRole(RoleTypes.RESIDENT);
+				isAdmin = secUser.checkRole(RoleTypes.MANAGER);
+				isResident = secUser.checkRole(RoleTypes.EXPERT);
 				username = secUser.getPresentationName();
 			}
 		}

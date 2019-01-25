@@ -23,11 +23,12 @@ public class UserData {
 		this.password = user.getPassword();
 		this.roles = user.getRoles();
 
-		this.isAdmin = user.checkRole(RoleTypes.ADMIN);
-		this.isResident= user.checkRole(RoleTypes.RESIDENT);
+		this.isAdmin = user.checkRole(RoleTypes.MANAGER);
+		this.isResident= user.checkRole(RoleTypes.EXPERT);
 		
 		if (this.isResident)
-			this.profileId = user.getProfileId();
+			//this.profileId = user.getProfileId();
+			this.profileId = 0;
 		else
 			this.profileId = 0;
 	}

@@ -9,11 +9,9 @@ package com.cpms.security;
 public class RegistrationForm {
 	
 	public Long id;
-	public Long profileId;
 	public String username;
 	public String password;
-	public boolean adminRole = false;
-	public boolean residentRole = false;
+	public String role;
 	
 	public String getUsername() {
 		return username;
@@ -31,20 +29,12 @@ public class RegistrationForm {
 		this.password = password;
 	}
 	
-	public boolean isAdminRole() {
-		return adminRole;
+	public String getRole() {
+		return role;
 	}
 	
-	public void setAdminRole(boolean adminRole) {
-		this.adminRole = adminRole;
-	}
-	
-	public boolean isResidentRole() {
-		return residentRole;
-	}
-	
-	public void setResidentRole(boolean residentRole) {
-		this.residentRole = residentRole;
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 	/**
@@ -59,20 +49,6 @@ public class RegistrationForm {
 	 */
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	/**
-	 * @return the profileId
-	 */
-	public Long getProfileId() {
-		return profileId;
-	}
-
-	/**
-	 * @param profileId the profileId to set
-	 */
-	public void setProfileId(Long profileId) {
-		this.profileId = profileId;
 	}
 	
 }

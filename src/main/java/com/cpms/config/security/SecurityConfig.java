@@ -52,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.inMemoryAuthentication()
 			.withUser(Security.adminName)
 			.password(Security.adminPassword)
-			.roles(RoleTypes.ADMIN.toString());
+			.roles(RoleTypes.MANAGER.toString());
 		auth.authenticationProvider(provider);
 	}
 	
@@ -92,19 +92,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               			"/editor/skill/delete", "/editor/skill/delete/force",
               			"/editor/profile",
               			"/editor/*/skillLevel", "/editor/skill/alternativeAsync")
-              	.hasAnyRole(RoleTypes.RESIDENT.toString(), RoleTypes.ADMIN.toString())
+              	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
           	.antMatchers("/editor","/editor/**")
-          		.hasRole(RoleTypes.ADMIN.toString())
+          		.hasRole(RoleTypes.MANAGER.toString())
           	.antMatchers("/security/me")
           		.authenticated()
           	.antMatchers("/security/register")
-          		.hasRole(RoleTypes.ADMIN.toString())
+          		.hasRole(RoleTypes.MANAGER.toString())
           	.antMatchers("/applications/delete", "/applications/delete/**", 
           			"/applications/approve", "/applications/approve/**")
-          		.hasRole(RoleTypes.ADMIN.toString())
+          		.hasRole(RoleTypes.MANAGER.toString())
           	.antMatchers("/applications/suggest", "/applications/suggest/**", 
               		"/applications/recall", "/applications/recall/**")
-              	.hasRole(RoleTypes.RESIDENT.toString())
+              	.hasRole(RoleTypes.EXPERT.toString())
           	.and()
       .formLogin()
           	.loginPage("/security/login")

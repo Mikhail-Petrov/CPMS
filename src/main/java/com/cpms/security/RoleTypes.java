@@ -8,9 +8,11 @@ package com.cpms.security;
  */
 public enum RoleTypes {
 	
-	ADMIN ("ADMIN"),
-	RESIDENT ("RESIDENT");
-	
+	MANAGER ("MANAGER"),
+	EXPERT ("EXPERT"),
+	BOSS ("BOSS"),
+	HR ("HR");
+		
 	private final String name;
 	private final String roleName;
 	
@@ -29,6 +31,13 @@ public enum RoleTypes {
 	@Override
 	public String toString() {
 		return name;
+	}
+	
+	public static RoleTypes getRoleTypeByName(String roleName) {
+		for (RoleTypes role : RoleTypes.values())
+			if (role.toRoleName().equals(roleName))
+				return role;
+		return null;
 	}
 	
 }

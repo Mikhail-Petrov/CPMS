@@ -74,7 +74,7 @@ public class Dashboard {
 				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
 		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(facade.getSkillDAO().getAll()));
 		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("competencyApplications",
 					applicationsService.retrieveSuggestedCompetencies());
 			model.addAttribute("applicationsForm", new ApplicationsPostForm());

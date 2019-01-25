@@ -105,12 +105,30 @@ public class CommonModelAttributes {
 
 	@ModelAttribute("isAdmin")
 	public boolean isAdmin(HttpServletRequest request) {
-		return userHasRole(request, RoleTypes.ADMIN);
+		return userHasRole(request, RoleTypes.MANAGER);
 	}
 
 	@ModelAttribute("isResident")
 	public Boolean isResident(HttpServletRequest request) {
-		return userHasRole(request, RoleTypes.RESIDENT);
+		return userHasRole(request, RoleTypes.EXPERT);
+	}
+
+	@ModelAttribute("isBoss")
+	public Boolean isBoss(HttpServletRequest request) {
+		return userHasRole(request, RoleTypes.BOSS);
+	}
+
+	@ModelAttribute("isHR")
+	public Boolean isHR(HttpServletRequest request) {
+		return userHasRole(request, RoleTypes.HR);
+	}
+
+	@ModelAttribute("getRole")
+	public String getRole(HttpServletRequest request) {
+		for (RoleTypes role : RoleTypes.values())
+			if (userHasRole(request, role))
+				return role.toRoleName();
+		return "";
 	}
 
 	@ModelAttribute("authorities")

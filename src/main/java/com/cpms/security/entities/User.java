@@ -101,6 +101,12 @@ public class User extends AbstractDomainObject {
 		this.id = id;
 	}
 
+	public String getRole() {
+		if (roles == null || roles.isEmpty())
+			return null;
+		return roles.get(0).getRolename();
+	}
+	
 	public List<Role> getRoles() {
 		if (roles == null) {
 			roles = new ArrayList<Role>();
@@ -123,6 +129,9 @@ public class User extends AbstractDomainObject {
 		if (roles == null) {
 			this.getRoles();
 		}
+		for (Role oldRole : roles)
+			if (oldRole.getRolename().equals(role.getRolename()))
+				return;
 		roles.add(role);
 		role.setOwner(this);
 	}

@@ -75,25 +75,18 @@ public class Security {
 			model.addAttribute("_VIEW_TITLE", "title.edit.user");
 		model.addAttribute("_FORCE_CSRF", true);
 		RegistrationForm form = new RegistrationForm();
-		Profile profile = sessionData.getProfile();
-		if (profile != null)
-			form.profileId = profile.getId();
 		if (!isCreate) {
 			User user = userDAO.getByUserID(id);
 			form.setId(id);
-			form.setAdminRole(user.checkRole(RoleTypes.ADMIN));
-			form.setResidentRole(user.checkRole(RoleTypes.RESIDENT));
+			form.setRole(user.getRole());
 			form.setUsername(user.getUsername());
-			if (form.isResidentRole())
-				form.setProfileId(user.getProfileId());
 		}
 		model.addAttribute("registrationForm", form);
 		model.addAttribute("isCreate", isCreate);
-		List<ProfileData> profileList = new ArrayList<>();
-		for (Profile profileData : profileDAO.getAll())
-			profileList.add(new ProfileData(profileData,
-					form.profileId != null && profileData.getId() == form.profileId));
-		model.addAttribute("profileList", profileList);
+		List<String> roleList = new ArrayList<>();
+		for (RoleTypes role : RoleTypes.values())
+			roleList.add(role.toRoleName());
+		model.addAttribute("roleList", roleList);
 		return "register";
 	}
 
@@ -123,31 +116,9 @@ public class Security {
 			user.setPassword(registrationForm.getPassword());
 		else
 			user.setHashed(true);
-		if (registrationForm.isAdminRole()) {
-			if (!user.checkRole(RoleTypes.ADMIN)) {
-				Role newRole = new Role();
-				newRole.setRolename(RoleTypes.ADMIN.toString());
-				user.addRole(newRole);
-			}
-		} else {
-			Role role = new Role();
-			role.setRolename(RoleTypes.ADMIN.toString());
-			user.removeRole(role);
-		}
-		if (registrationForm.isResidentRole()) {
-			if (!user.checkRole(RoleTypes.RESIDENT)) {
-				Role newRole = new Role();
-				newRole.setRolename(RoleTypes.RESIDENT.toString());
-				user.addRole(newRole);
-			}
-			correctProfileCheck(profileDAO.getOne(registrationForm.getProfileId()), request, userId);
-			user.setProfileId(registrationForm.getProfileId());
-		} else {
-			Role role = new Role();
-			role.setRolename(RoleTypes.RESIDENT.toString());
-			user.removeRole(role);
-			user.setProfileId(null);
-		}
+		Role newRole = new Role();
+		newRole.setRolename(registrationForm.role);
+		user.addRole(newRole);
 		if (isCreate)
 			userDAO.insertUser(user);
 		else
@@ -212,11 +183,6 @@ public class Security {
 	@RequestMapping(path = "/me")
 	public String me(Model model, HttpServletRequest request, Principal principal) {
 		model.addAttribute("_VIEW_TITLE", "title.user.information");
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
-			Long ownerId = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName())
-					.getProfileId();
-			model.addAttribute("profileId", ownerId.longValue());
-		}
 		model.addAttribute("residentsCount", profileDAO.count() + Viewer.generatedProfiles.size());
 		model.addAttribute("requirementsCount", Viewer.generatedReqs.size());
 		model.addAttribute("testConfig", new TestConfig());

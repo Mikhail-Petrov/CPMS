@@ -13,36 +13,16 @@
 			<span th:if="${isCreate}==false" th:text="#{register.password.change}"></span>
 		</p>
 		<p>
-			<span th:text="#{register.permissions}">Permissions:</span>
+			<span th:text="#{register.roles}">Roles:</span>
 		</p>
 		<p>
-			<span th:text="#{role.admin} + ': '"></span><input type="checkbox"
-				th:field="*{adminRole}" value="false" />
-		</p>
-		<p>
-			<span th:text="#{role.resident} + ': '"></span><input type="checkbox" id="resRole"
-				th:field="*{residentRole}" value="false"/>
-		</p>
-		<p>
-			<span th:text="#{register.profile}" id="profileText"></span>
-		</p>
-		<p>
-			<select id="profileSelect" th:field="*{profileId}">
-				<option th:value="null" th:text="#{register.noprofile}">No
-					profile</option>
-				<option th:each="profileInList : ${profileList}"
-					th:value="${profileInList.id}" th:text="${profileInList.name}"
-					th:selected="${profileInList.selected}? true : false">A
-					profile</option>
+			<select id="roleSelect" th:field="*{role}">
+				<option th:each="roleInList : ${roleList}"
+					th:value="${roleInList}" th:text="${roleInList}"
+					th:selected="${roleInList}==${getRole}">A
+					role</option>
 			</select>
 		</p>
-		<script>
-			$("#resRole").on("change", function() {
-				$("#profileText").prop("hidden", !$("#resRole").prop('checked'));
-				$("#profileSelect").prop("hidden", !$("#resRole").prop('checked'));
-			});
-			$("#resRole").trigger("change");
-		</script>
 		<p>
 			<input type="submit"
 				th:value="${isCreate}? #{editor.create} : #{editor.update}" />

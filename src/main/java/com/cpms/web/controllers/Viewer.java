@@ -115,12 +115,12 @@ public class Viewer {
 	}
 
 	private void addSkillsListToModel(Model model, Principal principal, HttpServletRequest request) {
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			User owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
 			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			List<Skill> skills = skillDao.getAllIncludingDrafts();
 			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
 		} else {
@@ -138,7 +138,7 @@ public class Viewer {
 				countTasks / PagingUtils.PAGE_SIZE + (countTasks % PagingUtils.PAGE_SIZE > 0 ? 1 : 0));
 		model.addAttribute("_VIEW_TITLE", "title.viewer");
 		model.addAttribute("_FORCE_CSRF", true);
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("company", new Company());
 			model.addAttribute("task", new Task());
 		}
@@ -147,7 +147,7 @@ public class Viewer {
 				{ "Advanced", "Продвинутый уровень" }, { "Highly specialised", "Высокоспециализированный уровень" } };
 		model.addAttribute("defaultLevels", defLevels);
 
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			User owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
@@ -155,7 +155,7 @@ public class Viewer {
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("skills", SkillTree.produceTree(skillDao.getAllIncludingDrafts()));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
@@ -237,7 +237,7 @@ public class Viewer {
 		model.addAttribute("competency", new Competency());
 		model.addAttribute("competencies", new Competencies(id));
 
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("skillsList",
 					SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
 			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
@@ -245,7 +245,7 @@ public class Viewer {
 			model.addAttribute("types", Arrays.asList(EvidenceType.values()));
 		}
 
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.RESIDENT)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			Long ownerId = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName())
 					.getProfileId();
 			if (ownerId == profile.getId()) {
@@ -279,7 +279,7 @@ public class Viewer {
 			returnUrl = "/viewer/tasks";
 		}
 		model.addAttribute("requirements", new Requirements(id));
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.ADMIN)) {
+		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("requirement", new TaskRequirement());
 			model.addAttribute("skillsList",
 					SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
