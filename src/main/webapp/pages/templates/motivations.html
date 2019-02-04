@@ -74,11 +74,11 @@
 						hideOrShowElement($("#costTitle"), res.isGroup);
 						hideOrShowElement($("#motivation_cost"), res.isGroup);
 						if (isChange) {
-							motivationTitle = /*[[#{motivation.create.new}]]*/ "Create new motivation";
-							groupTitle = /*[[#{motivation.group.create.new}]]*/ "Create new motivation group";
-						} else {
 							motivationTitle = /*[[#{motivation.change.new}]]*/ "Change motivation";
 							groupTitle = /*[[#{motivation.group.change.new}]]*/ "Change motivation group";
+						} else {
+							motivationTitle = /*[[#{motivation.create.new}]]*/ "Create new motivation";
+							groupTitle = /*[[#{motivation.group.create.new}]]*/ "Create new motivation group";
 						}
 						document.getElementById('motivationFormTitle').innerHTML=
 							"<span id=\"motivationName\">" + res.isGroup?groupTitle:motivationTitle + "</span>";
