@@ -9,13 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cpms.dao.implementations.jpa.repositories.applications.CompetencyApplicationsRepository;
-import com.cpms.dao.implementations.jpa.repositories.applications.EvidenceApplicationsRepository;
 import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.data.applications.CompetencyApplication;
-import com.cpms.data.applications.EvidenceApplication;
 import com.cpms.data.entities.Competency;
-import com.cpms.data.entities.Evidence;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.exceptions.DataAccessException;
@@ -38,19 +35,12 @@ import com.cpms.facade.ICPMSFacade;
 public class ApplicationsService implements IApplicationsService, ICleanable {
 
 	private CompetencyApplicationsRepository competencyApplicationsRepo;
-	private EvidenceApplicationsRepository evidenceApplicationRepo;
 	private ICPMSFacade facade;
 	
 	@Autowired
 	@Qualifier("CompetencyApplication")
 	public void setCompetencyApplicationsRepo(CompetencyApplicationsRepository competencyApplicationsRepo) {
 		this.competencyApplicationsRepo = competencyApplicationsRepo;
-	}
-	
-	@Autowired
-	@Qualifier("EvidenceApplication")
-	public void setEvidenceApplicationRepo(EvidenceApplicationsRepository evidenceApplicationRepo) {
-		this.evidenceApplicationRepo = evidenceApplicationRepo;
 	}
 
 	@Autowired
@@ -71,23 +61,13 @@ public class ApplicationsService implements IApplicationsService, ICleanable {
 					application.getSkillId(),
 					null);
 		}
-		CompetencyApplication suggested = competencyApplicationsRepo.save(application);
-		for (EvidenceApplication evidence : application.getEvidence()) {
-			if (evidence.getOwnerId() == 0) {
-				evidence.setOwnerId(application.getOwnerId());
-			}
-			evidence.setCompetencyId(suggested.getId());
-			evidenceApplicationRepo.save(evidence);
-		}
+		competencyApplicationsRepo.save(application);
 	}
 	
 	@Override
 	public void deleteSuggestedCompetency(long id) {
 		CompetencyApplication application = retrieveSuggestedCompetencyById(id);
 		fillInCompetencyApplication(application);
-		for(EvidenceApplication evidence : application.getEvidence()) {
-			evidenceApplicationRepo.delete(evidence);
-		}
 		competencyApplicationsRepo.delete(application);
 	}
 	
@@ -119,8 +99,6 @@ public class ApplicationsService implements IApplicationsService, ICleanable {
 	 * @param CompetencyApplication which properties will be filled in
 	 */
 	private void fillInCompetencyApplication(CompetencyApplication application) {
-		application.setEvidence(evidenceApplicationRepo
-				.findByCompetencyId(application.getId()));
 		application.setOwner(retrieveDependantProfile(application.getOwnerId()));
 		application.setSkill(retrieveDependantSkill(application.getSkillId()));
 	}
@@ -134,70 +112,6 @@ public class ApplicationsService implements IApplicationsService, ICleanable {
 		}
 		fillInCompetencyApplication(application);
 		return application;
-	}
-	
-	@Override
-	public void suggestEvidence(EvidenceApplication application) {
-		if (application == null ||
-				retrieveDependantProfile(application.getOwnerId()) == null ||
-				retrieveDependantCompetency(application.getCompetencyId()) == null) {
-			throw new DependentEntityNotFoundException(
-					EvidenceApplication.class, 
-					Competency.class,
-					application.getId(),
-					application.getCompetencyId(),
-					null);
-		}
-		evidenceApplicationRepo.save(application);
-	}
-	
-	@Override
-	public void deleteSuggestedEvidence(long id) {
-		evidenceApplicationRepo.delete(id);
-	}
-	
-	@Override
-	public List<EvidenceApplication> retrieveSuggestedEvidences() {
-		List<EvidenceApplication> result = 
-				evidenceApplicationRepo.findAll();
-		for(EvidenceApplication evidence : result) {
-			fillInEvidenceApplication(evidence);
-		}
-		return result;
-	}
-	
-	@Override
-	public List<EvidenceApplication> retrieveSuggestedEvidencesByUserId(long id) {
-		List<EvidenceApplication> result = 
-				evidenceApplicationRepo.findByOwnerId(id);
-		for(EvidenceApplication evidence : result) {
-			fillInEvidenceApplication(evidence);
-		}
-		return result;
-	}
-	
-	@Override
-	public EvidenceApplication retrieveSuggestedEvidenceById(long id) {
-		EvidenceApplication application = 
-				evidenceApplicationRepo.findOne(id);
-		if (application == null) {
-			throw new DataAccessException("Competency application not found.");
-		}
-		fillInEvidenceApplication(application);
-		return application;
-	}
-	
-	/**
-	 * Boilerplate reduction method that retrieves some properties of
-	 * EvidenceApplication entity from DAO and sets this application with
-	 * them.
-	 * 
-	 * @param EvidenceApplication which properties will be filled in
-	 */
-	private void fillInEvidenceApplication(EvidenceApplication application) {
-		application.setCompetency(retrieveDependantCompetency
-				(application.getCompetencyId()));
-		application.setOwner(retrieveDependantProfile(application.getOwnerId()));
 	}
 
 	@Override
@@ -224,7 +138,6 @@ public class ApplicationsService implements IApplicationsService, ICleanable {
 		}
 		fillInCompetencyApplication(application);
 		if (application.getOwner() == null
-				|| application.getEvidence() == null
 				|| application.getSkill() == null) {
 			throw new DataAccessException("Application does not have required data");
 		}
@@ -242,22 +155,10 @@ public class ApplicationsService implements IApplicationsService, ICleanable {
 				break;
 			}
 		}
-		for (EvidenceApplication evidence : application.getEvidence()) {
-			Evidence newEvidence = new Evidence(competency,
-					evidence.getType(),
-					evidence.getAcquiredDate(),
-					evidence.getExpirationDate(),
-					evidence.getDescription());
-			newEvidence.setDescription_RU(evidence.getDescription_RU());
-			competency.addEvidence(newEvidence);
-		}
 		if (!update) {
 			competency.getOwner().addCompetency(competency);
 		}
 		facade.getProfileDAO().update(competency.getOwner());
-		for (EvidenceApplication evidence : application.getEvidence()) {
-			evidenceApplicationRepo.delete(evidence);
-		}
 		competencyApplicationsRepo.delete(application);
 		
 	}
@@ -265,6 +166,5 @@ public class ApplicationsService implements IApplicationsService, ICleanable {
 	@Override
 	public void cleanAndReset() {
 		competencyApplicationsRepo.deleteAll();
-		evidenceApplicationRepo.deleteAll();
 	}
 }

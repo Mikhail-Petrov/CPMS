@@ -56,11 +56,6 @@ public class Competency extends AbstractDomainObject {
 	@NotNull
 	private Skill skill;
 	
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "competency", orphanRemoval = true)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
-        CascadeType.MERGE, CascadeType.PERSIST})
-	private Set<Evidence> evidence;
-	
 	public Competency(Skill skill, int level) {
 		this.level = level;
 		this.skill = skill;
@@ -68,23 +63,6 @@ public class Competency extends AbstractDomainObject {
 	
 	public Competency() {}
 	
-	public void setEvidence(Set<Evidence> evidence) {
-		if (evidence == null) {
-			throw new DataAccessException("Null value.", null);
-		}
-		if (this.evidence != null) {
-			throw new DataAccessException("Cannot insert, Hibernate will lose track",
-					null);
-		}
-		this.evidence = evidence;
-	}
-	
-	public Set<Evidence> getEvidence() {
-		if (evidence == null){
-			this.evidence = new LinkedHashSet<Evidence>();
-		}
-		return new LinkedHashSet<Evidence>(evidence);
-	}
 
 	public Profile getOwner() {
 		return owner;
@@ -117,27 +95,6 @@ public class Competency extends AbstractDomainObject {
 
 	public Skill getSkill() {
 		return skill;
-	}
-	
-	public void addEvidence(Evidence evidence) {
-		if (evidence == null) {
-			throw new DataAccessException("Cannot insert null.", null);
-		}
-		if (this.evidence == null) {
-			this.evidence = new LinkedHashSet<Evidence>();
-		}
-		this.evidence.add(evidence);
-		evidence.setCompetency(this);
-	}
-	
-	public void removeEvidence(Evidence evidence) {
-		if (evidence == null) {
-			throw new DataAccessException("Null value!", null);
-		}
-		if (this.equals(evidence.getCompetency())) {
-			removeEntityFromManagedCollection(evidence, this.evidence);
-			evidence.setCompetency(null);
-		}
 	}
 	
 	/**
@@ -179,8 +136,6 @@ public class Competency extends AbstractDomainObject {
 		returnValue.setLevel(getLevel());
 		returnValue.setOwner(null);
 		returnValue.setSkill(getSkill());
-		getEvidence()
-			.forEach(x -> returnValue.addEvidence(x.localize(locale)));
 		return returnValue;
 	}
 	

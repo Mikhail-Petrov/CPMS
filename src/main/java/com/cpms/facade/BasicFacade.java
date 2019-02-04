@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.Assert;
 
 import com.cpms.dao.interfaces.*;
+import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.operations.interfaces.*;
-import com.cpms.security.entities.User;
 
 /**
  * {@link ICPMSFacade} pattern configured implementation.
@@ -35,6 +35,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Autowired
 	@Qualifier(value = "taskDAO")
 	private IDAO<Task> taskDAO;
+	
+	@Autowired
+	@Qualifier(value = "motivationDAO")
+	private IDAO<Motivation> motivationDAO;
 	
 	@Autowired
 	@Qualifier(value = "subprofiler")
@@ -109,6 +113,11 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Override
 	public IDAO<Task> getTaskDAO() {
 		return taskDAO;
+	}
+
+	@Override
+	public IDAO<Motivation> getMotivationDAO() {
+		return motivationDAO;
 	}
 
 	@Override

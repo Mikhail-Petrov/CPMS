@@ -3,7 +3,6 @@ package com.cpms.web.controllers;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,11 +33,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
-import com.cpms.data.EvidenceType;
 import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
-import com.cpms.data.entities.Evidence;
 import com.cpms.data.entities.Option;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Requirements;
@@ -241,8 +238,6 @@ public class Viewer {
 			model.addAttribute("skillsList",
 					SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
 			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
-			model.addAttribute("evidence", new Evidence());
-			model.addAttribute("types", Arrays.asList(EvidenceType.values()));
 		}
 
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {

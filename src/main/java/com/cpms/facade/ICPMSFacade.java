@@ -1,6 +1,7 @@
 package com.cpms.facade;
 
 import com.cpms.dao.interfaces.*;
+import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
@@ -20,6 +21,8 @@ public interface ICPMSFacade {
 	public IDAO<Skill> getSkillDAO();
 	
 	public IDAO<Task> getTaskDAO();
+	
+	public IDAO<Motivation> getMotivationDAO();
 	
 	public ISubprofiler getSubprofiler();
 	

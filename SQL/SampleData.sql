@@ -23,14 +23,6 @@ INSERT INTO `competency` (`ID`, `LEVEL`, `owner`, `SKILL`) VALUES
 	(9, 2, 3, 1);
 /*!40000 ALTER TABLE `competency` ENABLE KEYS */;
 
--- Dumping data for table competencyjpa.evidence: ~3 rows (approximately)
-/*!40000 ALTER TABLE `evidence` DISABLE KEYS */;
-INSERT INTO `evidence` (`ID`, `AcquiredDate`, `Description`, `Description_RU`, `ExpirationDate`, `Type`, `competency_ID`) VALUES
-	(1, '2010-01-01', 'Developing first application', 'Разработка первого приложения', '2012-01-01', 'EXPERIENCE', 1),
-	(2, '2013-01-01', 'Developing second application', 'Разработка второго приложения', '2015-01-01', 'EXPERIENCE', 1),
-	(3, '2015-01-01', 'Development certificate', 'Сертификат', '2016-01-01', 'CERTIFICATE', 5);
-/*!40000 ALTER TABLE `evidence` ENABLE KEYS */;
-
 -- Dumping data for table competencyjpa.profile: ~3 rows (approximately)
 /*!40000 ALTER TABLE `profile` DISABLE KEYS */;
 INSERT INTO `profile` (`DTYPE`, `ID`, `about`, `about_RU`, `company`, `company_RU`, `email`, `familyname`, `familyname_RU`, `name`, `name_RU`, `address`, `address_RU`, `title`, `title_RU`, `website`) VALUES

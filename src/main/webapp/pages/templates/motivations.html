@@ -1,0 +1,184 @@
+
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			function hideOrShowElement(element, hide) {
+				if (hide)
+					element.hide();
+				else
+					element.show();
+			}
+				
+			function ajaxMotivationDialog(requestUrl) {
+				
+				var isChange = false;
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					if (arguments[i] < 0) {
+						isChange = true;
+						arguments[i] = -arguments[i];
+					}
+					inputArgs.push(arguments[i]);
+				}
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+				
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+						document.getElementById('motivationName').innerHTML=res.name;
+						document.getElementById('motivationDescription').innerHTML=res.description;
+						document.getElementById('motivationCode').innerHTML=res.code;
+						document.getElementById('motivationCost').innerHTML=res.cost;
+						document.getElementById('editLink').setAttribute('onclick','ajaxMotivationDialog(\'' + rootPath + 'motivations/ajaxMotivation\', -' + res.id + ', ' + res.isGroup +'); return false;');
+						if (res.parentId == null)
+							$('#parentSelect option[value=""]').prop('selected', true);
+						else
+							$('#parentSelect option[value="' + res.parentId + '"]').prop('selected', true);
+						document.getElementById('deleteLink').setAttribute('href', './motivations/delete?id=' + res.id);
+						if (isChange) {
+							// Copy values from changed motivation
+							$("#motivation_name").val(res.name);
+							$("#motivation_description").val(res.description);
+							$("#motivation_cost").val(res.cost);
+							$("#motivation_code").val(res.code);
+						    $("#selfIsGroup").val(res.isGroup);
+						    // Remember id of the changed motivation
+						    $("#selfId").val(res.id);
+						}
+						else {
+							// Clear all values
+							$("#motivation_name").val("");
+							$("#motivation_description").val("");
+							$("#motivation_cost").val(1);
+							$("#motivation_code").val("");
+						    $("#selfIsGroup").val(res.isGroup);
+						    // Forget motivation id
+						    $("#selfId").val(0);
+						}
+						// Hide description and cost for a group or show them for a motivation
+						hideOrShowElement($("#motivation_description"), res.isGroup);
+						hideOrShowElement($("#descriptionTitle"), res.isGroup);
+						hideOrShowElement($("#titleDescription"), res.isGroup);
+						hideOrShowElement($("#titleCost"), res.isGroup);
+						hideOrShowElement($("#costTitle"), res.isGroup);
+						hideOrShowElement($("#motivation_cost"), res.isGroup);
+						if (isChange) {
+							motivationTitle = /*[[#{motivation.create.new}]]*/ "Create new motivation";
+							groupTitle = /*[[#{motivation.group.create.new}]]*/ "Create new motivation group";
+						} else {
+							motivationTitle = /*[[#{motivation.change.new}]]*/ "Change motivation";
+							groupTitle = /*[[#{motivation.group.change.new}]]*/ "Change motivation group";
+						}
+						document.getElementById('motivationFormTitle').innerHTML=
+							"<span id=\"motivationName\">" + res.isGroup?groupTitle:motivationTitle + "</span>";
+					    // Hide this motivation and its children from parent motivation select list or show them all
+					    function checkParents(parents, id) {
+					    	for (var i=0; i<parents.length; i++)
+					    		if (parents[i] == id){
+					    			return true;
+					    		}
+					    	return false;
+					    }
+						var motivationsAndParents = /*[[${motivationsAndParents}]]*/ null;
+					    for (var motivation in motivationsAndParents)
+							$('#parentSelect option[value="' + motivation + '"]').prop('hidden', checkParents(motivationsAndParents[motivation], res.id));
+						var motivationName = "";
+						if (res.id > 0 && !isChange) {
+							$("#viewMotivationBlock").show();
+							$("#newMotivationForm").hide();
+						} else {
+							$("#viewMotivationBlock").hide();
+							$("#newMotivationForm").show();
+						}
+						$('#createMotivationModal').modal('show');
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			} //ajaxMotivationDialog(rootPath + 'motivations/ajaxMotivation', '-${motivation.id}');
+			/*]]>*/
+			</script>
+			
+                <div class="row">
+                   <div class="col-md-12">
+                       <div class="x_panel">
+                           <div class="x_title">
+                                <h3 th:text="#{navbar.motivations}"></h3>
+                           </div>
+                           <div class="x_content">
+                               <table id="motivationsTable" class="table table-responsive table-striped">
+                               		<thead>
+                               			<tr>
+                               				<th data-field="name"><span th:text="#{motivations.name}"></span></th>
+                               				<th data-field="description"><span th:text="#{motivations.description}"></span></th>
+                               				<th data-field="code"><span th:text="#{motivations.code}"></span></th>
+                               				<th data-field="cost"><span th:text="#{motivations.cost}"></span></th>
+                               			</tr>
+                               		</thead>
+                               		<tbody>
+                               			<tr th:each="motivation : ${motivationsList}">
+											<td><a href="#" th:text="${motivation.name}" th:onclick="'ajaxMotivationDialog(\''+ @{/motivations/ajaxMotivation} +'\', '+ *{motivation.id} +', '+ *{motivation.isGroup} +')'"></a></td>
+											<td><span th:text="${motivation.description}"></span></td>
+											<td><span th:text="${motivation.code}"></span></td>
+											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.cost}"></span></td>
+                               			</tr>
+                               		</tbody>
+                               </table>
+				                <div class="col-md-3 col-lg-3 col-sm-4 col-xs-6">
+									<span class="btn btn-primary btn-block" th:text="#{motivations.add}" onclick="ajaxMotivationDialog(rootPath + 'motivations/ajaxMotivation', '0', false);"></span>
+				                </div><div class="col-md-3 col-lg-3 col-sm-4 col-xs-6">
+									<span class="btn btn-primary btn-block" th:text="#{motivations.group.add}" onclick="ajaxMotivationDialog(rootPath + 'motivations/ajaxMotivation', '0', true);"></span>
+								</div>
+                           </div>
+                       </div>
+                   </div>
+                </div>
+                   
+                <div class="modal fade" id="createMotivationModal" tabindex="-1" role="dialog" aria-labelledby="createMotivationModalLabel" aria-hidden="true">
+                	<div th:replace="fragments/editMotivationModal :: motivationModalForm"></div>
+                </div>
+                <script>
+                	var submitMotivationForm = function() {
+                	  	var $form = $('#motivationCreate');
+                	    
+                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                	    var headers = {};
+                	    headers[csrfHeader] = csrfToken;
+                	    
+                	    $.ajax({
+                	      url: $form.attr('action'),
+                	      type: 'post',
+                	      data: $form.serialize(),
+                	      headers: headers,
+                	      success: function(response) {
+                	        if (response.indexOf("Form successfully submitted") === -1) {
+                	        	$form.replaceWith(response);
+                	        } else {
+                	        	location.reload();
+                	        }
+                	      },
+                	      error: function (xhRequest, ErrorText, thrownError) {
+                				console.log('xhRequest: ' + xhRequest + "\n");
+                	            console.log('ErrorText: ' + ErrorText + "\n");
+                	            console.log('thrownError: ' + thrownError + "\n");
+                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                	      }
+                	});
+                	}
+                </script>

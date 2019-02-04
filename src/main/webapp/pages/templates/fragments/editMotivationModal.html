@@ -1,0 +1,55 @@
+<div th:fragment="motivationModalForm" th:remove="tag">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+	<div class="modal-body">
+		<div id="viewMotivationBlock">
+			<div clss="modal-header">
+				<h3><span id="motivationName">Name</span></h3>
+			</div>
+	  		<p><span id="motivationDescription">Description</span></p>
+	  		<p id="titleCode"><span th:title="#{motivations.code}">Code</span>: "<span id="motivationCode"></span>"</p>
+	  		<p id="titleCost"><span th:title="#{motivations.cost}">Cost</span>: <span id="motivationCost"></span></p>
+	  		<div class="input-group">
+				<a id="editLink" href="#"><span class="input-group-btn">
+						<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.edit}">Edit</button>
+				</span></a>
+				<a id="deleteLink" href="#"><span class="input-group-btn">
+						<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
+				</span></a>
+	  		</div>
+  		</div>
+  		<div class="collection-object force-width" id="newMotivationForm">
+  		<h3 id="motivationFormTitle"><span id="motivationTitle" th:text="#{motivation.create.new}"></span></h3>
+  		<form action="#" th:action="@{/motivations/alternativeAsync}" th:object="${motivation}" method="post" id="motivationCreate">
+  			<input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/>
+  			<input type="hidden" id='selfIsGroup' th:field="*{isGroup}" class="input-wide" th:value="false"/>
+  			<p th:text="#{motivations.name}">:</p>
+			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Name" th:placeholder="#{motivations.name}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{motivations.name}" id="motivation_name" onblur="addCheck(this, 5, 100)"/></p>
+			<p id="descriptionTitle" th:text="#{motivations.description}">:</p>
+			<p><textarea type="textarea" class="form-control" th:field="*{description}" placeholder="Description" th:placeholder="#{motivations.description}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{motivations.description}" id="motivation_description"></textarea></p>
+  			<p th:text="#{motivations.code}">:</p>
+			<p><input type="text" class="form-control" th:field="*{code}" placeholder="Code" th:placeholder="#{motivations.code}" pattern=".{0,100}" title="Must be less than 5 symbols" th:title="#{motivations.code}" id="motivation_code"/></p>
+			<p id="costTitle" th:text="#{motivations.cost}"></p>
+			<p><input type="number" th:field="*{cost}" min="1" id="motivation_cost"/></p>
+
+		<p th:text="#{motivations.group}"></p>
+		<p><select id="parentSelect"
+				th:field="*{parent}">
+				<option th:value="null" th:text="#{motivations.nogroup}">No
+					group</option>
+				<option th:each="motivationInList : ${motivationsList}" th:if="${motivationInList.isGroup}"
+					th:value="${motivationInList.id}" th:text="${motivationInList.name}">A
+					motivation</option>
+		</select></p>
+			<p><input type="submit" id="motivationSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{motivations.save}"/></p>
+		</form>
+  		</div>
+  	</div>
+  	</div>
+	</div>
+	</div>
+	
+			
+<div th:fragment="motivationCreationSuccess" th:remove="tag">
+  <p>Form successfully submitted</p>
+</div>

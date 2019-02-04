@@ -21,7 +21,7 @@ import com.cpms.data.applications.CompetencyApplication;
 import com.cpms.data.applications.EvidenceApplication;
 import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competency;
-import com.cpms.data.entities.Evidence;
+import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.facade.ICPMSFacade;
@@ -80,17 +80,11 @@ public class TestApplicationsService {
 		Profile profile1 = new Company("C1.1", null, "Some address", null, null);
 		((Company)profile1).setTitle_RU("Ц1.1");
 		Competency cmp1 = new Competency(skill1c, 5);
-		Evidence ev1 = new Evidence(cmp1, EvidenceType.CERTIFICATE, new Date(), null, "Generated Evidence");
-		ev1.setDescription_RU("Сгенерированное доказательство");
-		cmp1.addEvidence(ev1);
 		profile1.addCompetency(cmp1);
 		testCase.p1 = facade.getProfileDAO().insert(profile1);
 		Profile profile2 = new Company("C2.1", null, "Some address", null, null);
 		((Company)profile2).setTitle_RU("Ц2.1");
 		Competency cmp2 = new Competency(skill2c, 5);
-		Evidence ev2 = new Evidence(cmp2, EvidenceType.CERTIFICATE, new Date(), null, "Generated Evidence");
-		ev2.setDescription_RU("Сгенерированное доказательство");
-		cmp2.addEvidence(ev2);
 		profile2.addCompetency(cmp2);
 		testCase.p2 = facade.getProfileDAO().insert(profile2);
 		
@@ -104,37 +98,21 @@ public class TestApplicationsService {
 		
 		CompetencyApplication competencyApplication = new CompetencyApplication(
 				testCase.s2.getId(), testCase.p1.getId(), 9);
-		EvidenceApplication evidenceApplication = new EvidenceApplication(
-				competencyApplication, EvidenceType.EXPERIENCE, new Date(), null, "A new generated evidence");
-		evidenceApplication.setDescription_RU("Новое доказательство");
-		List<EvidenceApplication> evidences1 = new ArrayList<EvidenceApplication>();
-		evidences1.add(evidenceApplication);
-		competencyApplication.setEvidence(evidences1);
 		applicationsService.suggestCompetency(competencyApplication);
 		
 		List<CompetencyApplication> applicationsC = applicationsService.retrieveSuggestedCompetencies();
-		List<EvidenceApplication> applicationsE = applicationsService.retrieveSuggestedEvidences();
 		
 		assertEquals("Should have found one competency application.", 1, applicationsC.size());
-		assertEquals("Should have found one evidence application.", 1, applicationsE.size());
 		
 		CompetencyApplication competencyApplication2 = new CompetencyApplication(
 				testCase.s3.getId(), testCase.p1.getId(), 9);
-		EvidenceApplication evidenceApplication2 = new EvidenceApplication(
-				competencyApplication2, EvidenceType.EXPERIENCE, new Date(), null, "A new generated evidence");
-		evidenceApplication2.setDescription_RU("Новое доказательство");
-		List<EvidenceApplication> evidences2 = new ArrayList<EvidenceApplication>();
-		evidences2.add(evidenceApplication2);
-		competencyApplication2.setEvidence(evidences2);
 		applicationsService.suggestCompetency(competencyApplication2);
 		
 		applicationsService.deleteSuggestedCompetency(applicationsC.get(0).getId());
 		
 		applicationsC = applicationsService.retrieveSuggestedCompetencies();
-		applicationsE = applicationsService.retrieveSuggestedEvidences();
 		
 		assertEquals("Should have found one competency application.", 1, applicationsC.size());
-		assertEquals("Should have found no evidence applications.", 1, applicationsE.size());
 		
 		clear();
 	}

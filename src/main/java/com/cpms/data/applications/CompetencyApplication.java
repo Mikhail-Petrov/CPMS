@@ -1,7 +1,5 @@
 package com.cpms.data.applications;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import javax.persistence.Column;
@@ -60,9 +58,6 @@ public class CompetencyApplication extends AbstractDomainObject {
 	private Long skillId;
 	
 	@Transient
-	private List<EvidenceApplication> evidence;
-	
-	@Transient
 	private Profile owner;
 	
 	@Transient
@@ -75,17 +70,6 @@ public class CompetencyApplication extends AbstractDomainObject {
 	}
 	
 	public CompetencyApplication() {}
-
-	public List<EvidenceApplication> getEvidence() {
-		if (evidence == null) {
-			evidence = new ArrayList<EvidenceApplication>();
-		}
-		return evidence;
-	}
-
-	public void setEvidence(List<EvidenceApplication> evidence) {
-		this.evidence = evidence;
-	}
 
 	public void setId(long id) {
 		this.id = id;

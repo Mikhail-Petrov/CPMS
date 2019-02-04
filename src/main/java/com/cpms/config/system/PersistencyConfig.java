@@ -18,6 +18,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.cpms.dao.implementations.jpa.JPAMotivationDAO;
 import com.cpms.dao.implementations.jpa.JPAProfileDAO;
 import com.cpms.dao.implementations.jpa.JPASkillDraftableDAO;
 import com.cpms.dao.implementations.jpa.JPATaskDAO;
@@ -25,6 +26,7 @@ import com.cpms.dao.implementations.jpa.JPAUserDAO;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
@@ -164,6 +166,16 @@ public class PersistencyConfig {
     @Bean(name = "taskDAO")
     public IDAO<Task> getTaskDAO() {
     	return new JPATaskDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Motivation entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "motivationDAO")
+    public IDAO<Motivation> getMotivationDAO() {
+    	return new JPAMotivationDAO();
     }
     
     /**

@@ -3,7 +3,6 @@ package com.cpms.dao.interfaces;
 import java.util.List;
 
 import com.cpms.data.applications.CompetencyApplication;
-import com.cpms.data.applications.EvidenceApplication;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 
@@ -14,13 +13,6 @@ import com.cpms.data.entities.Skill;
  * @since 1.0
  */
 public interface IApplicationsService {
-	
-	/**
-	 * Deletes suggested evidence.
-	 * 
-	 * @param id id of evidence application to be deleted
-	 */
-	public void deleteSuggestedEvidence(long id);
 
 	/**
 	 * Creates a competency application.
@@ -60,28 +52,6 @@ public interface IApplicationsService {
 	public CompetencyApplication retrieveSuggestedCompetencyById(long id);
 	
 	/**
-	 * Creates an evidence application.
-	 * 
-	 * @param application application to be saved
-	 */
-	public void suggestEvidence(EvidenceApplication application);
-	
-	/**
-	 * Retrieves all suggested evidence.
-	 * 
-	 * @return list representing all evidence applications
-	 */
-	public List<EvidenceApplication> retrieveSuggestedEvidences();
-	
-	/**
-	 * Retrieves all evidence applications created by a user.
-	 * 
-	 * @param id id of a user
-	 * @return list representing all evidence created by specified user.
-	 */
-	public List<EvidenceApplication> retrieveSuggestedEvidencesByUserId(long id);
-	
-	/**
 	 * Approves specified competency application along with all of it's evidence.
 	 * <p>Specified application will be converted to a competency entity.
 	 * If competency profile mentioned by it already has a competency with the 
@@ -91,14 +61,6 @@ public interface IApplicationsService {
 	 * @param id id of competency to be approved
 	 */
 	public void approveCompetencyApplication(long id);
-	
-	/**
-	 * Retrieves a single evidence application by it's id.
-	 * 
-	 * @param id id of an evidence application to be retrieved
-	 * @return requested evidence application
-	 */
-	public EvidenceApplication retrieveSuggestedEvidenceById(long id);
 	
 	/**
 	 * Only retrieves an application without filling it's dependencies.

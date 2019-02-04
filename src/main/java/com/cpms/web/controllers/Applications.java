@@ -2,7 +2,6 @@ package com.cpms.web.controllers;
 
 import java.security.Principal;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -27,11 +26,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
-import com.cpms.data.EvidenceType;
 import com.cpms.data.applications.CompetencyApplication;
-import com.cpms.data.applications.EvidenceApplication;
 import com.cpms.data.entities.Competency;
-import com.cpms.data.entities.Evidence;
 import com.cpms.data.entities.Skill;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.NoResidentUserProfile;
@@ -99,11 +95,9 @@ public class Applications {
 	public String evidenceSuggest(Model model,
 			@PathVariable("competencyId") long competencyId) {
 		model.addAttribute("_VIEW_TITLE", "title.edit.application.evidence");
-		model.addAttribute("evidence", new Evidence());
 		model.addAttribute("create", true);
 		model.addAttribute("postAddress", "/applications/suggest/evidence/" + 
 				competencyId + "/");
-		model.addAttribute("types", Arrays.asList(EvidenceType.values()));
 		return "editEvidence";
 	}
 	
@@ -144,53 +138,6 @@ public class Applications {
 		return "redirect:/viewer/profile?id=" + ownerId;
 	}
 	
-	@RequestMapping(path = "/suggest/evidence/{competencyId}/",
-			method = RequestMethod.POST)
-	public String evidenceSuggestPost(Model model, 
-			HttpServletRequest request, Principal principal,
-			@PathVariable("competencyId") long competencyId,
-			@ModelAttribute("evidence") @Valid Evidence recievedEvidence,
-			BindingResult bindingResult) {
-		if (recievedEvidence == null) {
-			throw new SessionExpiredException(null);
-		}
-		if (recievedEvidence.getExpirationDate() != null &&
-				recievedEvidence.getExpirationDate().
-					before(recievedEvidence.getAcquiredDate())) {
-			bindingResult.rejectValue("acquiredDate", "error.evidence",
-				"Acquired date must be before expiration");
-		}
-		if (bindingResult.hasErrors()) {
-			model.addAttribute("_VIEW_TITLE", "title.edit.application.evidence");
-			model.addAttribute("create", true);
-			model.addAttribute("postAddress",  "/applications/suggest/evidence/" + 
-					competencyId + "/");
-			model.addAttribute("types", Arrays.asList(EvidenceType.values()));
-			return ("editEvidence");
-		}
-		EvidenceApplication application = new EvidenceApplication();
-		application.setAcquiredDate(recievedEvidence.getAcquiredDate());
-		application.setDescription(recievedEvidence.getDescription());
-		application.setExpirationDate(recievedEvidence.getExpirationDate());
-		application.setType(recievedEvidence.getType());
-		application.setDescription_RU(recievedEvidence.getDescription_RU());
-		if (applicationsService.
-				retrieveDependantCompetency(competencyId) == null) {
-			throw new DataAccessException("Specified competency does not exist");
-		}
-		application.setCompetencyId(competencyId);
-		Long ownerId = userDAO.getByUsername((
-					(UsernamePasswordAuthenticationToken)principal
-					).getName())
-				.getProfileId();
-		if (ownerId == null) {
-			throw new NoResidentUserProfile("", request.getPathInfo());
-		}
-		application.setOwnerId(ownerId);
-		applicationsService.suggestEvidence(application);
-		return "redirect:/viewer/profile?id=" + ownerId;
-	}
-	
 	@RequestMapping(path = "/recall/competency",
 			method = RequestMethod.POST)
 	public String competencyRecall(Principal principal,
@@ -209,35 +156,12 @@ public class Applications {
 		return "redirect:/viewer/profile?id=" + ownerId;
 	}
 	
-	@RequestMapping(path = "/recall/evidence",
-			method = RequestMethod.POST)
-	public String evidenceRecall(Principal principal,
-			@RequestParam(name = "id", required = true) long id) {
-		EvidenceApplication evidence = 
-				applicationsService.retrieveSuggestedEvidenceById(id);
-		Long ownerId = userDAO.getByUsername((
-				(UsernamePasswordAuthenticationToken)principal
-				).getName())
-			.getProfileId();
-		if (evidence == null || ownerId == null || evidence.getOwner() == null ||
-				evidence.getOwner().getId() != ownerId.longValue()) {
-			throw new DataAccessException("Wrong competency specified.");
-		}
-		applicationsService.deleteSuggestedEvidence(id);
-		return "redirect:/viewer/profile?id=" + ownerId;
-	}
-	
 	@RequestMapping(path = "/actions",
 			method = RequestMethod.POST)
 	public String takeActions(@ModelAttribute ApplicationsPostForm postForm) {
 		postForm.getNodes().forEach(x -> {
 			switch (x.getState()) {
 			case APPROVE:
-				x.getEvidence().forEach(y -> {
-					if (!y.isApproved()) {
-						applicationsService.deleteSuggestedEvidence(y.getEvidenceId());
-					}
-				});
 				applicationsService.approveCompetencyApplication(x.getApplicationId());
 				break;
 			case REJECT:

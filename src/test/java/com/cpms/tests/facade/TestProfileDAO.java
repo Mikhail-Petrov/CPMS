@@ -22,10 +22,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.cpms.config.testing.TestingConfig;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.dao.interfaces.IDAO;
-import com.cpms.data.EvidenceType;
 import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competency;
-import com.cpms.data.entities.Evidence;
+import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.exceptions.DataAccessException;
@@ -292,106 +291,10 @@ public class TestProfileDAO {
 		Profile p1 = new Company("asd", null, "asd", null, null);
 		((Company)p1).setTitle_RU("Ц1");
 		p1.setCompetencies(competencies1);
-		Evidence e1a = new Evidence(cmp1, 
-				EvidenceType.EXPERIENCE,
-				formatDate("2015-01-01"),
-				null,
-				"Experience number 1");
-		e1a.setDescription_RU("Опыт номер 1");
-		Evidence e2a = new Evidence(cmp1, 
-				EvidenceType.CERTIFICATE,
-				formatDate("2015-01-01"),
-				formatDate("2016-01-01"),
-				"Experience number 2");
-		e2a.setDescription_RU("Опыт номер 2");
-		cmp1.addEvidence(e1a);
-		cmp1.addEvidence(e2a);
 		
 		profileDAO.insert(p1);
 		
 		p1 = profileDAO.getOne(p1.getId());
-		Set <Evidence> evidence = p1.getCompetencies().stream().findFirst()
-				.orElse(null).getEvidence();
-		
-		final Evidence e1 = evidence.stream()
-				.filter(x -> x.getType().equals(EvidenceType.EXPERIENCE))
-				.findFirst().orElse(null);
-		final Evidence e2 = evidence.stream()
-				.filter(x -> x.getType().equals(EvidenceType.CERTIFICATE))
-				.findFirst().orElse(null);
-		
-		assertEquals("Must have extracted 2 values.", 2, evidence.size());
-		assertNotEquals("Evidences must be found.", null, e1);
-		assertNotEquals("Evidences must be found.", null, e2);
-		assertEquals("Evidences must be equal.", e2.getAcquiredDate(), 
-				evidence.stream().filter(x -> x.equals(e2))
-				.findFirst().orElse(null)
-				.getAcquiredDate());
-		assertEquals("Evidences must be equal.", e2.getType(),
-				evidence.stream().filter(x -> x.equals(e2))
-				.findFirst().orElse(null)
-				.getType());
-		assertEquals("Evidences must be equal.", e1.getExpirationDate(),
-				evidence.stream().filter(x -> x.equals(e1))
-				.findFirst().orElse(null).getExpirationDate());
-		
-		clear();
-	}
-	
-	@Test
-	public void canInsertAndThenUpdateEvidence() {
-		clear();
-		
-		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
-		skill1.setMaxLevel(1);
-		skillDAO.insert(skill1);
-		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
-		Competency cmp1 = new Competency(skill1, 1);
-		competencies1.add(cmp1);
-		Profile p1 = new Company("asd", null, "asd", null, null);
-		((Company)p1).setTitle_RU("Ц1");
-		p1.setCompetencies(competencies1);
-		Evidence e1c = new Evidence(cmp1, 
-				EvidenceType.EXPERIENCE,
-				formatDate("2015-01-01"),
-				null,
-				"Experience number 1");
-		e1c.setDescription_RU("Опыт номер 1");
-		Evidence e2c = new Evidence(cmp1, 
-				EvidenceType.CERTIFICATE,
-				formatDate("2015-01-01"),
-				formatDate("2016-01-01"),
-				"Experience number 2");
-		e2c.setDescription_RU("Опыт номер 2");
-		cmp1.addEvidence(e1c);
-		cmp1.addEvidence(e2c);
-		
-		profileDAO.insert(p1);
-		
-		p1.getCompetencies().stream().findFirst().orElse(null)
-			.getEvidence().stream()
-			.filter(x -> x.getType().equals(EvidenceType.CERTIFICATE))
-			.findFirst().orElse(null).setExpirationDate(formatDate("2016-01-02"));
-		
-		profileDAO.update(p1);
-		
-		p1 = profileDAO.getOne(p1.getId());
-		Set<Evidence> evidence = p1.getCompetencies().stream().findFirst()
-				.orElse(null).getEvidence();
-		
-		final Evidence e1 = evidence.stream()
-				.filter(x -> x.getType().equals(EvidenceType.EXPERIENCE))
-				.findFirst().orElse(null);
-		
-		assertTrue("Must have extracted 2 values.", evidence.size() == 2);
-		assertNotEquals("Evidence must be found.", e1, null);
-		assertEquals("Evidences must be equal.", e1.getAcquiredDate(), 
-				e1c.getAcquiredDate());
-		assertEquals("Evidences must be equal.", e1.getType(),
-				e1c.getType());
-		assertEquals("Evidences must be equal.", e1.getExpirationDate(),
-				e1c.getExpirationDate());
 		
 		clear();
 	}
@@ -414,93 +317,6 @@ public class TestProfileDAO {
 		p1 = profileDAO.update(p1);
 		
 		assertEquals("Must have no competencies.", 0, p1.getCompetencies().size());
-		
-		clear();
-	}
-	
-	@Test
-	public void canInsertAndThenDeleteEvidence() {
-		clear();
-		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setMaxLevel(1);
-		skill1.setName_RU("Умение1");
-		skillDAO.insert(skill1);
-		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
-		Competency cmp1 = new Competency(skill1, 1);
-		competencies1.add(cmp1);
-		Profile p1 = new Company("asd", null, "asd", null, null);
-		((Company)p1).setTitle_RU("Ц1");
-		p1.setCompetencies(competencies1);
-		Evidence e1 = new Evidence(cmp1, 
-				EvidenceType.EXPERIENCE,
-				formatDate("2015-01-01"),
-				null,
-				"Experience number 1");
-		e1.setDescription_RU("Опыт номер 1");
-		Evidence e2 = new Evidence(cmp1, 
-				EvidenceType.CERTIFICATE,
-				formatDate("2015-01-01"),
-				formatDate("2016-01-01"),
-				"Experience number 2");
-		e2.setDescription_RU("Опыт номер 2");
-		p1.getCompetencies().stream().findFirst().orElse(null).addEvidence(e1);
-		p1.getCompetencies().stream().findFirst().orElse(null).addEvidence(e2);
-		
-		p1 = profileDAO.insert(p1);
-		
-		p1.getCompetencies().stream().findFirst().orElse(null).removeEvidence(e1);
-		p1 = profileDAO.update(p1);
-
-		Set<Evidence> evidence = p1.getCompetencies().stream().findFirst()
-				.orElse(null).getEvidence();
-		
-		assertEquals("Must have extracted 1 value.", 1, evidence.size());
-		assertEquals("Evidences must be equal.", e2, evidence.stream()
-				.findFirst().orElse(null));
-		
-		clear();
-	}
-	
-	@Test
-	public void cannotInsertWrongEvidenceValue() {
-		clear();
-		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение 1");
-		skill1.setMaxLevel(1);
-		skillDAO.insert(skill1);
-		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
-		Competency cmp1 = new Competency(skill1, 1);
-		competencies1.add(cmp1);
-		Profile p1 = new Company("С1.1", null, "asd", null, null);
-		((Company)p1).setTitle_RU("Ц1.1");
-		p1.setCompetencies(competencies1);
-		Evidence e1 = new Evidence(cmp1, 
-				null,
-				null,
-				null,
-				null);
-		Evidence e2 = new Evidence(cmp1, 
-				null,
-				formatDate("2015-01-01"),
-				null,
-				"Experience number 1");
-		p1.getCompetencies()
-			.stream().findFirst().orElse(null).getEvidence().add(e1);
-		
-		exception.expect(DataAccessException.class);
-		profileDAO.insert(p1);
-		exception.reportMissingExceptionWithMessage("Doesn't throw an exception here");
-		exception = ExpectedException.none();
-		
-		p1.getCompetencies().stream().findFirst().orElse(null)
-			.getEvidence().clear();
-		p1.getCompetencies().stream().findFirst().orElse(null)
-			.getEvidence().add(e2);
-		
-		exception.expect(DataAccessException.class);
-		profileDAO.insert(p1);
-		exception.reportMissingExceptionWithMessage("Doesn't throw an exception here");
-		exception = ExpectedException.none();
 		
 		clear();
 	}

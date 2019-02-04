@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cpms.dao.implementations.jpa.repositories.system.CompetencyRepository;
-import com.cpms.dao.implementations.jpa.repositories.system.EvidenceRepository;
+import com.cpms.dao.implementations.jpa.repositories.system.MotivationRepository;
 import com.cpms.dao.implementations.jpa.repositories.system.ProfileRepository;
 import com.cpms.dao.interfaces.AbstractDAO;
 import com.cpms.dao.interfaces.ICleanable;
@@ -36,7 +36,6 @@ public class JPAProfileDAO extends AbstractDAO<Profile> implements ICleanable {
 
 	private ProfileRepository profilesRepo;
 	private CompetencyRepository competencyRepo;
-	private EvidenceRepository evidenceRepo;
 	private EntityManager entityManager;
 	
 	@Autowired
@@ -49,12 +48,6 @@ public class JPAProfileDAO extends AbstractDAO<Profile> implements ICleanable {
 	@Qualifier(value = "Competency")
 	public void setCompetencyRepo(CompetencyRepository competencyRepo) {
 		this.competencyRepo = competencyRepo;
-	}
-	
-	@Autowired
-	@Qualifier(value = "Evidence")
-	public void setEvidenceRepo(EvidenceRepository evidenceRepo) {
-		this.evidenceRepo = evidenceRepo;
 	}
 
 	@PersistenceContext(unitName = "entityManagerFactory")
@@ -88,9 +81,6 @@ public class JPAProfileDAO extends AbstractDAO<Profile> implements ICleanable {
 			throw new DataAccessException("Cannot update, such profile doesn't exist",
 					null);
 		}
-		for (Competency competency : updateInstance.getCompetencies()) {
-			competency.getEvidence();
-		}
 		return persist(updateInstance, profilesRepo);
 	}
 
@@ -118,7 +108,6 @@ public class JPAProfileDAO extends AbstractDAO<Profile> implements ICleanable {
 	public void cleanAndReset() {
 		profilesRepo.deleteAll();
 		competencyRepo.deleteAll();
-		evidenceRepo.deleteAll();
 	}
 
 	@Override

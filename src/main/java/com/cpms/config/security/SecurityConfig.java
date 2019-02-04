@@ -1,11 +1,5 @@
 package com.cpms.config.security;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +11,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
@@ -86,25 +78,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       		.and()
       .authorizeRequests()
           	.antMatchers("/").permitAll()
-          	.antMatchers("/viewer","/viewer/**")
-          		.permitAll()
-             .antMatchers("/editor/skill", "/editor/skill/alternative",
-              			"/editor/skill/delete", "/editor/skill/delete/force",
-              			"/editor/profile",
-              			"/editor/*/skillLevel", "/editor/skill/alternativeAsync")
-              	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
+//          	.antMatchers("/viewer","/viewer/**")
+  //        		.permitAll()
+//             .antMatchers("/editor/skill", "/editor/skill/alternative",
+  //            			"/editor/skill/delete", "/editor/skill/delete/force",
+    //          			"/editor/profile",
+      //        			"/editor/*/skillLevel", "/editor/skill/alternativeAsync")
+        //      	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
           	.antMatchers("/editor","/editor/**")
           		.hasRole(RoleTypes.MANAGER.toString())
+            .antMatchers("/motivations","/motivation/**")
+          		.hasAnyRole(RoleTypes.MANAGER.toString(), RoleTypes.HR.toString())
           	.antMatchers("/security/me")
           		.authenticated()
           	.antMatchers("/security/register")
           		.hasRole(RoleTypes.MANAGER.toString())
-          	.antMatchers("/applications/delete", "/applications/delete/**", 
-          			"/applications/approve", "/applications/approve/**")
-          		.hasRole(RoleTypes.MANAGER.toString())
-          	.antMatchers("/applications/suggest", "/applications/suggest/**", 
-              		"/applications/recall", "/applications/recall/**")
-              	.hasRole(RoleTypes.EXPERT.toString())
+//          	.antMatchers("/applications/delete", "/applications/delete/**", 
+  //        			"/applications/approve", "/applications/approve/**")
+    //      		.hasRole(RoleTypes.MANAGER.toString())
+//          	.antMatchers("/applications/suggest", "/applications/suggest/**", 
+  //            		"/applications/recall", "/applications/recall/**")
+    //          	.hasRole(RoleTypes.EXPERT.toString())
           	.and()
       .formLogin()
           	.loginPage("/security/login")

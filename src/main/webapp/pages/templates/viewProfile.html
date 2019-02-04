@@ -69,55 +69,9 @@
 				<input type="number" min="1" th:max="${competency.skill.maxLevel}" th:id="${competency.id}" th:value="${competency.level}" th:onchange="'changeData(' + ${competency.id} + ');'"/>
                                             </div>
                                         </td>
-                                        <td>
-                                            <span th:text="#{profile.evidence}"></span>
-                                            <button type="button" class="btn btn-success" th:onclick="'openEvidenceModal(' + ${competency.id} + ')'" th:if="${isAdmin}"><i class="fa fa-plus"></i></button>
-                                            <table class="table table-responsive table-striped">
-                                    			<tr th:each="evidence : ${competency.evidence}">
-                                    				<td>
-														<b><span th:text="${evidence.description}">Description</span></b>
-														<p><span th:text="#{profile.evidence.type}"></span> <span th:text="${evidence.type}">Type</span></p>
-														<p>
-															<span th:text="#{profile.evidence.acquired}"></span>
-															<span th:text="${evidence.acquiredDate}">Acquired Date</span>
-														</p>
-														<p>
-															<span th:text="#{profile.evidence.expires}"></span>
-															<span th:if="${evidence.expirationDate} != null"
-									 							th:text="${evidence.expirationDate}">Expiration Date</span>
-															<span th:if="${evidence.expirationDate} == null"
-									 							th:text="#{profile.evidence.expires.never}">Never</span>
-														</p>
-														<p th:if="${isAdmin}">
-															<a th:if="${isAdmin}" href="evidence.html" 
-																th:href="@{/editor/{profileId}/{competencyId}/evidence(profileId=${profile.id},competencyId=${competency.id},id=${evidence.id})}">
-																<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
-															</a>
-															<a th:if="${isAdmin}" href="evidence.html" 
-																th:href="@{/editor/evidence/delete(competencyId=${competency.id}, profileId=${profile.id}, id=${evidence.id})}">
-																<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
-															</a>
-														</p>
-													</td>
-                                    			</tr>
-                                    		</table>
-                                        </td>
                                     </tr>
                                 </table>
                                 </form>
-                                <!-- div class="row">
-                                    <div class="col-md-3 col-md-offset-8" style="padding-right: 0px;">
-                                        <select class="form-control" id="actions">
-                                            <option th:text="#{profile.compare.profile}" value="1"></option>
-                                            <option th:text="#{profile.compare.task}" value="2"></option>
-                                            <option th:text="#{profile.remember}" value="3"></option>
-                                            <option th:text="#{dashboard.aggregate.header}" value="4"></option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1" style="padding-left: 0px;">
-                                        <button type="button" class="btn btn-primary btn-block" id="check_actions" onclick="javascript:profileSelect()"><i class="fa fa-check"></i></button>
-                                    </div>
-                                </div-->
                                 
                          		<script th:inline="javascript">
                          		/*<![CDATA[*/
@@ -243,51 +197,6 @@
                 	}
                 	</script>
                 	
-                	<div class="modal fade" id="evidenceModal" tabindex="-1" role="dialog" aria-labelledby="evidenceModalLabel" aria-hidden="true">
-                		<div th:replace="fragments/editEvidenceModal :: evidenceModalForm"></div>
-                	</div>
-                	<script th:inline="javascript">
-                	/*<![CDATA[*/
-                	var competencyId = 0;
-                	
-                	var openEvidenceModal = function(newCompetencyId) {
-                		$('#evidenceModal').modal();
-                		competencyId = newCompetencyId;
-                	}
-                	           
-                	var submitEvidenceForm = function() {
-                	  	var $form = $('#evidenceCreate');
-                	  	
-                	  	var postAddr = /*[[@{/editor/}]]*/ null;
-                	  	var profileId = /*[[${profile.id}]]*/ null;
-                	    
-                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-                	    var csrfToken = $("meta[name='_csrf']").attr("content");
-                	    var headers = {};
-                	    headers[csrfHeader] = csrfToken;
-                	    
-                	    $.ajax({
-                	      url: postAddr + profileId + '/' + competencyId + '/evidenceAsync',
-                	      type: 'post',
-                	      data: $form.serialize(),
-                	      headers: headers,
-                	      success: function(response) {
-                	        if (response.indexOf("Form successfully submitted") === -1) {
-                	        	$form.replaceWith(response);
-                	        } else {
-                	        	location.reload();
-                	        }
-                	      },
-                	      error: function (xhRequest, ErrorText, thrownError) {
-                				console.log('xhRequest: ' + xhRequest + "\n");
-                	            console.log('ErrorText: ' + ErrorText + "\n");
-                	            console.log('thrownError: ' + thrownError + "\n");
-                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
-                	      }
-                	});
-                	}
-                	/*]]>*/
-                	</script>
 				<div class="modal fade" id="changeLevelModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
                     <div th:replace="fragments/editLevelModal :: levelModalForm"></div>
                 </div>
