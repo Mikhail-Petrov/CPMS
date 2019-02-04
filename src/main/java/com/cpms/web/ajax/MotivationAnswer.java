@@ -112,7 +112,7 @@ public class MotivationAnswer implements IAjaxAnswer {
 		return isGroup;
 	}
 
-	public void setGroup(boolean isGroup) {
+	public void setIsGroup(boolean isGroup) {
 		this.isGroup = isGroup;
 	}
 	

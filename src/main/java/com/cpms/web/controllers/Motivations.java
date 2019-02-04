@@ -101,7 +101,7 @@ public class Motivations {
 				answer.setDescription("Motivation Tree Root");
 				answer.setId(0);
 				if (values.size() >= 2)
-					answer.setGroup((boolean) values.get(1));
+					answer.setIsGroup((boolean) values.get(1));
 				return answer;
 			}
 		} else {
@@ -144,7 +144,7 @@ public class Motivations {
 		newMotivation.setName(recievedMotivation.getName());
 		newMotivation.setDescription(recievedMotivation.getDescription());
 		newMotivation.setCode(recievedMotivation.getCode());
-		newMotivation.setGroup(recievedMotivation.isGroup());
+		newMotivation.setIsGroup(recievedMotivation.isGroup());
 		if (recievedMotivation.getId() == 0)
 			facade.getMotivationDAO().insert(newMotivation);
 		else

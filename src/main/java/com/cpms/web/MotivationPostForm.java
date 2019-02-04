@@ -77,7 +77,7 @@ public class MotivationPostForm {
 		return isGroup;
 	}
 
-	public void setGroup(boolean isGroup) {
+	public void setIsGroup(boolean isGroup) {
 		this.isGroup = isGroup;
 	}
 	
