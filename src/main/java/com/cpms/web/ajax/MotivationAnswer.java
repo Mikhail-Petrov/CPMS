@@ -20,7 +20,7 @@ public class MotivationAnswer implements IAjaxAnswer {
 	private String parentId;
 	private int cost;
 	private String name, description, code;
-	private boolean successful = false, isGroup;
+	private boolean successful = false, isGroup, hasChildren;
 	
 	public MotivationAnswer(Motivation source, boolean successful) {
 		id = source.getId();
@@ -34,6 +34,7 @@ public class MotivationAnswer implements IAjaxAnswer {
 		else
 			parentId = String.format("%d", source.getParent().getId());
 		this.successful = successful;
+		hasChildren = !source.getChildren().isEmpty();
 	}
 	
 	public MotivationAnswer() {
@@ -44,6 +45,7 @@ public class MotivationAnswer implements IAjaxAnswer {
 		code = "";
 		successful = false;
 		isGroup = false;
+		hasChildren = false;
 	}
 
 	public long getId() {
@@ -114,6 +116,14 @@ public class MotivationAnswer implements IAjaxAnswer {
 
 	public void setIsGroup(boolean isGroup) {
 		this.isGroup = isGroup;
+	}
+
+	public boolean isHasChildren() {
+		return hasChildren;
+	}
+
+	public void setHasChildren(boolean hasChildren) {
+		this.hasChildren = hasChildren;
 	}
 	
 }

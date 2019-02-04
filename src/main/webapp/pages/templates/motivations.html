@@ -8,7 +8,38 @@
 				else
 					element.show();
 			}
+			
+			disabledWarning = false;
+			changeWarning = false;
+			disabledWarningText = /*[[#{motivations.warning.disabled}]]*/ "This group cannot be motivation because it is not empty";
+			changeWarningText = /*[[#{motivations.warning.change}]]*/ "If you change the motivation type to a group, the description and cost will not be displayed";
+			function editWarning(subject, show) {
+				text = "";
+				if (subject == "disabled") disabledWarning = show;
+				if (subject == "change") changeWarning = show;
+				if (disabledWarning) text = disabledWarningText;
+				if (changeWarning) text += ((text == "")?"":". ") + changeWarningText;
+				$(warning).html(text);
+			}
+			
+			wasMotivation = false;
+			function radioTypeClick() {
+				isGroup = $("input:radio[name=radioType]:checked").val() == "group";
+				// Hide description and cost for a group or show them for a motivation
+				hideOrShowElement($("#motivation_description"), isGroup);
+				hideOrShowElement($("#descriptionTitle"), isGroup);
+				hideOrShowElement($("#costTitle"), isGroup);
+				hideOrShowElement($("#motivation_cost"), isGroup);
 				
+				$(selfIsGroup).val(isGroup);
+				
+				motivationSave = /*[[#{motivations.save}]]*/ "Save motivation";
+				groupSave = /*[[#{motivations.group.save}]]*/ "Save motivation group";
+				$(motivationSubmitButton).val(isGroup?groupSave:motivationSave);
+				
+				editWarning("change", isGroup && wasMotivation);
+			}
+			
 			function ajaxMotivationDialog(requestUrl) {
 				
 				var isChange = false;
@@ -36,17 +67,13 @@
 					data : JSON.stringify(inputArgs),
 					headers: headers,
 					success: function (res) {
-						document.getElementById('motivationName').innerHTML=res.name;
-						document.getElementById('motivationDescription').innerHTML=res.description;
-						document.getElementById('motivationCode').innerHTML=res.code;
-						document.getElementById('motivationCost').innerHTML=res.cost;
-						document.getElementById('editLink').setAttribute('onclick','ajaxMotivationDialog(\'' + rootPath + 'motivations/ajaxMotivation\', -' + res.id + ', ' + res.isGroup +'); return false;');
 						if (res.parentId == null)
 							$('#parentSelect option[value=""]').prop('selected', true);
 						else
 							$('#parentSelect option[value="' + res.parentId + '"]').prop('selected', true);
 						document.getElementById('deleteLink').setAttribute('href', './motivations/delete?id=' + res.id);
 						if (isChange) {
+							wasMotivation = !res.isGroup;
 							// Copy values from changed motivation
 							$("#motivation_name").val(res.name);
 							$("#motivation_description").val(res.description);
@@ -66,13 +93,15 @@
 						    // Forget motivation id
 						    $("#selfId").val(0);
 						}
-						// Hide description and cost for a group or show them for a motivation
-						hideOrShowElement($("#motivation_description"), res.isGroup);
-						hideOrShowElement($("#descriptionTitle"), res.isGroup);
-						hideOrShowElement($("#titleDescription"), res.isGroup);
-						hideOrShowElement($("#titleCost"), res.isGroup);
-						hideOrShowElement($("#costTitle"), res.isGroup);
-						hideOrShowElement($("#motivation_cost"), res.isGroup);
+						if (res.hasChildren) {
+							$("input:radio[name=radioType]:nth(1)").attr('disabled', true);
+							editWarning("disabled", true);
+						} else {
+							$("input:radio[name=radioType]:nth(1)").attr('disabled', false);
+							editWarning("disabled", false);
+						}
+						$("input:radio[name=radioType]:nth(" + (res.isGroup?"0":"1") + ")").click();
+						radioTypeClick();
 						if (isChange) {
 							motivationTitle = /*[[#{motivation.change.new}]]*/ "Change motivation";
 							groupTitle = /*[[#{motivation.group.change.new}]]*/ "Change motivation group";
@@ -81,7 +110,7 @@
 							groupTitle = /*[[#{motivation.group.create.new}]]*/ "Create new motivation group";
 						}
 						document.getElementById('motivationFormTitle').innerHTML=
-							"<span id=\"motivationName\">" + res.isGroup?groupTitle:motivationTitle + "</span>";
+							"<span id=\"motivationName\">" + (res.isGroup?groupTitle:motivationTitle) + "</span>";
 					    // Hide this motivation and its children from parent motivation select list or show them all
 					    function checkParents(parents, id) {
 					    	for (var i=0; i<parents.length; i++)
@@ -93,14 +122,6 @@
 						var motivationsAndParents = /*[[${motivationsAndParents}]]*/ null;
 					    for (var motivation in motivationsAndParents)
 							$('#parentSelect option[value="' + motivation + '"]').prop('hidden', checkParents(motivationsAndParents[motivation], res.id));
-						var motivationName = "";
-						if (res.id > 0 && !isChange) {
-							$("#viewMotivationBlock").show();
-							$("#newMotivationForm").hide();
-						} else {
-							$("#viewMotivationBlock").hide();
-							$("#newMotivationForm").show();
-						}
 						$('#createMotivationModal').modal('show');
 					},
 					error: function (xhRequest, ErrorText, thrownError) {
@@ -132,8 +153,8 @@
                                		</thead>
                                		<tbody>
                                			<tr th:each="motivation : ${motivationsList}">
-											<td><a href="#" th:text="${motivation.name}" th:onclick="'ajaxMotivationDialog(\''+ @{/motivations/ajaxMotivation} +'\', '+ *{motivation.id} +', '+ *{motivation.isGroup} +')'"></a></td>
-											<td><span th:text="${motivation.description}"></span></td>
+											<td><a href="#" th:text="${motivation.name}" th:onclick="'ajaxMotivationDialog(\''+ @{/motivations/ajaxMotivation} +'\', -'+ *{motivation.id} +', '+ *{motivation.isGroup} +')'"></a></td>
+											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.description}"></span></td>
 											<td><span th:text="${motivation.code}"></span></td>
 											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.cost}"></span></td>
                                			</tr>
