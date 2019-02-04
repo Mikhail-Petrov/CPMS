@@ -13,7 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 /**
  * Boot launcher that allows to run this application on development machine
- * in embeded mode.
+ * in embeded mode.flag_en
  * 
  * @author Gordeev Boris
  * @since 1.0
