@@ -9,6 +9,22 @@
 					element.show();
 			}
 			
+			minus = null;
+			function clickImg(element) {
+				if (element.length == 0) return;
+				imgId = element.attr('id') + 'img';
+				if (minus === null)
+					minus = ($("#" + imgId).attr('src').indexOf("/resources/images/dtree/nolines_minus.gif") >= 0);
+				if (minus) newSrc = rootPath + "resources/images/dtree/nolines_plus.gif";
+				else newSrc = rootPath + "resources/images/dtree/nolines_minus.gif";
+				$("#" + imgId).attr('src', newSrc);
+				
+				hideOrShowElement(element, minus);
+				//for (i = 0; i < element.length; i++)
+					//clickImg($("[id=" + element[i].getAttribute('name') + "]"));
+				$.each(element, function() {clickImg($("[id=" + this.getAttribute('name') + "]"));});
+			}
+			
 			disabledWarning = false;
 			changeWarning = false;
 			disabledWarningText = /*[[#{motivations.warning.disabled}]]*/ "This group cannot be motivation because it is not empty";
@@ -152,8 +168,12 @@
                                			</tr>
                                		</thead>
                                		<tbody>
-                               			<tr th:each="motivation : ${motivationsList}">
-											<td><a href="#" th:text="${motivation.name}" th:onclick="'ajaxMotivationDialog(\''+ @{/motivations/ajaxMotivation} +'\', -'+ *{motivation.id} +', '+ *{motivation.isGroup} +')'"></a></td>
+                               			<tr th:each="motivation : ${motivationsList}" th:id="'row' + ${motivation.parent?.id}" th:name="'row' + ${motivation.id}">
+											<td>
+												<a th:onclick="'clickImg($(row' + ${motivation.id} + ')); minus = null;'"><img th:id="'row' + ${motivation.id} + 'img'" th:if="${motivation.isGroup}" th:src="@{/resources/images/dtree/nolines_minus.gif}"></img></a>
+												<img th:unless="${motivation.isGroup}" th:src="@{/resources/images/dtree/motivation.gif}"></img>
+												<a href="#" th:text="${motivation.name}" th:onclick="'ajaxMotivationDialog(\''+ @{/motivations/ajaxMotivation} +'\', -'+ *{motivation.id} +', '+ *{motivation.isGroup} +')'"></a>
+											</td>
 											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.description}"></span></td>
 											<td><span th:text="${motivation.code}"></span></td>
 											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.cost}"></span></td>
