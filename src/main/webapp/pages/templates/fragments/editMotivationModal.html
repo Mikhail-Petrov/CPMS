@@ -29,11 +29,11 @@
 					th:value="${motivationInList.id}" th:text="${motivationInList.name}">A
 					motivation</option>
 		</select></p>
-			<p><input type="submit" id="motivationSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{motivations.save}"/></p>
+			<p><div class="two-buttons" id="submitBlock"><input type="submit" id="motivationSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{motivations.save}"/></div>
+		<div class="two-buttons"><a id="deleteLink" href="#"><span class="input-group-btn">
+			<span class="btn btn-primary btn-block" th:text="#{skillPopup.delete}">Delete</span>
+		</span></a></div></p>
 		</form>
-		<a id="deleteLink" href="#"><span class="input-group-btn">
-			<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
-		</span></a>
   		</div>
   	</div>
   	</div>
