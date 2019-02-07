@@ -182,7 +182,7 @@
 											</td>
 											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.description}"></span></td>
 											<td><span th:text="${motivation.code}"></span></td>
-											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.cost}"></span></td>
+											<td><span th:unless="${motivation.isGroup}" th:if="${motivation.cost} > 0" th:text="${motivation.cost}"></span></td>
                                			</tr>
                                		</tbody>
                                </table>
@@ -210,6 +210,7 @@
                 	<div th:replace="fragments/editMotivationModal :: motivationModalForm"></div>
                 </div>
                 <script>
+                $(motivationCreate).on('submit', function() {if ($(motivationCreate).val() == "") $(motivation_cost).val(0);});
                 	var submitMotivationForm = function() {
                 	  	var $form = $('#motivationCreate');
                 	    
