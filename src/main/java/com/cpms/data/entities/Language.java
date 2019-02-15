@@ -104,12 +104,4 @@ public class Language extends AbstractDomainObject {
 	public void setCountry(String country) {
 		this.country = country;
 	}
-
-	public Set<Profile> getProfile() {
-		return profile;
-	}
-
-	public void setProfile(Set<Profile> profile) {
-		this.profile = profile;
-	}
 }
