@@ -33,9 +33,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Option;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Requirements;
@@ -135,10 +135,8 @@ public class Viewer {
 				countTasks / PagingUtils.PAGE_SIZE + (countTasks % PagingUtils.PAGE_SIZE > 0 ? 1 : 0));
 		model.addAttribute("_VIEW_TITLE", "title.viewer");
 		model.addAttribute("_FORCE_CSRF", true);
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			model.addAttribute("company", new Company());
-			model.addAttribute("task", new Task());
-		}
+		model.addAttribute("profile", new Profile());
+		model.addAttribute("task", new Task());
 
 		String[][] defLevels = { { "Foundation", "Основы" }, { "Intermediate", "Средний уровень" },
 				{ "Advanced", "Продвинутый уровень" }, { "Highly specialised", "Высокоспециализированный уровень" } };
@@ -152,15 +150,18 @@ public class Viewer {
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			model.addAttribute("skills", SkillTree.produceTree(skillDao.getAllIncludingDrafts()));
+		} else {
+			if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
+				model.addAttribute("skills", SkillTree.produceTree(skillDao.getAllIncludingDrafts()));
+			else
+				model.addAttribute("skills", SkillTree.produceTree(facade.getSkillDAO().getAll()));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
-		} else {
-			model.addAttribute("skills", SkillTree.produceTree(facade.getSkillDAO().getAll()));
 		}
 		addSkillsListToModel(model, principal, request);
+		List<Language> langs = facade.getLanguageDAO().getAll();
+		model.addAttribute("languages", langs);
 		return "viewer";
 	}
 
@@ -172,7 +173,7 @@ public class Viewer {
 		if (page == null) {
 			page = 1;
 		}
-		return PagingUtils.preparePageFromDao(page, facade.getProfileDAO(), Company.class, "/viewer/profiles", model,
+		return PagingUtils.preparePageFromDao(page, facade.getProfileDAO(), Profile.class, "/viewer/profiles", model,
 				request, true, search, "/viewer/profile", "Profiles", "/editor/profile");
 	}
 
@@ -186,9 +187,9 @@ public class Viewer {
 			Collections.sort(profiles);
 			int fromIndex = (page - 1) * PagingUtils.PAGE_SIZE, toIndex = page * PagingUtils.PAGE_SIZE - 1;
 			if (toIndex >= profiles.size())
-				toIndex = profiles.size() - 1;
+				toIndex = profiles.size();
 			return profiles.subList(fromIndex, toIndex).stream().map(x -> {
-				Company localized = x.localize(LocaleContextHolder.getLocale());
+				Profile localized = x.localize(LocaleContextHolder.getLocale());
 				Map<String, Object> map = new HashMap<>();
 				map.put(NAME_KEY, localized.getPresentationName());
 				map.put(ID_KEY, x.getId());
@@ -226,6 +227,7 @@ public class Viewer {
 		List<String> competencies = new ArrayList<String>();
 		for (Competency comp : profile.getCompetencies())
 			competencies.add(comp.getSkill().getPresentationName());
+		model.addAttribute("presentationProofs", profile.getPresentationProofs());
 		model.addAttribute("profileCompetencies", competencies);
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("_NAMED_TITLE", true);
@@ -234,11 +236,9 @@ public class Viewer {
 		model.addAttribute("competency", new Competency());
 		model.addAttribute("competencies", new Competencies(id));
 
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			model.addAttribute("skillsList",
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
-			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
-		}
+		model.addAttribute("skillsList",
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			Long ownerId = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName())
@@ -662,9 +662,9 @@ public class Viewer {
 		for (Profile profile : profiles)
 			if (profile.getPresentationName().equals(userName))
 				return "redirect:/viewer/profile?id=" + profile.getId();
-		Company company = new Company();
-		company.setTitle(userName);
-		Profile profile = new Company();
+		Profile company = new Profile();
+		company.setName(userName);
+		Profile profile = new Profile();
 		profile.update(company);
 		profile.setCompetencies(getCompetenciesByInterests(interests.toLowerCase()));
 		profile = facade.getProfileDAO().insert(profile);
@@ -685,9 +685,7 @@ public class Viewer {
 		Porter porter = new Porter();
 		// interests = getTaggedData(interests);
 		for (Skill skill : skills) {
-			String skillName = skill.getName_RU();
-			if (skillName == null || skillName == "")
-				skillName = skill.getName();
+			String skillName = skill.getName();
 			if (skillName == null || skillName == "")
 				continue;
 			String[] words = skillName.split(" ");

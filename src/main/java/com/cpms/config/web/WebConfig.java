@@ -19,6 +19,7 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -46,14 +47,14 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	 * 
 	 * @author Gordeev Boris
 	 * @since 1.0
-	 */
+	 *//*
 	@Controller
     static class FaviconController {
         @RequestMapping("favicon.ico")
         String favicon() {
             return "forward:/resources/images/favicon.ico";
         }
-    }
+    }*/
 
 	/**
 	 * @return template engine configured with template resolver and
@@ -173,8 +174,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
      */
     @Bean
     public LocaleResolver localeResolver(){
-    	SessionLocaleResolver resolver = new SessionLocaleResolver();
-    	resolver.setDefaultLocale(new Locale("ru"));
+    	CookieLocaleResolver resolver = new CookieLocaleResolver();
+    	resolver.setDefaultLocale(new Locale("en"));
     	return resolver;
     }
     

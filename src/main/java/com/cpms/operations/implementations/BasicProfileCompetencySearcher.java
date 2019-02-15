@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.operations.interfaces.IProfileComparator;
@@ -30,7 +29,7 @@ public class BasicProfileCompetencySearcher implements IProfileCompetencySearche
 	@Override
 	public List<Profile> searchForProfiles(List<Profile> profiles, Set<Competency> competencies,
 			double acceptableDifference) {
-		Profile resource = new Company();
+		Profile resource = new Profile();
 		resource.setCompetencies(competencies);
 		return profiles
 			.stream()

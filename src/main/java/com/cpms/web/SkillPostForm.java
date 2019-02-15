@@ -19,10 +19,6 @@ public class SkillPostForm {
 	
 	private String about;
 	
-	private String name_RU;
-	
-	private String about_RU;
-	
 	private int maxLevel;
 	
 	private String parent;
@@ -81,22 +77,6 @@ public class SkillPostForm {
 
 	public void setLevels(List<SkillLevel> levels) {
 		this.levels = levels;
-	}
-
-	public String getName_RU() {
-		return name_RU;
-	}
-
-	public void setName_RU(String name_RU) {
-		this.name_RU = name_RU;
-	}
-
-	public String getAbout_RU() {
-		return about_RU;
-	}
-
-	public void setAbout_RU(String about_RU) {
-		this.about_RU = about_RU;
 	}
 
 	public String getType() {

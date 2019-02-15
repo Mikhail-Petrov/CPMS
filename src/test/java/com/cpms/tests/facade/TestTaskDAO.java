@@ -54,7 +54,6 @@ public class TestTaskDAO {
 		
 		Skill skill1 = new Skill("Skill#1", null);
 		skill1.setMaxLevel(1);
-		skill1.setName_RU("Умение 1");
 		skillDAO.insert(skill1);
 		Task t1 = new Task("Task 1", null);
 		t1.setName_RU("Task 1");
@@ -89,16 +88,13 @@ public class TestTaskDAO {
 		
 		Skill s1 = new Skill("Skill#1", null);
 		s1.setMaxLevel(1);
-		s1.setName_RU("Умение 1");
 		Skill s2 = new Skill("Skill#2", null);
-		s2.setName_RU("Умение 2");
 		s2.setMaxLevel(1);
 		skillDAO.insert(s1);
 		skillDAO.insert(s2);
 		
 		TaskRequirement c1 = new TaskRequirement(s1, 1);
 		Task t1 = new Task("Task 1", null);
-		t1.setName_RU("Задача 1");
 		t1.addRequirement(c1);
 		
 		taskDAO.insert(t1);
@@ -126,13 +122,11 @@ public class TestTaskDAO {
 		clear();
 		
 		Skill s1 = new Skill("Skill#1", null);
-		s1.setName_RU("Умение 1");
 		s1.setMaxLevel(1);
 		skillDAO.insert(s1);
 		TaskRequirement c1 = new TaskRequirement(s1, 1);
 		Task t1 = new Task("Task 1", null);
 		t1.addRequirement(c1);
-		t1.setName_RU("Task 1");
 		
 		taskDAO.insert(t1);
 		taskDAO.delete(t1);
@@ -151,7 +145,6 @@ public class TestTaskDAO {
 		exception.expect(DataAccessException.class);
 		
 		Skill s1 = new Skill("Skill#1", null);
-		s1.setName_RU("Умение 1");
 		s1.setMaxLevel(2);
 		skillDAO.insert(s1);
 		
@@ -177,11 +170,9 @@ public class TestTaskDAO {
 		
 		Skill s1 = new Skill("Skill#1", null);
 		s1.setMaxLevel(2);
-		s1.setName_RU("Умение 1");
 		skillDAO.insert(s1);
 		Skill s2 = new Skill("Skill#2", null);
 		s2.setMaxLevel(2);
-		s2.setName_RU("Умение 2");
 		skillDAO.insert(s2);
 		
 		TaskRequirement comp = new TaskRequirement(s1, 1);

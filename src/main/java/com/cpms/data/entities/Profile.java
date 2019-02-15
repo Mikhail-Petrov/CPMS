@@ -1,7 +1,10 @@
 package com.cpms.data.entities;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -10,52 +13,73 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.search.annotations.DocumentId;
-
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
 
 /**
  * Superclass for all types of competency profiles.
  * 
- * @see Company
- * @see Person
- * 
  * @author Gordeev Boris
  * @since 1.0
  */
 @SuppressWarnings("serial")
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(name = "PROFILE")
-public abstract class Profile extends AbstractDomainObject implements Comparable<Profile> {
+public class Profile extends AbstractDomainObject implements Comparable<Profile> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", nullable = false)
-	@DocumentId
 	private long id;
 	
 	@Column(name = "Price", nullable = false)
 	private int price;
+	
+	@Column(name = "Name", nullable = false)
+	private String name;
+	
+	@Column(name = "Position", nullable = true)
+	private String position;
+	
+	@Column(name = "ProofLevel", nullable = true)
+	private String prooflevel;
+	
+	@Column(name = "ExpertLevel", nullable = true)
+	private String level;
+	
+	@Column(name = "Availability", nullable = true)
+	private String availability;
+	
+	private String about;
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST})
 	private Set<Competency> competencies;
+
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST})
+    private Set<Proofreading> proofs;
 	
 	@Column(nullable = true)
 	private Date createdDate;
+	
+	public Profile() {}
+	
+	public Profile(String name, String position, String prooflevel,
+			String level, String availability) {
+		setName(name);
+		setPosition(position);
+		setProoflevel(prooflevel);
+		setLevel(level);
+		setAvailability(availability);
+	}
 	
 	@PrePersist
 	protected void onCreate() {
@@ -138,14 +162,25 @@ public abstract class Profile extends AbstractDomainObject implements Comparable
 	}
 	
 	@Override
-	public abstract String getPresentationName();
+	public String getPresentationName() {
+		return getName();
+	}
 	
 	/**
 	 * It might be impossible to cast "Profile" instance to specific
 	 * subclass because of proxy classes used. In that case, this method can be
 	 * used to get an unproxied instance.
 	 */
-	public abstract Profile clone();
+	public Profile clone() {
+		Profile clone = new Profile();
+		clone.setId(getId());
+		clone.setName(getName());
+		clone.setPosition(getPosition());
+		clone.setProoflevel(getProoflevel());
+		clone.setLevel(getLevel());
+		clone.setAvailability(getAvailability());
+		return clone;
+	}
 	
 	/**
 	 * It might be impossible to cast "Profile" instance to specific
@@ -155,11 +190,128 @@ public abstract class Profile extends AbstractDomainObject implements Comparable
 	 * @param source entity whose fields should be applied to this entity.
 	 * Must be of the same entity class.
 	 */
-	public abstract void update(Profile source);
+	public void update(Profile source) {
+		setName(source.getName());
+		setPosition(source.getPosition());
+		setProoflevel(source.getProoflevel());
+		setLevel(source.getLevel());
+		setAvailability(source.getAvailability());
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Profile localize(Locale locale) {
+		Profile returnValue = (Profile)this.clone();
+		getCompetencies()
+			.forEach(x -> returnValue.addCompetency(x.localize(locale)));
+		return returnValue;
+	}
 
 
 	@Override
 	public int compareTo(Profile p) {
 		return getPresentationName().toLowerCase().compareTo(p.getPresentationName().toLowerCase());
+	}
+
+	public Set<Proofreading> getProofs() {
+		if (proofs == null)
+			setProofs(new HashSet<>());
+		return proofs;
+	}
+
+	public void setProofs(Set<Proofreading> proofs) {
+		this.proofs = proofs;
+	}
+	
+	public void addProof(Proofreading newProof) {
+		if (newProof == null) return;
+		newProof.setOwner(this);
+		if (getProofs().stream().anyMatch(
+				x -> x.getTo().equals(newProof.getTo()) && x.getFrom().equals(newProof.getFrom())))
+			return;
+		
+		getProofs().add(newProof);
+	}
+	
+	public void addProofsFromText(List<Language> langs, String text) {
+		if (text == null) return;
+		for (String proof : text.split(";")) {
+			if (proof.isEmpty()) continue;
+			Language from = null, to = null;
+			String[] codes = proof.split(" -- ");
+			if (codes.length < 2) continue;
+			for (Language lang : langs)
+				if (lang.getCode().equals(codes[0]))
+					from = lang;
+				else if (lang.getCode().equals(codes[1]))
+					to = lang;
+			if (from != null && to != null)
+				addProof(new Proofreading(from, to));
+		}
+	}
+	
+	public void removeProof(Proofreading newProof) {
+		if (newProof == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if(this.equals(newProof.getOwner())) {
+			removeEntityFromManagedCollection(newProof, getProofs());
+			newProof.setOwner(null);
+		}
+	}
+
+	public String getAvailability() {
+		return availability;
+	}
+
+	public void setAvailability(String availability) {
+		this.availability = availability;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+	}
+
+	public String getProoflevel() {
+		return prooflevel;
+	}
+
+	public void setProoflevel(String prooflevel) {
+		this.prooflevel = prooflevel;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAbout() {
+		return about;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
+	}
+	
+	public String getPresentationProofs() {
+		String res = "";
+		for (Proofreading proof : getProofs())
+			res += (res.isEmpty() ? "" : ", ") + proof.getPresentationName();
+		return res;
 	}
 }

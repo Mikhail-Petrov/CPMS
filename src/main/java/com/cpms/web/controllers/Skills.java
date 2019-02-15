@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
-import com.cpms.data.entities.Company;
+import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.exceptions.WrongJsonException;
@@ -97,14 +97,10 @@ public class Skills {
 				+ (countTasks % PagingUtils.PAGE_SIZE > 0 ? 1 : 0));
 		model.addAttribute("_VIEW_TITLE", "title.viewer");
 		model.addAttribute("_FORCE_CSRF", true);
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			model.addAttribute("company", new Company());
-			model.addAttribute("task", new Task());
-		}
+		model.addAttribute("company", new Profile());
+		model.addAttribute("task", new Task());
 		
-		String[][] defLevels = {{"Foundation", "Основы"}, {"Intermediate", "Средний уровень"},
-				{"Advanced", "Продвинутый уровень"},
-				{"Highly specialised", "Высокоспециализированный уровень"}};
+		String[] defLevels = {"Basic", "Intermediate", "Advanced"};
 		model.addAttribute("defaultLevels", defLevels);
 		
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
@@ -117,14 +113,14 @@ public class Skills {
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			model.addAttribute("skills", 
-					SkillTree.produceTree(sortSkills(skillDao.getAllIncludingDrafts())));
+		} else {
+			if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
+				model.addAttribute("skills", SkillTree.produceTree(sortSkills(skillDao.getAllIncludingDrafts())));
+			else
+				model.addAttribute("skills", SkillTree.produceTree(sortSkills(facade.getSkillDAO().getAll())));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
-		} else {
-			model.addAttribute("skills", SkillTree.produceTree(sortSkills(facade.getSkillDAO().getAll())));
 		}
 		List<Skill> allSkills = addSkillsListToModel(principal, request);
 		model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(

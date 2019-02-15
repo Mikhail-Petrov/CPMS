@@ -175,11 +175,10 @@ public class CompetencyApplication extends AbstractDomainObject {
 	
 	public String getCompetencyPresentationName() {
 		if (getSkill() != null) {
-			//return getSkill().getName() + " - " + getLevel();
-			return UserSessionData.localizeText(getSkill().getName_RU(), getSkill().getName())
+			return UserSessionData.localizeText(getSkill().getName())
 					 + " - " + getLevel();
 		} else {
-			return UserSessionData.localizeText("Умение не найдено", "Skill not found");
+			return UserSessionData.localizeText("Skill not found");
 		}
 	}
 

@@ -1,9 +1,6 @@
 package com.cpms.data.entities;
 
-import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,18 +9,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 import com.cpms.data.AbstractDomainObject;
-import com.cpms.exceptions.DataAccessException;
 
 /**
  * Entity class for competencies.
@@ -55,6 +47,8 @@ public class Competency extends AbstractDomainObject {
 	@JoinColumn(name = "SKILL", nullable = false)
 	@NotNull
 	private Skill skill;
+	
+	private String skillIDs;
 	
 	public Competency(Skill skill, int level) {
 		this.level = level;
@@ -137,6 +131,14 @@ public class Competency extends AbstractDomainObject {
 		returnValue.setOwner(null);
 		returnValue.setSkill(getSkill());
 		return returnValue;
+	}
+
+	public String getSkillIDs() {
+		return skillIDs;
+	}
+
+	public void setSkillIDs(String skillIDs) {
+		this.skillIDs = skillIDs;
 	}
 	
 }

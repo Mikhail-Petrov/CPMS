@@ -36,8 +36,6 @@ import com.cpms.web.UserSessionData;
 @SuppressWarnings("serial")
 @Table(name = "SKILLLEVEL", uniqueConstraints =
 	@UniqueConstraint(columnNames = {"LEVEL", "SKILL"}, name = "SkillLevelUnique"))
-@BilingualValidation(fieldOne="about", fieldTwo="about_RU", 
-	nullable = true, minlength = 0, maxlength = 1000)
 public class SkillLevel extends AbstractDomainObject {
 
 	@Id
@@ -56,9 +54,6 @@ public class SkillLevel extends AbstractDomainObject {
 	
 	@Column(name = "ABOUT", nullable = true, length = 1000)
 	private String about;
-	
-	@Column(name = "ABOUT_RU", nullable = true, length = 1000)
-	private String about_RU;
 	
 	public SkillLevel() {}
 	
@@ -103,14 +98,6 @@ public class SkillLevel extends AbstractDomainObject {
 		return about;
 	}
 
-	public String getAbout_RU() {
-		return about_RU;
-	}
-
-	public void setAbout_RU(String about_RU) {
-		this.about_RU = about_RU;
-	}
-
 	@Override
 	public Class<?> getEntityClass() {
 		return SkillLevel.class;
@@ -122,8 +109,7 @@ public class SkillLevel extends AbstractDomainObject {
 	}
 
 	public String getPresentationAbout() {
-		Locale locale = LocaleContextHolder.getLocale();
-		return localizeBilingualField(getAbout(), about_RU, locale);
+		return UserSessionData.localizeText(getAbout());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -134,7 +120,7 @@ public class SkillLevel extends AbstractDomainObject {
 		returnValue.setLevel(getLevel());
 		returnValue.setSkill(null);
 		returnValue.setAbout(
-				localizeBilingualField(getAbout(), getAbout_RU(), locale));
+				UserSessionData.localizeText(getAbout()));
 		return returnValue;
 	}
 	
@@ -142,11 +128,9 @@ public class SkillLevel extends AbstractDomainObject {
 		Map<Long, List<String>> result = new HashMap<Long, List<String>>();
 		for (Skill skill : skills) {
 			result.put(skill.getId(), new ArrayList<>());
-			result.get(skill.getId()).add(UserSessionData.localizeText(
-					skill.getAbout_RU(), skill.getAbout()));
+			result.get(skill.getId()).add(UserSessionData.localizeText(skill.getAbout()));
 			for (SkillLevel skillLevel : skill.getFullSkillLevels())
-				result.get(skill.getId()).add(UserSessionData.localizeText(
-						skillLevel.getAbout_RU(), skillLevel.getAbout()));
+				result.get(skill.getId()).add(UserSessionData.localizeText(skillLevel.getAbout()));
 		}
 		return result;
 	}

@@ -11,7 +11,7 @@
 		var skill = $(skillSelector).val();
 		var maxLevel = skillLevels[skill].length - 1;
 		if (skillChanged) {
-			$(levelNumber).val(1);
+			$(levelNumber).val(maxLevel);
 			document.getElementById("maxLevel").innerHTML = maxLevel;
 			$('#levelNumber').attr({
 			       "max" : maxLevel

@@ -22,7 +22,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.cpms.config.testing.TestingConfig;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.dao.interfaces.IDAO;
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
@@ -63,17 +62,14 @@ public class TestProfileDAO {
 		
 		Skill skill1 = new Skill("Skill#1", null);
 		skill1.setMaxLevel(1);
-		skill1.setName_RU("Умение 1");
 		skillDAO.insert(skill1);
 		
 		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
 		Set<Competency> competencies2 = new LinkedHashSet<Competency>();
 		competencies1.add(new Competency(skill1, 1));
-		Profile p1 = new Company("С1.1", null, "asd", null, null);
+		Profile p1 = new Profile("С1.1", null, "asd", null, null);
 		p1.setCompetencies(competencies1);
-		((Company)p1).setTitle_RU("Ц1.1");
-		Profile p2 = new Company("С2.2", null, "asd", null, null);
-		((Company)p2).setTitle_RU("Ц2.2");
+		Profile p2 = new Profile("С2.2", null, "asd", null, null);
 		p2.setCompetencies(competencies2);
 		profileDAO.insert(p1);
 		profileDAO.insert(p2);
@@ -96,17 +92,14 @@ public class TestProfileDAO {
 		
 		Skill skill1 = new Skill("Skill#1", null);
 		skill1.setMaxLevel(1);
-		skill1.setName_RU("Умение 1");
 		skillDAO.insert(skill1);
 		
 		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
 		Set<Competency> competencies2 = new LinkedHashSet<Competency>();
 		competencies1.add(new Competency(skill1, 1));
-		Profile p1 = new Company("С1.1", null, "asd", null, null);
+		Profile p1 = new Profile("С1.1", null, "asd", null, null);
 		p1.setCompetencies(competencies1);
-		((Company)p1).setTitle_RU("Ц1.1");
-		Profile p2 = new Company("С2.2", null, "asd", null, null);
-		((Company)p2).setTitle_RU("Ц2.2");
+		Profile p2 = new Profile("С2.2", null, "asd", null, null);
 		p2.setCompetencies(competencies2);
 		profileDAO.insert(p1);
 		profileDAO.insert(p2);
@@ -139,21 +132,17 @@ public class TestProfileDAO {
 		clear();
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение 1");
 		skill1.setMaxLevel(3);
 		Skill skill2 = new Skill("Skill#2", null);
-		skill2.setName_RU("Умение 2");
 		skill2.setMaxLevel(3);
 		Skill skill3 = new Skill("Skill#3", null);
-		skill3.setName_RU("Умение 3");
 		skill3.setMaxLevel(3);
 		final Skill skill1c = skillDAO.insert(skill1);
 		final Skill skill2c = skillDAO.insert(skill2);
 		final Skill skill3c = skillDAO.insert(skill3);
 		
-		Profile p2 = new Company("Some company that i've made", null, 
+		Profile p2 = new Profile("Some company that i've made", null, 
 				"It's address", null, null);
-		((Company)p2).setTitle_RU("Ц2");
 		p2 = profileDAO.insert(p2);
 		Competency cmp1 = new Competency(skill1c, 1);
 		p2.addCompetency(cmp1);
@@ -192,12 +181,10 @@ public class TestProfileDAO {
 		
 		Skill skill2 = new Skill("Skill#2", null);
 		skill2.setMaxLevel(3);
-		skill2.setName_RU("Умение 2");
 		skillDAO.insert(skill2);
 		
 		Set<Competency> competencies2 = new LinkedHashSet<Competency>();
-		Profile p2 = new Company("asd", null, "asd", null, null);
-		((Company)p2).setTitle_RU("Ц2");
+		Profile p2 = new Profile("asd", null, "asd", null, null);
 		p2.setCompetencies(competencies2);
 		profileDAO.insert(p2);
 		
@@ -214,7 +201,6 @@ public class TestProfileDAO {
 		clear();
 		
 		Skill skill = new Skill("Skill#1", null);
-		skill.setName_RU("Умение1");
 		skill.setMaxLevel(1);
 		skillDAO.insert(skill);
 		
@@ -223,8 +209,7 @@ public class TestProfileDAO {
 		Competency com2 = new Competency(skill, 1);
 		competencies.add(comp);
 		competencies.add(com2);
-		Profile p = new Company("C1.1", null, "asd", null, null);
-		((Company)p).setTitle_RU("Ц1");
+		Profile p = new Profile("C1.1", null, "asd", null, null);
 		p.setCompetencies(competencies);
 		
 		exception.expect(DataAccessException.class);
@@ -240,10 +225,8 @@ public class TestProfileDAO {
 		clear();
 		
 		Skill skill = new Skill("Skill#1", null);
-		skill.setName_RU("Умение1");
 		skill.setMaxLevel(1);
 		Skill skill2 = new Skill("Skill#2", null);
-		skill2.setName_RU("Умение2");
 		skill2.setMaxLevel(1);
 		skill = skillDAO.insert(skill);
 		final Skill skill2c = skillDAO.insert(skill2);
@@ -253,8 +236,7 @@ public class TestProfileDAO {
 		Competency comp2 = new Competency(skill2, 1);
 		competencies.add(comp);
 		competencies.add(comp2);
-		Profile p = new Company("asd", "asd", null, null, null);
-		((Company)p).setTitle_RU("Ц1");
+		Profile p = new Profile("asd", "asd", null, null, null);
 		p.setCompetencies(competencies);
 		p = profileDAO.insert(p);
 		
@@ -282,14 +264,12 @@ public class TestProfileDAO {
 		clear();
 		
 		Skill skill1 = new Skill("Skill#2", null);
-		skill1.setName_RU("Умение2");
 		skill1.setMaxLevel(1);
 		skillDAO.insert(skill1);
 		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
 		Competency cmp1 = new Competency(skill1, 1);
 		competencies1.add(cmp1);
-		Profile p1 = new Company("asd", null, "asd", null, null);
-		((Company)p1).setTitle_RU("Ц1");
+		Profile p1 = new Profile("asd", null, "asd", null, null);
 		p1.setCompetencies(competencies1);
 		
 		profileDAO.insert(p1);
@@ -303,13 +283,11 @@ public class TestProfileDAO {
 	public void canInsertAndThenDeleteCompetency() {
 		clear();
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(1);
 		skillDAO.insert(skill1);
 		List<Competency> competencies1 = new ArrayList<Competency>();
 		competencies1.add(new Competency(skill1, 1));
-		Profile p1 = new Company("asd", null, "asd", null, null);
-		((Company)p1).setTitle_RU("Ц1");
+		Profile p1 = new Profile("asd", null, "asd", null, null);
 		p1.addCompetency(competencies1.get(0));
 		p1 = profileDAO.insert(p1);
 		

@@ -30,10 +30,8 @@ public class SkillAnswer implements IAjaxAnswer {
 		id = source.getId();
 		maxLevel = source.getMaxLevel();
 		name = source.getPresentationName();
-		name_ru = source.getName_RU();
 		name_en = source.getName();
 		about = source.getPresentationAbout();
-		about_ru = source.getAbout_RU();
 		about_en = source.getAbout();
 		setType(source.getType());
 		if (source.getParent() == null)
@@ -53,10 +51,8 @@ public class SkillAnswer implements IAjaxAnswer {
 		id = 0;
 		maxLevel = 0;
 		name = "Skill not found";
-		setName_ru("Умение не найдено");
 		setName_en("Skill not found");
 		about = "Skill not found";
-		setAbout_ru("Умение не найдено");
 		setAbout_en("Skill not found");
 		successful = false;
 		levels = new ArrayList<SkillLevelAnswer>();

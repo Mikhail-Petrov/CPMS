@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.operations.interfaces.IProfileComparator;
@@ -51,7 +50,7 @@ public class BasicProfileRanger implements IProfileRanger {
 	public List<Profile> rangeProfiles(List<Profile> profiles,
 			Set<Competency> criteria,
 			boolean closestFirst) {
-		Profile resource = new Company();
+		Profile resource = new Profile();
 		resource.setCompetencies(criteria);
 		List<Profile> result = profiles
 				.stream()

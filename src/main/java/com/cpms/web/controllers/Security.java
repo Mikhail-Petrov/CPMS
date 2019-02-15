@@ -9,7 +9,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,13 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IUserDAO;
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Profile;
-import com.cpms.data.entities.ProfileData;
-import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TestConfig;
-import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.exceptions.WrongUserProfileException;
 import com.cpms.security.RegistrationForm;

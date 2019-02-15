@@ -35,6 +35,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.data.validation.BilingualValidation;
 import com.cpms.exceptions.DataAccessException;
+import com.cpms.web.UserSessionData;
 import com.cpms.web.controllers.Skills;
 
 /**
@@ -52,10 +53,6 @@ import com.cpms.web.controllers.Skills;
 	filters = {
 		@TokenFilterDef(factory = LowerCaseFilterFactory.class),
 	})
-@BilingualValidation(fieldOne="name", fieldTwo="name_RU", 
-	nullable = true, minlength = 5, maxlength = 100)
-@BilingualValidation(fieldOne="about", fieldTwo="about_RU", 
-	nullable = true, minlength = 0, maxlength = 1000)
 public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	
 	@Id
@@ -68,16 +65,8 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	@Analyzer(definition = "userSearchAnalyzerSkill")
 	private String name;
 	
-	@Column(name = "NAME_RU", nullable = true, length = 100)
-	@Field
-	@Analyzer(definition = "userSearchAnalyzerSkill")
-	private String name_RU;
-	
 	@Column(name = "ABOUT", nullable = true, length = 1000)
 	private String about;
-	
-	@Column(name = "ABOUT_RU", nullable = true, length = 1000)
-	private String about_RU;
 	
 	@Column(name = "MAXLEVEL", nullable = false)
 	@Min(1)
@@ -129,22 +118,6 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 
 	public void setDraft(boolean draft) {
 		this.draft = draft;
-	}
-
-	public String getName_RU() {
-		return name_RU;
-	}
-
-	public void setName_RU(String name_RU) {
-		this.name_RU = name_RU;
-	}
-
-	public String getAbout_RU() {
-		return about_RU;
-	}
-
-	public void setAbout_RU(String about_RU) {
-		this.about_RU = about_RU;
 	}
 
 	public String getType() {
@@ -343,7 +316,6 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 					.findFirst().orElse(null) == null) {
 				SkillLevel level = new SkillLevel();
 				level.setAbout("Undefined level");
-				level.setAbout_RU("Описание отсутствует");
 				level.setLevel(i);
 				levels.add(level);
 			}
@@ -360,13 +332,11 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 
 	@Override
 	public String getPresentationName() {
-		Locale locale = LocaleContextHolder.getLocale();
-		return localizeBilingualField(getName(), name_RU, locale);
+		return UserSessionData.localizeText(getName());
 	}
 
 	public String getPresentationAbout() {
-		Locale locale = LocaleContextHolder.getLocale();
-		return localizeBilingualField(getAbout(), about_RU, locale);
+		return UserSessionData.localizeText(getAbout());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -375,13 +345,12 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 		Skill returnValue = new Skill();
 		returnValue.setDraft(isDraft());
 		returnValue.setName(getName());
-		returnValue.setName_RU(getName_RU());
 		returnValue.setId(getId());
 		returnValue.setChildren(getChildren());
 		returnValue.setMaxLevel(getMaxLevel());
 		returnValue.setParent(getParent());
 		returnValue.setAbout(
-				localizeBilingualField(getAbout(), getAbout_RU(), locale));
+				UserSessionData.localizeText(getAbout()));
 		getFullSkillLevels()
 			.forEach(x -> returnValue.addLevel(x.localize(locale)));
 		return returnValue;

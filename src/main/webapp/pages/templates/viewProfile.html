@@ -5,48 +5,31 @@
                                 <h3 th:text="${profile.presentationName}"></h3>
                             </div>
                             <div class="x_content">
-                                <p><a id="profileLink" th:text="${profile.website}" th:href="${profile.website}" target="_blank"></a></p>
-                                <script>
-                         		/*<![CDATA[*/
-                                var link = $("#profileLink").html();
-                                if ((link.indexOf("http://") !== 0) && (link.indexOf("https://") !== 0) &&
-                                		(link.indexOf("www.") !== 0))
-                                	$("#profileLink").prop('href', "http://" + link);
-                         		/*]]>*/
-                                </script>
-                                <p><span th:text="${profile.address}"></span></p>
-								<p><span th:text="${profile.email}"></span></p>
-								<p><span id="profileDescription" th:text="${profile.about}"></span></p>
+                                <p><span th:text="#{profile.position}"></span>: <span th:text="${profile.position}"></span></p>
+                                <p><span th:text="#{profile.proofs}"></span>: <span th:text="${presentationProofs}"></span></p>
+                                <p><span th:text="#{profile.prooflevel}"></span>: <span th:text="${profile.prooflevel}"></span></p>
+                                <p><span th:text="#{profile.level}"></span>: <span th:text="${profile.level}"></span></p>
+                                <p><span th:text="#{profile.availability}"></span>: <span th:text="${profile.availability}"></span></p>
                                 <br/>
-                               <script>
-                         		/*<![CDATA[*/
-                                var descr = "<p>" + $("#profileDescription").html() + "</p";
-                         		while (descr.indexOf("\n") > -1)
-                         			descr = descr.replace("\n", "</p><p>");
-                                $("#profileDescription").html(descr);
-                         		/*]]>*/
-                                </script>
-								<th:block th:if="${isAdmin or isOwner}">
-	                                <div class="row">
-	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
-	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.competency.add}"></button>
-	                                    </div>
-	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
-	                                    	<a th:href="@{/editor/profile(id=${profile.id})}">
-	                                        	<button type="button" class="btn btn-warning btn-block" th:text="#{profile.edit}"></button>
-	                                        </a>
-	                                    </div>
-	                                    <div th:if="${isAdmin}" class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
-	                                    	<a th:href="@{/editor/profile/delete(id=${profile.id})}">
-	                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{profile.delete}"></button>
-	                                        </a>
-	                                    </div>
-	                                </div>
-	                                <br/>
-                                </th:block>
-                                <p><b><span th:text="#{profile.competencies}"></span></b></p>
+                                <div class="row">
+                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.skills.add}"></button>
+                                    </div>
+                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+                                    	<a th:href="@{/editor/profile(id=${profile.id})}">
+                                        	<button type="button" class="btn btn-warning btn-block" th:text="#{profile.edit}"></button>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+                                    	<a th:href="@{/editor/profile/delete(id=${profile.id})}">
+                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{profile.delete}"></button>
+                                        </a>
+                                    </div>
+                                </div>
+                                <br/>
+                                <p><b><span th:text="#{profile.skills}"></span></b></p>
                                 <form action="#" th:action="@{/editor/profile/saveChanges}" th:object="${competencies}" method="post">
-			<p th:if="${isAdmin or isOwner}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
+			<p><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
 			<input type="hidden" th:field="*{data}" id="competenciesData"/>
 			<input type="hidden" th:field="*{profileId}" th:value="${profile.id}"/>
 			<script>
@@ -155,13 +138,9 @@
                             </div>
 
                         </div>
-              	<th:block th:if="${!isAdmin}">
-                        <div th:replace="fragments/residentApplications :: residentApplications"></div>
-                </th:block>
                     </div>
                 </div>
                 
-              	<th:block th:if="${isAdmin}">
                 	<div class="modal fade" id="createCompetencyModal" tabindex="-1" role="dialog" aria-labelledby="createCompetencyModal" aria-hidden="true">
                     	<div th:replace="fragments/editCompetencyModal :: competencyModalForm"></div>
                 	</div>
@@ -200,4 +179,3 @@
 				<div class="modal fade" id="changeLevelModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
                     <div th:replace="fragments/editLevelModal :: levelModalForm"></div>
                 </div>
-                </th:block>

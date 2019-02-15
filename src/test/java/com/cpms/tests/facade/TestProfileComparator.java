@@ -10,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.cpms.config.testing.TestingConfig;
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
@@ -39,12 +38,12 @@ public class TestProfileComparator {
 		Skill s3 = new Skill("S3", null);
 		s3.setMaxLevel(2);
 		s3.setId(3);
-		Profile p1 = new Company();
+		Profile p1 = new Profile();
 		p1.setId(1);
 		p1.addCompetency(new Competency(s1, 2));
 		p1.addCompetency(new Competency(s2, 2));
 		p1.addCompetency(new Competency(s3, 1));
-		Profile p2 = new Company();
+		Profile p2 = new Profile();
 		p2.setId(2);
 		p2.addCompetency(new Competency(s2, 2));
 		p2.addCompetency(new Competency(s1, 2));
@@ -62,10 +61,10 @@ public class TestProfileComparator {
 		Skill s2 = new Skill("S2", null);
 		s2.setMaxLevel(2);
 		s2.setId(2);
-		Profile p1 = new Company();
+		Profile p1 = new Profile();
 		p1.setId(1);
 		p1.addCompetency(new Competency(s1, 2));
-		Profile p2 = new Company();
+		Profile p2 = new Profile();
 		p2.setId(2);
 		p2.addCompetency(new Competency(s2, 2));
 		
@@ -81,11 +80,11 @@ public class TestProfileComparator {
 		Skill s2 = new Skill("S2", null);
 		s2.setMaxLevel(2);
 		s2.setId(2);
-		Profile p1 = new Company();
+		Profile p1 = new Profile();
 		p1.setId(1);
 		p1.addCompetency(new Competency(s1, 2));
 		p1.addCompetency(new Competency(s2, 1));
-		Profile p2 = new Company();
+		Profile p2 = new Profile();
 		p2.setId(2);
 		p2.addCompetency(new Competency(s2, 2));
 		p2.addCompetency(new Competency(s1, 1));

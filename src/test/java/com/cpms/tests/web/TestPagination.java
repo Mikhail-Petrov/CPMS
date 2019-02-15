@@ -23,7 +23,6 @@ import com.cpms.config.testing.TestingConfig;
 import com.cpms.config.web.WebConfig;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.dao.interfaces.IDAO;
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Profile;
 import com.cpms.tests.web.pagesmock.ObjectListPage;
 import com.cpms.web.PagingUtils;
@@ -74,9 +73,8 @@ public class TestPagination {
 		int pageSize = PagingUtils.PAGE_SIZE;
 		int thirdPageSize = pageSize > 1 ? pageSize/2 : 1;
 		for (int i=0; i<(pageSize * 2 + thirdPageSize); i++) {
-			Company newCompany = new Company();
-			newCompany.setTitle("C1." + i);
-			newCompany.setTitle_RU("Ц1." + i);
+			Profile newCompany = new Profile();
+			newCompany.setName("C1." + i);
 			profileDAO.insert(newCompany);
 		}
 		
@@ -128,22 +126,19 @@ public class TestPagination {
 	
 	@Test
 	public void testFullTextSearch() {
-		Company concreteCompany2 = new Company();
-		concreteCompany2.setTitle("Lorem Ipsum");
-		concreteCompany2.setTitle_RU("Лорем ипсум");
+		Profile concreteCompany2 = new Profile();
+		concreteCompany2.setName("Lorem Ipsum");
 		profileDAO.insert(concreteCompany2);
 		
 		int pageSize = PagingUtils.PAGE_SIZE;
 		for (int i=0; i< pageSize * 3; i++) {
-			Company newCompany = new Company();
-			newCompany.setTitle("C1." + i);
-			newCompany.setTitle_RU("Ц1." + i);
+			Profile newCompany = new Profile();
+			newCompany.setName("C1." + i);
 			profileDAO.insert(newCompany);
 		}
 		
-		Company concreteCompany1 = new Company();
-		concreteCompany1.setTitle("Boyd's Toasts");
-		concreteCompany1.setTitle_RU("Тосты Бойда");
+		Profile concreteCompany1 = new Profile();
+		concreteCompany1.setName("Boyd's Toasts");
 		profileDAO.insert(concreteCompany1);
 		
 		ObjectListPage page = ObjectListPage.to(driver, "profile");
@@ -161,16 +156,6 @@ public class TestPagination {
 				"lorem", page.getSearchFieldValue());
 		assertTrue("Request should match the found object",
 				page.getObjectsValue(0).toLowerCase().contains("lorem"));
-		
-		page = page.fullTextSearch("бойд");
-		assertEquals("Loaded page with correct object ammount", 
-				1, page.countObjects());
-		assertEquals("Loaded page should be first",
-				1, page.getPageNumber());
-		assertEquals("Request should match the string in field",
-				"бойд", page.getSearchFieldValue());
-		assertTrue("Request should match the found object",
-				page.getObjectsValue(0).toLowerCase().contains("бойд"));
 		
 		page = page.fullTextSearch("C");
 		assertEquals("Loaded page with correct object ammount", 

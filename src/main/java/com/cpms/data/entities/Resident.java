@@ -10,8 +10,6 @@ public class Resident implements Comparable<Resident> {
 
 	public Resident(Profile profile) {
 		id = profile.getId();
-		// name = UserSessionData.localizeText(profile.getTitle_RU(),
-		// profile.getTitle());
 		name = profile.getPresentationName();
 		competencies = new LinkedHashSet<Competency>(profile.getCompetencies());
 		cost = profile.getPrice();
@@ -21,8 +19,6 @@ public class Resident implements Comparable<Resident> {
 
 	public Resident(Resident profile) {
 		id = profile.getId();
-		// name = UserSessionData.localizeText(profile.getTitle_RU(),
-		// profile.getTitle());
 		name = profile.getName();
 		competencies = new LinkedHashSet<Competency>(profile.getCompetencies());
 		cost = profile.getCost();

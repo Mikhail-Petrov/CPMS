@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cpms.dao.implementations.jpa.repositories.system.MotivationRepository;
+import com.cpms.dao.implementations.jpa.repositories.system.LanguagesRepository;
 import com.cpms.dao.interfaces.AbstractDAO;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.dao.interfaces.IDAO;
-import com.cpms.data.entities.Motivation;
+import com.cpms.data.entities.Language;
 import com.cpms.exceptions.DataAccessException;
 
 /**
@@ -27,16 +27,16 @@ import com.cpms.exceptions.DataAccessException;
  */
 @Service
 @Transactional("transactionManager")
-public class JPAMotivationDAO extends AbstractDAO<Motivation> implements ICleanable {
+public class JPALanguagesDAO extends AbstractDAO<Language> implements ICleanable {
 	
-	private MotivationRepository motivationRepo;
+	private LanguagesRepository languageRepo;
 	private EntityManager entityManager;
 	
 	
 	@Autowired
-	@Qualifier(value = "Motivation")
-	public void setMotivationRepo(MotivationRepository motivationRepo) {
-		this.motivationRepo = motivationRepo;
+	@Qualifier(value = "Language")
+	public void setMotivationRepo(LanguagesRepository languageRepo) {
+		this.languageRepo = languageRepo;
 	}
 
 	@PersistenceContext(unitName = "entityManagerFactory")
@@ -46,91 +46,91 @@ public class JPAMotivationDAO extends AbstractDAO<Motivation> implements ICleana
 
 	@Override
 	public long count() {
-		return motivationRepo.count();
+		return languageRepo.count();
 	}
 
 	@Override
-	public List<Motivation> getRange(long from, long to) {
-		return super.getPage(motivationRepo, from, to);
+	public List<Language> getRange(long from, long to) {
+		return super.getPage(languageRepo, from, to);
 	}
 
 	@Override
-	public Motivation getOne(long id) {
-		Motivation target = motivationRepo.findOne(id);
+	public Language getOne(long id) {
+		Language target = languageRepo.findOne(id);
 		return target;
 	}
 
 	@Override
-	public Motivation update(Motivation updateInstance) {
+	public Language update(Language updateInstance) {
 		if (updateInstance == null) {
 			throw new DataAccessException("Attempt to insert null", null);
 		}
-		if (!motivationRepo.exists(updateInstance.getId())) {
+		if (!languageRepo.exists(updateInstance.getId())) {
 			throw new DataAccessException("Cannot update, such profile doesn't exist",
 					null);
 		}
-		return persist(updateInstance, motivationRepo);
+		return persist(updateInstance, languageRepo);
 	}
 
 	@Override
-	public Motivation insert(Motivation newInstance) {
+	public Language insert(Language newInstance) {
 		if (newInstance == null) {
 			throw new DataAccessException("Attempt to insert null", null);
 		}
-		if (motivationRepo.exists(newInstance.getId())) {
+		if (languageRepo.exists(newInstance.getId())) {
 			throw new DataAccessException("Cannot insert, such profile already exists",
 					null);
 		}
-		return persist(newInstance, motivationRepo);
+		return persist(newInstance, languageRepo);
 	}
 
 	@Override
-	public void delete(Motivation oldInstance) {
+	public void delete(Language oldInstance) {
 		if (oldInstance == null) {
 			throw new DataAccessException("Attempt to delete null", null);
 		}
-		motivationRepo.delete(oldInstance);
+		languageRepo.delete(oldInstance);
 	}
 
 	@Override
 	public void cleanAndReset() {
-		motivationRepo.deleteAll();
+		languageRepo.deleteAll();
 	}
 
 	@Override
-	public List<Motivation> getAll() {
-		return motivationRepo.findAll();
+	public List<Language> getAll() {
+		return languageRepo.findAll();
 	}
 
 	@Override
-	public List<Motivation> search(String request, Class<? extends Motivation> type) {
+	public List<Language> search(String request, Class<? extends Language> type) {
 		return super.useSearch(request,
 				entityManager,
-				Motivation.class,
+				Language.class,
 				"name");
 	}
 
 	@Override
-	public List<Motivation> searchRange(String request, Class<? extends Motivation> type,
+	public List<Language> searchRange(String request, Class<? extends Language> type,
 			int from, int to) {
 		return super.useSearchRange(request,
 				entityManager,
-				Motivation.class,
+				Language.class,
 				from, to,
 				"name");
 	}
 
 	@Override
-	public int searchCount(String request, Class<? extends Motivation> type) {
+	public int searchCount(String request, Class<? extends Language> type) {
 		return super.searchAndCount(request,
 				entityManager,
-				Motivation.class,
+				Language.class,
 				"name");
 	}
 
 	@Override
 	public void rebuildIndex() {
-		super.rebuildIndex(entityManager, Motivation.class);
+		super.rebuildIndex(entityManager, Language.class);
 	}
 
 }

@@ -10,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.cpms.config.testing.TestingConfig;
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
@@ -41,7 +40,7 @@ public class TestTaskComparator {
 		Skill s3 = new Skill("S3", null);
 		s3.setMaxLevel(2);
 		s3.setId(3);
-		Profile p1 = new Company();
+		Profile p1 = new Profile();
 		p1.addCompetency(new Competency(s1, 2));
 		p1.addCompetency(new Competency(s2, 2));
 		p1.addCompetency(new Competency(s3, 1));
@@ -65,7 +64,7 @@ public class TestTaskComparator {
 		Skill s3 = new Skill("S3", null);
 		s3.setMaxLevel(2);
 		s3.setId(3);
-		Profile p1 = new Company();
+		Profile p1 = new Profile();
 		p1.addCompetency(new Competency(s1, 2));
 		p1.addCompetency(new Competency(s2, 2));
 		Task t1 = new Task("T1", null);
@@ -87,7 +86,7 @@ public class TestTaskComparator {
 		Skill s3 = new Skill("S3", null);
 		s3.setMaxLevel(2);
 		s3.setId(3);
-		Profile p1 = new Company();
+		Profile p1 = new Profile();
 		p1.addCompetency(new Competency(s1, 1));
 		p1.addCompetency(new Competency(s2, 1));
 		p1.addCompetency(new Competency(s3, 1));

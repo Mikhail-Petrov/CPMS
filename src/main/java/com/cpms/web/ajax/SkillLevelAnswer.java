@@ -18,7 +18,6 @@ public class SkillLevelAnswer implements IAjaxAnswer {
 	public SkillLevelAnswer(SkillLevel source, boolean successful) {
 		id = source.getId();
 		about = source.getPresentationAbout();
-		about_ru = source.getAbout_RU();
 		about_en = source.getAbout();
 		level = source.getLevel();
 		this.successful = successful;
@@ -27,7 +26,6 @@ public class SkillLevelAnswer implements IAjaxAnswer {
 	public SkillLevelAnswer() {
 		id = 0;
 		about = "Skill Level not found";
-		setAbout_ru("Уровень умения не найдено");
 		setAbout_en("Skill Level not found");
 		level = 0;
 		successful = false;

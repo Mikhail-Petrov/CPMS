@@ -42,6 +42,16 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="C:/Users/Михаил/.m2/repository/org/springframework/spring-test/4.2.5.RELEASE/spring-test-4.2.5.RELEASE.jar" sourcepath="C:/Users/Михаил/.m2/repository/org/springframework/spring-test/4.2.5.RELEASE/spring-test-4.2.5.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.springframework"/>
+			<attribute name="maven.artifactId" value="spring-test"/>
+			<attribute name="maven.version" value="4.2.5.RELEASE"/>
+			<attribute name="maven.scope" value="test"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

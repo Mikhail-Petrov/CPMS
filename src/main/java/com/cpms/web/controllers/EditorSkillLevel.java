@@ -122,7 +122,6 @@ public class EditorSkillLevel {
 						request.getPathInfo());
 			}
 			skillLevelOld.setAbout(skillLevel.getAbout());
-			skillLevelOld.setAbout_RU(skillLevel.getAbout_RU());
 		}
 		facade.getSkillDAO().update(skill);
 		//return "redirect:/viewer/tree";

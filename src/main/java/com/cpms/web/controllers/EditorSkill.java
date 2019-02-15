@@ -180,8 +180,6 @@ public class EditorSkill {
 			skill.setParent(recievedSkill.getParent());
 			skill.setName(recievedSkill.getName());
 			skill.setMaxLevel(recievedSkill.getMaxLevel());
-			skill.setName_RU(recievedSkill.getName_RU());
-			skill.setAbout_RU(recievedSkill.getAbout_RU());
 			skill.setType(recievedSkill.getType());
 			skill = facade.getSkillDAO().update(skill);
 		}
@@ -256,8 +254,7 @@ public class EditorSkill {
 		boolean longEnough = true;
 		for(SkillLevel level : recievedSkill.getLevels()) {
 			longEnough = longEnough 
-					&& (level.getAbout().length() >= 0 && level.getAbout().length() <= 1000)
-					&& (level.getAbout_RU().length() >= 0 && level.getAbout_RU().length() <= 1000);
+					&& (level.getAbout().length() >= 0 && level.getAbout().length() <= 1000);
 		}
 		if (!longEnough) {
 			throw new ManualValidationException("Invalid skill submitted!",
@@ -267,24 +264,18 @@ public class EditorSkill {
 		if (recievedSkill.getName() != null && recievedSkill.getName().length() < 5) {
 			recievedSkill.setName(null);
 		}
-		if (recievedSkill.getName_RU() != null && recievedSkill.getName_RU().length() < 5) {
-			recievedSkill.setName_RU(null);
-		}
-		if (recievedSkill.getName() == null && recievedSkill.getName_RU() == null) {
+		if (recievedSkill.getName() == null) {
 			throw new ManualValidationException("Invalid skill submitted!",
 					"Please fill in at least one name for a skill.",
 					request.getPathInfo()); 
 		}
-		if ((recievedSkill.getName() != null && recievedSkill.getName().length() > 100) 
-				|| (recievedSkill.getName_RU() != null && recievedSkill.getName_RU().length() > 100)) {
+		if ((recievedSkill.getName() != null && recievedSkill.getName().length() > 100)) {
 			throw new ManualValidationException("Invalid skill submitted!",
 					"Skill's name should not be longer than 100 symbols.",
 					request.getPathInfo()); 
 		}
 		if (!((recievedSkill.getAbout().length() >= 0 && 
-				recievedSkill.getAbout().length() <= 1000)
-				&& (recievedSkill.getAbout_RU().length() >= 0 && 
-						recievedSkill.getAbout_RU().length() <= 1000))) {
+				recievedSkill.getAbout().length() <= 1000))) {
 			throw new ManualValidationException("Invalid skill submitted!",
 					"Description is longer than 1000 symbols.",
 					request.getPathInfo()); 
@@ -301,8 +292,6 @@ public class EditorSkill {
 		newSkill.setParent(parent);
 		newSkill.setMaxLevel(recievedSkill.getMaxLevel());
 		newSkill.setName(recievedSkill.getName());
-		newSkill.setName_RU(recievedSkill.getName_RU());
-		newSkill.setAbout_RU(recievedSkill.getAbout_RU());
 		newSkill.setAbout(recievedSkill.getAbout());
 		newSkill.setType(recievedSkill.getType());
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
@@ -317,7 +306,6 @@ public class EditorSkill {
 		for(SkillLevel level : recievedSkill.getLevels()) {
 			SkillLevel newLevel = new SkillLevel();
 			newLevel.setAbout(level.getAbout());
-			newLevel.setAbout_RU(level.getAbout_RU());
 			newLevel.setLevel(levelIndex);
 			levelIndex++;
 			newSkill.addLevel(newLevel);
@@ -336,42 +324,32 @@ public class EditorSkill {
 		boolean longEnough = true;
 		for(SkillLevel level : recievedSkill.getLevels()) {
 			longEnough = longEnough 
-					&& (level.getAbout().length() >= 0 && level.getAbout().length() <= 1000)
-					&& (level.getAbout_RU().length() >= 0 && level.getAbout_RU().length() <= 1000);
+					&& (level.getAbout().length() >= 0 && level.getAbout().length() <= 1000);
 		}
 		String invSkill = UserSessionData.localizeText(
 				"Отправлен некорректный навык!", "Invalid skill submitted!");
 		if (!longEnough) {
 			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
-							"Один из уровней навыка короче 10 или длиннее 1000 символов.",
 							"One of skill levels is shorter than 10 or longer than 1000 symbols."),
 					request.getPathInfo());
 		}
-		if (recievedSkill.getName() != null && recievedSkill.getName().length() < 5) {
+		if (recievedSkill.getName() != null && recievedSkill.getName().length() < 3) {
 			recievedSkill.setName(null);
 		}
-		if (recievedSkill.getName_RU() != null && recievedSkill.getName_RU().length() < 5) {
-			recievedSkill.setName_RU(null);
-		}
-		if (recievedSkill.getName() == null && recievedSkill.getName_RU() == null) {
+		if (recievedSkill.getName() == null) {
 			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
-							"Пожалуйста, заполните как минимум одно название для навыка.",
 							"Please fill in at least one name for a skill."),
 					request.getPathInfo()); 
 		}
-		if ((recievedSkill.getName() != null && recievedSkill.getName().length() > 100) 
-				|| (recievedSkill.getName_RU() != null && recievedSkill.getName_RU().length() > 100)) {
+		if ((recievedSkill.getName() != null && recievedSkill.getName().length() > 100)) {
 			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
-							"Название навыка не должно быть длиннее 100 символов.",
 							"Skill's name should not be longer than 100 symbols."),
 					request.getPathInfo()); 
 		}
 		if (!((recievedSkill.getAbout().length() >= 0 && 
-				recievedSkill.getAbout().length() <= 1000)
-				&& (recievedSkill.getAbout_RU().length() >= 0 && 
-						recievedSkill.getAbout_RU().length() <= 1000))) {
+				recievedSkill.getAbout().length() <= 1000))) {
 			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
-							"Описание длиннее 1000 символов.", "Description is longer than 1000 symbols."),
+							"Description is longer than 1000 symbols."),
 					request.getPathInfo()); 
 		}
 		Skill newSkill = new Skill();
@@ -388,8 +366,6 @@ public class EditorSkill {
 		newSkill.setParent(parent);
 		newSkill.setMaxLevel(recievedSkill.getMaxLevel());
 		newSkill.setName(recievedSkill.getName());
-		newSkill.setName_RU(recievedSkill.getName_RU());
-		newSkill.setAbout_RU(recievedSkill.getAbout_RU());
 		newSkill.setAbout(recievedSkill.getAbout());
 		newSkill.setType(recievedSkill.getType());
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
@@ -403,15 +379,12 @@ public class EditorSkill {
 		for(SkillLevel level : newSkill.getLevels()) {
 			if (recievedSkill.getLevels().size() < level.getLevel())
 				newSkill.removeLevel(level);
-			else {
+			else
 				level.setAbout(recievedSkill.getLevels().get(level.getLevel()-1).getAbout());
-				level.setAbout_RU(recievedSkill.getLevels().get(level.getLevel()-1).getAbout_RU());
-			}
 		}
 		for(int levelIndex = newSkill.getLevels().size() + 1; levelIndex <= recievedSkill.getLevels().size(); levelIndex++) {
 			SkillLevel newLevel = new SkillLevel();
 			newLevel.setAbout(recievedSkill.getLevels().get(levelIndex-1).getAbout());
-			newLevel.setAbout_RU(recievedSkill.getLevels().get(levelIndex-1).getAbout_RU());
 			newLevel.setLevel(levelIndex);
 			newSkill.addLevel(newLevel);
 		}

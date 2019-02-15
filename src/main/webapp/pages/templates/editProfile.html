@@ -1,37 +1,25 @@
 		<div class="collection-object">
-		<form action="#" th:action="@{/editor/profile}" th:object="${company}" method="post">
+		<form action="#" th:action="@{/editor/profile}" th:object="${profile}" method="post">
 			<h3 th:if="${create}" th:text="#{firstline.create.profile} ">Create company profile</h3>
 			<h3 th:if="${!create}" th:text="#{firstline.update.profile}">Update company profile</h3>
 			<hr/>
 			<input type="hidden" th:field="*{id}" />
-			<p th:text="#{editor.company.title}"></p>
-			<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Name Error</p>
-			<p><span th:text="#{editor.placeholder.title_ru}" text="Company name (RU)"></span>:
-			<input class="form-control" type="text" th:field="*{title_RU}" placeholder="Company name (RU)" th:placeholder="#{editor.placeholder.title_ru}" onblur="addCheck(this, 3, 100)"/>
-			<p><span th:text="#{editor.placeholder.title_en}" text="Company name (EN)"></span>:
-			<input class="form-control" type="text" th:field="*{title}" placeholder="Company name (EN)" th:placeholder="#{editor.placeholder.title_en}" onblur="addCheck(this, 3, 100)"/></p>
-				<span th:if="${#fields.hasErrors('title_RU')}" th:errors="*{title_RU}">Name Error</span></p>
-			<p th:text="#{editor.company.website}"></p>
-			<p><input class="form-control" type="text" th:field="*{website}" placeholder="Site" th:placeholder="#{editor.placeholder.website}"/>
-				<span th:if="${#fields.hasErrors('website')}" th:errors="*{website}">Name Error</span></p>
-			<p th:text="#{editor.company.address}"></p>
-			<p th:if="${#fields.hasErrors('address')}" th:errors="*{address}">Name Error</p>
-			<p><span th:text="#{editor.placeholder.address_ru}" text="Address (RU)"></span>:
-			<input class="form-control" type="text" th:field="*{address_RU}" placeholder="Address (RU)" th:placeholder="#{editor.placeholder.address_ru}"/>
-			<p><span th:text="#{editor.placeholder.address_en}" text="Address (EN)"></span>:
-			<input class="form-control" type="text" th:field="*{address}" placeholder="Address (EN)" th:placeholder="#{editor.placeholder.address_en}"/></p>
-				<span th:if="${#fields.hasErrors('address_RU')}" th:errors="*{address_RU}">Name Error</span></p>
-			<p th:text="#{editor.company.description}"></p>
-			<p th:if="${#fields.hasErrors('about')}" th:errors="*{about}">Name Error</p>
-			<p><span th:text="#{editor.placeholder.description_ru}" text="About (RU)"></span>:
-			<textarea class="form-control" type="textarea" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
-				<span th:if="${#fields.hasErrors('about_RU')}" th:errors="*{about_RU}">Name Error</span></p>
-			<p><span th:text="#{editor.placeholder.description_en}" text="About (EN)"></span>:
-			<textarea class="form-control" type="textarea" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}"></textarea></p>
-			<p th:text="#{editor.company.email}"></p>
-			<p><input class="form-control" type="text" th:field="*{email}" placeholder="e-mail"/>
-				<span th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Name Error</span></p>
-			<p><span th:text="#{editor.company.price}"></span> <input type="number" th:field="*{price}" min="0" id="price" onblur="if ($(price).val()=='') $(price).val(0);" /></p>
+			<p th:text="#{editor.expert.name}"></p>
+			<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</p>
+			<p><span th:text="#{editor.placeholder.name}" text="Expert name"></span>:
+			<input class="form-control" type="text" th:field="*{name}" placeholder="Expert name" th:placeholder="#{editor.placeholder.name}" onblur="addCheck(this, 3, 100)"/></p>
+			<p th:text="#{profile.position}"></p>
+			<p><input class="form-control" type="text" th:field="*{position}" placeholder="Expert position" th:placeholder="#{editor.placeholder.position}"/>
+				<span th:if="${#fields.hasErrors('position')}" th:errors="*{position}">Name Error</span></p>
+			<p th:text="#{profile.availability}"></p>
+			<p><input class="form-control" type="text" th:field="*{availability}" placeholder="Expert availability" th:placeholder="#{editor.placeholder.availability}"/>
+				<span th:if="${#fields.hasErrors('availability')}" th:errors="*{availability}">Name Error</span></p>
+			<p th:text="#{profile.level}"></p>
+			<p><input class="form-control" type="text" th:field="*{level}" placeholder="Expert level" th:placeholder="#{profile.level}"/>
+				<span th:if="${#fields.hasErrors('level')}" th:errors="*{level}">Name Error</span></p>
+			<p th:text="#{profile.prooflevel}"></p>
+			<p><input class="form-control" type="text" th:field="*{position}" placeholder="Expert proofreader level" th:placeholder="#{profile.prooflevel}"/>
+				<span th:if="${#fields.hasErrors('prooflevel')}" th:errors="*{prooflevel}">Name Error</span></p>
 			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
 		</form>
 		</div>

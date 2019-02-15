@@ -132,7 +132,7 @@ public class JPASkillDAO extends AbstractDAO<Skill> implements ICleanable {
 		List<Skill> range = super.useSearch(request,
 				entityManager,
 				Skill.class,
-				"name", "name_RU");
+				"name");
 		return range;
 	}
 
@@ -143,7 +143,7 @@ public class JPASkillDAO extends AbstractDAO<Skill> implements ICleanable {
 				entityManager,
 				Skill.class,
 				from, to,
-				"name", "name_RU");
+				"name");
 		return range;
 	}
 
@@ -152,7 +152,7 @@ public class JPASkillDAO extends AbstractDAO<Skill> implements ICleanable {
 		return super.searchAndCount(request,
 				entityManager,
 				Skill.class,
-				"name", "name_RU");
+				"name");
 	}
 
 	@Override

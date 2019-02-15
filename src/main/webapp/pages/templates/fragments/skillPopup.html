@@ -5,14 +5,14 @@
 	<div id="viewSkillBlock" class="collection-object force-width">
 		<h3><span id="skillName">Name</span></h3>
   		<p><span id="skillAbout">About</span></p>
-  		<p><span id="skillLevels">Levels</span></p>
-  		<p th:text="#{skill.levels}"></p>
-		<table class="table table-striped">
+  		<p hidden="true"><span id="skillLevels">Levels</span></p>
+  		<p hidden="true" th:text="#{skill.levels}"></p>
+		<table hidden="true" class="table table-striped">
 			<tbody id="levelsView">
 			</tbody>
 		</table>
   		<div class="input-group">
-			<a id="rememberLink" onclick="#">
+			<a hidden="true" id="rememberLink" onclick="#">
 				<span class="input-group-btn">
 					<button class="btn btn-lg" type="submit" th:text="#{skillPopup.remember}">Remember</button>
 				</span>
@@ -27,7 +27,7 @@
 					<button class="btn btn-lg" type="submit" th:text="#{skillPopup.delete}">Delete</button>
 				</span>
 			</a>
-			<a id="approveLink" th:if="${isAdmin}" href="#">
+			<a hidden="true" id="approveLink" th:if="${isAdmin}" href="#">
 				<span class="input-group-btn">
 					<button class="btn btn-lg" type="submit" th:text="#{skillPopup.approve}">Approve</button>
 				</span>
@@ -39,17 +39,15 @@
   		<form action="#" th:action="@{/editor/skill/alternative}" th:object="${skill}" method="post">
   			<input type="hidden" th:field="*{id}" class="input-wide" th:value="0"/>
   			<p th:text="#{editor.skill.name}"></p>
-			<p><input type="text" class="input-wide" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols"/></p>
-			<p><input type="text" class="input-wide" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols"/></p>
+			<p><input type="text" class="input-wide" th:field="*{name}" placeholder="Skill name" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols"/></p>
 			<p th:text="#{editor.skill.description}"></p>
-			<p><input type="text" class="input-wide" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}" pattern=".{0,1000}" title="Must be less than 1000 symbols"/></p>
-			<p><input type="text" class="input-wide" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}" pattern=".{0,1000}" title="Must be less than 1000 symbols"/></p>
-			<p th:text="#{editor.skill.maxlevel}"></p>
-			<p><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
+			<p><input type="text" class="input-wide" th:field="*{about}" placeholder="About" th:placeholder="#{editor.placeholder.description_en}" pattern=".{0,1000}" title="Must be less than 1000 symbols"/></p>
+			<p hidden="true" th:text="#{editor.skill.maxlevel}"></p>
+			<p hidden="true"><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
 			<input type="hidden" id="parentId" th:field="*{parent}" th:value="null"/>
 			<p><input type="submit" class="btn btn-lg" value="Create" th:value="#{editor.create}"/></p>
-			<p th:text="#{skillPopup.editor.level}"></p>
-			<table class="table table-striped">
+			<p hidden="true" th:text="#{skillPopup.editor.level}"></p>
+			<table hidden="true" class="table table-striped">
 				<tbody id="levelsPost">
 				</tbody>
 			</table>

@@ -1,12 +1,12 @@
 package com.cpms.facade;
 
 import com.cpms.dao.interfaces.*;
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.operations.interfaces.*;
-import com.cpms.security.entities.User;
 
 /**
  * Facade pattern implementation which encapsulates most system components.
@@ -17,6 +17,8 @@ import com.cpms.security.entities.User;
 public interface ICPMSFacade {
 	
 	public IDAO<Profile> getProfileDAO();
+	
+	public IDAO<Language> getLanguageDAO();
 	
 	public IDAO<Skill> getSkillDAO();
 	

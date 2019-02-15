@@ -14,76 +14,32 @@
 			</tbody>
 		</table>
   		<div class="input-group">
-			<a id="rememberLink" onclick="#" hidden="true">
-				<span class="input-group-btn">
-					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.remember}">Remember</button>
-				</span>
-			</a>
 			<a id="editLink" th:if="${isAdmin or isResident}" href="#">
-				<span class="input-group-btn">
+				<span class="input-group-btn two-buttons">
 					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.edit}">Edit</button>
 				</span>
 			</a>
 			<a id="deleteLink" th:if="${isAdmin or isResident}" href="#">
-				<span class="input-group-btn">
+				<span class="input-group-btn two-buttons">
 					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
 				</span>
 			</a>
-			<a id="approveLink" th:if="${isAdmin}" href="#">
-				<span class="input-group-btn">
-					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.approve}">Approve</button>
-				</span>
-			</a>
   		</div>
-  		<th:block th:if="${isAdmin or isResident}">
   		<span id="createTypeLabel" th:text="#{page.create}" hidden="true"></span>
-  		<select id="childTypeSelect" hidden="true">
-				<option th:value="class" th:text="#{skill.types.class}">
-					class</option>
-				<option th:value="skill" th:text="#{skill.types.skill}">
-					experience</option>
-				<option th:value="knowledge" th:text="#{skill.types.knowledge}">
-					knowledge</option>
-				<option th:value="communicative" th:text="#{skill.types.communicative}">
-					communicative</option>
-		</select>
-		<script type="text/javascript">
-		$(childTypeSelect).on("input", function() {
-			var selectedText = $("#childTypeSelect option:selected").html();
-			$("#createChildButton").val($("#createTypeLabel").html() + " " + selectedText);
-		});
-		$(childTypeSelect).trigger("input");
-		</script>
-		</th:block>
-  		<p th:if="${isAdmin or isResident}"><input type="submit" id="createChildButton" class="btn btn-primary btn-block" th:value="#{skillPopup.child}" onclick="$('#newSkillForm').show(); return false"/></p>
+  		<p><input type="submit" id="createChildButton" class="btn btn-primary btn-block" th:value="#{skillPopup.child}" onclick="$('#newSkillForm').show(); return false"/></p>
   		</div>
-  		<div th:if="${isAdmin or isResident}" class="collection-object force-width" id="newSkillForm">
+  		<div class="collection-object force-width" id="newSkillForm">
   		<h3 id="skillFormTitle"><span id="skillName" th:text="#{skillPopup.child}"></span></h3>
   		<form action="#" th:action="@{/editor/skill/alternativeAsync}" th:object="${skill}" method="post" id="skillCreate">
   			<input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/>
   			<p th:text="#{editor.skill.name}"></p>
-  			<span th:text="#{editor.placeholder.skill_name_ru}" text="Skill name (RU)"></span>:
-			<p><input type="text" class="form-control" th:field="*{name_RU}" placeholder="Skill name (RU)" th:placeholder="#{editor.placeholder.skill_name_ru}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_ru}" id="skill_name_ru" onblur="addCheck(this, 5, 100)"/></p>
-			<span th:text="#{editor.placeholder.skill_name_en}" text="Skill name (EN)"></span>:
-			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Skill name (EN)" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="skill_name" onblur="addCheck(this, 5, 100)"/></p>
+			<span th:text="#{editor.placeholder.skill_name_en}" text="Skill name"></span>:
+			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Skill name" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 3 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="skill_name" onblur="addCheck(this, 3, 100)"/></p>
 			<p th:text="#{editor.skill.description}"></p>
-			<span th:text="#{editor.placeholder.description_ru}" text="About (RU)"></span>:
-			<p><textarea type="textarea" class="form-control" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_ru}"></textarea></p>
-			<span th:text="#{editor.placeholder.description_en}" text="About (EN)"></span>:
-			<p><textarea type="textarea" class="form-control" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_en}"></textarea></p>
-			<p th:text="#{editor.skill.maxlevel}"></p>
-			<p><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
-		<p th:text="#{editor.skill.type}" hidden="true"></p>
-		<select id="childType" th:field="*{type}" hidden="true">
-				<option th:value="class" th:text="#{skill.types.class}" selected="true">
-					class</option>
-				<option th:value="skill" th:text="#{skill.types.skill}">
-					experience</option>
-				<option th:value="knowledge" th:text="#{skill.types.knowledge}">
-					knowledge</option>
-				<option th:value="communicative" th:text="#{skill.types.communicative}">
-					communicative</option>
-		</select>
+			<span th:text="#{editor.placeholder.description_en}" text="About"></span>:
+			<p><textarea type="textarea" class="form-control" th:field="*{about}" placeholder="About" th:placeholder="#{editor.placeholder.description_en}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_en}"></textarea></p>
+			<p hidden="true" th:text="#{editor.skill.maxlevel}"></p>
+			<p hidden="true"><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
 		<script type="text/javascript">//<!--
 		$(createChildButton).on("click", function() {
 			document.getElementById('skillFormTitle').innerHTML=
@@ -103,13 +59,13 @@
 			</select>
 		</p>
 			<p><input type="submit" id="skillSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
-			<p th:text="#{skillPopup.editor.level}"></p>
-			<table class="table table-striped">
+			<p th:text="#{skillPopup.editor.level}" hidden="true"></p>
+			<table class="table table-striped" hidden="true">
 				<tbody id="levelsPost">
 				</tbody>
 			</table>
-			<p><input type="submit" class="btn btn-primary btn-block" value="+" onclick="$(levelsNum).val(parseInt($(levelsNum).val())+1); $(levelsNum).trigger('input'); return false"/></p>
-  			<p><input type="submit" id="skillSubmitButton2" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+			<p hidden="true"><input type="submit" class="btn btn-primary btn-block" value="+" onclick="$(levelsNum).val(parseInt($(levelsNum).val())+1); $(levelsNum).trigger('input'); return false"/></p>
+  			<p hidden="true"><input type="submit" id="skillSubmitButton2" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
 		</form>
   		</div>
   	</div>

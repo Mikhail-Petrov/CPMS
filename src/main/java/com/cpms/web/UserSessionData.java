@@ -39,6 +39,12 @@ public class UserSessionData {
 	}
 	
 	
+	public static String localizeText(String text) {
+		Locale locale = LocaleContextHolder.getLocale();
+		return text;
+	}
+	
+	
 	public static String localizeText(String text_ru, String text_en) {
 		Locale locale = LocaleContextHolder.getLocale();
 		if (locale.getLanguage().equals("ru"))

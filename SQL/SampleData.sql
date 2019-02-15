@@ -25,10 +25,10 @@ INSERT INTO `competency` (`ID`, `LEVEL`, `owner`, `SKILL`) VALUES
 
 -- Dumping data for table competencyjpa.profile: ~3 rows (approximately)
 /*!40000 ALTER TABLE `profile` DISABLE KEYS */;
-INSERT INTO `profile` (`DTYPE`, `ID`, `about`, `about_RU`, `company`, `company_RU`, `email`, `familyname`, `familyname_RU`, `name`, `name_RU`, `address`, `address_RU`, `title`, `title_RU`, `website`) VALUES
-	('Company', 1, 'A company created for demonstation. Carries out Java web development with Spring Framework, but has other skills.', 'Компания, созданная для демонстрации возможностей системы. Занимается разработкой веб приложений с использованием Spring Framework, но также владеет и другими умениями.', NULL, NULL, 'dc1@example.com', NULL, NULL, NULL, NULL, 'Saint - Petersburg, Birzhevaya Liniya 14', 'Санкт - Петербург, Биржевая линия, дом 14', 'Demo Company #1', NULL, 'www.dc1.example.com'),
-	('Company', 2, 'A company created for demonstation. Carries out C# web development.', 'Компания, созданная для демонстрации возможностей системы. Занимается разработкой с использованием C#.', NULL, NULL, 'dc2@example.com', NULL, NULL, NULL, NULL, 'Saint - Petersburg, Birzhevaya Liniya 14', 'Санкт - Петербург, Биржевая линия, дом 14', 'Demo Company #2', NULL, 'dc2.example.com'),
-	('Company', 3, 'A company created for demonstation. Carries out some machine learning.', 'Компания, созданная для демонстрации возможностей системы. Занимается машинным обучением.', NULL, NULL, 'dc3@example.com', NULL, NULL, NULL, NULL, 'Saint - Petersburg, Birzhevaya Liniya 14', 'Санкт - Петербург, Биржевая линия, дом 14', 'Demo Company #3', NULL, 'dc3.example.com');
+INSERT INTO `profile` (`DTYPE`, `ID`, `about`, `company`, `email`, `familyname`, `name`, `address`, `title`, `website`) VALUES
+	('Company', 1, 'A company created for demonstation. Carries out Java web development with Spring Framework, but has other skills.', NULL, 'dc1@example.com', NULL, NULL, 'Saint - Petersburg, Birzhevaya Liniya 14','Demo Company #1', 'www.dc1.example.com'),
+	('Company', 2, 'A company created for demonstation. Carries out C# web development.', NULL, 'dc2@example.com', NULL, NULL, 'Saint - Petersburg, Birzhevaya Liniya 14', 'Demo Company #2', 'dc2.example.com'),
+	('Company', 3, 'A company created for demonstation. Carries out some machine learning.', NULL,'dc3@example.com', NULL, NULL, 'Saint - Petersburg, Birzhevaya Liniya 14', 'Demo Company #3', 'dc3.example.com');
 /*!40000 ALTER TABLE `profile` ENABLE KEYS */;
 
 -- Dumping data for table competencyjpa.requirement: ~2 rows (approximately)
@@ -48,61 +48,61 @@ INSERT INTO `role` (`ID`, `ROLENAME`, `OWNER`) VALUES
 
 -- Dumping data for table competencyjpa.skill: ~14 rows (approximately)
 /*!40000 ALTER TABLE `skill` DISABLE KEYS */;
-INSERT INTO `skill` (`ID`, `ABOUT`, `ABOUT_RU`, `draft`, `MAXLEVEL`, `NAME`, `NAME_RU`, `owner`, `PARENT`) VALUES
-	(1, 'Developing software of any type or complexity', 'Разработка ПО любого типа или сложности', b'0', 3, 'Software Development', 'Разработка ПО', NULL, NULL),
-	(2, 'Developing web applications of any type and any complexity', 'Разработка веб-приложений любого типа и сложности', b'0', 3, 'Web Development', 'Разработка Web - Приложений', NULL, 1),
-	(3, 'Developing web - based applications and systems using C# language', 'Разработка web систем и приложений с использованием языка программирования C#', b'0', 3, 'C# Web  Development', 'Веб разработка с использованием C#', NULL, 2),
-	(4, 'Developing web based systems and applications using Java programming language', 'Разработка web приложений и систем с использованием языка программирования Java', b'0', 3, 'Java Web Development', 'Разработка web приложений с использованием Java', NULL, 2),
-	(5, 'Developing web based applications and systems using Spring Technology stack ', 'Разработка web приложений и систем с импользованием стека технологий Spring', b'0', 3, 'Java with Spring Framework web development', 'Разработка web приложений с использованием Spring Framework', NULL, 4),
-	(7, '', '', b'0', 3, 'Machine Learning', 'Машинное обучение', NULL, NULL),
-	(9, '', '', b'0', 1, 'Scala web development', 'Веб разработка с использованием Scala', NULL, 4),
-	(10, '', '', b'1', 1, 'Scala web development with Play Flamework', 'Разработка web приложения с использованием Scala и Play Framework', 1, 9),
-	(11, '', '', b'1', 1, 'Testing', 'Тестирование', 1, 1),
-	(12, '', '', b'1', 1, 'Test Driven Development', 'Разработка через тестирование', 1, 11),
-	(15, 'Developing for mobile devices using any technology or stack', 'Разработка для мобильных устройств с использованием любого языка программирования или стека', b'0', 1, 'Mobile Development', 'Мобильная разработка', NULL, 1),
-	(16, 'Developing applications for Android API', 'Разработка приложений под Android API', b'1', 3, 'Android Development', 'Разработка под Android', 2, 15),
-	(17, '', '', b'0', 3, 'Embedded Development', ' Разработка на встроенных устройствах', NULL, 1);
+INSERT INTO `skill` (`ID`, `ABOUT`, `draft`, `MAXLEVEL`, `NAME`, `owner`, `PARENT`) VALUES
+	(1, 'Developing software of any type or complexity', b'0', 3, 'Software Development', NULL, NULL),
+	(2, 'Developing web applications of any type and any complexity', b'0', 3, 'Web Development', NULL, 1),
+	(3, 'Developing web - based applications and systems using C# language', b'0', 3, 'C# Web  Development', NULL, 2),
+	(4, 'Developing web based systems and applications using Java programming language',  b'0', 3, 'Java Web Development', NULL, 2),
+	(5, 'Developing web based applications and systems using Spring Technology stack ', b'0', 3, 'Java with Spring Framework web development', NULL, 4),
+	(7, '', b'0', 3, 'Machine Learning', NULL, NULL),
+	(9, '', b'0', 1, 'Scala web development', NULL, 4),
+	(10, '', b'1', 1, 'Scala web development with Play Flamework', 1, 9),
+	(11, '', b'1', 1, 'Testing', 1, 1),
+	(12, '', b'1', 1, 'Test Driven Development', 1, 11),
+	(15, 'Developing for mobile devices using any technology or stack', b'0', 1, 'Mobile Development', NULL, 1),
+	(16, 'Developing applications for Android API', b'1', 3, 'Android Development', 2, 15),
+	(17, '', b'0', 3, 'Embedded Development', NULL, 1);
 /*!40000 ALTER TABLE `skill` ENABLE KEYS */;
 
 -- Dumping data for table competencyjpa.skilllevel: ~29 rows (approximately)
 /*!40000 ALTER TABLE `skilllevel` DISABLE KEYS */;
-INSERT INTO `skilllevel` (`ID`, `ABOUT`, `ABOUT_RU`, `LEVEL`, `SKILL`) VALUES
-	(1, '5 or more years of experiece', '5 или более лет опыта', 1, 1),
-	(2, '15 or more years of experiece', '15 или более лет опыта', 2, 1),
-	(3, '30 or more years of experiece', '30 или более лет опыта', 3, 1),
-	(4, '5 or more years of experience', '5 или более лет опыта', 1, 2),
-	(5, '10 or more years of experience', '10 или более лет опыта', 2, 2),
-	(6, '15 or more years of experience', '15 или более лет опыта', 3, 2),
-	(7, '1 carried out project', '1 выполненный проект', 1, 3),
-	(8, '2 carried out projects', '2 выполненных проекта', 2, 3),
-	(9, '3 or more carried out projects', '3 или более выполненных проекта', 3, 3),
-	(10, '1 carried out project', '1 выполненный проект', 1, 4),
-	(11, '2 carried out projects', '2 выполненных проекта', 2, 4),
-	(12, '3 or more carried out projects', '3 или более выполненных проекта', 3, 4),
-	(13, '1 carried out project', '1 выполненный проект', 1, 5),
-	(14, '2 carried out projects', '2 выполненных проекта', 2, 5),
-	(15, '3 or more carried out projects', '3 или более выполненных проекта', 3, 5),
-	(19, '5 or more years of experience', '5 или более лет опыта', 1, 7),
-	(20, '15 or more years of experience', '15 или более лет опыта', 2, 7),
-	(21, '30 or more years of experience', '30 или более лет опыта', 3, 7),
-	(23, '', '', 1, 9),
-	(24, '', '', 1, 10),
-	(25, '', '', 1, 11),
-	(26, '', '', 1, 12),
-	(29, '', '', 1, 15),
-	(30, '', '', 1, 16),
-	(31, '', '', 2, 16),
-	(32, '', '', 3, 16),
-	(33, '', '', 1, 17),
-	(34, '', '', 2, 17),
-	(35, '', '', 3, 17);
+INSERT INTO `skilllevel` (`ID`, `ABOUT`, `LEVEL`, `SKILL`) VALUES
+	(1, '5 or more years of experiece', 1, 1),
+	(2, '15 or more years of experiece', 2, 1),
+	(3, '30 or more years of experiece', 3, 1),
+	(4, '5 or more years of experience', 1, 2),
+	(5, '10 or more years of experience', 2, 2),
+	(6, '15 or more years of experience', 3, 2),
+	(7, '1 carried out project', 1, 3),
+	(8, '2 carried out projects', 2, 3),
+	(9, '3 or more carried out projects', 3, 3),
+	(10, '1 carried out project', 1, 4),
+	(11, '2 carried out projects', 2, 4),
+	(12, '3 or more carried out projects', 3, 4),
+	(13, '1 carried out project', 1, 5),
+	(14, '2 carried out projects', 2, 5),
+	(15, '3 or more carried out projects', 3, 5),
+	(19, '5 or more years of experience', 1, 7),
+	(20, '15 or more years of experience', 2, 7),
+	(21, '30 or more years of experience', 3, 7),
+	(23, '', 1, 9),
+	(24, '', 1, 10),
+	(25, '', 1, 11),
+	(26, '', 1, 12),
+	(29, '', 1, 15),
+	(30, '', 1, 16),
+	(31, '', 2, 16),
+	(32, '', 3, 16),
+	(33, '', 1, 17),
+	(34, '', 2, 17),
+	(35, '', 3, 17);
 /*!40000 ALTER TABLE `skilllevel` ENABLE KEYS */;
 
 -- Dumping data for table competencyjpa.task: ~2 rows (approximately)
 /*!40000 ALTER TABLE `task` DISABLE KEYS */;
-INSERT INTO `task` (`ID`, `ABOUT`, `ABOUT_RU`, `NAME`, `NAME_RU`) VALUES
-	(1, 'Developing a web application with any known technology', 'Разработка веб-приложения с использованием любого стека технологий', 'Developing a web site', 'Разработка Web - Сайта'),
-	(2, 'Using machine learning for creating classier', 'Использование машиноого обучения для обучения классификатора', 'Classifier learning', 'Обучением классификатора');
+INSERT INTO `task` (`ID`, `ABOUT`, `NAME`) VALUES
+	(1, 'Developing a web application with any known technology', 'Developing a web site'),
+	(2, 'Using machine learning for creating classier', 'Classifier learning');
 /*!40000 ALTER TABLE `task` ENABLE KEYS */;
 
 -- Dumping data for table competencyjpa.user: ~2 rows (approximately)

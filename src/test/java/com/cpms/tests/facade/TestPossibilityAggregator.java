@@ -13,7 +13,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.cpms.config.testing.TestingConfig;
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
@@ -56,7 +55,7 @@ public class TestPossibilityAggregator {
 		t3.addRequirement(new TaskRequirement(s1, 3));
 		t3.addRequirement(new TaskRequirement(s2, 3));
 		t3.addRequirement(new TaskRequirement(s3, 3));
-		Profile p1 = new Company();
+		Profile p1 = new Profile();
 		p1.addCompetency(new Competency(s2, 3));
 		p1.addCompetency(new Competency(s1, 3));
 		p1.addCompetency(new Competency(s3, 2));

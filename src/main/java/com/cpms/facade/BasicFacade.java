@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.Assert;
 
 import com.cpms.dao.interfaces.*;
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
@@ -39,6 +40,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Autowired
 	@Qualifier(value = "motivationDAO")
 	private IDAO<Motivation> motivationDAO;
+	
+	@Autowired
+	@Qualifier(value = "languageDAO")
+	private IDAO<Language> languageDAO;
 	
 	@Autowired
 	@Qualifier(value = "subprofiler")
@@ -118,6 +123,11 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Override
 	public IDAO<Motivation> getMotivationDAO() {
 		return motivationDAO;
+	}
+
+	@Override
+	public IDAO<Language> getLanguageDAO() {
+		return languageDAO;
 	}
 
 	@Override

@@ -45,9 +45,7 @@
 			</script>
 	<script th:inline="javascript">
 			/*<![CDATA[*/
-				
-			var placeholderAboutRu = /*[[#{editor.placeholder.description_ru}]]*/ 'About (RU)';
-			var placeholderAboutEn = /*[[#{editor.placeholder.description_en}]]*/ 'About (EN)';
+			var placeholderAboutEn = /*[[#{editor.placeholder.description_en}]]*/ 'About';
 			var titleAboutRu = /*[[#{editor.title.description_ru}]]*/ 'Must not be longer than 1000 symbols';
 			var titleAboutEn = /*[[#{editor.title.description_en}]]*/ 'Must not be longer than 1000 symbols';
 			
@@ -69,25 +67,14 @@
 					res += totalLevels[i].about;
 					res += "</textarea></p>";
 					
-					res += "<p><textarea type=\"textarea\" "; 
-					res += "id=\"levels[" + i + "].about_RU\" ";
-					res += "class=\"form-control\"";
-					res += "name=\"levels[" + i + "].about_RU\" ";
-					res += "placeholder=\"" + placeholderAboutRu + "\" ";
-					res += "pattern=\".{0,1000}\" ";
-					res += "title=\"" + titleAboutRu + "\" >";
-					res += totalLevels[i].about_RU;
-					res += "</textarea></p>";
-					
 					res += "</td></tr>\n";
 				}
 				return res;
 			}
 			
 			class SkillLevel{
-				constructor(about, about_RU) {
+				constructor(about) {
 					this.about = about;
-					this.about_RU = about_RU;
 				}
 			}
 			
@@ -126,43 +113,28 @@
 						document.getElementById('skillName').innerHTML=res.name;
 						document.getElementById('skillAbout').innerHTML=res.about;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
-						document.getElementById('rememberLink').setAttribute('onclick', "my_ajaxDialog('" + rootPath + "dashboard/rememberSkill', '" + res.id + "'); return false;");
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
 						if (admin) {
-							//document.getElementById('editLink').setAttribute('href', './editor/skill?id=' + res.id);
 							document.getElementById('editLink').setAttribute('onclick','ajaxSkillDialog(\'' + rootPath + 'viewer/ajaxSkill\', -' + res.id + '); return false;');
-							//document.getElementById('parentId').setAttribute('value', res.id);
 							if (res.parentId == null)
 								$('#parentSelect option[value=""]').prop('selected', true);
 							else
 								$('#parentSelect option[value="' + res.parentId + '"]').prop('selected', true);
 							document.getElementById('deleteLink').setAttribute('href', './editor/skill/delete?id=' + res.id);
-							if (!resident && res.draft) {
-								document.getElementById('approveLink').setAttribute('href', './editor/skill/approve?id=' + res.id);
-								$('#approveLink').show();
-							} else {
-								$('#approveLink').hide();
-							}
 							if (isChange) {
 								// Copy values from changed skill
 								$("#skill_name").val(res.name_en);
-								$("#skill_name_ru").val(res.name_ru);
 								$("#about").val(res.about_en);
-								$("#about_RU").val(res.about_ru);
 								$("#levelsNum").val(res.maxLevel);
 								// Copy levels
 								var totalLevels = [""];
-						    	totalLevels[0] = new SkillLevel("","");
+						    	totalLevels[0] = new SkillLevel("");
 								for (var i = 0; i < res.levels.length; i++) {
-									//$("#levels[" + i + "].about").val(res.levels[i].about_en);
-									//$("#levels[" + i + "].about_RU").val(res.levels[i].about_ru);
-
 						    		totalLevels[i].about = res.levels[i].about_en;
-						    		totalLevels[i].about_RU = res.levels[i].about_ru;
-							    	totalLevels.push(new SkillLevel("",""));
+							    	totalLevels.push(new SkillLevel(""));
 								}
 							    while (res.levels.length > totalLevels.length) {
-							    	totalLevels.push(new SkillLevel("",""));
+							    	totalLevels.push(new SkillLevel(""));
 							    }
 							    while (res.levels.length < totalLevels.length) {
 							    	totalLevels.pop();
@@ -173,15 +145,13 @@
 							else {
 								// Clear all values
 								$("#skill_name").val("");
-								$("#skill_name_ru").val("");
 								$("#about").val("");
-								$("#about_RU").val("");
-								$("#levelsNum").val(4);
+								$("#levelsNum").val(3);
 								var totalLevels = [""];
-								var defLevels = /*[[${defaultLevels}]]*/ [["", ""]];
-						    	totalLevels[0] = new SkillLevel(defLevels[0][0], defLevels[0][1]);
+								var defLevels = /*[[${defaultLevels}]]*/ [""];
+						    	totalLevels[0] = new SkillLevel(defLevels[0]);
 						    	for (var i = 1; i < defLevels.length; i++)
-							    	totalLevels.push(new SkillLevel(defLevels[i][0], defLevels[i][1]));
+							    	totalLevels.push(new SkillLevel(defLevels[i]));
 							    // Forget skill id
 							    $("#selfId").val(0);
 							}
@@ -241,12 +211,12 @@
 			/*<![CDATA[*/
 			           
 			var totalLevels = [""];
-			totalLevels[0] = new SkillLevel("","");
+			totalLevels[0] = new SkillLevel("");
 			
 			$( "#levelsNum" ).on("input", function() {
 			    var levels = $(this).val()
 			    while (levels > totalLevels.length) {
-			    	totalLevels.push(new SkillLevel("",""));
+			    	totalLevels.push(new SkillLevel(""));
 			    }
 			    while (levels < totalLevels.length) {
 			    	totalLevels.pop();
@@ -254,9 +224,8 @@
 			    for (i = 0; i < totalLevels.length; i++) {
 			    	if (document.getElementById('levels[' + i + '].about') != null) {
 			    		totalLevels[i].about = document.getElementById('levels[' + i + '].about').value;
-			    		totalLevels[i].about_RU = document.getElementById('levels[' + i + '].about_RU').value;
 			    	} else {
-			    		totalLevels[i] = new SkillLevel("","");
+			    		totalLevels[i] = new SkillLevel("");
 			    	}
 			    }
 			    document.getElementById("levelsPost").innerHTML=generateLevelFormTable(totalLevels);

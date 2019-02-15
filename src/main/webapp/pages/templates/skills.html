@@ -9,97 +9,40 @@
     </style>
 
     <style>
-        /* 믭󦪭殠𐱮򳬠򯥥񧩲 ������.
-        ԧ橠򡪠ⴤ氠ﳢ渠󺡧ힺ���㯩 ﳱ󴭠*/
         .Container {
             padding: 0;
             margin: 0;
         }
 
         .Container li {
-            list-style-type: none; /* ������󺡪񴧮���󯸥���*/
+            list-style-type: none;
         }
-
-        /* ������ ﳮ壨 ﰠ즢易򳦭릠믭󦪭池 18px
-        ⬠䯤᱿ 󩪠ﳱ󴰠ꡢ쯦殭㡳謻 ������鱳𡩥񡱵鼪/
-        .Node {
-            margin-left: 18px;
-            zoom: 1; /* 򰦶򣯩򳣮 𐱮󩠠⡣IE6,7. Ҳᣨ🧡sLayout */
         }
-
-        /* ˮ񮦢易������ ﰠ񯥨󦬼򫯣졪﮲檭池 ﳮ壨.
-           Ƭ񡧥 졤歮񩱮㡲 ﳱ󴰮ꪠ���﫠򼫮
-           ޲졯񡣨쬠饥𡰮򬣠.Node, 𐯽󯭳 魥氠⯫棠㼱﫨硯񩯰鳥螠         Ӡ衷󬟣lass="Node IsRoot" 塥🬡rgin-left:0
-        */
         .IsRoot {
             margin-left: 0;
         }
-
-        /* 髮 򫱻󯤮/񡲪񼳮䬠𐯤妰棠 鬨 쩱󞈠          򡭨 髮 饳𡥠콸㪠襥򺡮⺨㡱㯩򳣠*/
         .Expand {
             width: 18px;
             height: 18px;
-            /* 𐱨㴵믫ﮮ��� 㦰򳫨. */
-            /* float:left 柷idth 婢ힹ���xpand + margin-left 婢ힹ���ontent */
             float: left;
         }
-
-        /* 򯥥񧡭飠(衣אַ㯪) ������ */
         .Content {
-            /* ��� 樠󺡭ힹ���xpand */
             margin-left:18px;
-            /* 㼱ﳠ 衣אַ㫠 - 롪 魳ꡰᣭힹ���xpand
-                Ю㡯񡣠 믫ﮪힺ���򦤤ힺ���㡨즠񡣭ힺ���森笊                ɭḥ  float ⴤ氠𐼲᳼򽡰ᨬ沲鳼򽡭ힺ���דּ���檱 򳴯殼룊            */
             min-height: 18px;
         }
-
-        /* 㲥 𐱠㩫ힺ���ﲫ㞪 html 㼯שּׂ氠󯬼묠IE6 */
         * html .Content {
-            height: 18px; /* ᮠ쯣 min-height 嬿 IE6 */
+            height: 18px;
         }
-        /* ﳪ񼳮㡯磻汥㬠*/
         .ExpandOpen .Expand {
             background-image: url(/resources/images/minus.gif);
         }
-
-        /* 衪񼳮㡯磻汥㬠*/
         .ExpandClosed .Expand {
             background-image: url(/resources/images/plus.gif);
         }
-
-        /* 쩱𞨯
-        .ExpandLeaf .Expand {
-            background-image: url(/resources/images/leaf.gif);
-        }
-
-        .Node {
-            margin-left: 18px;
-            zoom: 1;
-            /* 쩭齠򬦢ힺ���Ⱡ败󲽠𐯢󯱿魱 ������㼬 񩲳Ɦ/
-            background-image : url(/resources/images/i.gif);
-            background-position : top left;
-            background-repeat : repeat-y;
-        }
-
-        /* 󬡯񡣨쬠- 㞮Node, 𐯽󯭳 魥氠⯫駠𐱨ﱨ󦰠*/
-        .IsLast {
-            /* 寡ᣨ󺡱捻鮨󦬼 ���︪񡮠㦰󞨯
-            background-image: url(/resources/images/i_half.gif);
-            background-repeat : no-repeat;
-        }
-        .ExpandOpen .Container {
-            display: block;
-        }
-
-        .ExpandClosed .Container {
-            display: none;
-        }
-        .ExpandOpen .Expand, .ExpandClosed .Expand {
-            cursor: pointer; /* 髮 򫱻󩽭񡲪񼳨 */
-        }
+        .IsLast {}
 
         .ExpandLeaf .Expand {
-            cursor: auto; /* 쩱󯣮硳覫 */
+            cursor: auto;
         }
         .ExpandLoading   {
             width: 18px;
@@ -169,15 +112,15 @@
 							$("img[src$='minusbottom.gif']:visible,img[src$='minus.gif']:visible").click();
 					}
 					</script>
-                <div class="col-md-3 col-lg-3 col-sm-4 col-xs-6">
+                <div class="two-buttons">
 					<span class="btn btn-primary btn-block" th:text="#{skill.expand}" onclick='expandTree(true);'></span>
-                </div><div class="col-md-3 col-lg-3 col-sm-4 col-xs-6">
+                </div><div class="two-buttons">
 					<span class="btn btn-primary btn-block" th:text="#{skill.collapse}" onclick='expandTree(false);'></span>
 				</div>
                     <div class="col-md-12">
                         <div class="x_panel">
                             <div class="x_title row">
-                                <h3 style="float: left;" th:text="#{navbar.search.skills}"></h3>
+                                <h3 style="float: left;" th:text="#{navbar.skills}"></h3>
                                 <div th:if="${isAdmin or isResident}" style="float: right; margin-top: 5px;">
                                        <button type="button" class="btn btn-success pull-left" data-toggle="modal"
                                                onclick="ajaxSkillDialog(rootPath + 'viewer/ajaxSkill', '0')"><i class="fa fa-plus"></i></button>

@@ -78,13 +78,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       		.and()
       .authorizeRequests()
           	.antMatchers("/").permitAll()
-//          	.antMatchers("/viewer","/viewer/**")
-  //        		.permitAll()
-//             .antMatchers("/editor/skill", "/editor/skill/alternative",
-  //            			"/editor/skill/delete", "/editor/skill/delete/force",
-    //          			"/editor/profile",
-      //        			"/editor/*/skillLevel", "/editor/skill/alternativeAsync")
-        //      	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
+          	.antMatchers("/viewer","/viewer/**")
+          	//.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
+          		.permitAll()
+             .antMatchers("/editor/skill", "/editor/skill/alternative",
+              			"/editor/skill/delete", "/editor/skill/delete/force",
+              			"/editor/profile",
+              			"/editor/*/skillLevel", "/editor/skill/alternativeAsync")
+              	//.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
+            	.permitAll()
           	.antMatchers("/editor","/editor/**")
           		.hasRole(RoleTypes.MANAGER.toString())
             .antMatchers("/motivations","/motivation/**")

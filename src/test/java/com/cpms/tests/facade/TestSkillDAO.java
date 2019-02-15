@@ -45,17 +45,14 @@ public class TestSkillDAO {
 		
 		Skill skill1 = new Skill("Skill#1", null);
 		skill1.setMaxLevel(1);
-		skill1.setName_RU("Умение1");
 		skill1 = skillDAO.insert(skill1);
 		Skill skill2 = new Skill("Skill#2", null);
 		skill2.setMaxLevel(1);
 		skill2.setParent(skill1);
-		skill2.setName_RU("Умение2");
 		skill2 = skillDAO.insert(skill2);
 		Skill skill3 = new Skill("Skill#3", null);
 		skill3.setMaxLevel(1);
 		skill3.setParent(skill1);
-		skill3.setName_RU("Умение3");
 		skill3.setAbout("Description");
 		skill3 = skillDAO.insert(skill3);
 		
@@ -84,7 +81,6 @@ public class TestSkillDAO {
 		clear();
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(1);
 		skillDAO.insert(skill1);
 		
@@ -101,7 +97,6 @@ public class TestSkillDAO {
 		clear();
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(1);
 		skillDAO.insert(skill1);
 		
@@ -118,16 +113,13 @@ public class TestSkillDAO {
 		clear();
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(1);
 		final Skill skill1c = skillDAO.insert(skill1);
 		Skill skill2 = new Skill("Skill#2", null);
-		skill2.setName_RU("Умение2");
 		skill2.setMaxLevel(1);
 		skill2.setParent(skill1);
 		final Skill skill2c = skillDAO.insert(skill2);
 		Skill skill3 = new Skill("Skill#3", null);
-		skill3.setName_RU("Умение3");
 		skill3.setMaxLevel(1);
 		skill3.setParent(skill2c);
 		skill3.setAbout("Description");
@@ -150,10 +142,8 @@ public class TestSkillDAO {
 		clear();
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(1);
 		Skill skill2 = new Skill("Skill#2", null);
-		skill2.setName_RU("Умение2");
 		skill2.setMaxLevel(1);
 		skill2.setParent(skill1);
 		
@@ -171,19 +161,15 @@ public class TestSkillDAO {
 		
 		Skill skill1 = new Skill("Skill#1", null);
 		skill1.setMaxLevel(3);
-		skill1.setName_RU("Умение1");
 		SkillLevel sl1 = new SkillLevel("1_description");
 		sl1.setLevel(1);
-		sl1.setAbout_RU("1_описание");
 		skill1.addLevel(sl1);
 		SkillLevel sl2 = new SkillLevel("2_description");
 		sl2.setLevel(2);
 		skill1.addLevel(sl2);
-		sl2.setAbout_RU("2_описание");
 		SkillLevel sl3 = new SkillLevel("3_description");
 		sl3.setLevel(3);
 		skill1.addLevel(sl3);
-		sl3.setAbout_RU("3_описание");
 		
 		skillDAO.insert(skill1);
 		
@@ -208,14 +194,11 @@ public class TestSkillDAO {
 		clear();
 		
 		Skill s1 = new Skill("Skill#1", null);
-		s1.setName_RU("Умение1");
 		s1.setMaxLevel(3);
 		SkillLevel sl1 = new SkillLevel("1_description");
-		sl1.setAbout_RU("1_описание");
 		sl1.setLevel(1);
 		s1.addLevel(sl1);
 		SkillLevel sl2 = new SkillLevel("2_description");
-		sl2.setAbout_RU("2_описание");
 		sl2.setLevel(3);
 		s1.addLevel(sl2);
 		
@@ -249,7 +232,6 @@ public class TestSkillDAO {
 		clear();
 		
 		Skill s1 = new Skill("Skill#1", null);
-		s1.setName_RU("Умение1");
 		s1.setMaxLevel(3);
 		SkillLevel sl1 = new SkillLevel("1_description");
 		sl1.setLevel(1);
@@ -268,18 +250,14 @@ public class TestSkillDAO {
 		clear();
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(3);
 		SkillLevel sl1 = new SkillLevel("1_description");
-		sl1.setAbout_RU("1_описание");
 		sl1.setLevel(1);
 		skill1.addLevel(sl1);
 		SkillLevel sl2 = new SkillLevel("2_description");
-		sl2.setAbout_RU("2_описание");
 		sl2.setLevel(2);
 		skill1.addLevel(sl2);
 		SkillLevel sl3 = new SkillLevel("3_description");
-		sl3.setAbout_RU("3_описание");
 		sl3.setLevel(3);
 		skill1.addLevel(sl3);
 		
@@ -312,7 +290,6 @@ public class TestSkillDAO {
 		exception.expect(DataAccessException.class);
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(3);
 		SkillLevel sl1 = new SkillLevel("1_description");
 		sl1.setLevel(1);
@@ -337,7 +314,6 @@ public class TestSkillDAO {
 		exception.expect(DataAccessException.class);
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(3);
 		SkillLevel sl1 = new SkillLevel("1_description");
 		sl1.setLevel(1);
@@ -360,14 +336,11 @@ public class TestSkillDAO {
 		exception.expect(DataAccessException.class);
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(3);
 		SkillLevel sl1 = new SkillLevel("1_description");
-		sl1.setAbout_RU("1_описание");
 		sl1.setLevel(1);
 		skill1.addLevel(sl1);
 		SkillLevel sl2 = new SkillLevel("2_description");
-		sl2.setAbout_RU("2_описание");
 		sl2.setLevel(2);
 		skill1.addLevel(sl2);
 		
@@ -388,14 +361,11 @@ public class TestSkillDAO {
 		exception.expect(DataAccessException.class);
 		
 		Skill skill1 = new Skill("Skill#1", null);
-		skill1.setName_RU("Умение1");
 		skill1.setMaxLevel(3);
 		SkillLevel sl1 = new SkillLevel("1_description");
-		sl1.setAbout_RU("1_описание");
 		sl1.setLevel(1);
 		skill1.addLevel(sl1);
 		SkillLevel sl2 = new SkillLevel("2_description");
-		sl2.setAbout_RU("2_описание");
 		sl2.setLevel(2);
 		skill1.addLevel(sl2);
 		

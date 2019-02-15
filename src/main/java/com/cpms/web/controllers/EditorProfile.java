@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cpms.data.entities.Company;
 import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
@@ -47,7 +46,7 @@ public class EditorProfile {
 		Profile profile;
 		boolean create;
 		if (id == null) {
-			profile = new Company();
+			profile = new Profile();
 			create = true;
 		} else {
 			profile = facade.getProfileDAO().getOne(id);
@@ -56,7 +55,7 @@ public class EditorProfile {
 			}
 			create = false;
 		}
-		model.addAttribute("company", profile.clone());
+		model.addAttribute("profile", profile.clone());
 		model.addAttribute("create", create);
 		return "editProfile";
 	}
@@ -64,12 +63,12 @@ public class EditorProfile {
 	@RequestMapping(path = {"/profile"}, 
 			method = RequestMethod.POST)
 	public String profileCreate(Model model,
-			@ModelAttribute("company") @Valid Company company,
+			@ModelAttribute("company") @Valid Profile expert,
 			BindingResult bindingResult) {
-		if (company == null) {
+		if (expert == null) {
 			throw new SessionExpiredException(null);
 		}
-		boolean create = (company.getId() == 0);
+		boolean create = (expert.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("create", create);
 			model.addAttribute("_VIEW_TITLE", "title.edit.profile");
@@ -77,12 +76,13 @@ public class EditorProfile {
 		}
 		Profile profile;
 		if (create) {
-			profile = new Company();
-			profile.update(company);
+			profile = new Profile();
+			profile.update(expert);
 			profile = facade.getProfileDAO().insert(profile);
 		} else {
-			profile = facade.getProfileDAO().getOne(company.getId());
-			profile.update(company);
+			profile = facade.getProfileDAO().getOne(expert.getId());
+			profile.update(expert);
+			profile.setId(expert.getId());
 			profile = facade.getProfileDAO().update(profile);
 		}
 		return "redirect:/viewer/profile?id=" + profile.getId();
@@ -91,23 +91,24 @@ public class EditorProfile {
 	@RequestMapping(path = {"/profileAsync"}, 
 			method = RequestMethod.POST)
 	public String profileCreateAsync(Model model,
-			@ModelAttribute("company") @Valid Company company,
+			@ModelAttribute("company") @Valid Profile expert,
 			BindingResult bindingResult) {
-		if (company == null) {
+		if (expert == null) {
 			throw new SessionExpiredException(null);
 		}
-		boolean create = (company.getId() == 0);
+		boolean create = (expert.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			return ("fragments/editProfileModal :: profileModalForm");
 		}
 		Profile profile;
 		if (create) {
-			profile = new Company();
-			profile.update(company);
+			profile = new Profile();
+			profile.update(expert);
+			profile.addProofsFromText(facade.getLanguageDAO().getAll(), expert.getAbout());
 			profile = facade.getProfileDAO().insert(profile);
 		} else {
-			profile = facade.getProfileDAO().getOne(company.getId());
-			profile.update(company);
+			profile = facade.getProfileDAO().getOne(expert.getId());
+			profile.update(expert);
 			profile = facade.getProfileDAO().update(profile);
 		}
 		return "fragments/editProfileModal :: profileCreationSuccess";

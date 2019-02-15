@@ -1,5 +1,5 @@
 			<div th:fragment="profileModalForm" th:remove="tag">
-                <form id="profileCreate" action="#" th:action="@{/editor/profileAsync}" th:object="${company}" method="post">
+                <form id="profileCreate" action="#" th:action="@{/editor/profileAsync}" th:object="${profile}" method="post">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -9,61 +9,97 @@
                                 <h4 class="modal-title" id="createProfileModalLabel" th:text="#{editor.create} + ' ' + #{editor.company}"></h4>
                             </div>
                             <div class="modal-body">
-                            	<div class="row" th:if="${#fields.hasErrors('*')}">
-                            		<ul th:if="${#fields.hasErrors('*')}">
-                            			<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
-                            		</ul>
-                            	</div>
                             	<input type="hidden" th:field="*{id}" />
-   			<p th:text="#{editor.company.title}"></p>
+   			<p th:text="#{editor.expert.name}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Name" th:field="*{name}" th:placeholder="#{editor.placeholder.name}" onblur="addCheck(this, 3, 100)"/>
+                                    </div>
+                                </div>
+   			<p th:text="#{editor.expert.position}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Name" th:field="*{position}" th:placeholder="#{editor.placeholder.position}"/>
+                                    </div>
+                                </div>
+                                <hr class="separator"/>
+   			<p th:text="#{editor.proof.title}"></p>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" placeholder="Название компании (En)" th:field="*{title}" th:placeholder="#{editor.placeholder.title_en}" onblur="addCheck(this, 3, 100)"/>
+									<p><select id="langFromSelector" size="5">
+  										<option th:each="lang : ${languages}" 
+          									th:value="${lang.id}" 
+          									th:text="${lang.code}">EN</option>
+									</select></p>
                                     </div>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" placeholder="Название компании (Ru)" th:field="*{title_RU}" th:placeholder="#{editor.placeholder.title_ru}" onblur="addCheck(this, 3, 100)"/>
-                                    </div>
-                                </div>
-                                <hr class="separator"/>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="Адрес веб-сайта" th:field="*{website}" th:placeholder="#{editor.placeholder.website}"/>
-                                    </div>
-                                </div>
-                                <hr class="separator"/>
-                                <div class="row" style="margin-bottom: 15px;">
-                                    <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="Адрес (En)" th:field="*{address}" th:placeholder="#{editor.placeholder.address_en}"/>
+									<p><select id="langToSelector" size="5">
+  										<option th:each="lang : ${languages}" 
+          									th:value="${lang.id}" 
+          									th:text="${lang.code}">EN</option>
+									</select></p>
                                     </div>
                                 </div>
                                 <div class="row">
+                                   	<span class="btn btn-warning btn-block" th:text="#{editor.add}" onclick="addProof();">Add</span>
+                                </div>
+                                <div class="row">
+                                   <div class="col-md-12">
+                                	<span class="warning" id="results"></span>
+                                	<table class="table table-responsive table-striped" id="resTable">
+                                	
+                                	</table>
+                            		<input type="hidden" th:field="*{about}" id="resText"/>
+                                </div>
+                                </div>
+								<script th:inline="javascript">
+								/*<![CDATA[*/
+								function addProof(){
+									err = "";
+									langFrom = $("#langFromSelector option:selected").text();
+									langTo = $("#langToSelector option:selected").text();
+									if (langFrom == "" || langTo == "") return;
+									buttonCode = /*[[#{editor.remove}]]*/ "";
+									buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
+									if (langFrom == langTo)
+										err = "same langs";
+									if (err == "") {
+										$(resTable).append("<tr><td>" + langFrom + ' -- ' + langTo + "</td><td>" + buttonCode + "</td></tr>");
+										$(results).html("");
+									} else
+										$(results).html(err);
+								}
+								/*]]>*/
+								</script>
+                                <hr class="separator"/>
+   			<p th:text="#{editor.prooflevel}"></p>
+                                <div class="row">
                                     <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="Адрес (Ru)" th:field="*{address_RU}" th:placeholder="#{editor.placeholder.address_ru}"/>
+                                    <select th:field="*{prooflevel}" size="4">
+  										<option value=""></option>
+  										<option th:text="#{profile.prooflevel.beginner}" th:value="#{profile.prooflevel.beginner}">Beginner</option>
+  										<option th:text="#{profile.prooflevel.average}" th:value="#{profile.prooflevel.average}">Average</option>
+  										<option th:text="#{profile.prooflevel.professional}" th:value="#{profile.prooflevel.professional}">Professional</option>
+									</select>
+                                    </div>
+                                </div>
+   			<p th:text="#{editor.level}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                    <select th:field="*{level}" size="3">
+  										<option th:text="#{profile.level.low}" th:value="#{profile.level.low}">Low</option>
+  										<option th:text="#{profile.level.average}" th:value="#{profile.level.average}">Average</option>
+  										<option th:text="#{profile.level.high}" th:value="#{profile.level.high}">High</option>
+									</select>
+                                    </div>
+                                </div>
+   			<p th:text="#{editor.availability}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Availability" th:field="*{availability}" th:placeholder="#{editor.placeholder.availability}"/>
                                     </div>
                                 </div>
                                 <hr class="separator"/>
-                                <div class="row" style="margin-bottom: 15px;">
-                                    <div class="col-md-12">
-                                        <textarea class="form-control" type="textarea" placeholder="Описание (En)" th:field="*{about}" th:placeholder="#{editor.placeholder.description_en}"></textarea>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <textarea class="form-control" type="textarea" placeholder="Описание (Ru)" th:field="*{about_RU}" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
-                                    </div>
-                                </div>
-                                <hr class="separator"/>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="e-mail" th:field="*{email}"/>
-                                    </div>
-                                </div>
-                                <hr class="separator"/>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <span th:text="#{editor.company.price}"></span> <input type="number" class="form-control" id="price" placeholder="Стоимость" th:field="*{price}" th:placeholder="#{editor.placeholder.price}" onblur="if ($(price).val()=='') $(price).val(0);"/>
-                                    </div>
-                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" onclick="javascript:submitProfileForm();return false;" th:text="#{editor.create}"></button>
