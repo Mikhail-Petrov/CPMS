@@ -85,13 +85,13 @@
 				
 				admin = admin || resident;
 				
-				var isChange = false;
+				var isChild = false;
 				
 				var inputArgs = [];
 				var i;
 				for (i = 1; i < arguments.length; i++) {
 					if (arguments[i] < 0) {
-						isChange = true;
+						isChild = true;
 						arguments[i] = -arguments[i];
 					}
 					inputArgs.push(arguments[i]);
@@ -114,70 +114,81 @@
 						document.getElementById('skillAbout').innerHTML=res.about;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, admin, res.id);
-						if (admin) {
-							document.getElementById('editLink').setAttribute('onclick','ajaxSkillDialog(\'' + rootPath + 'viewer/ajaxSkill\', -' + res.id + '); return false;');
-							if (res.parentId == null)
-								$('#parentSelect option[value=""]').prop('selected', true);
-							else
-								$('#parentSelect option[value="' + res.parentId + '"]').prop('selected', true);
+						//document.getElementById('editLink').setAttribute('onclick','ajaxSkillDialog(\'' + rootPath + 'viewer/ajaxSkill\', -' + res.id + '); return false;');
+						if (res.id > 0) {
 							document.getElementById('deleteLink').setAttribute('href', './editor/skill/delete?id=' + res.id);
-							if (isChange) {
-								// Copy values from changed skill
-								$("#skill_name").val(res.name_en);
-								$("#about").val(res.about_en);
-								$("#levelsNum").val(res.maxLevel);
-								// Copy levels
-								var totalLevels = [""];
-						    	totalLevels[0] = new SkillLevel("");
-								for (var i = 0; i < res.levels.length; i++) {
-						    		totalLevels[i].about = res.levels[i].about_en;
-							    	totalLevels.push(new SkillLevel(""));
-								}
-							    while (res.levels.length > totalLevels.length) {
-							    	totalLevels.push(new SkillLevel(""));
-							    }
-							    while (res.levels.length < totalLevels.length) {
-							    	totalLevels.pop();
-							    }
-							    // Remember id of the changed skill
-							    $("#selfId").val(res.id);
-							}
-							else {
-								// Clear all values
-								$("#skill_name").val("");
-								$("#about").val("");
-								$("#levelsNum").val(3);
-								var totalLevels = [""];
-								var defLevels = /*[[${defaultLevels}]]*/ [""];
-						    	totalLevels[0] = new SkillLevel(defLevels[0]);
-						    	for (var i = 1; i < defLevels.length; i++)
-							    	totalLevels.push(new SkillLevel(defLevels[i]));
-							    // Forget skill id
-							    $("#selfId").val(0);
-							}
-						    // Hide this skill and its children from parent skill select list or show them all
-						    function checkParents(parents, id) {
-						    	for (var i=0; i<parents.length; i++)
-						    		if (parents[i] == id){
-						    			return true;
-						    		}
-						    	return false;
-						    }
-							var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
-						    for (var skill in skillsAndParents)
-								$('#parentSelect option[value="' + skill + '"]').prop('hidden', checkParents(skillsAndParents[skill], res.id));
-						    document.getElementById("levelsPost").innerHTML=generateLevelFormTable(totalLevels);
+							document.getElementById('createChildButton').setAttribute('onclick', 'ajaxSkillDialog(\'' + rootPath + 'viewer/ajaxSkill\', -' + res.id + '); return false;');
+							$(deleteLink).show();
+							$(createChildButton).show();
+						} else {
+							$(deleteLink).hide();
+							$(createChildButton).hide();
 						}
+						
+						if (res.parentId == null)
+							$('#parentSelect option[value=""]').prop('selected', true);
+						else
+							$('#parentSelect option[value="' + res.parentId + '"]').prop('selected', true);
+						if (res.id > 0 && !isChild) {
+							// Copy values from changed skill
+							$("#skill_name").val(res.name_en);
+							$("#about").val(res.about_en);
+							$("#levelsNum").val(res.maxLevel);
+							// Copy levels
+							var totalLevels = [""];
+					    	totalLevels[0] = new SkillLevel("");
+							for (var i = 0; i < res.levels.length; i++) {
+					    		totalLevels[i].about = res.levels[i].about_en;
+						    	totalLevels.push(new SkillLevel(""));
+							}
+						    while (res.levels.length > totalLevels.length) {
+						    	totalLevels.push(new SkillLevel(""));
+						    }
+						    while (res.levels.length < totalLevels.length) {
+						    	totalLevels.pop();
+						    }
+						    // Remember id of the changed skill
+						    $("#selfId").val(res.id);
+						}
+						else {
+							// Clear all values
+							$("#skill_name").val("");
+							$("#about").val("");
+							$("#levelsNum").val(3);
+							var totalLevels = [""];
+							var defLevels = /*[[${defaultLevels}]]*/ [""];
+					    	totalLevels[0] = new SkillLevel(defLevels[0]);
+					    	for (var i = 1; i < defLevels.length; i++)
+						    	totalLevels.push(new SkillLevel(defLevels[i]));
+						    // Forget skill id
+						    $("#selfId").val(0);
+						}
+					    // Hide this skill and its children from parent skill select list or show them all
+					    function checkParents(parents, id) {
+					    	for (var i=0; i<parents.length; i++)
+					    		if (parents[i] == id){
+					    			return true;
+					    		}
+					    	return false;
+					    }
+						var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
+					    for (var skill in skillsAndParents)
+							$('#parentSelect option[value="' + skill + '"]').prop('hidden', checkParents(skillsAndParents[skill], res.id));
+					    document.getElementById("levelsPost").innerHTML=generateLevelFormTable(totalLevels);
+						    
 						var skillName = "";
-						if (res.id > 0 && !isChange) {
+						if (isChild) {
 							$("#viewSkillBlock").show();
-							$("#newSkillForm").hide();
+							$("#newSkillForm").show();
 							$('#parentSelect option[value="' + res.id + '"]').prop('selected', true);
 							skillName = /*[[#{skillPopup.child}]]*/ 'Create a Child';
 						} else {
 							$("#viewSkillBlock").hide();
 							$("#newSkillForm").show();
-							skillName = /*[[#{skillPopup.new}]]*/ 'Create a Skill';
+							if (res.id == 0)
+								skillName = /*[[#{skillPopup.new}]]*/ 'Create a Skill';
+							else
+								skillName = res.name_en;
 						}
 						if (admin)
 						document.getElementById('skillFormTitle').innerHTML=

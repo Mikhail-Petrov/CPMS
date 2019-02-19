@@ -223,7 +223,9 @@ public class Viewer {
 	public String profile(Model model, Principal principal, @RequestParam(value = "id", required = true) Long id,
 			@RequestParam(value = "returnUrl", required = false) String returnUrl, HttpServletRequest request) {
 		Profile profile = facade.getProfileDAO().getOne(id);
-		model.addAttribute("profile", profile.localize(LocaleContextHolder.getLocale()));
+		Profile attrProfile = profile.localize(LocaleContextHolder.getLocale());
+		attrProfile.setAbout(profile.getTextFromProofs());
+		model.addAttribute("profile", attrProfile);
 		List<String> competencies = new ArrayList<String>();
 		for (Competency comp : profile.getCompetencies())
 			competencies.add(comp.getSkill().getPresentationName());

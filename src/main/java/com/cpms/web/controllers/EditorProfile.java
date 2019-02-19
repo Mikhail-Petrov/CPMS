@@ -1,6 +1,7 @@
 package com.cpms.web.controllers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Profile;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.DependentEntityNotFoundException;
@@ -55,8 +58,12 @@ public class EditorProfile {
 			}
 			create = false;
 		}
-		model.addAttribute("profile", profile.clone());
+		Profile attrProfile = profile.clone();
+		attrProfile.setAbout(profile.getTextFromProofs());
+		model.addAttribute("profile", attrProfile);
 		model.addAttribute("create", create);
+		List<Language> langs = facade.getLanguageDAO().getAll();
+		model.addAttribute("languages", langs);
 		return "editProfile";
 	}
 	
@@ -78,11 +85,13 @@ public class EditorProfile {
 		if (create) {
 			profile = new Profile();
 			profile.update(expert);
+			profile.addProofsFromText(facade.getLanguageDAO().getAll(), expert.getAbout());
 			profile = facade.getProfileDAO().insert(profile);
 		} else {
 			profile = facade.getProfileDAO().getOne(expert.getId());
 			profile.update(expert);
 			profile.setId(expert.getId());
+			profile.addProofsFromText(facade.getLanguageDAO().getAll(), expert.getAbout());
 			profile = facade.getProfileDAO().update(profile);
 		}
 		return "redirect:/viewer/profile?id=" + profile.getId();

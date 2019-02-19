@@ -13,41 +13,37 @@
 			<tbody id="levelsView">
 			</tbody>
 		</table>
-  		<div class="input-group">
+  		<!-- div class="input-group">
 			<a id="editLink" th:if="${isAdmin or isResident}" href="#">
 				<span class="input-group-btn two-buttons">
 					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.edit}">Edit</button>
 				</span>
 			</a>
-			<a id="deleteLink" th:if="${isAdmin or isResident}" href="#">
+			<a id="deleteLink2" th:if="${isAdmin or isResident}" href="#">
 				<span class="input-group-btn two-buttons">
 					<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
 				</span>
 			</a>
-  		</div>
+  		</div-->
   		<span id="createTypeLabel" th:text="#{page.create}" hidden="true"></span>
-  		<p><input type="submit" id="createChildButton" class="btn btn-primary btn-block" th:value="#{skillPopup.child}" onclick="$('#newSkillForm').show(); return false"/></p>
+  		<p hidden="true"><input type="submit" id="createChildButton2" class="btn btn-primary btn-block" th:value="#{skillPopup.child}" onclick="$('#newSkillForm').show(); return false"/></p>
   		</div>
   		<div class="collection-object force-width" id="newSkillForm">
   		<h3 id="skillFormTitle"><span id="skillName" th:text="#{skillPopup.child}"></span></h3>
+			<a id="createChildButton" href="#"><span class="input-group-btn two-buttons">
+				<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.child}">Create child</button>
+			</span></a>
+			<a id="deleteLink" href="#"><span class="input-group-btn two-buttons">
+				<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
+			</span></a>
   		<form action="#" th:action="@{/editor/skill/alternativeAsync}" th:object="${skill}" method="post" id="skillCreate">
   			<input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/>
-  			<p th:text="#{editor.skill.name}"></p>
 			<span th:text="#{editor.placeholder.skill_name_en}" text="Skill name"></span>:
 			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Skill name" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 3 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="skill_name" onblur="addCheck(this, 3, 100)"/></p>
-			<p th:text="#{editor.skill.description}"></p>
 			<span th:text="#{editor.placeholder.description_en}" text="About"></span>:
 			<p><textarea type="textarea" class="form-control" th:field="*{about}" placeholder="About" th:placeholder="#{editor.placeholder.description_en}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{editor.title.description_en}"></textarea></p>
 			<p hidden="true" th:text="#{editor.skill.maxlevel}"></p>
 			<p hidden="true"><span th:text="#{editor.maxlevel}"></span> <input type="number" th:field="*{maxLevel}" min="1" max="100" id="levelsNum"/></p>
-		<script type="text/javascript">//<!--
-		$(createChildButton).on("click", function() {
-			document.getElementById('skillFormTitle').innerHTML=
-				"<span id=\"skillName\">" + $("#createChildButton").val() + "</span>";
-			$('#childTypeHidden option[value="' + $("#childTypeSelect").val() + '"]').prop('selected', true);
-		});//-->
-		</script>
-		<p th:text="#{editor.skill.parent}"></p>
 		<p>
 			<span th:text="#{editor.parentskill}"></span> <select id="parentSelect"
 				th:field="*{parent}">

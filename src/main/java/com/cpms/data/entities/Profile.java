@@ -1,5 +1,6 @@
 package com.cpms.data.entities;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -225,16 +226,18 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 	
 	public void addProof(Proofreading newProof) {
 		if (newProof == null) return;
-		newProof.setOwner(this);
 		if (getProofs().stream().anyMatch(
 				x -> x.getTo().equals(newProof.getTo()) && x.getFrom().equals(newProof.getFrom())))
 			return;
 		
 		getProofs().add(newProof);
+		newProof.setOwner(this);
 	}
 	
 	public void addProofsFromText(List<Language> langs, String text) {
 		if (text == null) return;
+		Set<Proofreading> oldProofs = getProofs();
+		setProofs(null);
 		for (String proof : text.split(";")) {
 			if (proof.isEmpty()) continue;
 			Language from = null, to = null;
@@ -245,9 +248,24 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 					from = lang;
 				else if (lang.getCode().equals(codes[1]))
 					to = lang;
-			if (from != null && to != null)
-				addProof(new Proofreading(from, to));
+			if (from != null && to != null) {
+				Proofreading newProof = new Proofreading(from, to);
+				for (Proofreading oldProof : oldProofs)
+					if (oldProof.getFrom().equals(from) && oldProof.getTo().equals(to)) {
+						newProof = oldProof;
+						break;
+					}
+				addProof(newProof);
+			}
 		}
+	}
+	
+	public String getTextFromProofs() {
+		String res = "";
+		for (Proofreading proof : getProofs()) {
+			res += proof.getFrom().getId() + " -- " + proof.getTo().getId() + ";";
+		}
+		return res;
 	}
 	
 	public void removeProof(Proofreading newProof) {

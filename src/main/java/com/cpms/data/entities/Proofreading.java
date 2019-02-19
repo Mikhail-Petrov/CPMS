@@ -116,7 +116,7 @@ public class Proofreading extends AbstractDomainObject {
 		if (o == null) return false;
 		if (!o.getClass().equals(Proofreading.class)) return false;
 		Proofreading that = (Proofreading) o;
-		return (getOwner().equals(that.getOwner()) && getFrom().equals(that.getFrom()) && getTo().equals(that.getTo()));
+		return (getOwner() != null && getOwner().equals(that.getOwner()) && getFrom().equals(that.getFrom()) && getTo().equals(that.getTo()));
 	}
 	
 }
