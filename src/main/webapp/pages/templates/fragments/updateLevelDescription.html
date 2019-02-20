@@ -9,7 +9,10 @@
 		if (skillLevels == null)
 			return;
 		var skill = $(skillSelector).val();
-		var maxLevel = skillLevels[skill].length - 1;
+		if (skillLevels[skill] == null)
+			var maxLevel = 1;
+		else
+			var maxLevel = skillLevels[skill].length - 1;
 		if (skillChanged) {
 			$(levelNumber).val(maxLevel);
 			document.getElementById("maxLevel").innerHTML = maxLevel;
@@ -25,8 +28,10 @@
 		else if (level > maxLevel)
 			$(levelNumber).val(maxLevel);
 		else {
-			$(skillDescription).html(skillLevels[skill][0]);
-			$(levelDescription).html(skillLevels[skill][level]);
+			if (skillLevels[skill] != null) {
+				$(skillDescription).html(skillLevels[skill][0]);
+				$(levelDescription).html(skillLevels[skill][level]);
+			}
 			return;
 		}
 		$(levelNumber).trigger("input");

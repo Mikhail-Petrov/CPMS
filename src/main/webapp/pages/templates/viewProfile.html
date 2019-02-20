@@ -7,8 +7,15 @@
                             <div class="x_content">
                                 <p><span th:text="#{profile.position}"></span>: <span th:text="${profile.position}"></span></p>
                                 <p><span th:text="#{profile.proofs}"></span>: <span th:text="${presentationProofs}"></span></p>
-                                <p><span th:text="#{profile.prooflevel}"></span>: <span th:text="${profile.prooflevel}"></span></p>
-                                <p><span th:text="#{profile.level}"></span>: <span th:text="${profile.level}"></span></p>
+                                <p><span th:text="#{profile.prooflevel}"></span>: 
+  										<span th:if="${profile.prooflevel}=='0'" th:text="#{profile.prooflevel.empty}"></span>
+  										<span th:if="${profile.prooflevel}=='1'" th:text="#{profile.prooflevel.beginner}">Beginner</span>
+  										<span th:if="${profile.prooflevel}=='2'" th:text="#{profile.prooflevel.average}">Average</span>
+  										<span th:if="${profile.prooflevel}=='3'" th:text="#{profile.prooflevel.professional}">Professional</span></p>
+                                <p><span th:text="#{profile.level}"></span>: 
+  										<span th:if="${profile.level}=='1'" th:text="#{profile.level.low}">Low</span>
+  										<span th:if="${profile.level}=='2'" th:text="#{profile.level.average}">Average</span>
+  										<span th:if="${profile.level}=='3'" th:text="#{profile.level.high}">High</span></p>
                                 <p><span th:text="#{profile.availability}"></span>: <span th:text="${profile.availability}"></span></p>
                                 <br/>
                                 <div class="row">

@@ -10,7 +10,12 @@
 			<title th:text="${_VIEW_TITLE}">CPMS</title>
 		</th:block>
 		<th:block th:if="${_NAMED_TITLE} == null">
+		<th:block th:if="${_VIEW_TITLE} == null">
+			<title th:text="#{title.welcome}">Welcome</title>
+		</th:block>
+		<th:block th:unless="${_VIEW_TITLE} == null">
 			<title th:text="#{${_VIEW_TITLE}}">CPMS</title>
+		</th:block>
 		</th:block>
 		<th:block th:if="${_FORCE_CSRF}">
 			<meta name="_csrf" th:content="${_csrf.token}"/>
