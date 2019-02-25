@@ -44,6 +44,8 @@
 				hideOrShowElement($("#descriptionTitle"), isGroup);
 				hideOrShowElement($("#costTitle"), isGroup);
 				hideOrShowElement($("#motivation_cost"), isGroup);
+				hideOrShowElement($("#local"), !isGroup);
+				hideOrShowElement($("#localTitle"), !isGroup);
 				
 				$(selfIsGroup).val(isGroup);
 				
@@ -52,6 +54,30 @@
 				$(motivationSubmitButton).val(isGroup?groupSave:motivationSave);
 				
 				editWarning("change", isGroup && wasMotivation);
+			}
+			
+			function applyFilter() {
+				var filterVal = $(localFilter).val();
+				var headSkipped = false;
+				$.each($("#motivationsTable tr"), function(){
+					if (!headSkipped) headSkipped = true;
+					else {
+						var toHide = true;
+						var curLocal = this.childNodes[7].childNodes[0].innerHTML;
+						if (curLocal == '' || filterVal == '') toHide = false;
+						else {
+							curLocal = curLocal.split(',');
+							for (var j = 0; j < curLocal.length; j++)
+								if (curLocal[j] == filterVal)
+									toHide = false;
+						}
+						var imgs = this.childNodes[1].childNodes[0].childNodes;
+						if (imgs[imgs.length-1].nodeType != 1) return;
+						if ((imgs[imgs.length-1].getAttribute('src').indexOf('minus') >= 0) == toHide)
+							this.childNodes[1].childNodes[0].click();
+						this.style.display = toHide ? 'none' : '';
+					}
+				})
 			}
 			
 			function ajaxMotivationDialog(requestUrl) {
@@ -96,6 +122,11 @@
 						    $("#selfIsGroup").val(res.isGroup);
 						    // Remember id of the changed motivation
 						    $("#selfId").val(res.id);
+						    //Set locals
+						    locals = res.local.split(',');
+							$("#local").val(locals[0]);
+							for (var j = 1; j < locals.length; j++)
+								$("#local [value='" + locals[j] + "']").attr("selected", "selected");
 						}
 						else {
 							// Clear all values
@@ -103,6 +134,7 @@
 							$("#motivation_description").val("");
 							$("#motivation_cost").val(1);
 							$("#motivation_code").val("");
+							$("#local").val("");
 						    $("#selfIsGroup").val(res.isGroup);
 						    // Forget motivation id
 						    $("#selfId").val(0);
@@ -164,12 +196,17 @@
                                 <h3 th:text="#{navbar.motivations}"></h3>
                            </div>
                            <div class="x_content">
+  			<p><span th:text="#{profile.local}"></span>: <select id="localFilter" oninput="applyFilter();" style="width: auto;">
+					<option value="" th:text="#{motivation.local.all}">Global</option>
+					<option th:each="lang : ${languages}" th:value="${lang.code}" th:text="${lang.code}">EN</option>
+			</select></p>
                                <table id="motivationsTable" class="table table-responsive table-striped">
                                		<thead>
                                			<tr>
                                				<th data-field="name"><span th:text="#{motivations.name}"></span></th>
                                				<th data-field="description"><span th:text="#{motivations.description}"></span></th>
                                				<th data-field="code"><span th:text="#{motivations.code}"></span></th>
+                               				<th data-field="cost"><span th:text="#{profile.local}"></span></th>
                                				<th data-field="cost"><span th:text="#{motivations.cost}"></span></th>
                                			</tr>
                                		</thead>
@@ -182,6 +219,7 @@
 											</td>
 											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.description}"></span></td>
 											<td><span th:text="${motivation.code}"></span></td>
+											<td><span th:text="${motivation.local}"></span></td>
 											<td><span th:unless="${motivation.isGroup}" th:if="${motivation.cost} > 0" th:text="${motivation.cost}"></span></td>
                                			</tr>
                                		</tbody>

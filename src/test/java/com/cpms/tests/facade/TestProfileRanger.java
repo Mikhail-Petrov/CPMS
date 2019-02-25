@@ -43,11 +43,11 @@ public class TestProfileRanger {
 		Skill s3 = new Skill("S3", null);
 		s3.setMaxLevel(3);
 		s3.setId(3);
-		Profile p1 = new Profile("C1", null, "asd", null, null);
+		Profile p1 = new Profile("C1", null, "asd", null, null, null);
 		p1.setId(1);
-		Profile p2 = new Profile("C2", null, "asd", null, null);
+		Profile p2 = new Profile("C2", null, "asd", null, null, null);
 		p2.setId(2);
-		Profile p3 = new Profile("C3", null, "asd", null, null);
+		Profile p3 = new Profile("C3", null, "asd", null, null, null);
 		p3.setId(3);
 		p1.addCompetency(new Competency(s1, 1));
 		p1.addCompetency(new Competency(s2, 1));

@@ -67,9 +67,9 @@ public class TestProfileDAO {
 		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
 		Set<Competency> competencies2 = new LinkedHashSet<Competency>();
 		competencies1.add(new Competency(skill1, 1));
-		Profile p1 = new Profile("С1.1", null, "asd", null, null);
+		Profile p1 = new Profile("С1.1", null, "asd", null, null, null);
 		p1.setCompetencies(competencies1);
-		Profile p2 = new Profile("С2.2", null, "asd", null, null);
+		Profile p2 = new Profile("С2.2", null, "asd", null, null, null);
 		p2.setCompetencies(competencies2);
 		profileDAO.insert(p1);
 		profileDAO.insert(p2);
@@ -97,9 +97,9 @@ public class TestProfileDAO {
 		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
 		Set<Competency> competencies2 = new LinkedHashSet<Competency>();
 		competencies1.add(new Competency(skill1, 1));
-		Profile p1 = new Profile("С1.1", null, "asd", null, null);
+		Profile p1 = new Profile("С1.1", null, "asd", null, null, null);
 		p1.setCompetencies(competencies1);
-		Profile p2 = new Profile("С2.2", null, "asd", null, null);
+		Profile p2 = new Profile("С2.2", null, "asd", null, null, null);
 		p2.setCompetencies(competencies2);
 		profileDAO.insert(p1);
 		profileDAO.insert(p2);
@@ -142,7 +142,7 @@ public class TestProfileDAO {
 		final Skill skill3c = skillDAO.insert(skill3);
 		
 		Profile p2 = new Profile("Some company that i've made", null, 
-				"It's address", null, null);
+				"It's address", null, null, null);
 		p2 = profileDAO.insert(p2);
 		Competency cmp1 = new Competency(skill1c, 1);
 		p2.addCompetency(cmp1);
@@ -184,7 +184,7 @@ public class TestProfileDAO {
 		skillDAO.insert(skill2);
 		
 		Set<Competency> competencies2 = new LinkedHashSet<Competency>();
-		Profile p2 = new Profile("asd", null, "asd", null, null);
+		Profile p2 = new Profile("asd", null, "asd", null, null, null);
 		p2.setCompetencies(competencies2);
 		profileDAO.insert(p2);
 		
@@ -209,7 +209,7 @@ public class TestProfileDAO {
 		Competency com2 = new Competency(skill, 1);
 		competencies.add(comp);
 		competencies.add(com2);
-		Profile p = new Profile("C1.1", null, "asd", null, null);
+		Profile p = new Profile("C1.1", null, "asd", null, null, null);
 		p.setCompetencies(competencies);
 		
 		exception.expect(DataAccessException.class);
@@ -236,7 +236,7 @@ public class TestProfileDAO {
 		Competency comp2 = new Competency(skill2, 1);
 		competencies.add(comp);
 		competencies.add(comp2);
-		Profile p = new Profile("asd", "asd", null, null, null);
+		Profile p = new Profile("asd", "asd", null, null, null, null);
 		p.setCompetencies(competencies);
 		p = profileDAO.insert(p);
 		
@@ -269,7 +269,7 @@ public class TestProfileDAO {
 		Set<Competency> competencies1 = new LinkedHashSet<Competency>();
 		Competency cmp1 = new Competency(skill1, 1);
 		competencies1.add(cmp1);
-		Profile p1 = new Profile("asd", null, "asd", null, null);
+		Profile p1 = new Profile("asd", null, "asd", null, null, null);
 		p1.setCompetencies(competencies1);
 		
 		profileDAO.insert(p1);
@@ -287,7 +287,7 @@ public class TestProfileDAO {
 		skillDAO.insert(skill1);
 		List<Competency> competencies1 = new ArrayList<Competency>();
 		competencies1.add(new Competency(skill1, 1));
-		Profile p1 = new Profile("asd", null, "asd", null, null);
+		Profile p1 = new Profile("asd", null, "asd", null, null, null);
 		p1.addCompetency(competencies1.get(0));
 		p1 = profileDAO.insert(p1);
 		

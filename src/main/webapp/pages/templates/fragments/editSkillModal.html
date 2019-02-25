@@ -4,8 +4,9 @@
 	<div class="modal-body">
 		<div id="viewSkillBlock">
 		<div clss="modal-header">
-			<h3><span id="skillName">Name</span></h3>
+			<h3><span th:text="#{skill.parent}"></span><span id="skillName">Name</span></h3>
 		</div>
+		<div hidden="true">
   		<p><span id="skillAbout">About</span></p>
   		<p><span id="skillLevels">Levels</span></p>
   		<p th:text="#{skill.levels}"></p>
@@ -27,6 +28,7 @@
   		</div-->
   		<span id="createTypeLabel" th:text="#{page.create}" hidden="true"></span>
   		<p hidden="true"><input type="submit" id="createChildButton2" class="btn btn-primary btn-block" th:value="#{skillPopup.child}" onclick="$('#newSkillForm').show(); return false"/></p>
+  		</div>
   		</div>
   		<div class="collection-object force-width" id="newSkillForm">
   		<h3 id="skillFormTitle"><span id="skillName" th:text="#{skillPopup.child}"></span></h3>

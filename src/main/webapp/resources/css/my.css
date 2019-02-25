@@ -1,6 +1,9 @@
 select {
 	width: 100%;
 }
+.no-indent p {
+	text-indent: 0px;
+}
 .two-buttons {
 	width: 50%;
 	float: left;

@@ -16,7 +16,12 @@
   										<span th:if="${profile.level}=='1'" th:text="#{profile.level.low}">Low</span>
   										<span th:if="${profile.level}=='2'" th:text="#{profile.level.average}">Average</span>
   										<span th:if="${profile.level}=='3'" th:text="#{profile.level.high}">High</span></p>
-                                <p><span th:text="#{profile.availability}"></span>: <span th:text="${profile.availability}"></span></p>
+                                <p><span th:text="#{profile.availability}"></span>: 
+  										<span th:if="${profile.availability}=='1'" th:text="#{profile.availability.always}">Always</span>
+  										<span th:if="${profile.availability}=='2'" th:text="#{profile.availability.special}">Only for special language questions</span>
+  										<span th:if="${profile.availability}=='3'" th:text="#{profile.availability.good}">Good</span>
+  										<span th:if="${profile.availability}=='4'" th:text="#{profile.availability.uncertain}">Uncertain, due to work amount</span></p>
+                                <p><span th:text="#{profile.local}"></span>: <span th:text="${profile.local?.code}"></span></p>
                                 <br/>
                                 <div class="row">
                                     <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
@@ -124,7 +129,7 @@
 
                                 <style>
                                     p {
-                                        text-indent: 20px;
+                                        text-indent: 0px;
                                     }
                                     #check_actions {
                                         border-radius: 0 3px 3px 0 !important;

@@ -19,7 +19,7 @@ public class MotivationAnswer implements IAjaxAnswer {
 	private long id;
 	private String parentId;
 	private int cost;
-	private String name, description, code;
+	private String name, description, code, local;
 	private boolean successful = false, isGroup, hasChildren;
 	
 	public MotivationAnswer(Motivation source, boolean successful) {
@@ -29,6 +29,7 @@ public class MotivationAnswer implements IAjaxAnswer {
 		description = source.getDescription();
 		code = source.getCode();
 		isGroup = source.getIsGroup();
+		local = source.getLocal() == null ? "" : source.getLocal();
 		if (source.getParent() == null)
 			parentId = null;
 		else
@@ -43,6 +44,7 @@ public class MotivationAnswer implements IAjaxAnswer {
 		name = "Motivation not found";
 		description = "Motivation not found";
 		code = "";
+		local = "";
 		successful = false;
 		isGroup = false;
 		hasChildren = false;
@@ -124,6 +126,14 @@ public class MotivationAnswer implements IAjaxAnswer {
 
 	public void setHasChildren(boolean hasChildren) {
 		this.hasChildren = hasChildren;
+	}
+
+	public String getLocal() {
+		return local;
+	}
+
+	public void setLocal(String local) {
+		this.local = local;
 	}
 	
 }

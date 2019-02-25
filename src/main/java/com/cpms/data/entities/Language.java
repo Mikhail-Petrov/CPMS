@@ -16,11 +16,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 import com.cpms.data.AbstractDomainObject;
@@ -53,6 +56,10 @@ public class Language extends AbstractDomainObject {
 	
 	@Column(name = "LangCode", nullable = false, length = 1000)
 	private String code;
+	
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "local")
+	@Cascade({CascadeType.DETACH})
+	private Set<Profile> experts;
 	
 	public Language() {}
 	
@@ -103,5 +110,13 @@ public class Language extends AbstractDomainObject {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public Set<Profile> getExperts() {
+		return experts;
+	}
+
+	public void setExperts(Set<Profile> experts) {
+		this.experts = experts;
 	}
 }

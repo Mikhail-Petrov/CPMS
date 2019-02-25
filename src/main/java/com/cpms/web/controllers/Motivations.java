@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Motivation;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.web.MotivationPostForm;
@@ -79,6 +80,8 @@ public class Motivations {
 		Motivation newMotivation = new Motivation();
 		newMotivation.setCost(1);
 		model.addAttribute("motivation", newMotivation);
+		List<Language> langs = facade.getLanguageDAO().getAll();
+		model.addAttribute("languages", langs);
 		
 		addMotivationsListToModel(model, principal, request);
 		return "motivations";
@@ -145,6 +148,8 @@ public class Motivations {
 		newMotivation.setDescription(recievedMotivation.getDescription());
 		newMotivation.setCode(recievedMotivation.getCode());
 		newMotivation.setIsGroup(recievedMotivation.isGroup());
+		newMotivation.setLocal(recievedMotivation.getLocal());
+		
 		if (recievedMotivation.getId() == 0)
 			facade.getMotivationDAO().insert(newMotivation);
 		else

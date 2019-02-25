@@ -22,6 +22,8 @@ public class MotivationPostForm {
 	
 	private String code;
 	
+	private String local;
+	
 	public MotivationPostForm() {
 	}
 
@@ -79,6 +81,14 @@ public class MotivationPostForm {
 
 	public void setIsGroup(boolean isGroup) {
 		this.isGroup = isGroup;
+	}
+
+	public String getLocal() {
+		return local;
+	}
+
+	public void setLocal(String local) {
+		this.local = local;
 	}
 	
 }

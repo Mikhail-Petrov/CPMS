@@ -19,6 +19,11 @@
 			<p><input type="text" class="form-control" th:field="*{code}" placeholder="Code" th:placeholder="#{motivations.code}" pattern=".{0,100}" title="Must be less than 5 symbols" th:title="#{motivations.code}" id="motivation_code"/></p>
 			<p id="costTitle" th:text="#{motivations.cost}"></p>
 			<p><input type="number" th:field="*{cost}" min="0" id="motivation_cost"/></p>
+  			<p id="localTitle" th:text="#{motivation.local}">:</p>
+			<p><select th:field="*{local}" size="7" multiple="true">
+					<option value="" th:text="#{motivation.local.all}">Global</option>
+					<option th:each="lang : ${languages}" th:value="${lang.code}" th:text="${lang.code}">EN</option>
+			</select></p>
 
 		<p th:text="#{motivations.group}"></p>
 		<p><select id="parentSelect"

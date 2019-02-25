@@ -50,9 +50,9 @@ public class TestFullTextSearch {
 	public void searchesCorrectlyCompanies() {
 		((ICleanable)profileDAO).cleanAndReset();
 		
-		Profile p1 = new Profile("Development", null, "asd", null, null);
-		Profile p2 = new Profile("Web Development", null, "asd", null, null);
-		Profile p3 = new Profile("Design", null, "asd", null, null);
+		Profile p1 = new Profile("Development", null, "asd", null, null, null);
+		Profile p2 = new Profile("Web Development", null, "asd", null, null, null);
+		Profile p3 = new Profile("Design", null, "asd", null, null, null);
 		
 		final Profile p1c = profileDAO.insert(p1);
 		final Profile p2c = profileDAO.insert(p2);

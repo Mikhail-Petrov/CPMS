@@ -14,6 +14,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -55,6 +57,12 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 	
 	@Column(name = "Availability", nullable = true)
 	private String availability;
+
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "LocalCompany", nullable = true)
+	@Cascade({CascadeType.DETACH})
+	private Language local;
 	
 	private String about;
 
@@ -74,12 +82,13 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 	public Profile() {}
 	
 	public Profile(String name, String position, String prooflevel,
-			String level, String availability) {
+			String level, String availability, Language local) {
 		setName(name);
 		setPosition(position);
 		setProoflevel(prooflevel);
 		setLevel(level);
 		setAvailability(availability);
+		setLocal(local);
 	}
 	
 	@PrePersist
@@ -180,6 +189,7 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 		clone.setProoflevel(getProoflevel());
 		clone.setLevel(getLevel());
 		clone.setAvailability(getAvailability());
+		clone.setLocal(getLocal());
 		return clone;
 	}
 	
@@ -197,6 +207,7 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 		setProoflevel(source.getProoflevel());
 		setLevel(source.getLevel());
 		setAvailability(source.getAvailability());
+		setLocal(source.getLocal());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -331,5 +342,13 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 		for (Proofreading proof : getProofs())
 			res += (res.isEmpty() ? "" : ", ") + proof.getPresentationName();
 		return res;
+	}
+
+	public Language getLocal() {
+		return local;
+	}
+
+	public void setLocal(Language local) {
+		this.local = local;
 	}
 }

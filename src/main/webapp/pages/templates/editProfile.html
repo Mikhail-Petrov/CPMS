@@ -12,32 +12,42 @@
 			<p><input class="form-control" type="text" th:field="*{position}" placeholder="Expert position" th:placeholder="#{editor.placeholder.position}"/>
 				<span th:if="${#fields.hasErrors('position')}" th:errors="*{position}">Name Error</span></p>
 			<p th:text="#{profile.availability}"></p>
-			<p><input class="form-control" type="text" th:field="*{availability}" placeholder="Expert availability" th:placeholder="#{editor.placeholder.availability}"/>
-				<span th:if="${#fields.hasErrors('availability')}" th:errors="*{availability}">Name Error</span></p>
+			<!--p><input class="form-control" type="text" th:field="*{availability}" placeholder="Expert availability" th:placeholder="#{editor.placeholder.availability}"/>
+				<span th:if="${#fields.hasErrors('availability')}" th:errors="*{availability}">Name Error</span></p-->
+			<p class="row col-md-12">
+			<select th:field="*{availability}" size="4">
+				<option th:text="#{profile.availability.always}" value='1'>Always</option>
+				<option th:text="#{profile.availability.special}" value='2'>Only for special language questions</option>
+				<option th:text="#{profile.availability.good}" value='3'>Good</option>
+				<option th:text="#{profile.availability.uncertain}" value='4'>Uncertain, due to work amount</option>
+			</select>
+			</p>
 			<p th:text="#{profile.level}"></p>
 			<!--p><input class="form-control" type="text" th:field="*{level}" placeholder="Expert level" th:placeholder="#{profile.level}"/>
 				<span th:if="${#fields.hasErrors('level')}" th:errors="*{level}">Name Error</span></p-->
-			<p class="row">
-			<div class="col-md-12">
+			<p class="row col-md-12">
 			<select th:field="*{level}" size="3">
 				<option th:text="#{profile.level.low}" value='1'>Low</option>
 				<option th:text="#{profile.level.average}" value='2'>Average</option>
 				<option th:text="#{profile.level.high}" value='3'>High</option>
 			</select>
-			</div>
 			</p>
 			<p th:text="#{profile.prooflevel}"></p>
 			<!-- p><input class="form-control" type="text" th:field="*{prooflevel}" placeholder="Expert proofreader level" th:placeholder="#{profile.prooflevel}"/>
 				<span th:if="${#fields.hasErrors('prooflevel')}" th:errors="*{prooflevel}">Name Error</span></p-->
-			<p class="row">
-			<div class="col-md-12">
+			<p class="row col-md-12">
 			<select th:field="*{prooflevel}" size="4">
 				<option value="0"></option>
 				<option th:text="#{profile.prooflevel.beginner}" value='1'>Beginner</option>
 				<option th:text="#{profile.prooflevel.average}" value='2'>Average</option>
 				<option th:text="#{profile.prooflevel.professional}" value='3'>Professional</option>
 			</select>
-			</div>
+			</p>
+			<p th:text="#{profile.local}"></p>
+			<p class="row col-md-12">
+			<select th:field="*{local}" size="4">
+				<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
+			</select>
 			</p>
 			<div class="row">
 				<div class="col-md-6">
@@ -101,6 +111,6 @@
 			}
 			/*]]>*/
 			</script>
-			<p><input type="submit" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
+			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
 		</form>
 		</div>

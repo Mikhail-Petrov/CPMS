@@ -61,23 +61,32 @@ public class Motivation extends AbstractDomainObject implements Comparable<Motiv
 	@Column(name = "isGroup", nullable = false)
 	private boolean isGroup = false;
 	
+	@Column(name = "LocalCompany", nullable = true, length = 1000)
+	private String local;
+	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "parent")
 	@Cascade({CascadeType.DETACH})
 	private Set<Motivation> children;
 	
-	public Motivation() {}
+	public Motivation() {
+		description = "";
+		name = "";
+		code = "";
+		local = "";
+	}
 	
-	public Motivation(String description, String name, Motivation parent, String code, int cost, boolean isGroup) {
+	public Motivation(String description, String name, Motivation parent, String code, int cost, boolean isGroup, String local) {
 		this.description = description;
 		this.name = name;
 		this.setParent(parent);
 		this.code = code;
 		this.cost = cost;
 		this.isGroup = isGroup;
+		this.local = local;
 	}
 	
 	public Motivation(Motivation source) {
-		this(source.getDescription(), source.getName(), source.getParent(), source.getCode(), source.getCost(), source.getIsGroup());
+		this(source.getDescription(), source.getName(), source.getParent(), source.getCode(), source.getCost(), source.getIsGroup(), source.getLocal());
 	}
 
 	public void setId(long id) {
@@ -134,7 +143,7 @@ public class Motivation extends AbstractDomainObject implements Comparable<Motiv
 	@SuppressWarnings("unchecked")
 	@Override
 	public Motivation localize(Locale locale) {
-		return new Motivation(description, name, getParent(), code, cost, isGroup);
+		return new Motivation(description, name, getParent(), code, cost, isGroup, local);
 	}
 
 	public boolean getIsGroup() {
@@ -175,6 +184,14 @@ public class Motivation extends AbstractDomainObject implements Comparable<Motiv
 	@Override
 	public int compareTo(Motivation o) {
 		return this.getPresentationName().compareTo(o.getPresentationName());
+	}
+
+	public String getLocal() {
+		return local;
+	}
+
+	public void setLocal(String local) {
+		this.local = local;
 	}
 	
 }

@@ -71,11 +71,11 @@ public class TestApplicationsService {
 		testCase.s1 = skill1c;
 		testCase.s2 = skill2c;
 		
-		Profile profile1 = new Profile("C1.1", null, "Some address", null, null);
+		Profile profile1 = new Profile("C1.1", null, "Some address", null, null, null);
 		Competency cmp1 = new Competency(skill1c, 5);
 		profile1.addCompetency(cmp1);
 		testCase.p1 = facade.getProfileDAO().insert(profile1);
-		Profile profile2 = new Profile("C2.1", null, "Some address", null, null);
+		Profile profile2 = new Profile("C2.1", null, "Some address", null, null, null);
 		Competency cmp2 = new Competency(skill2c, 5);
 		profile2.addCompetency(cmp2);
 		testCase.p2 = facade.getProfileDAO().insert(profile2);
