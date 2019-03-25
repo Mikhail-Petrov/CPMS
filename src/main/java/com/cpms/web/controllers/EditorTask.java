@@ -1,6 +1,7 @@
 package com.cpms.web.controllers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Task;
@@ -108,6 +109,8 @@ public class EditorTask {
 		}
 		model.addAttribute("task", task);
 		model.addAttribute("create", create);
+		List<Language> langs = facade.getLanguageDAO().getAll();
+		model.addAttribute("languages", langs);
 		return "editTask";
 	}
 	
@@ -120,11 +123,6 @@ public class EditorTask {
 			throw new SessionExpiredException(null);
 		}
 		boolean create = (recievedTask.getId() == 0);
-		if (bindingResult.hasErrors()) {
-			model.addAttribute("create", create);
-			model.addAttribute("_VIEW_TITLE", "title.edit.task");
-			return ("editTask");
-		}
 		Task task;
 		if (create) {
 			task = facade.getTaskDAO().insert(recievedTask);
@@ -132,8 +130,10 @@ public class EditorTask {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
 			task.setAbout(recievedTask.getAbout());
 			task.setName(recievedTask.getName());
-			task.setAbout_RU(recievedTask.getAbout_RU());
-			task.setName_RU(recievedTask.getName_RU());
+			task.setDueDate(recievedTask.getDueDate());
+			task.setTarget(recievedTask.getTarget());
+			task.setSource(recievedTask.getSource());
+			task.setType(recievedTask.getType());
 			task = facade.getTaskDAO().update(task);
 		}
 		return "redirect:/viewer/task?id=" + task.getId();
@@ -158,8 +158,6 @@ public class EditorTask {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
 			task.setAbout(recievedTask.getAbout());
 			task.setName(recievedTask.getName());
-			task.setAbout_RU(recievedTask.getAbout_RU());
-			task.setName_RU(recievedTask.getName_RU());
 			task = facade.getTaskDAO().update(task);
 		}
 		return "fragments/editTaskModal :: taskCreationSuccess";

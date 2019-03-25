@@ -50,28 +50,23 @@ public class EditorCompetency {
 		if (recievedCompetency == null) {
 			throw new SessionExpiredException(null);
 		}
-		if (recievedCompetency.getLevel() > 
-			recievedCompetency.getSkill().getMaxLevel()) {
-			bindingResult.rejectValue("level", "error.skillLevel",
-					"Skill's largest possible level is " + 
-							recievedCompetency.getSkill().getMaxLevel());
-		}
 		Profile profile = facade.getProfileDAO().getOne(profileId);
-		if (profile
-				.getCompetencies()
-				.stream()
-				.anyMatch(x -> x.getSkill().equals(recievedCompetency.getSkill()))) {
-			bindingResult.rejectValue("skill", "error.skill",
-					"Such skill is already used.");
+		for (String compID : recievedCompetency.getSkillIDs().split(",")) {
+			long skillID = 0;
+			try {
+				skillID = Long.parseLong(compID);
+			} catch(NumberFormatException e) {
+				continue;
+			}
+			Skill skill = facade.getSkillDAO().getOne(skillID);
+			if (skill == null) continue;
+			if (!profile
+					.getCompetencies()
+					.stream()
+					.anyMatch(x -> x.getSkill().equals(skill))) {
+				profile.addCompetency(new Competency(skill, skill.getMaxLevel()));
+			}
 		}
-		if (bindingResult.hasErrors()) {
-			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
-			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
-			model.addAttribute("profile", profile);
-			return ("fragments/editCompetencyModal :: competencyModalForm");
-		}
-		profile.addCompetency(recievedCompetency);
 		facade.getProfileDAO().update(profile);
 		return "fragments/editCompetencyModal :: competencyCreationSuccess";
 	}

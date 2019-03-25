@@ -47,11 +47,11 @@
 				hideOrShowElement($("#local"), !isGroup);
 				hideOrShowElement($("#localTitle"), !isGroup);
 				
-				$(selfIsGroup).val(isGroup);
+				$("#selfIsGroup").val(isGroup);
 				
 				motivationSave = /*[[#{motivations.save}]]*/ "Save motivation";
 				groupSave = /*[[#{motivations.group.save}]]*/ "Save motivation group";
-				$(motivationSubmitButton).val(isGroup?groupSave:motivationSave);
+				$("#motivationSubmitButton").val(isGroup?groupSave:motivationSave);
 				
 				editWarning("change", isGroup && wasMotivation);
 			}
@@ -228,9 +228,9 @@
                                $.each($('a[id *= td]:not([id *= name])'), function() {
                             	   id = "#" + this.getAttribute('id');
                             	   idName = id + "name";
-                            	   while ($(idName).html().indexOf("-- ") == 0) {
-                                       $(id).html('<img src="' + rootPath + 'resources/images/dtree/line.gif"></img>' + $(id).html())
-                                       $(idName).html($(idName).html().substring(3))
+                            	   while ($("#idName").html().indexOf("-- ") == 0) {
+                                       $("#id").html('<img src="' + rootPath + 'resources/images/dtree/line.gif"></img>' + $(id).html())
+                                       $("#idName").html($("#idName").html().substring(3))
                             	   }
                                });
                                </script>

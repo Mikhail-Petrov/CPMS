@@ -1,5 +1,6 @@
 package com.cpms.data.entities;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -10,8 +11,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.apache.solr.analysis.LowerCaseFilterFactory;
 import org.apache.solr.analysis.WhitespaceTokenizerFactory;
@@ -23,10 +28,9 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.cpms.data.AbstractDomainObject;
-import com.cpms.data.validation.BilingualValidation;
 import com.cpms.exceptions.DataAccessException;
 
 /**
@@ -39,10 +43,6 @@ import com.cpms.exceptions.DataAccessException;
 @Entity
 @Indexed
 @Table(name = "TASK")
-@BilingualValidation(fieldOne="name", fieldTwo="name_RU", 
-	minlength = 5, maxlength = 100)
-@BilingualValidation(fieldOne="about", fieldTwo="about_RU", 
-	nullable = true, minlength = 0, maxlength = 1000)
 @AnalyzerDef(name = "userSearchAnalyzerTask",
 	tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class),
 	filters = {
@@ -62,16 +62,28 @@ public class Task extends AbstractDomainObject {
 	@Analyzer(definition = "userSearchAnalyzerTask")
 	private String name;
 	
-	@Column(name = "NAME_RU", nullable = true, length = 100)
-	@Field
-	@Analyzer(definition = "userSearchAnalyzerTask")
-	private String name_RU;
-	
+	// text
 	@Column(name = "ABOUT", nullable = true, length = 1000)
 	private String about;
 	
-	@Column(name = "ABOUT_RU", nullable = true, length = 1000)
-	private String about_RU;
+	// text type
+	@Column(name = "TYPE", nullable = true)
+	private String type;
+
+	@Column(name = "DUE", nullable = true)
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
+	private Date dueDate;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "SOURCE", nullable = true)
+	@Cascade({CascadeType.DETACH})
+	private Language source;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "TARGET", nullable = true)
+	@Cascade({CascadeType.DETACH})
+	private Language target;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "task", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
@@ -83,22 +95,6 @@ public class Task extends AbstractDomainObject {
 	public Task(String name, String about) {
 		this.name = name;
 		this.about = about;
-	}
-	
-	public String getName_RU() {
-		return name_RU;
-	}
-
-	public void setName_RU(String name_RU) {
-		this.name_RU = name_RU;
-	}
-
-	public String getAbout_RU() {
-		return about_RU;
-	}
-
-	public void setAbout_RU(String about_RU) {
-		this.about_RU = about_RU;
 	}
 
 	@Override
@@ -179,21 +175,44 @@ public class Task extends AbstractDomainObject {
 
 	@Override
 	public String getPresentationName() {
-		Locale locale = LocaleContextHolder.getLocale();
-		return localizeBilingualField(getName(), name_RU, locale);
+		return getName();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Task localize(Locale locale) {
-		Task returnValue = new Task();
-		returnValue.setName(getName());
-		returnValue.setName_RU(getName_RU());
-		returnValue.setId(getId());
-		returnValue.setAbout(
-				localizeBilingualField(getAbout(), getAbout_RU(), locale));
-		getRequirements()
-			.forEach(x -> returnValue.addRequirement(x.localize(locale)));
-		return returnValue;
+		return this;
+	}
+
+	public Date getDueDate() {
+		return dueDate;
+	}
+
+	public void setDueDate(Date dueDate) {
+		this.dueDate = dueDate;
+	}
+
+	public Language getTarget() {
+		return target;
+	}
+
+	public void setTarget(Language target) {
+		this.target = target;
+	}
+
+	public Language getSource() {
+		return source;
+	}
+
+	public void setSource(Language source) {
+		this.source = source;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

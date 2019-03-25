@@ -19,6 +19,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.cpms.dao.implementations.jpa.JPALanguagesDAO;
+import com.cpms.dao.implementations.jpa.JPAMessageDAO;
 import com.cpms.dao.implementations.jpa.JPAMotivationDAO;
 import com.cpms.dao.implementations.jpa.JPAProfileDAO;
 import com.cpms.dao.implementations.jpa.JPASkillDraftableDAO;
@@ -28,6 +29,7 @@ import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Language;
+import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
@@ -181,13 +183,23 @@ public class PersistencyConfig {
     }
     
     /**
-     * @return implementation of IDAO interface for Motivation entity
+     * @return implementation of IDAO interface for Language entity
      * @see IDAO
      * @see Task
      */
     @Bean(name = "languageDAO")
     public IDAO<Language> getLanguageDAO() {
     	return new JPALanguagesDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Motivation entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "messageDAO")
+    public IDAO<Message> getMessagesDAO() {
+    	return new JPAMessageDAO();
     }
     
     /**

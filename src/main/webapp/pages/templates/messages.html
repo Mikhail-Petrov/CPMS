@@ -1,0 +1,95 @@
+	<script type="text/javascript" th:src="@{/resources/js/tableLoader.js}"></script>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" />
+	
+	<style>
+        a {
+            cursor: pointer;
+        }
+    </style>
+
+    <style>
+        .Container {
+            padding: 0;
+            margin: 0;
+        }
+        .Container li {
+            list-style-type: none;
+        }
+        }
+        .IsRoot {
+            margin-left: 0;
+        }
+        .Expand {
+            width: 18px;
+            height: 18px;
+            float: left;
+        }
+        .Content {
+            margin-left:18px;
+            min-height: 18px;
+        }
+
+        * html .Content {
+        }
+        .ExpandOpen .Expand {
+            background-image: url(/resources/images/minus.gif);
+        }
+        .ExpandClosed .Expand {
+            background-image: url(/resources/images/plus.gif);
+        }
+        .IsLast {}
+
+        .ExpandLeaf .Expand {
+            cursor: auto;
+        }
+        .ExpandLoading   {
+            width: 18px;
+            height: 18px;
+            float: left;
+            background-image: url(/resources/images/expand_loading.gif);
+        }
+
+    </style>
+    
+    <style>
+            .right_col {
+                font-size: 15px;
+            }
+        </style>
+
+                <div class="row">
+                   <div class="">
+                       <div class="x_panel">
+                           <div class="x_title">
+                                <h3 th:text="#{navbar.messages}"></h3>
+                           </div>
+                <div class="row">
+	                <div class="two-buttons">
+	                <a th:href="@{/messages/new}">
+	                	<button type="button" class="btn btn-success btn-block" th:text="#{message.new}"></button>
+	                </a>
+	                </div>
+                
+                </div>
+                           <div class="x_content">
+                               <table id="tasksTable" class="table table-responsive table-striped">
+                               		<tbody>
+                               		<tr th:each="center : ${user?.inMessages}">
+                               			<td>
+                               				<b th:text="${center.message.title}"></b>
+                               				<br/>
+                               				<span th:text="${center.message.text}"></span>
+                               			</td>
+                               			<td>
+                               				<a th:href="@{/messages/delete(id=${center.message.id})}">
+                               					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
+                               				</a>
+                               			</td>
+                               		</tr>
+                               		</tbody>
+                               </table>
+                           </div>
+                       </div>
+                   </div>
+                </div>

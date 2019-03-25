@@ -84,14 +84,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
              .antMatchers("/editor/skill", "/editor/skill/alternative",
               			"/editor/skill/delete", "/editor/skill/delete/force",
               			"/editor/profile",
+              			"/editor/task",
               			"/editor/*/skillLevel", "/editor/skill/alternativeAsync")
               	//.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
             	.permitAll()
           	.antMatchers("/editor","/editor/**")
-          		.hasRole(RoleTypes.MANAGER.toString())
+          		//.hasRole(RoleTypes.MANAGER.toString())
+            	.permitAll()
             .antMatchers("/motivations","/motivation/**")
             	//.permitAll()
           		.hasAnyRole(RoleTypes.MANAGER.toString(), RoleTypes.HR.toString())
+            .antMatchers("/messages","/messages/**")
+            	.permitAll()
           	.antMatchers("/security/me")
           		.authenticated()
           	.antMatchers("/security/register")

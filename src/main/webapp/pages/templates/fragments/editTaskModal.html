@@ -18,23 +18,75 @@
   			<p th:text="#{editor.task.name}"></p>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" th:field="*{name}" placeholder="Task name (EN)" th:placeholder="#{editor.placeholder.task_name_en}" onblur="addCheck(this, 5, 100)"/>
+                                        <input type="text" class="form-control" th:field="*{name}" placeholder="Task name" th:placeholder="#{editor.placeholder.name}" onblur="addCheck(this, 5, 100)"/>
                                     </div>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" th:field="*{name_RU}" placeholder="Task name (RU)" th:placeholder="#{editor.placeholder.task_name_ru}" onblur="addCheck(this, 5, 100)"/>
+                               </div>
+   			<p th:text="#{editor.task.due}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="date" class="form-control" th:field="*{dueDate}"/>
+                                    </div>
+                                </div>
+   			<p th:text="#{editor.task.source}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+									<select th:field="*{source}" size="4">
+										<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
+									</select>
+                                    </div>
+                                </div>
+   			<p th:text="#{editor.task.target}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+									<select th:field="*{target}" size="4">
+										<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
+									</select>
                                     </div>
                                 </div>
                                 <hr class="separator"/>
-                                <div class="row" style="margin-bottom: 15px;">
-                                    <div class="col-md-12">
-                                        <textarea class="form-control" type="textarea" th:field="*{about}" placeholder="About (EN)" th:placeholder="#{editor.placeholder.description_en}"></textarea>
-                                    </div>
-                                </div>
+   			<p th:text="#{editor.task.type}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <textarea class="form-control" type="textarea" th:field="*{about_RU}" placeholder="About (RU)" th:placeholder="#{editor.placeholder.description_ru}"></textarea>
+									<select th:field="*{type}">
+										<option th:text="#{task.type.text}" value='1'>Text</option>
+										<option th:text="#{task.type.acronis}" value='2'>Acronis ID</option>
+										<option th:text="#{task.type.link}" value='3'>Link</option>
+										<option th:text="#{task.type.file}" value='4'>XLS File</option>
+									</select>
                                     </div>
                                 </div>
+            <div id="textAbout">
+   			<p th:text="#{task.type.text}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea class="form-control" type="textarea" th:field="*{about}" placeholder="Text" th:placeholder="#{task.type.text}"></textarea>
+                                    </div>
+                                </div>
+            </div>
+            <div id="acronisAbout" hidden="true">
+   			<p th:text="#{task.type.acronis}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Acronis ID" id="acronisValue" th:placeholder="#{task.type.acronis}"/>
+                                    </div>
+                                </div>
+            </div>
+            <div id="linkAbout" hidden="true">
+   			<p th:text="#{task.type.link}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Link" id="linkValue" th:placeholder="#{task.type.link}"/>
+                                    </div>
+                                </div>
+            </div>
+            <div id="fileAbout" hidden="true">
+   			<p th:text="#{task.type.filetext}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Link" id="fileValue" th:placeholder="#{task.type.file}"/>
+                                    </div>
+                                </div>
+            </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" onclick="javascript:submitTaskForm();return false;" th:text="#{editor.create}"></button>
@@ -42,9 +94,26 @@
                             </div>
                         </div>
                     </div>
+			
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			function hideOrShowElement(element, show) {
+				if (show) element.show();
+				else element.hide();
+			}
+
+            $("#type").on('input', function() {
+            	hideOrShowElement($("#textAbout"), $("#type").val() == "1");
+            	hideOrShowElement($("#acronisAbout"), $("#type").val() == "2");
+            	hideOrShowElement($("#linkAbout"), $("#type").val() == "3");
+            	hideOrShowElement($("#fileAbout"), $("#type").val() == "4");
+            });
+            
+			/*]]>*/
+			</script>
 				</form>
 			</div>
-			
 <div th:fragment="taskCreationSuccess" th:remove="tag">
 	<p>Form successfully submitted</p>
 </div>

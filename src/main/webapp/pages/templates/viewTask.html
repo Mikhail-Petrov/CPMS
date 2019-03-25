@@ -5,8 +5,9 @@
                                 <h3 th:text="${task.presentationName}"></h3>
                             </div>
                             <div class="x_content">
+                       	<th:block th:if="${task.type}=='1'">
+								<p><span th:text="#{task.type.text}"></span>:</p>
 								<p><span id="taskDescription" th:text="${task.about}">About</span></p>
-								<br/>
                                <script>
                          		/*<![CDATA[*/
                                 var descr = "<p>" + $("#taskDescription").html() + "</p";
@@ -15,18 +16,20 @@
                                 $("#taskDescription").html(descr);
                          		/*]]>*/
                                 </script>
-                       	<th:block th:if="${username}=='admin'"><p>
-                       	<a th:href="@{/viewer/task/group/generate/residents(id=${task.id})}">
-			<button id="generateResidents" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.generate.residents}"></button>
-						</a></p><p><span th:text="'residents amount: ' + ${residentsCount}"></span></p><p>
-                       	<a th:href="@{/viewer/task/group/generate/requirements(id=${task.id})}">
-			<button id="generateRequirements" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.generate.requirements}"></button>
-						</a></p><p><span th:text="'requirements amount: ' + ${requirementsCount}"></span></p></th:block>
-						<p><a th:href="@{/viewer/task/group(id=${task.id})}">
-			<button id="createGroup" class="btn btn-primary btn-block" type="submit" th:text="#{task.group.create}"></button>
-						</a></p>
-						<p id="statusLbl"></p>
-								<th:block th:if="${isAdmin}">
+                        </th:block>
+                       	<th:block th:if="${task.type}=='2'">
+                                <p><span th:text="#{task.type.acronis}"></span>: <span th:text="${task.about}"></span></p>
+                        </th:block>
+                       	<th:block th:if="${task.type}=='3'">
+                                <p><span th:text="#{task.type.link}"></span>: <span th:text="${task.about}"></span></p>
+                        </th:block>
+                       	<th:block th:if="${task.type}=='4'">
+                                <p><span th:text="#{task.type.file}"></span>: <a th:href="${task.about}" th:text="${task.about}" target="_blank"></a></p>
+                        </th:block>
+                                <p><span th:text="#{editor.task.due}"></span>: <span th:text="${task.dueDate}"></span></p>
+                                <p><span th:text="#{editor.task.source}"></span>: <span th:text="${task.source?.code}"></span></p>
+                                <p><span th:text="#{editor.task.target}"></span>: <span th:text="${task.target?.code}"></span></p>
+                                
 	                                <div class="row">
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
 	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createRequirementModal" th:text="#{task.requirement.add}"></button>
@@ -43,7 +46,6 @@
 	                                    </div>
 	                                </div>
 	                                <br/>
-                                </th:block>
 								<p><b><span th:text="#{task.requirements}"></span></b></p>
                                 <form action="#" th:action="@{/editor/task/saveChanges}" th:object="${requirements}" method="post">
 			<p th:if="${isAdmin}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
@@ -52,7 +54,7 @@
 			<script>
 				function changeData(compId) {
 					var newData = compId + "," + $("#" + compId).val();
-					$(requirementsData).val($(requirementsData).val() + ";" + newData);
+					$("#requirementsData").val($("#requirementsData").val() + ";" + newData);
 				}
 			</script>
 								<table class="table table-responsive table-striped">
@@ -71,122 +73,15 @@
 										</td>
 									</tr>
 								</table>
-                                
-                                <!-- div class="row">
-                                    <div class="col-md-3 col-md-offset-8" style="padding-right: 0px;">
-                                        <select class="form-control" id="actions">
-                                            <option th:text="#{task.remember}" value="1"></option>
-                                            <option th:text="#{task.compare}" value="2"></option>
-                                            <option th:text="#{dashboard.tasksearch.header}" value="3"></option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1" style="padding-left: 0px;">
-                                        <button type="button" class="btn btn-primary btn-block" id="check_actions" onclick="javascript:taskSelect()"><i class="fa fa-check"></i></button>
-                                    </div>
-                                </div -->
                                 </form>
 							</div>
 						</div>
 					</div>
 				</div>
-				
-				<script th:inline="javascript">
-                         		/*<![CDATA[*/
-                         		var header = /*[[#{layout.notification}]]*/ null;
-                         		var taskId = /*[[${task.id}]]*/
-                         		
-                         		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-                        	    var csrfToken = $("meta[name='_csrf']").attr("content");
-                        	    var headers = {};
-                        	    headers[csrfHeader] = csrfToken;
-                         		           
-                         		function taskSelect() {
-                         			var val = $("#actions").val();
-                         			var message = null;
-                         			var address = null;
-                         			
-                         			var inputArgs = [];
-                         			
-                         			if (val == 1) {
-                         				address = /*[[@{/dashboard/rememberTask}]]*/ null;
-                         				inputArgs.push(taskId);
-                         			} else if (val == 2) {
-                         				address = /*[[@{/dashboard/compareTask}]]*/ null;
-                         				inputArgs.push('');
-                         				inputArgs.push(taskId);
-                         			} else if (val == 3) {
-                         				address = /*[[@{/dashboard//taskSearch}]]*/ null;
-                         				window.location.href = address + "?task=" + taskId;
-                         				return;
-                         			} else {
-                         				return;
-                         			}
-                         			
-                         			$.ajax({
-                         				url : address,
-                         				type: 'POST',
-                         				dataType: 'json',
-                         				contentType: 'application/json; charset=utf-8',
-                         				data : JSON.stringify(inputArgs),
-                         				headers: headers,
-                         				success: function (res) {
-                         					document.getElementById('notificationBody').innerHTML=res.message;
-                         					document.getElementById('notificationHeader').innerHTML=header;
-                         					$('#notificationModal').modal('show'); 
-                         				},
-                         				error: function (xhRequest, ErrorText, thrownError) {
-                         					document.getElementById('notificationBody').innerHTML="Error.";
-                         					document.getElementById('notificationHeader').innerHTML=header;
-                         					$('#notificationModal').modal('show');
-                         					
-                         					console.log('xhRequest: ' + xhRequest + "\n");
-                         					console.log('ErrorText: ' + ErrorText + "\n");
-                         					console.log('thrownError: ' + thrownError + "\n");
-                         					console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
-                         				}
-                         			});
-                         		}
-                         		
-                         		function updateStatus() {
-                         			var address = /*[[@{/viewer/task/getStatus}]]*/ null;
-                             		
-                             		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-                            	    var csrfToken = $("meta[name='_csrf']").attr("content");
-                            	    var headers = {};
-                            	    headers[csrfHeader] = csrfToken;
-
-                         			$.ajax({
-                         				url : address,
-                         				type: 'POST',
-                         				dataType: 'json',
-                         				contentType: 'application/json; charset=utf-8',
-                         				data : JSON.stringify(''),
-                         				headers: headers,
-                         				success: function (res) {
-                                 			$(statusLbl).html(res.message);
-                                 			
-                                 			setTimeout(updateStatus, 1*1000);
-                         					console.log('1');
-                         				},
-                         				error: function (xhRequest, ErrorText, thrownError) {
-                         					
-                         					console.log('xhRequest: ' + xhRequest + "\n");
-                         					console.log('ErrorText: ' + ErrorText + "\n");
-                         					console.log('thrownError: ' + thrownError + "\n");
-                         				}
-                         			});
-                         		}
-                         		
-                         		$(createGroup).on("click", function() {updateStatus()});
-                         		$(generateResidents).on("click", function() {updateStatus()});
-                         		$(generateRequirements).on("click", function() {updateStatus()});
-                         		//$(createGroup).on("click", function() {setInterval(updateStatus, 2*1000)});
-                         		/*]]>*/
-           		</script>
 
 				<style>
 	                  p {
-	                      text-indent: 20px;
+	                      text-indent: 0px;
 	                  }
 	                  #check_actions {
 	                      border-radius: 0 3px 3px 0 !important;
@@ -204,7 +99,6 @@
 	                  }
 	          	</style>
                                 
-              	<th:block th:if="${isAdmin}">
                 	<div class="modal fade" id="createRequirementModal" tabindex="-1" role="dialog" aria-labelledby="createRequirementModal" aria-hidden="true">
                     	<div th:replace="fragments/editRequirementModal :: requirementModalForm"></div>
                 	</div>
@@ -239,4 +133,3 @@
                 	});
                 	}
                 	</script>
-                </th:block>

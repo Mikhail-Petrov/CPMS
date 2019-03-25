@@ -1,0 +1,194 @@
+	<script type="text/javascript" th:src="@{/resources/js/tableLoader.js}"></script>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" />
+	
+	<style>
+        a {
+            cursor: pointer;
+        }
+    </style>
+
+    <style>
+        .Container {
+            padding: 0;
+            margin: 0;
+        }
+        .Container li {
+            list-style-type: none;
+        }
+        }
+        .IsRoot {
+            margin-left: 0;
+        }
+        .Expand {
+            width: 18px;
+            height: 18px;
+            float: left;
+        }
+        .Content {
+            margin-left:18px;
+            min-height: 18px;
+        }
+
+        * html .Content {
+        }
+        .ExpandOpen .Expand {
+            background-image: url(/resources/images/minus.gif);
+        }
+        .ExpandClosed .Expand {
+            background-image: url(/resources/images/plus.gif);
+        }
+        .IsLast {}
+
+        .ExpandLeaf .Expand {
+            cursor: auto;
+        }
+        .ExpandLoading   {
+            width: 18px;
+            height: 18px;
+            float: left;
+            background-image: url(/resources/images/expand_loading.gif);
+        }
+
+    </style>
+    
+    <style>
+            .right_col {
+                font-size: 15px;
+            }
+        </style>
+
+                <div class="row">
+                   <div class="">
+                       <div class="x_panel">
+                           <div class="x_title">
+                                <h3 th:text="#{navbar.task}"></h3>
+                           </div>
+                           <div class="x_content">
+                               <table id="tasksTable" class="table table-responsive table-striped">
+                               		<thead>
+                               			<tr>
+                               				<th data-field="name"><span th:text="#{viewer.new.name}"></span></th>
+                               			</tr>
+                               		</thead>
+                               		<tbody>
+                               		</tbody>
+                               </table>
+
+                               <div class="row">
+                                   <div class="text-center">
+                                       <nav aria-label="Page navigation">
+                                           <ul class="pagination" style="margin: 0px;">
+                                               <li class="page-item">
+                                                   <a class="page-link" href="#" aria-label="Previous" th:onclick="'javascript:previousTaskPage()'">
+                                                       <span aria-hidden="true">&laquo;</span>
+                                                       <span class="sr-only">Previous</span>
+                                                   </a>
+                                               </li>
+                                               <th:block th:each="i : ${#numbers.sequence( 1, taskPages, 1)}">
+                                               	<li class="page-item" th:id="'taskPageButton' + ${i}"><a class="page-link" href="#" th:onclick="'javascript:changeTaskPage('+${i}+');'"><span th:text="${i}"></span></a></li>
+                                               </th:block> 
+                                               <li class="page-item">
+                                                   <a class="page-link" href="#" aria-label="Next" th:onclick="'javascript:nextTaskPage()'">
+                                                       <span aria-hidden="true">&raquo;</span>
+                                                       <span class="sr-only">Next</span>
+                                                   </a>
+                                               </li>
+                                           </ul>
+                                       </nav>
+                                   </div>
+                                   <div class="text-center">
+                                       <button type="button" class="btn btn-success"
+                                        onclick="$('#createTaskModal').modal('show')"><i class="fa fa-plus"></i></button>
+                                   </div>
+                               </div>
+                               <script th:inline="javascript">
+                               /*<![CDATA[*/
+                                    var taskPage = null;
+                               
+                               		var taskTotalPages = /*[[${taskPages}]]*/ 1;
+                                          
+                                    var taskAddr = /*[[@{/viewer/task}]]*/ '/viewer/task';
+                                    
+                                    var taskLoadUrl = /*[[@{/viewer/ajaxTasks}]]*/ '/viewer/ajaxTasks'
+                                          
+                            	    var taskTable = $('#tasksTable');
+                                    
+                                    taskTable.bootstrapTable({
+                            	    	onClickRow: function(row, element, field) {
+                            	    		window.location.href = taskAddr + '?id=' + row.id;
+                            	        }
+                            	    });
+                                    
+                                    var changeTaskPage = function(page) {
+                                    	document.cookie = 'taskPage='+page;
+                                    	if (taskPage != null) {
+                                    		$('#taskPageButton' + taskPage).removeClass('active');
+                                    	}
+                                    	taskPage = page;
+                                    	$('#taskPageButton' + page).addClass('active');
+                                    	tableChangePage(taskPage, taskTable, taskLoadUrl);
+                                    }
+                                    
+                                    var startPage =  /*[[${taskPage}]]*/ 1;
+                                    changeTaskPage(startPage);
+                                    
+                                    var nextTaskPage = function() {
+                                    	if (taskPage < taskTotalPages) {
+                                    		changeTaskPage(taskPage + 1);
+                                    	}
+                                    }
+                                    
+                                    var previousTaskPage = function() {
+                                    	if (taskPage > 1) {
+                                    		changeTaskPage(taskPage - 1);
+                                    	}
+                                    }
+                            	/*]]>*/
+                               </script>
+                           </div>
+                       </div>
+                   </div>
+                </div>
+
+                <div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+                	<div th:replace="fragments/editTaskModal :: taskModalForm"></div>
+                </div>
+                <script>
+                	var submitTaskForm = function() {
+    					
+    	            	if ($("#type").val() == "2")
+    	            		$("#about").val($("#acronisValue").val());
+    	            	if ($("#type").val() == "3")
+    	            		$("#about").val($("#linkValue").val());
+    	            	if ($("#type").val() == "4")
+    	            		$("#about").val($("#fileValue").val());
+    					
+                	  	var $form = $('#taskCreate');
+                	    
+                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                	    var csrfToken = $("meta[name='_csrf']").attr("content");
+                	    var headers = {};
+                	    headers[csrfHeader] = csrfToken;
+                	    
+                	    $.ajax({
+                	      url: $form.attr('action'),
+                	      type: 'post',
+                	      data: $form.serialize(),
+                	      headers: headers,
+                	      success: function(response) {
+                	        if (response.indexOf("Form successfully submitted") === -1) {
+                	        	$form.replaceWith(response);
+                	        } else {
+                	        	location.reload();
+                	        }
+                	      },
+                	      error: function (xhRequest, ErrorText, thrownError) {
+                				console.log('xhRequest: ' + xhRequest + "\n");
+                	            console.log('ErrorText: ' + ErrorText + "\n");
+                	            console.log('thrownError: ' + thrownError + "\n");
+                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+                	      }
+                	});
+                	}
+                </script>

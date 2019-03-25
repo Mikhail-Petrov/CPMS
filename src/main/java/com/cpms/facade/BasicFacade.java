@@ -8,6 +8,7 @@ import org.springframework.util.Assert;
 
 import com.cpms.dao.interfaces.*;
 import com.cpms.data.entities.Language;
+import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
@@ -42,6 +43,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	private IDAO<Motivation> motivationDAO;
 	
 	@Autowired
+	@Qualifier(value = "messageDAO")
+	private IDAO<Message> messageDAO;
+	
+	@Autowired
 	@Qualifier(value = "languageDAO")
 	private IDAO<Language> languageDAO;
 	
@@ -68,6 +73,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Autowired
 	@Qualifier(value = "possibilityAggregator")
 	private IPossibilityAggregator possibilityAggregator;
+
+	public void setMessageDAO(IDAO<Message> messageDAO) {
+		this.messageDAO = messageDAO;
+	}
 
 	public void setProfileDAO(IDAO<Profile> profileDAO) {
 		this.profileDAO = profileDAO;
@@ -103,6 +112,11 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 
 	public void setPossibilityAggregator(IPossibilityAggregator possibilityAggregator) {
 		this.possibilityAggregator = possibilityAggregator;
+	}
+
+	@Override
+	public IDAO<Message> getMessageDAO() {
+		return messageDAO;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.cpms.facade;
 
 import com.cpms.dao.interfaces.*;
 import com.cpms.data.entities.Language;
+import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
@@ -17,6 +18,8 @@ import com.cpms.operations.interfaces.*;
 public interface ICPMSFacade {
 	
 	public IDAO<Profile> getProfileDAO();
+	
+	public IDAO<Message> getMessageDAO();
 	
 	public IDAO<Language> getLanguageDAO();
 	

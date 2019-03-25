@@ -1,8 +1,10 @@
 package com.cpms.security.entities;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +21,8 @@ import org.hibernate.annotations.CascadeType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.cpms.data.AbstractDomainObject;
+import com.cpms.data.entities.Message;
+import com.cpms.data.entities.MessageCenter;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.SecurityUser;
@@ -55,6 +59,16 @@ public class User extends AbstractDomainObject {
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	protected List<Role> roles;
+
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST})
+	private Set<Message> messages;
+
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST})
+	private Set<MessageCenter> inMessages;
 	
 	public boolean isHashed() {
 		return hashed;
@@ -179,6 +193,51 @@ public class User extends AbstractDomainObject {
 	@Override
 	public User localize(Locale locale) {
 		return this;
+	}
+
+	public Set<Message> getMessages() {
+		if (messages == null) {
+			messages = new LinkedHashSet<Message>();
+		}
+		return new LinkedHashSet<Message>(messages);
+	}
+
+	public void setMessages(Set<Message> messages) {
+		this.messages = messages;
+		this.messages.forEach(x -> x.setOwner(this));
+	}
+
+	public Set<MessageCenter> getInMessages() {
+		if (inMessages == null) {
+			inMessages = new LinkedHashSet<MessageCenter>();
+		}
+		return new LinkedHashSet<MessageCenter>(inMessages);
+	}
+
+	public void setInMessages(Set<MessageCenter> inMessages) {
+		this.inMessages = inMessages;
+		this.inMessages.forEach(x -> x.setUser(this));
+	}
+
+	public void removeInMessage(MessageCenter recipient) {
+		if (recipient == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if(this.equals(recipient.getUser())) {
+			removeEntityFromManagedCollection(recipient, inMessages);
+			recipient.setMessage(null);
+		}
+	}
+
+	public void addInMessage(MessageCenter recipient) {
+		if (recipient == null || recipient.getMessage() == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (inMessages == null) {
+			getInMessages();
+		}
+		inMessages.add(recipient);
+		recipient.setUser(this);
 	}
 
 }

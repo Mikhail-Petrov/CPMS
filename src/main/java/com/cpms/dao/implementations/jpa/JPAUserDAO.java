@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cpms.dao.implementations.jpa.repositories.security.RoleRepository;
 import com.cpms.dao.implementations.jpa.repositories.security.UserRepository;
+import com.cpms.dao.implementations.jpa.repositories.system.MessageCenterRepository;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Profile;
@@ -30,6 +31,7 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 
 	private UserRepository userRepository;
 	private RoleRepository roleRepository;
+	private MessageCenterRepository messageRepository;
 	
 	@Autowired
 	@Qualifier(value = "User")
@@ -43,10 +45,17 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 		this.roleRepository = roleRepository;
 	}
 	
+	@Autowired
+	@Qualifier(value = "MessageCenter")
+	public void setMessageRepository(MessageCenterRepository messageRepository) {
+		this.messageRepository = messageRepository;
+	}
+	
 	@Override
 	public void cleanAndReset() {
 		userRepository.deleteAll();
 		roleRepository.deleteAll();
+		messageRepository.deleteAll();
 	}
 
 	@Override

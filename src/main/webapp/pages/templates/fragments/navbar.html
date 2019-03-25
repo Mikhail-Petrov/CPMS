@@ -43,7 +43,7 @@
                   <li th:if="${isHR or username=='admin'}"><a th:href="@{/motivations}"><i class="fa fa-edit"></i> <span th:text="#{navbar.motivations}">Motivations</span></a></li>
                   <li th:if="${isAdmin or isResident or isBoss}"><a><i class="fa fa-info"></i><span th:text="#{navbar.block2}">Business process</span> <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li th:if="${isAdmin or isResident}"><a th:href="@{/}"><span th:text="#{navbar.task}">Task definition</span></a></li>
+                      <li th:if="${isAdmin or isResident}"><a th:href="@{/viewer/tasks}"><span th:text="#{navbar.task}">Task definition</span></a></li>
                       <li th:if="${isAdmin or isResident}"><a th:href="@{/}"><span th:text="#{navbar.estimations}">Estimations</span></a></li>
                       <li><a th:href="@{/}"><span th:text="#{navbar.messages}">Messaging center</span></a></li>
                       <li th:if="${isBoss or username=='admin'}"><a th:href="@{/}"><span th:text="#{navbar.reward}">Reward</span></a></li>

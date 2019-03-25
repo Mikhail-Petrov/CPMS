@@ -9,11 +9,6 @@
                                 <h4 class="modal-title" th:text="#{editor.create} + ' ' + #{editor.requirement}"></h4>
                             </div>
                             <div class="modal-body">
-                            	<div class="row" th:if="${#fields.hasErrors('*')}">
-                            		<ul th:if="${#fields.hasErrors('*')}">
-                            			<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
-                            		</ul>
-                            	</div>
                             	<input type="hidden" th:field="*{id}" />
                             		<h2 id="errorfield"></h2>
                                 <div class="row">

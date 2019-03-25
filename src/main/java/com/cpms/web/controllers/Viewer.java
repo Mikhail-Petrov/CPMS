@@ -165,6 +165,19 @@ public class Viewer {
 		return "viewer";
 	}
 
+	@RequestMapping(value = "/tasks", method = RequestMethod.GET)
+	public String task(Model model, HttpServletRequest request, Principal principal) {
+		long countTasks = facade.getTaskDAO().count();
+		model.addAttribute("taskPages",
+				countTasks / PagingUtils.PAGE_SIZE + (countTasks % PagingUtils.PAGE_SIZE > 0 ? 1 : 0));
+		model.addAttribute("_VIEW_TITLE", "navbar.task");
+		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("task", new Task());
+		List<Language> langs = facade.getLanguageDAO().getAll();
+		model.addAttribute("languages", langs);
+		return "tasks";
+	}
+
 	@RequestMapping(value = "/profiles", method = RequestMethod.GET)
 	public String profiles(Model model, HttpServletRequest request,
 			@RequestParam(value = "page", required = false) Integer page,
@@ -208,9 +221,8 @@ public class Viewer {
 			int page = (Integer) values.get(0);
 			return facade.getTaskDAO().getRange((page - 1) * PagingUtils.PAGE_SIZE, page * PagingUtils.PAGE_SIZE)
 					.stream().map(x -> {
-						Task localized = x.localize(LocaleContextHolder.getLocale());
 						Map<String, Object> map = new HashMap<>();
-						map.put(NAME_KEY, localized.getPresentationName());
+						map.put(NAME_KEY, x.getPresentationName());
 						map.put(ID_KEY, x.getId());
 						return map;
 					}).collect(Collectors.toList());
@@ -257,18 +269,6 @@ public class Viewer {
 		return "viewProfile";
 	}
 
-	@RequestMapping(value = "/tasks", method = RequestMethod.GET)
-	public String tasks(Model model, HttpServletRequest request,
-			@RequestParam(value = "page", required = false) Integer page,
-			@RequestParam(value = "search", required = false) String search) {
-		model.addAttribute("_VIEW_TITLE", "title.tasks");
-		if (page == null) {
-			page = 1;
-		}
-		return PagingUtils.preparePageFromDao(page, facade.getTaskDAO(), Task.class, // table-responsive
-				"/viewer/tasks", model, request, true, search, "/viewer/task", "Tasks", "/editor/task");
-	}
-
 	@RequestMapping(value = "/task", method = RequestMethod.GET)
 	public String task(Model model, @RequestParam(value = "id", required = true) Long id,
 			@RequestParam(value = "returnUrl", required = false) String returnUrl, HttpServletRequest request) {
@@ -276,18 +276,16 @@ public class Viewer {
 			returnUrl = "/viewer/tasks";
 		}
 		model.addAttribute("requirements", new Requirements(id));
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			model.addAttribute("requirement", new TaskRequirement());
-			model.addAttribute("skillsList",
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
-			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
-		}
+		model.addAttribute("requirement", new TaskRequirement());
+		model.addAttribute("skillsList",
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
 		Task task = facade.getTaskDAO().getOne(id);
 		model.addAttribute("backPath", returnUrl);
 		// add generated requirements
 		for (TaskRequirement req : generatedReqs)
 			task.addRequirement(req);
-		model.addAttribute("task", task.localize(LocaleContextHolder.getLocale()));
+		model.addAttribute("task", task);
 		List<String> requirements = new ArrayList<String>();
 		for (TaskRequirement req : task.getRequirements())
 			requirements.add(req.getSkill().getPresentationName());
@@ -315,7 +313,7 @@ public class Viewer {
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", task.getPresentationName());
 		model.addAttribute("_FORCE_CSRF", true);
-		model.addAttribute("task", task.localize(LocaleContextHolder.getLocale()));
+		model.addAttribute("task", task);
 		timeLog = "";
 		model.addAttribute("options", findGroups(task));
 		model.addAttribute("timeLog", timeLog);

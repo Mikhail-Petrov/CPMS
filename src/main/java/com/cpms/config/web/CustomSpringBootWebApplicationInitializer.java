@@ -67,5 +67,4 @@ public class CustomSpringBootWebApplicationInitializer
     public RequestContextListener requestContextListener() {
         return new RequestContextListener();
     }
-
 }

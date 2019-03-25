@@ -56,9 +56,7 @@ public class TestTaskDAO {
 		skill1.setMaxLevel(1);
 		skillDAO.insert(skill1);
 		Task t1 = new Task("Task 1", null);
-		t1.setName_RU("Task 1");
 		Task t2 = new Task("Task 2", "Info");
-		t2.setName_RU("Task 2");
 		TaskRequirement r1 = new TaskRequirement(skill1, 1);
 		t2.addRequirement(r1);
 		
@@ -151,7 +149,6 @@ public class TestTaskDAO {
 		TaskRequirement comp = new TaskRequirement(s1, 1);
 		TaskRequirement comp2 = new TaskRequirement(s1, 2);
 		Task task = new Task("Task 1", null);
-		task.setName_RU("Task 1");
 		task.addRequirement(comp);
 		task.addRequirement(comp2);
 		
@@ -178,7 +175,6 @@ public class TestTaskDAO {
 		TaskRequirement comp = new TaskRequirement(s1, 1);
 		TaskRequirement comp2 = new TaskRequirement(s2, 1);
 		Task task = new Task("Task 1", null);
-		task.setName_RU("Task 1");
 		task.addRequirement(comp);
 		task.addRequirement(comp2);
 		taskDAO.insert(task);
