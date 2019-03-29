@@ -1,0 +1,30 @@
+<div th:fragment="messageModalForm" th:remove="tag">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+	<div class="modal-body">
+  		<div class="collection-object force-width" id="newMessageForm">
+  		<h3 id="messageFormTitle"><span id="messageTitle" th:text="#{message.create.new}"></span></h3>
+  		<form action="#" th:action="@{/messages/async}" th:object="${message}" method="post" id="messageCreate">
+  			<input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/>
+  			<p><span class="warning" id="warning"></span></p>
+ 			<p th:text="#{message.title}"></p>
+			<p><input type="text" class="form-control" th:field="*{title}" placeholder="title" th:placeholder="#{message.title}" id="message_title"/></p>
+ 			<p th:text="#{message.text}"></p>
+			<p><textarea type="textarea" class="form-control" th:field="*{text}" placeholder="text" th:placeholder="#{message.text}" id="message_text"></textarea></p>
+  			<input type="hidden" id='parent' th:field="*{parent}" class="input-wide" th:value="0"/>
+ 			<p th:text="#{message.to}"></p>
+			<p><select id="usersTo" name="usersTo" size="7" multiple="true">
+					<option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">admin</option>
+			</select></p>
+			<p><input type="submit" id="messageSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{message.save}"/></p>
+		</form>
+  		</div>
+  	</div>
+  	</div>
+	</div>
+	</div>
+	
+			
+<div th:fragment="motivationCreationSuccess" th:remove="tag">
+  <p>Form successfully submitted</p>
+</div>

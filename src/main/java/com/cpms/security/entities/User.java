@@ -61,13 +61,11 @@ public class User extends AbstractDomainObject {
 	protected List<Role> roles;
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", orphanRemoval = true)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
-        CascadeType.MERGE, CascadeType.PERSIST})
+	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
 	private Set<Message> messages;
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user", orphanRemoval = true)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
-        CascadeType.MERGE, CascadeType.PERSIST})
+	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
 	private Set<MessageCenter> inMessages;
 	
 	public boolean isHashed() {
@@ -217,27 +215,6 @@ public class User extends AbstractDomainObject {
 	public void setInMessages(Set<MessageCenter> inMessages) {
 		this.inMessages = inMessages;
 		this.inMessages.forEach(x -> x.setUser(this));
-	}
-
-	public void removeInMessage(MessageCenter recipient) {
-		if (recipient == null) {
-			throw new DataAccessException("Null value.", null);
-		}
-		if(this.equals(recipient.getUser())) {
-			removeEntityFromManagedCollection(recipient, inMessages);
-			recipient.setMessage(null);
-		}
-	}
-
-	public void addInMessage(MessageCenter recipient) {
-		if (recipient == null || recipient.getMessage() == null) {
-			throw new DataAccessException("Null value.", null);
-		}
-		if (inMessages == null) {
-			getInMessages();
-		}
-		inMessages.add(recipient);
-		recipient.setUser(this);
 	}
 
 }

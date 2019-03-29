@@ -175,6 +175,7 @@ public class Viewer {
 		model.addAttribute("task", new Task());
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		model.addAttribute("languages", langs);
+		model.addAttribute("users", userDAO.getAll());
 		return "tasks";
 	}
 

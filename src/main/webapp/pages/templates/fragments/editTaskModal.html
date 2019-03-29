@@ -44,6 +44,16 @@
                                     </div>
                                 </div>
                                 <hr class="separator"/>
+   			<p th:text="#{editor.task.performers}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+									<select name="performers" size="6" multiple="true">
+										<option value="all" th:text="#{editor.task.performers.all}">All</option>
+										<option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">admin</option>
+									</select>
+                                    </div>
+                                </div>
+                                <hr class="separator"/>
    			<p th:text="#{editor.task.type}"></p>
                                 <div class="row">
                                     <div class="col-md-12">

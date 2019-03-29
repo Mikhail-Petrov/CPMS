@@ -1,5 +1,5 @@
 <div th:fragment="requirementModalForm" th:remove="tag">		
-				<form id="requirementCreate" action="#" th:action="@{'/editor/' + ${task.id} + '/requirementAsync'}" th:object="${requirement}" method="post">
+				<form id="requirementCreate" action="#" th:action="@{'/editor/' + ${task.id} + '/requirementAsyncNew'}" th:object="${requirement}" method="post">
 					<div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -22,7 +22,8 @@
 									</script>
 									<span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
                                    <p th:text="#{editor.requirement.skill}"></p>
-									<p><select th:field="*{skill}" id="skillSelector">
+                            	<input type="hidden" th:field="*{skill}"/>
+									<p><select name="skillIDs" id="skillSelector" multiple="true" size="10">
   										<option th:each="skillInList : ${skillsList}" 
           									th:value="${skillInList.id}" 
           									th:text="${skillInList.name}">A skill</option>
@@ -35,7 +36,7 @@
 										for (var skill in skillsAndParents) {
 											$('#skillSelector option[value="' + skill + '"]').prop('hidden', filterText!=="");
 										}
-										$('#skillSelector').attr("size", 1);
+										//$('#skillSelector').attr("size", 1);
 										if (filterText == "")
 											return;
 										var toShow = [0];
@@ -52,10 +53,10 @@
 												selectSize++;
 											$('#skillSelector option[value="' + toShow[i] + '"]').prop('hidden', false);
 										}
-										$('#skillSelector').attr("size", selectSize);
+										//$('#skillSelector').attr("size", selectSize);
 									}
 									function checkExist() {
-										$('#skillSelector').attr("size", 1);
+										//$('#skillSelector').attr("size", 1);
 										var selectedSkill = $('#skillSelector option:selected').html();
 										while (selectedSkill.indexOf("-- ") > -1)
 											selectedSkill = selectedSkill.replace("-- ", "");
@@ -71,17 +72,18 @@
 									}
 									$(skillFilter).on("input", applyFilter);
 									document.getElementById('skillSelector').addEventListener("input", checkExist);
+									$("#skill").val($("#skillSelector option")[0].value)
 									/*]]>*/
 									</script>
                                 </div>
 		<p id="skillDescription" text="1"></p>
                                 <hr class="separator" />
-                                <div class="row">
+                                <div class="row" hidden="true">
                                 	<p th:text="#{editor.level}"></p>
 									<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
 									<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
                                 </div>
-		<p id="levelDescription" text="1"></p>
+		<p id="levelDescription" text="1" hidden="true"></p>
 		<th:block th:replace="fragments/updateLevelDescription :: updateLevelDescription"></th:block>
                             </div>
                             <div class="modal-footer">

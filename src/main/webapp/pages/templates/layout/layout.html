@@ -42,6 +42,15 @@
           			</div>
           			<div class="clearfix"></div>
         		</footer>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+				
+			var newMessages = /*[[${newMessages}]]*/ 0;
+			if (newMessages > 0)
+				$("#mesLink").html($("#mesLink").html() + " (" + newMessages + ")");
+			
+			/*]]>*/
+			</script>
 			</div>
 		</div>
 	</body>

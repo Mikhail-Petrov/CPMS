@@ -66,30 +66,106 @@
                            </div>
                 <div class="row">
 	                <div class="two-buttons">
-	                <a th:href="@{/messages/new}">
-	                	<button type="button" class="btn btn-success btn-block" th:text="#{message.new}"></button>
-	                </a>
+						<span class="btn btn-success btn-block" th:text="#{message.new}" onclick="ajaxMessageDialog(rootPath + 'messages/ajaxMessage', '0');"></span>
 	                </div>
                 
                 </div>
                            <div class="x_content">
                                <table id="tasksTable" class="table table-responsive table-striped">
                                		<tbody>
-                               		<tr th:each="center : ${user?.inMessages}">
-                               			<td>
-                               				<b th:text="${center.message.title}"></b>
+                               		<tr th:each="message : ${inMessages}">
+                               			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{message.id} +')'">
+                               				<b th:text="${message.title}"></b>
                                				<br/>
-                               				<span th:text="${center.message.text}"></span>
+                               				<span id="text" th:text="${message.text}"></span>
                                			</td>
                                			<td>
-                               				<a th:href="@{/messages/delete(id=${center.message.id})}">
+                               				<a th:href="@{/messages/delete(id=${message.id})}">
                                					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                				</a>
                                			</td>
                                		</tr>
                                		</tbody>
                                </table>
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+			var els = $("[id=text");
+			for (var i = 0; i < els.length; i++)
+				els[i].innerHTML = els[i].innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+			
+			function ajaxMessageDialog(requestUrl) {
+				
+				var isReply = false;
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					if (arguments[i] < 0) {
+						isReply = true;
+						arguments[i] = -arguments[i];
+					}
+					inputArgs.push(arguments[i]);
+				}
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+				
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+						var isChange = (res.id > 0);
+						if (isChange) {
+							// Copy values from changed motivation
+							$("#message_title").val(res.title);
+							$("#message_text").val(res.text);
+							// Select recepients
+							$("#usersTo").val('');
+							$('#usersTo :first').prop('selected', false);
+							for (var i = 0; i < res.recepients.length; i++)
+								$('#usersTo option[value="' + res.recepients[i] + '"]').prop('selected', true);
+						    // Remember id of the changed message
+						    $("#selfId").val(res.id);
+						}
+						else {
+							// Clear all values
+							$("#message_title").val("");
+							$("#message_text").val("");
+							// Clear recepients
+							$("#usersTo").val('');
+							$('#usersTo :first').prop('selected', false);
+						    // Forget motivation id
+						    $("#selfId").val(0);
+						}
+						if (isChange) {
+							motivationTitle = /*[[#{message.change.new}]]*/ "Change message";
+						} else {
+							motivationTitle = /*[[#{message.create.new}]]*/ "Create new message";
+						}
+						document.getElementById('messageFormTitle').innerHTML= "<span id=\"messageName\">" + motivationTitle + "</span>";
+						$('#createMessageModal').modal('show');
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			/*]]>*/
+                               </script>
                            </div>
                        </div>
                    </div>
+                </div>
+                   
+                <div class="modal fade" id="createMessageModal" tabindex="-1" role="dialog" aria-labelledby="createMessageModalLabel" aria-hidden="true">
+                	<div th:replace="fragments/editMessageModal :: messageModalForm"></div>
                 </div>

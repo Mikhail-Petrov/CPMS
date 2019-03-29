@@ -3,6 +3,7 @@ package com.cpms.web.controllers;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
@@ -16,7 +17,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Message;
+import com.cpms.data.entities.MessageCenter;
+import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
+import com.cpms.security.entities.User;
 import com.cpms.web.UserSessionData;
 
 /**
@@ -32,6 +37,10 @@ public class CommonModelAttributes {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
+
+	@Autowired
+	@Qualifier(value = "facade")
+	private ICPMSFacade facade;
 
 	@ModelAttribute("isAuthenticated")
 	public boolean isAuthenticated(Principal principal) {
@@ -90,6 +99,25 @@ public class CommonModelAttributes {
 		}
 		UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) principal;
 		return user.getName();
+	}
+	
+	@ModelAttribute("newMessages")
+	public int newMessages(Principal principal) {
+		User user = Security.getUser(principal, userDAO);
+		Set<MessageCenter> centers = null;
+		if (user == null) {
+			List<Message> messages = facade.getMessageDAO().getAll();
+			for (Message mes : messages)
+				if (centers == null)
+					centers = mes.getRecipients();
+				else
+					centers.addAll(mes.getRecipients());
+		} else
+			centers = user.getInMessages();
+		int result = centers.size();
+		for (MessageCenter center : centers)
+			if (center.isRed()) result--;
+		return result;
 	}
 	
 	@ModelAttribute("companyId")

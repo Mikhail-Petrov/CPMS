@@ -78,7 +78,8 @@ public class Message extends AbstractDomainObject {
 	private Set<Message> children;
 	
 	@OneToMany(fetch = FetchType.EAGER,	mappedBy = "message", orphanRemoval = true)
-	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST})
 	private Set<MessageCenter> recipients;
 
 	@Column(name = "SENDED", nullable = true)
@@ -86,7 +87,10 @@ public class Message extends AbstractDomainObject {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date sendedTime;
 	
-	public Message() {setSendedTime(new Date(System.currentTimeMillis()));}
+	public Message() {
+		setSendedTime(new Date(System.currentTimeMillis()));
+		setType("1");
+	}
 	
 
 	public String getType() {
@@ -207,6 +211,12 @@ public class Message extends AbstractDomainObject {
 			removeEntityFromManagedCollection(recipient, recipients);
 			recipient.setMessage(null);
 		}
+	}
+	
+	public void removeRecepient(User user) {
+		for (MessageCenter recepient : getRecipients())
+			if (recepient.getUser().equals(user))
+				removeRecipient(recepient);
 	}
 
 	public void addRecipient(MessageCenter recipient) {

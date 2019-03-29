@@ -46,12 +46,16 @@ public class MessageCenter extends AbstractDomainObject {
 	@Column(name = "hidden", nullable = false)
 	private boolean hidden = false;
 	
+	@Column(name = "red", nullable = false)
+	private boolean red = false;
+	
 	public MessageCenter() {}
 	
 	public MessageCenter(User user) {
 		this.user = user;
 		this.copy = false;
 		this.hidden = false;
+		this.setRed(false);
 	}
 	
 	public MessageCenter(Message message) {
@@ -126,6 +130,14 @@ public class MessageCenter extends AbstractDomainObject {
 
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
+	}
+
+	public boolean isRed() {
+		return red;
+	}
+
+	public void setRed(boolean red) {
+		this.red = red;
 	}
 	
 }

@@ -1,12 +1,6 @@
 package com.cpms.web.ajax;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.cpms.data.entities.Motivation;
-import com.cpms.data.entities.Skill;
-import com.cpms.data.entities.SkillLevel;
-import com.cpms.web.UserSessionData;
 
 /**
  * AJAX answer that returns information about a certain skill.

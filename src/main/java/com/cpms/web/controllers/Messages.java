@@ -1,21 +1,31 @@
 package com.cpms.web.controllers;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
+import com.cpms.data.entities.Motivation;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.User;
+import com.cpms.web.MessagePostForm;
+import com.cpms.web.MotivationPostForm;
+import com.cpms.web.ajax.IAjaxAnswer;
+import com.cpms.web.ajax.MessagesAnswer;
+import com.cpms.web.ajax.MotivationAnswer;
 
 /**
  * Handles skill CRUD web application requests.
@@ -35,15 +45,6 @@ public class Messages {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
-
-	private User getUser(Principal principal) {
-		if (principal == null) return null;
-		User user = null;
-		String username = ((UsernamePasswordAuthenticationToken) principal).getName();
-		if (!username.equals(Security.adminName))
-			user = userDAO.getByUsername(username);
-		return user;
-	}
 	
 	@RequestMapping(value = {"/", ""},
 			method = RequestMethod.GET)
@@ -52,7 +53,17 @@ public class Messages {
 		model.addAttribute("_VIEW_TITLE", "navbar.messages");
 		model.addAttribute("_FORCE_CSRF", true);
 		
-		model.addAttribute("user", getUser(principal));
+		User user = Security.getUser(principal, userDAO);
+		List<Message> inMessages = new ArrayList<>();
+		if (user == null)
+			inMessages = facade.getMessageDAO().getAll();
+		else {
+			for (MessageCenter mes : user.getInMessages())
+				inMessages.add(mes.getMessage());
+		}
+		model.addAttribute("inMessages", inMessages);
+		model.addAttribute("users", userDAO.getAll());
+		model.addAttribute("message", new Message());
 		
 		return "messages";
 	}
@@ -63,14 +74,79 @@ public class Messages {
 			HttpServletRequest request,
 			@RequestParam(name = "id", required = true) Long id) {
 		Message message = facade.getMessageDAO().getOne(id);
-		User user = message.getOwner();
-		MessageCenter rec = null;
-		for (MessageCenter r : message.getRecipients())
-			if (rec == null) rec = r;
-		user.removeInMessage(rec);
-		facade.getMessageDAO().delete(message);
-		user.setHashed(true);
-		userDAO.updateUser(user);
+		User user = Security.getUser(principal, userDAO);
+		if (user == null)
+			facade.getMessageDAO().delete(message);
+		else {
+			message.removeRecepient(user);
+			facade.getMessageDAO().update(message);
+		}
+		return "redirect:/messages";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/ajaxMessage",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxMessage(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json);
+		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
+			long id = Long.parseLong(values.get(0).toString());
+			if (id > 0) {
+				Message motivation = facade.getMessageDAO().getOne(id);
+				return new MessagesAnswer(motivation, true);
+			} else {
+				MessagesAnswer answer = new MessagesAnswer(new Message(), true);
+				answer.setTitle("Motivation Tree Root");
+				answer.setText("Motivation Tree Root");
+				answer.setId(0);
+				return answer;
+			}
+		} else {
+			return new MessagesAnswer();
+		}
+	}
+	
+	@RequestMapping(path = "/async", 
+			method = RequestMethod.POST)
+	public String messageCreateAsync(Model model,
+			@ModelAttribute MessagePostForm recievedMessage,
+			HttpServletRequest request,
+			Principal principal) {
+		Message message = new Message();
+		if (recievedMessage.getId() > 0) 
+			message = facade.getMessageDAO().getOne(recievedMessage.getId());
+		Long parentId = 0L;
+		if (recievedMessage.getParent() != null && recievedMessage.getParent() != "")
+			try {
+				parentId = Long.parseLong(recievedMessage.getParent());
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+		Message parent;
+		if (parentId > 0)
+			parent = facade.getMessageDAO().getOne(parentId);
+		else parent = null;
+		message.setParent(parent);
+		message.setTitle(recievedMessage.getTitle());
+		message.setText(recievedMessage.getText());
+		message.setOwner(Security.getUser(principal, userDAO));
+		
+		if (recievedMessage.getId() == 0)
+			message = facade.getMessageDAO().insert(message);
+		else
+			message = facade.getMessageDAO().update(message);
+
+		String[] userIDs = request.getParameterValues("usersTo");
+		for (int i = 0; i < userIDs.length; i++) {
+			long userId = 0L;
+			try { userId = Long.parseLong(userIDs[i]);
+			} catch(NumberFormatException e) {}
+			User recepient = userDAO.getByUserID(userId);
+			if (recepient != null && !message.getRecipients().stream().anyMatch(x -> x.getUser().equals(recepient)))
+				message.addRecipient(new MessageCenter(recepient));
+		}
+		facade.getMessageDAO().update(message);
 		return "redirect:/messages";
 	}
 	
@@ -79,21 +155,19 @@ public class Messages {
 	public String motivationCreate(Model model, Principal principal,
 			HttpServletRequest request) {
 		Message message = new Message();
-		User user = getUser(principal);
+		User user = Security.getUser(principal, userDAO);
 		List<User> users = userDAO.getAll();
 		if (user == null) {
 			if (!users.isEmpty())
 				user = users.get(0);
 		}
 		message.setOwner(user);
-		(users.size() > 1 ? (users.get(1).equals(user) ? users.get(2) : user) : user).addInMessage(new MessageCenter(message));
-		//message.addRecipient(new MessageCenter(users.size() > 1 ? (users.get(1).equals(user) ? users.get(2) : user) : user));
 		message.setTitle("test title");
 		message.setText("test text");
 		
-		facade.getMessageDAO().insert(message);
-		user.setHashed(true);
-		userDAO.updateUser(user);
+		message = facade.getMessageDAO().insert(message);
+		message.addRecipient(new MessageCenter(users.size() > 1 ? (users.get(1).equals(user) ? users.get(2) : user) : user));
+		facade.getMessageDAO().update(message);
 		return "redirect:/messages";
 	}
 }

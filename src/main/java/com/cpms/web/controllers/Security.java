@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -58,6 +59,15 @@ public class Security {
 	@Autowired
 	@Qualifier(value = "userSessionData")
 	private UserSessionData sessionData;
+
+	public static User getUser(Principal principal, IUserDAO userDAO) {
+		if (principal == null) return null;
+		User user = null;
+		String username = ((UsernamePasswordAuthenticationToken) principal).getName();
+		if (!username.equals(Security.adminName))
+			user = userDAO.getByUsername(username);
+		return user;
+	}
 
 	@RequestMapping(path = "/register", method = RequestMethod.GET)
 	public String register(Model model, @RequestParam(name = "userId", required = false) Long id) {
