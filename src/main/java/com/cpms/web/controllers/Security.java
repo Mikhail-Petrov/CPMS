@@ -80,11 +80,16 @@ public class Security {
 			model.addAttribute("_VIEW_TITLE", "title.edit.user");
 		model.addAttribute("_FORCE_CSRF", true);
 		RegistrationForm form = new RegistrationForm();
+		Profile profile = sessionData.getProfile();
+		if (profile != null)
+			form.setProfileId(profile.getId());
 		if (!isCreate) {
 			User user = userDAO.getByUserID(id);
 			form.setId(id);
 			form.setRole(user.getRole());
 			form.setUsername(user.getUsername());
+			if (form.getRole().equals(RoleTypes.EXPERT.toRoleName()))
+				form.setProfileId(user.getProfileId());
 		}
 		model.addAttribute("registrationForm", form);
 		model.addAttribute("isCreate", isCreate);
@@ -92,6 +97,15 @@ public class Security {
 		for (RoleTypes role : RoleTypes.values())
 			roleList.add(role.toRoleName());
 		model.addAttribute("roleList", roleList);
+		model.addAttribute("expertRole", RoleTypes.EXPERT.toRoleName());
+		// Get profiles which are not attached to user (plus this user's profile)
+		List<Profile> profileList = profileDAO.getAll();
+		for (Profile profileInList : profileList) {
+			User profileUser = userDAO.getByProfile(profileInList);
+			if (profileUser != null && profileUser.getId() != id)
+				profileList.remove(profileInList);
+		}	
+		model.addAttribute("profileList", profileList );
 		return "register";
 	}
 
@@ -117,6 +131,8 @@ public class Security {
 		if (!isCreate)
 			user = userDAO.getByUserID(userId);
 		user.setUsername(registrationForm.getUsername());
+		if (registrationForm.getRole().equals(RoleTypes.EXPERT.toRoleName()))
+			user.setProfileId(registrationForm.getProfileId());
 		if (isCreate || registrationForm.getPassword() != null && !registrationForm.getPassword().isEmpty())
 			user.setPassword(registrationForm.getPassword());
 		else

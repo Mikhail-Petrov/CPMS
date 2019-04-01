@@ -18,11 +18,30 @@
 		<p>
 			<select id="roleSelect" th:field="*{role}">
 				<option th:each="roleInList : ${roleList}"
-					th:value="${roleInList}" th:text="${roleInList}"
-					th:selected="${roleInList}==${getRole}">A
+					th:value="${roleInList}" th:text="${roleInList}">A
 					role</option>
 			</select>
 		</p>
+		<p>
+			<span th:text="#{register.profile}" id="profileText">Roles:</span>
+		</p>
+		<p>
+			<select id="profileSelect" th:field="*{profileId}">
+				<option th:value="null" th:text="#{register.noprofile}">No profile</option>
+				<option th:each="profile : ${profileList}"
+					th:value="${profile.id}" th:text="${profile.name}">A profile</option>
+			</select>
+		</p>
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+			var expertRole = /*[[${expertRole}]]*/ "ROLE_EXPERT";
+			$("#roleSelect").on("input", function() {
+				$("#profileText").prop("hidden", $("#roleSelect").val() != expertRole);
+				$("#profileSelect").prop("hidden", $("#roleSelect").val() != expertRole);
+			});
+			$("#roleSelect").trigger("input");
+			/*]]>*/
+		</script>
 		<p>
 			<input type="submit"
 				th:value="${isCreate}? #{editor.create} : #{editor.update}" />
