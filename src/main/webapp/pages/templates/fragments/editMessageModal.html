@@ -12,6 +12,7 @@
  			<p th:text="#{message.text}"></p>
 			<p><textarea type="textarea" class="form-control" th:field="*{text}" placeholder="text" th:placeholder="#{message.text}" id="message_text"></textarea></p>
   			<input type="hidden" id='parent' th:field="*{parent}" class="input-wide" th:value="0"/>
+ 			<p><span th:text="#{message.from}"></span><span id="message_from"></span></p>
  			<p th:text="#{message.to}"></p>
 			<p><select id="usersTo" name="usersTo" size="7" multiple="true">
 					<option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">admin</option>

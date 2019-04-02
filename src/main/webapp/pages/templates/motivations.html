@@ -57,7 +57,7 @@
 			}
 			
 			function applyFilter() {
-				var filterVal = $(localFilter).val();
+				var filterVal = $("#localFilter").val();
 				var headSkipped = false;
 				$.each($("#motivationsTable tr"), function(){
 					if (!headSkipped) headSkipped = true;
@@ -158,11 +158,11 @@
 						document.getElementById('motivationFormTitle').innerHTML=
 							"<span id=\"motivationName\">" + (res.isGroup?groupTitle:motivationTitle) + "</span>";
 						if (!isChange) {
-							$(deleteLink).hide();
+							$("#deleteLink").hide();
 							$('#submitBlock').attr('class', '')
 						}
 						else {
-							$(deleteLink).show();
+							$("#deleteLink").show();
 							$('#submitBlock').attr('class', 'two-buttons')
 						}
 					    // Hide this motivation and its children from parent motivation select list or show them all

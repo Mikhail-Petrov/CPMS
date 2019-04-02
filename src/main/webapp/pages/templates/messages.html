@@ -83,26 +83,26 @@
                                				<a th:href="@{/messages/delete(id=${message.id})}">
                                					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                				</a>
+                               				<button type="button" class="btn btn-trans" th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', '+ *{message.id} +')'">
+                               					<img th:src="@{/resources/images/reply.png}"></img>
+                               				</button>
                                			</td>
                                		</tr>
                                		</tbody>
                                </table>
 	<script th:inline="javascript">
 			/*<![CDATA[*/
-			var els = $("[id=text");
-			for (var i = 0; i < els.length; i++)
-				els[i].innerHTML = els[i].innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 			
 			function ajaxMessageDialog(requestUrl) {
 				
-				var isReply = false;
+				var isReply = true;
 				
 				var inputArgs = [];
 				var i;
 				for (i = 1; i < arguments.length; i++) {
 					if (arguments[i] < 0) {
-						isReply = true;
-						arguments[i] = -arguments[i];
+						isReply = false;
+						//arguments[i] = -arguments[i];
 					}
 					inputArgs.push(arguments[i]);
 				}
@@ -111,7 +111,7 @@
 			     var csrfToken = $("meta[name='_csrf']").attr("content");
 			     var headers = {};
 			     headers[csrfHeader] = csrfToken;
-				
+
 				$.ajax({
 					url : requestUrl,
 					type: 'POST',
@@ -120,29 +120,20 @@
 					data : JSON.stringify(inputArgs),
 					headers: headers,
 					success: function (res) {
+						$("#message_title").val(res.title);
+						$("#message_text").val(res.text);
+						$("#message_from").html(' ' + res.owner);
+						$("#parent").val(res.parentId);
+						// Clear recepients
+						$("#usersTo").val('');
+						$('#usersTo :first').prop('selected', false);
+						// Select recepients
+						for (var i = 0; i < res.recepients.length; i++)
+							$('#usersTo option[value="' + res.recepients[i] + '"]').prop('selected', true);
+					    // Remember id of the changed message
+					    $("#selfId").val(res.id);
+
 						var isChange = (res.id > 0);
-						if (isChange) {
-							// Copy values from changed motivation
-							$("#message_title").val(res.title);
-							$("#message_text").val(res.text);
-							// Select recepients
-							$("#usersTo").val('');
-							$('#usersTo :first').prop('selected', false);
-							for (var i = 0; i < res.recepients.length; i++)
-								$('#usersTo option[value="' + res.recepients[i] + '"]').prop('selected', true);
-						    // Remember id of the changed message
-						    $("#selfId").val(res.id);
-						}
-						else {
-							// Clear all values
-							$("#message_title").val("");
-							$("#message_text").val("");
-							// Clear recepients
-							$("#usersTo").val('');
-							$('#usersTo :first').prop('selected', false);
-						    // Forget motivation id
-						    $("#selfId").val(0);
-						}
 						if (isChange) {
 							motivationTitle = /*[[#{message.change.new}]]*/ "Change message";
 						} else {

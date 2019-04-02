@@ -88,18 +88,31 @@ public class Messages {
 	@RequestMapping(value = "/ajaxMessage",
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxMessage(
-			@RequestBody String json) {
+			@RequestBody String json, Principal principal) {
 		List<Object> values = DashboardAjax.parseJson(json);
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
-			if (id > 0) {
-				Message motivation = facade.getMessageDAO().getOne(id);
-				return new MessagesAnswer(motivation, true);
+			if (id < 0) {
+				// Change message
+				id = -id;
+				Message message = facade.getMessageDAO().getOne(id);
+				return new MessagesAnswer(message, true);
 			} else {
+				// New message
 				MessagesAnswer answer = new MessagesAnswer(new Message(), true);
-				answer.setTitle("Motivation Tree Root");
-				answer.setText("Motivation Tree Root");
+				answer.setTitle("");
+				answer.setText("");
+				answer.setParentId("");
 				answer.setId(0);
+				answer.setOwner(Security.getUser(principal, userDAO));
+				if (id > 0) {
+					// Reply
+					Message reply = facade.getMessageDAO().getOne(id);
+					answer.setParentId("" + id);
+					answer.setTitle("RE: " + reply.getTitle());
+					if (reply.getOwner() != null)
+						answer.getRecepients().add(reply.getOwner().getId());
+				}
 				return answer;
 			}
 		} else {
@@ -131,6 +144,8 @@ public class Messages {
 		message.setTitle(recievedMessage.getTitle());
 		message.setText(recievedMessage.getText());
 		message.setOwner(Security.getUser(principal, userDAO));
+		if (message.getOwner() == null)
+			message.setOwner(userDAO.getAll().get(0));
 		
 		if (recievedMessage.getId() == 0)
 			message = facade.getMessageDAO().insert(message);
@@ -146,27 +161,6 @@ public class Messages {
 			if (recepient != null && !message.getRecipients().stream().anyMatch(x -> x.getUser().equals(recepient)))
 				message.addRecipient(new MessageCenter(recepient));
 		}
-		facade.getMessageDAO().update(message);
-		return "redirect:/messages";
-	}
-	
-	@RequestMapping(path = {"/new"}, 
-			method = RequestMethod.GET)
-	public String motivationCreate(Model model, Principal principal,
-			HttpServletRequest request) {
-		Message message = new Message();
-		User user = Security.getUser(principal, userDAO);
-		List<User> users = userDAO.getAll();
-		if (user == null) {
-			if (!users.isEmpty())
-				user = users.get(0);
-		}
-		message.setOwner(user);
-		message.setTitle("test title");
-		message.setText("test text");
-		
-		message = facade.getMessageDAO().insert(message);
-		message.addRecipient(new MessageCenter(users.size() > 1 ? (users.get(1).equals(user) ? users.get(2) : user) : user));
 		facade.getMessageDAO().update(message);
 		return "redirect:/messages";
 	}

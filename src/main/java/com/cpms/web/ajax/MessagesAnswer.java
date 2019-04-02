@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
+import com.cpms.security.entities.User;
 
 /**
  * AJAX answer that returns information about a certain skill.
@@ -20,11 +21,16 @@ public class MessagesAnswer implements IAjaxAnswer {
 	private String title, text;
 	private List<Long> recepients;
 	private boolean successful = false;
+	private String owner;
 	
 	public MessagesAnswer(Message source, boolean successful) {
 		id = source.getId();
 		title = source.getPresentationName();
 		text = source.getText();
+		if (source.getOwner() == null)
+			this.owner = "-";
+		else
+			this.owner = source.getOwner().getPresentationName();
 		if (source.getParent() == null)
 			parentId = null;
 		else
@@ -38,8 +44,8 @@ public class MessagesAnswer implements IAjaxAnswer {
 	
 	public MessagesAnswer() {
 		id = 0;
-		title = "Motivation not found";
-		text = "Motivation not found";
+		title = "Message not found";
+		text = "Message not found";
 		successful = false;
 	}
 
@@ -97,5 +103,17 @@ public class MessagesAnswer implements IAjaxAnswer {
 	public void setRecepients(List<Long> recepients) {
 		this.recepients = recepients;
 	}
-	
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public void setOwner(User owner) {
+		if (owner == null) this.owner = "-";
+		else this.owner = owner.getPresentationName();
+	}
 }

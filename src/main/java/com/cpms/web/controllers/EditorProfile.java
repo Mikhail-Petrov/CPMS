@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Language;
@@ -26,6 +27,9 @@ import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
+import com.cpms.security.RoleTypes;
+import com.cpms.security.entities.Role;
+import com.cpms.security.entities.User;
 
 /**
  * Handles profile CRUD web application requests.
@@ -40,6 +44,10 @@ public class EditorProfile {
 	@Autowired
 	@Qualifier(value = "facade")
 	private ICPMSFacade facade;
+	
+	@Autowired
+	@Qualifier("userDAO")
+	private IUserDAO userDAO;
 
 	@RequestMapping(path = "/profile", 
 			method = RequestMethod.GET)
@@ -115,6 +123,14 @@ public class EditorProfile {
 			profile.update(expert);
 			profile.addProofsFromText(facade.getLanguageDAO().getAll(), expert.getAbout());
 			profile = facade.getProfileDAO().insert(profile);
+			User user = new User();
+			user.setUsername(profile.getName());
+			user.setProfileId(profile.getId());
+			user.setPassword(profile.getName());
+			Role newRole = new Role();
+			newRole.setRolename(RoleTypes.EXPERT.toRoleName());
+			user.addRole(newRole);
+			userDAO.insertUser(user);
 		} else {
 			profile = facade.getProfileDAO().getOne(expert.getId());
 			profile.update(expert);

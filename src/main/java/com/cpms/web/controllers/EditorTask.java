@@ -215,10 +215,12 @@ public class EditorTask {
 		Message newMessage = new Message();
 		User owner = Security.getUser(principal, userDAO);
 		newMessage.setOwner(owner);
+		if (newMessage.getOwner() == null)
+			newMessage.setOwner(userDAO.getAll().get(0));
 		newMessage.setTitle("New translation task: " + task.getPresentationName());
 		newMessage.setText(
-				String.format("Translation from language '%s' to language '%s'. <a href='/viewer/task?id=%d'>Link</a>",
-						task.getSource().getCode(), task.getTarget().getCode(), task.getId()));
+				String.format("Translation from language '%s' to language '%s'.",
+						task.getSource().getCode(), task.getTarget().getCode()));
 		newMessage.setType("2");
 		return newMessage;
 		
