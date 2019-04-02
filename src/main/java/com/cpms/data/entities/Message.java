@@ -55,7 +55,7 @@ public class Message extends AbstractDomainObject {
 	@Field
 	private String title;
 	
-	@Column(name = "TEXT", nullable = true, length = 1000)
+	@Column(name = "TEXT", nullable = true, length = 10000)
 	private String text;
 	
 	@ManyToOne(fetch = FetchType.EAGER)

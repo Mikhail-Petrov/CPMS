@@ -92,6 +92,10 @@
                                </table>
 	<script th:inline="javascript">
 			/*<![CDATA[*/
+			var els = $("[id=text");
+			for (var i = 0; i < els.length; i++)
+				//els[i].innerHTML = els[i].innerHTML.replace(/\n/g, '<br>');
+				els[i].innerHTML = els[i].innerHTML.substr(0,500);
 			
 			function ajaxMessageDialog(requestUrl) {
 				

@@ -13,6 +13,9 @@ select {
 .btn-trans {
 	background-color: transparent;
 }
+.center {
+	text-align: center;
+}
 .table>tbody>tr>td {
 	vertical-align: middle;
 }
