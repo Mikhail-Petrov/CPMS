@@ -65,10 +65,16 @@
                                     </div>
                                 </div>
             <div id="textAbout">
-   			<p th:text="#{task.type.text}"></p>
+   			<p th:text="#{task.type.original}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <textarea class="form-control" type="textarea" th:field="*{about}" placeholder="Text" th:placeholder="#{task.type.text}"></textarea>
+                                        <textarea class="form-control" type="textarea" th:field="*{original}" placeholder="Original text" th:placeholder="#{task.type.original}"></textarea>
+                                    </div>
+                                </div>
+   			<p th:text="#{task.type.translate}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea class="form-control" type="textarea" th:field="*{about}" placeholder="Translated text" th:placeholder="#{task.type.translate}"></textarea>
                                     </div>
                                 </div>
             </div>

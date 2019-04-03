@@ -63,8 +63,12 @@ public class Task extends AbstractDomainObject {
 	private String name;
 	
 	// text
-	@Column(name = "ABOUT", nullable = true, length = 1000)
+	@Column(name = "ABOUT", nullable = true, length = 10000)
 	private String about;
+	
+	// text
+	@Column(name = "original", nullable = true, length = 10000)
+	private String original;
 	
 	// text type
 	@Column(name = "TYPE", nullable = true)
@@ -214,5 +218,13 @@ public class Task extends AbstractDomainObject {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getOriginal() {
+		return original;
+	}
+
+	public void setOriginal(String original) {
+		this.original = original;
 	}
 }

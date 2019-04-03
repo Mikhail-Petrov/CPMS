@@ -162,6 +162,7 @@ public class EditorTask {
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
 			task.setAbout(recievedTask.getAbout());
+			task.setOriginal(recievedTask.getOriginal());
 			task.setName(recievedTask.getName());
 			task.setDueDate(recievedTask.getDueDate());
 			task.setTarget(recievedTask.getTarget());
@@ -173,13 +174,14 @@ public class EditorTask {
 		// identify performers
 		String[] userIDs = request.getParameterValues("performers");
 		List<Long> performers = new ArrayList<>();
-		if (userIDs[0].equals("all"))
-			for (User user : userDAO.getAll())
-				performers.add(user.getId());
-		else
-			for (int i = 0; i < userIDs.length; i++)
-				try { performers.add(Long.parseLong(userIDs[i]));
-				} catch (NumberFormatException e) {}
+		if (userIDs != null)
+			if (userIDs.length > 0 && userIDs[0].equals("all"))
+				for (User user : userDAO.getAll())
+					performers.add(user.getId());
+			else
+				for (int i = 0; i < userIDs.length; i++)
+					try { performers.add(Long.parseLong(userIDs[i]));
+					} catch (NumberFormatException e) {}
 
 		// forget about old performers
 		// to do this, create a message about it
@@ -220,7 +222,8 @@ public class EditorTask {
 		newMessage.setTitle("New translation task: " + task.getPresentationName());
 		newMessage.setText(
 				String.format("Translation from language '%s' to language '%s'.",
-						task.getSource().getCode(), task.getTarget().getCode()));
+					task.getSource() == null ? "" : task.getSource().getCode(),
+					task.getTarget() == null ? "" : task.getTarget().getCode()));
 		newMessage.setType("2");
 		return newMessage;
 		
@@ -242,6 +245,7 @@ public class EditorTask {
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
 			task.setAbout(recievedTask.getAbout());
+			task.setOriginal(recievedTask.getOriginal());
 			task.setName(recievedTask.getName());
 			task = facade.getTaskDAO().update(task);
 		}
@@ -273,12 +277,12 @@ public class EditorTask {
 					break;
 				}
 			}
-		if (!performers.isEmpty())
+		if (!performers.isEmpty()) {
 			newMessage = facade.getMessageDAO().insert(newMessage);
-		for (long userID : performers)
-			newMessage.addRecipient(new MessageCenter(userDAO.getByUserID(userID)));
-		facade.getMessageDAO().update(newMessage);
-		
+			for (long userID : performers)
+				newMessage.addRecipient(new MessageCenter(userDAO.getByUserID(userID)));
+			facade.getMessageDAO().update(newMessage);
+		}		
 		return "fragments/editTaskModal :: taskCreationSuccess";
 	}
 

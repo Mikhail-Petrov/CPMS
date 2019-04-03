@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
@@ -44,14 +46,14 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	 * 
 	 * @author Gordeev Boris
 	 * @since 1.0
-	 *//*
+	 */
 	@Controller
     static class FaviconController {
         @RequestMapping("favicon.ico")
         String favicon() {
             return "forward:/resources/images/favicon.ico";
         }
-    }*/
+    }
 
 	/**
 	 * @return template engine configured with template resolver and

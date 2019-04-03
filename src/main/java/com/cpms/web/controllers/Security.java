@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Message;
+import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TestConfig;
@@ -51,6 +53,10 @@ public class Security {
 	@Autowired
 	@Qualifier(value = "profileDAO")
 	private IDAO<Profile> profileDAO;
+
+	@Autowired
+	@Qualifier(value = "messageDAO")
+	private IDAO<Message> messageDAO;
 
 	@Autowired
 	@Qualifier(value = "taskDAO")
@@ -99,13 +105,15 @@ public class Security {
 		model.addAttribute("roleList", roleList);
 		model.addAttribute("expertRole", RoleTypes.EXPERT.toRoleName());
 		// Get profiles which are not attached to user (plus this user's profile)
-		List<Profile> profileList = profileDAO.getAll();
+		List<Profile> profileList = profileDAO.getAll(), removeList = new ArrayList<>();
 		if (!isCreate)
 			for (Profile profileInList : profileList) {
 				User profileUser = userDAO.getByProfile(profileInList);
 				if (profileUser != null && profileUser.getId() != id)
-					profileList.remove(profileInList);
-			}	
+					removeList.add(profileInList);
+			}
+		for (Profile profileInList : removeList)
+			profileList.remove(profileInList);
 		model.addAttribute("profileList", profileList );
 		return "register";
 	}
@@ -186,6 +194,12 @@ public class Security {
 	@RequestMapping(path = { "/delete" }, method = RequestMethod.GET)
 	public String profileDelete(Model model, @RequestParam(name = "userId", required = true) Long id) {
 		User user = userDAO.getByUserID(id);
+		for (MessageCenter messageCenter : user.getInMessages()) {
+			Message message = messageCenter.getMessage();
+			message.removeRecipient(messageCenter);
+			messageDAO.update(message);
+		}
+		user = userDAO.getByUserID(id);
 		userDAO.deleteUser(user);
 		return "redirect:/security/users";
 	}

@@ -6,14 +6,20 @@
                             </div>
                             <div class="x_content">
                        	<th:block th:if="${task.type}=='1'">
-								<p><span th:text="#{task.type.text}"></span>:</p>
-								<p><span id="taskDescription" th:text="${task.about}">About</span></p>
+								<p><span th:text="#{task.type.original}"></span>:</p>
+								<p><span id="taskOriginal" th:text="${task.original}">About</span></p>
+								<p><span th:text="#{task.type.translate}"></span>:</p>
+								<p><span id="taskTranslate" th:text="${task.about}">About</span></p>
                                <script>
                          		/*<![CDATA[*/
-                                var descr = "<p>" + $("#taskDescription").html() + "</p";
+                                var descr = "<p>" + $("#taskOriginal").html() + "</p";
                          		while (descr.indexOf("\n") > -1)
                          			descr = descr.replace("\n", "</p><p>");
-                                $("#taskDescription").html(descr);
+                                $("#taskOriginal").html(descr);
+                                var descr = "<p>" + $("#taskTranslate").html() + "</p";
+                         		while (descr.indexOf("\n") > -1)
+                         			descr = descr.replace("\n", "</p><p>");
+                                $("#taskTranslate").html(descr);
                          		/*]]>*/
                                 </script>
                         </th:block>
@@ -30,7 +36,7 @@
                                 <p><span th:text="#{editor.task.source}"></span>: <span th:text="${task.source?.code}"></span></p>
                                 <p><span th:text="#{editor.task.target}"></span>: <span th:text="${task.target?.code}"></span></p>
                                 
-	                                <div class="row">
+	                                <div class="row" th:if="${isAdmin}">
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
 	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createRequirementModal" th:text="#{task.requirement.add}"></button>
 	                                    </div>

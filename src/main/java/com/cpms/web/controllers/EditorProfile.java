@@ -124,13 +124,15 @@ public class EditorProfile {
 			profile.addProofsFromText(facade.getLanguageDAO().getAll(), expert.getAbout());
 			profile = facade.getProfileDAO().insert(profile);
 			User user = new User();
-			user.setUsername(profile.getName());
-			user.setProfileId(profile.getId());
-			user.setPassword(profile.getName());
-			Role newRole = new Role();
-			newRole.setRolename(RoleTypes.EXPERT.toRoleName());
-			user.addRole(newRole);
-			userDAO.insertUser(user);
+			if (userDAO.getByUsername(profile.getName()) == null) {
+				user.setUsername(profile.getName());
+				user.setProfileId(profile.getId());
+				user.setPassword(profile.getName());
+				Role newRole = new Role();
+				newRole.setRolename(RoleTypes.EXPERT.toRoleName());
+				user.addRole(newRole);
+				userDAO.insertUser(user);
+			}
 		} else {
 			profile = facade.getProfileDAO().getOne(expert.getId());
 			profile.update(expert);
@@ -144,6 +146,11 @@ public class EditorProfile {
 	public String profileDelete(Model model,
 			@RequestParam(name = "id", required = true) Long id) {
 		Profile profile = facade.getProfileDAO().getOne(id);
+		User user = userDAO.getByProfile(profile);
+		if (user != null) {
+			user.setProfileId(null);
+			userDAO.updateUser(user);
+		}
 		facade.getProfileDAO().delete(profile);
 		return "redirect:/viewer";
 	}
