@@ -62,6 +62,7 @@ public class Messages {
 				inMessages.add(mes.getMessage());
 		}
 		model.addAttribute("inMessages", inMessages);
+		model.addAttribute("messages", user == null ? inMessages : user.getMessages());
 		model.addAttribute("users", userDAO.getAll());
 		model.addAttribute("message", new Message());
 		
@@ -93,9 +94,19 @@ public class Messages {
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id < 0) {
-				// Change message
+				// Change/view message
 				id = -id;
 				Message message = facade.getMessageDAO().getOne(id);
+				User curUser = Security.getUser(principal, userDAO);
+				boolean isChanged = false;
+				for (MessageCenter messageCenter : message.getRecipients())
+					if (messageCenter.getUser().equals(curUser) && !messageCenter.isRed()) {
+						isChanged = true;
+						messageCenter.setRed(true);
+						break;
+					}
+				if (isChanged)
+					message = facade.getMessageDAO().update(message);
 				return new MessagesAnswer(message, true);
 			} else {
 				// New message

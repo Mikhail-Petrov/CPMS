@@ -68,10 +68,19 @@
 	                <div class="two-buttons">
 						<span class="btn btn-success btn-block" th:text="#{message.new}" onclick="ajaxMessageDialog(rootPath + 'messages/ajaxMessage', '0');"></span>
 	                </div>
+	                <div class="two-buttons">
+	                	<select id="mesFilter">
+	                		<option value="0" th:text="#{message.all}">All messages</option>
+	                		<option value="1" th:text="#{message.in}">Inbox</option>
+	                		<option value="2" th:text="#{message.out}">Sent</option>
+	                	</select>
+	                </div>
                 
                 </div>
                            <div class="x_content">
-                               <table id="tasksTable" class="table table-responsive table-striped">
+                               <div id="inTable">
+                               <h2 th:text="#{message.in}"></h2>
+                               <table class="table table-responsive table-striped">
                                		<tbody>
                                		<tr th:each="message : ${inMessages}">
                                			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{message.id} +')'">
@@ -79,7 +88,7 @@
                                				<br/>
                                				<span id="text" th:text="${message.text}"></span>
                                			</td>
-                               			<td>
+                               			<td class="center">
                                				<a th:href="@{/messages/delete(id=${message.id})}">
                                					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                				</a>
@@ -90,6 +99,30 @@
                                		</tr>
                                		</tbody>
                                </table>
+                               </div>
+                               <div id="outTable">
+                               <h2 th:text="#{message.out}"></h2>
+                               <table class="table table-responsive table-striped">
+                               		<tbody>
+                               		<tr th:each="message : ${messages}">
+                               			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{message.id} +')'">
+                               				<b th:text="${message.title}"></b>
+                               				<br/>
+                               				<span id="text" th:text="${message.text}"></span>
+                               			</td>
+                               			<td class="center">
+                               				<a th:href="@{/messages/delete(id=${message.id})}">
+                               					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
+                               				</a>
+                               			</td>
+                               		</tr>
+                               		</tbody>
+                               </table>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+                </div>
 	<script th:inline="javascript">
 			/*<![CDATA[*/
 			var els = $("[id=text");
@@ -97,6 +130,14 @@
 				//els[i].innerHTML = els[i].innerHTML.replace(/\n/g, '<br>');
 				els[i].innerHTML = els[i].innerHTML.substr(0,500);
 			
+            $("#mesFilter").on('input', function() {
+            	var mesFilter = $("#mesFilter").val();
+            	if (mesFilter == "0" || mesFilter == "1") $("#inTable").show();
+            	else $("#inTable").hide();
+            	if (mesFilter == "0" || mesFilter == "2") $("#outTable").show();
+            	else $("#outTable").hide();
+            });
+            
 			function ajaxMessageDialog(requestUrl) {
 				
 				var isReply = true;
@@ -110,6 +151,8 @@
 					}
 					inputArgs.push(arguments[i]);
 				}
+				
+				var username = /*[[${username}]]*/ "admin";
 				
 				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 			     var csrfToken = $("meta[name='_csrf']").attr("content");
@@ -136,6 +179,13 @@
 							$('#usersTo option[value="' + res.recepients[i] + '"]').prop('selected', true);
 					    // Remember id of the changed message
 					    $("#selfId").val(res.id);
+					    
+					    // Disable fields if input and enable them otherwise
+					    var disable = (res.owner !== username) && (username !== "admin");
+				    	$("#message_title")[0].disabled = disable;
+				    	$("#message_text")[0].disabled = disable;
+				    	$("#usersTo")[0].disabled = disable;
+				    	$("#messageSubmitButton")[0].disabled = disable;
 
 						var isChange = (res.id > 0);
 						if (isChange) {
@@ -156,10 +206,6 @@
 			}
 			/*]]>*/
                                </script>
-                           </div>
-                       </div>
-                   </div>
-                </div>
                    
                 <div class="modal fade" id="createMessageModal" tabindex="-1" role="dialog" aria-labelledby="createMessageModalLabel" aria-hidden="true">
                 	<div th:replace="fragments/editMessageModal :: messageModalForm"></div>
