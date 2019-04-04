@@ -114,6 +114,7 @@ public class CommonModelAttributes {
 					centers.addAll(mes.getRecipients());
 		} else
 			centers = user.getInMessages();
+		if (centers == null) return 0;
 		int result = centers.size();
 		for (MessageCenter center : centers)
 			if (center.isRed()) result--;
