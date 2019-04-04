@@ -100,7 +100,7 @@ public class Skills {
 		model.addAttribute("company", new Profile());
 		model.addAttribute("task", new Task());
 		
-		String[] defLevels = {"Basic", "Intermediate", "Advanced"};
+		String[] defLevels = {"Basic", "Intermediate", "Advanced", "4", "5", "6"};
 		model.addAttribute("defaultLevels", defLevels);
 		
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {

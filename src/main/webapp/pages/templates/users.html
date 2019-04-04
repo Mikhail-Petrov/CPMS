@@ -33,10 +33,10 @@
 							<td><p th:each="role : ${user.roles}">
 								<span th:text="${role.rolename}"></span>
 							</p></td>
-							<td><a th:text="#{users.management.change}"
-								th:href="@{/security/register(userId=${user.id})}"></a></td>
-							<td><a th:text="#{users.management.delete}"
-								th:href="@{/security/delete(userId=${user.id})}"></a></td>
+							<td><a th:href="@{/security/register(userId=${user.id})}">
+								<button class="btn btn-primary btn-block" type="submit" th:text="#{users.management.change}"></button></a></td>
+							<td><a th:href="@{/security/delete(userId=${user.id})}">
+								<button class="btn btn-primary btn-block" type="submit" th:text="#{users.management.delete}"></button></a></td>
 						</tr>
 					</tbody>
 				</table>
