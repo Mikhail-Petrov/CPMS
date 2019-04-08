@@ -157,7 +157,7 @@
                 <script>
                 	var submitProfileForm = function() {
     					$.each($("#resTable td:even"), function() {
-    						$(resText).val($(resText).val() + $(this).html() + ';');
+    						$("#resText").val($("#resText").val() + $(this).html() + ';');
     					});
     					
                 	  	var $form = $('#profileCreate');

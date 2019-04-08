@@ -4,11 +4,11 @@
 		th:object="${registrationForm}" method="post">
 		<input type="hidden" th:field="*{id}" />
 		<p>
-			<input type="text" th:field="*{username}" placeholder="Username"
+			<input type="text" th:field="*{username}" placeholder="Username" class="form-control"
 				th:placeholder="#{register.username}" onblur="addCheck(this, 1, 0)" />
 		</p>
 		<p>
-			<input type="text" th:field="*{password}" placeholder="Password"
+			<input type="text" th:field="*{password}" placeholder="Password" class="form-control"
 				th:placeholder="#{register.password}" onblur="addCheck(this, 1, 0)" />
 			<span th:if="${isCreate}==false" th:text="#{register.password.change}"></span>
 		</p>
@@ -16,7 +16,7 @@
 			<span th:text="#{register.roles}">Roles:</span>
 		</p>
 		<p>
-			<select id="roleSelect" th:field="*{role}">
+			<select id="roleSelect" th:field="*{role}" class="form-control">
 				<option th:each="roleInList : ${roleList}"
 					th:value="${roleInList}" th:text="${roleInList}">A
 					role</option>
@@ -26,7 +26,7 @@
 			<span th:text="#{register.profile}" id="profileText">Roles:</span>
 		</p>
 		<p>
-			<select id="profileSelect" th:field="*{profileId}">
+			<select id="profileSelect" th:field="*{profileId}" class="form-control">
 				<option th:value="null" th:text="#{register.noprofile}">No profile</option>
 				<option th:each="profile : ${profileList}"
 					th:value="${profile.id}" th:text="${profile.name}">A profile</option>
@@ -36,14 +36,19 @@
 			/*<![CDATA[*/
 			var expertRole = /*[[${expertRole}]]*/ "ROLE_EXPERT";
 			$("#roleSelect").on("input", function() {
-				$("#profileText").prop("hidden", $("#roleSelect").val() != expertRole);
-				$("#profileSelect").prop("hidden", $("#roleSelect").val() != expertRole);
+				if ($("#roleSelect").val() != expertRole) {
+					$("#profileText").hide();
+					$("#profileSelect").hide();
+				} else {
+					$("#profileText").show();
+					$("#profileSelect").show();
+				}
 			});
 			$("#roleSelect").trigger("input");
 			/*]]>*/
 		</script>
 		<p>
-			<input type="submit"
+			<input type="submit" class="btn btn-primary"
 				th:value="${isCreate}? #{editor.create} : #{editor.update}" />
 		</p>
 	</form>

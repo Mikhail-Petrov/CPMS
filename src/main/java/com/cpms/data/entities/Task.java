@@ -83,11 +83,9 @@ public class Task extends AbstractDomainObject {
 	@JoinColumn(name = "SOURCE", nullable = true)
 	@Cascade({CascadeType.DETACH})
 	private Language source;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "TARGET", nullable = true)
-	@Cascade({CascadeType.DETACH})
-	private Language target;
+
+	@Column(name = "TARGETS", nullable = true, length = 1000)
+	private String target;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "task", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
@@ -196,11 +194,11 @@ public class Task extends AbstractDomainObject {
 		this.dueDate = dueDate;
 	}
 
-	public Language getTarget() {
+	public String getTarget() {
 		return target;
 	}
 
-	public void setTarget(Language target) {
+	public void setTarget(String target) {
 		this.target = target;
 	}
 

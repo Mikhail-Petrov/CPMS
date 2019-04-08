@@ -133,7 +133,7 @@ public class Viewer {
 				countProfiles / PagingUtils.PAGE_SIZE + (countProfiles % PagingUtils.PAGE_SIZE > 0 ? 1 : 0));
 		model.addAttribute("taskPages",
 				countTasks / PagingUtils.PAGE_SIZE + (countTasks % PagingUtils.PAGE_SIZE > 0 ? 1 : 0));
-		model.addAttribute("_VIEW_TITLE", "title.viewer");
+		model.addAttribute("_VIEW_TITLE", "title.profiles");
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("profile", new Profile());
 		model.addAttribute("task", new Task());

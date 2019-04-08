@@ -106,12 +106,11 @@ public class Security {
 		model.addAttribute("expertRole", RoleTypes.EXPERT.toRoleName());
 		// Get profiles which are not attached to user (plus this user's profile)
 		List<Profile> profileList = profileDAO.getAll(), removeList = new ArrayList<>();
-		if (!isCreate)
-			for (Profile profileInList : profileList) {
-				User profileUser = userDAO.getByProfile(profileInList);
-				if (profileUser != null && profileUser.getId() != id)
-					removeList.add(profileInList);
-			}
+		for (Profile profileInList : profileList) {
+			User profileUser = userDAO.getByProfile(profileInList);
+			if (profileUser != null && (id == null || profileUser.getId() != id))
+				removeList.add(profileInList);
+		}
 		for (Profile profileInList : removeList)
 			profileList.remove(profileInList);
 		model.addAttribute("profileList", profileList );

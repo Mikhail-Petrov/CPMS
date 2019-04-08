@@ -71,7 +71,7 @@
 								}
 								/*]]>*/
 								</script>
-                                <hr class="separator"/>
+			<div class="two-buttons">
    			<p th:text="#{editor.prooflevel}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -83,6 +83,8 @@
 									</select>
                                     </div>
                                 </div>
+   			</div>
+			<div class="two-buttons">
    			<p th:text="#{editor.level}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -93,9 +95,10 @@
 									</select>
                                     </div>
                                 </div>
-   			<p th:text="#{editor.availability}"></p>
+   			</div>
                                 <div class="row">
                                     <div class="col-md-12">
+   			<p th:text="#{editor.availability}"></p>
                                         <!-- input type="text" class="form-control" placeholder="Availability" th:field="*{availability}" th:placeholder="#{editor.placeholder.availability}"/-->
 									<select th:field="*{availability}" size="4">
 										<option th:text="#{profile.availability.always}" value='1'>Always</option>
@@ -114,7 +117,12 @@
 									</select>
                                     </div>
                                 </div>
-                                <hr class="separator"/>
+   			<p th:text="#{editor.expert.password}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Password" name="password" th:placeholder="#{editor.placeholder.password}"/>
+                                    </div>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" onclick="javascript:submitProfileForm();return false;" th:text="#{editor.create}"></button>

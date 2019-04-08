@@ -17,7 +17,7 @@
                             	<input type="hidden" th:field="*{id}" />
   			<p th:text="#{editor.task.name}"></p>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <input type="text" class="form-control" th:field="*{name}" placeholder="Task name" th:placeholder="#{editor.placeholder.name}" onblur="addCheck(this, 5, 100)"/>
                                     </div>
                                </div>
@@ -27,22 +27,46 @@
                                         <input type="date" class="form-control" th:field="*{dueDate}"/>
                                     </div>
                                 </div>
+                                <div class="two-buttons">
    			<p th:text="#{editor.task.source}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-									<select th:field="*{source}" size="4">
+									<select th:field="*{source}" size="6">
 										<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
 									</select>
                                     </div>
                                 </div>
+                                </div>
+                                <div class="two-buttons">
    			<p th:text="#{editor.task.target}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-									<select th:field="*{target}" size="4">
+									<select id="targetSelector" size="4">
 										<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
 									</select>
                                     </div>
                                 </div>
+                                   	<span class="btn btn-warning btn-block" th:text="#{editor.add}" onclick="addTarget();">Add</span>
+                                <div class="row">
+                                   <div class="col-md-12">
+                                	<table class="table table-responsive table-striped" id="resTable">
+                                	
+                                	</table>
+                            		<input type="hidden" th:field="*{target}" id="resText"/>
+                            		</div>
+                                </div>
+                                </div>
+								<script th:inline="javascript">
+								/*<![CDATA[*/
+								function addTarget(){
+									target = $("#targetSelector option:selected").text();
+									if (target == "") return;
+									buttonCode = /*[[#{editor.remove}]]*/ "";
+									buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
+									$(resTable).append("<tr><td>" + target + "</td><td>" + buttonCode + "</td></tr>");
+								}
+								/*]]>*/
+								</script>
                                 <hr class="separator"/>
    			<p th:text="#{editor.task.performers}"></p>
                                 <div class="row">

@@ -223,7 +223,7 @@ public class EditorTask {
 		newMessage.setText(
 				String.format("Translation from language '%s' to language '%s'.",
 					task.getSource() == null ? "" : task.getSource().getCode(),
-					task.getTarget() == null ? "" : task.getTarget().getCode()));
+					task.getTarget() == null ? "" : task.getTarget()));
 		newMessage.setType("2");
 		return newMessage;
 		

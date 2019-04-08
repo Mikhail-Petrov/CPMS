@@ -156,6 +156,9 @@
                 </div>
                 <script>
                 	var submitTaskForm = function() {
+    					$.each($("#resTable td:even"), function() {
+    						$("#resText").val($("#resText").val() + $(this).html() + ';');
+    					});
     					
     	            	if ($("#type").val() == "2")
     	            		$("#about").val($("#acronisValue").val());

@@ -15,12 +15,18 @@
 			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Name" th:placeholder="#{motivations.name}" pattern=".{0,100}" title="Must be more than 5 but less than 100 symbols" th:title="#{motivations.name}" id="motivation_name" onblur="addCheck(this, 5, 100)"/></p>
 			<p id="descriptionTitle" th:text="#{motivations.description}">:</p>
 			<p><textarea type="textarea" class="form-control" th:field="*{description}" placeholder="Description" th:placeholder="#{motivations.description}" pattern=".{0,1000}" title="Must be less than 1000 symbols" th:title="#{motivations.description}" id="motivation_description"></textarea></p>
+			<div class="row">
+			<div class="two-buttons">
   			<p th:text="#{motivations.code}">:</p>
 			<p><input type="text" class="form-control" th:field="*{code}" placeholder="Code" th:placeholder="#{motivations.code}" pattern=".{0,100}" title="Must be less than 5 symbols" th:title="#{motivations.code}" id="motivation_code"/></p>
+			</div>
+			<div class="two-buttons">
 			<p id="costTitle" th:text="#{motivations.cost}"></p>
-			<p><input type="number" th:field="*{cost}" min="0" id="motivation_cost"/></p>
+			<p><input type="number" class="form-control" th:field="*{cost}" min="0" id="motivation_cost"/></p>
+  			</div>
+  			</div>
   			<p id="localTitle" th:text="#{motivation.local}">:</p>
-			<p><select th:field="*{local}" size="7" multiple="true">
+			<p><select th:field="*{local}" size="7" multiple="true" >
 					<option value="" th:text="#{motivation.local.all}">Global</option>
 					<option th:each="lang : ${languages}" th:value="${lang.code}" th:text="${lang.code}">EN</option>
 			</select></p>

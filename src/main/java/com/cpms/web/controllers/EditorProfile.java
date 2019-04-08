@@ -109,6 +109,7 @@ public class EditorProfile {
 			method = RequestMethod.POST)
 	public String profileCreateAsync(Model model,
 			@ModelAttribute("company") @Valid Profile expert,
+			@ModelAttribute("password") @Valid String password,
 			BindingResult bindingResult) {
 		if (expert == null) {
 			throw new SessionExpiredException(null);
@@ -127,7 +128,7 @@ public class EditorProfile {
 			if (userDAO.getByUsername(profile.getName()) == null) {
 				user.setUsername(profile.getName());
 				user.setProfileId(profile.getId());
-				user.setPassword(profile.getName());
+				user.setPassword(password);
 				Role newRole = new Role();
 				newRole.setRolename(RoleTypes.EXPERT.toRoleName());
 				user.addRole(newRole);

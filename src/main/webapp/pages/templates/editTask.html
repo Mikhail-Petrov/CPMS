@@ -16,22 +16,46 @@
                                         <input type="date" class="form-control" th:field="*{dueDate}"/>
                                     </div>
                                 </div>
+                                <div class="two-buttons">
    			<p th:text="#{editor.task.source}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-									<select th:field="*{source}" size="4">
+									<select th:field="*{source}" size="6">
 										<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
 									</select>
                                     </div>
                                 </div>
+                                </div>
+                                <div class="two-buttons">
    			<p th:text="#{editor.task.target}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-									<select th:field="*{target}" size="4">
-										<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
+									<select id="targetSelector" size="4">
+										<option th:each="lang : ${languages}" th:value="${lang.code}" th:text="${lang.code}">EN</option>
 									</select>
                                     </div>
                                 </div>
+                                   	<span class="btn btn-warning btn-block" th:text="#{editor.add}" onclick="addTarget();">Add</span>
+                                <div class="row">
+                                   <div class="col-md-12">
+                                	<table class="table table-responsive table-striped" id="resTable">
+                                	
+                                	</table>
+                            		<input type="hidden" th:field="*{target}" id="resText"/>
+                            		</div>
+                                </div>
+                                </div>
+								<script th:inline="javascript">
+								/*<![CDATA[*/
+								function addTarget(){
+									target = $("#targetSelector option:selected").text();
+									if (target == "") return;
+									buttonCode = /*[[#{editor.remove}]]*/ "";
+									buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
+									$(resTable).append("<tr><td>" + target + "</td><td>" + buttonCode + "</td></tr>");
+								}
+								/*]]>*/
+								</script>
                                 <hr class="separator"/>
    			<p th:text="#{editor.task.performers}"></p>
                                 <div class="row">
@@ -118,6 +142,11 @@
             });
 
             $("#taskEditForm").on('submit', function() {
+				$("#resText").val("");
+				$.each($("#resTable td:even"), function() {
+					$("#resText").val($("#resText").val() + $(this).html() + ';');
+				});
+				
             	if ($("#type").val() == "2")
             		$("#about").val($("#acronisValue").val());
             	if ($("#type").val() == "3")
@@ -126,6 +155,14 @@
             		$("#about").val($("#fileValue").val());
             });
             $("#type").trigger('input');
+
+			var targets = $("#resText").val();
+			targets = targets.split(";");
+			for (var i = 0; i < targets.length; i++) {
+				if (targets[i] == "") continue;
+				$("#targetSelector option[value='" + targets[i] + "']").prop('selected', true);
+				addTarget();
+			}
 			/*]]>*/
 			</script>
 			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
