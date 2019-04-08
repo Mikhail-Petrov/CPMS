@@ -44,8 +44,8 @@ import com.zaxxer.hikari.HikariDataSource;
  * @author Gordeev Boris
  * @since 1.0
  */
-//@PropertySource("classpath:properties/system.properties")
-@PropertySource("file:system.properties")
+@PropertySource("classpath:properties/system.properties")
+//@PropertySource("file:system.properties")
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
