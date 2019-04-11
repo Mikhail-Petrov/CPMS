@@ -50,7 +50,7 @@ public class CommonModelAttributes {
 	static String testVal = "";
 	@ModelAttribute("test")
 	public static String test(String val) {
-		if (!val.isEmpty()) testVal = val;
+		if (val != null && !val.isEmpty()) testVal = val;
 		return testVal;
 	}
 	
