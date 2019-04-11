@@ -2,7 +2,7 @@
                     <div class="col-md-12">
                         <div class="x_panel">
                             <div class="x_title">
-                                <h3 th:text="${task.presentationName}"></h3>
+                                <h3 id="taskTitle" th:text="${task.presentationName}"></h3>
                             </div>
                             <div class="x_content">
                        	<th:block th:if="${task.type}=='1'">
@@ -10,7 +10,7 @@
 								<p><span id="taskOriginal" th:text="${task.original}">About</span></p>
 								<p><span th:text="#{task.type.translate}"></span>:</p>
 								<p><span id="taskTranslate" th:text="${task.about}">About</span></p>
-                               <script>
+                               <script th:inline="javascript">
                          		/*<![CDATA[*/
                                 var descr = "<p>" + $("#taskOriginal").html() + "</p";
                          		while (descr.indexOf("\n") > -1)
@@ -20,6 +20,14 @@
                          		while (descr.indexOf("\n") > -1)
                          			descr = descr.replace("\n", "</p><p>");
                                 $("#taskTranslate").html(descr);
+
+								var stat1 = /*[[#{task.status.1}]]*/ "";
+								var stat2 = /*[[#{task.status.2}]]*/ "";
+								var stat3 = /*[[#{task.status.3}]]*/ "";
+
+								var stat = /*[[${task.status}]]*/ "";
+								stat = (stat == "1") ? stat1 : ((stat == "2") ? stat2 : stat3);
+                                $("#taskTitle").html($("#taskTitle").html() + ' (' + stat + ')');
                          		/*]]>*/
                                 </script>
                         </th:block>

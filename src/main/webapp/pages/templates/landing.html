@@ -17,6 +17,12 @@
 		<p><a id="vklink">
 			<button class="btn btn-primary btn-block" type="submit" th:text="#{temp.vkform.button}"></button>
 		</a></p>
+                               <script th:inline="javascript">
+                         		/*<![CDATA[*/
+								var test = /*[[${test}]]*/ "";
+                         		console.log(test);
+                         		/*]]>*/
+                                </script>
 			<script>
 			var initialVkLink = rootPath + "viewer/createCompetencyProfile?vkid=";
 			$(vkid).on("input", function() {

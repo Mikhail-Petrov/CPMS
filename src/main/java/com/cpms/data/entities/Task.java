@@ -73,6 +73,9 @@ public class Task extends AbstractDomainObject {
 	// text type
 	@Column(name = "TYPE", nullable = true)
 	private String type;
+	
+	@Column(name = "status", nullable = true, length = 100)
+	private String status;
 
 	@Column(name = "DUE", nullable = true)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -224,5 +227,13 @@ public class Task extends AbstractDomainObject {
 
 	public void setOriginal(String original) {
 		this.original = original;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }

@@ -47,6 +47,13 @@ public class CommonModelAttributes {
 		return principal != null;
 	}
 
+	static String testVal = "";
+	@ModelAttribute("test")
+	public static String test(String val) {
+		if (!val.isEmpty()) testVal = val;
+		return testVal;
+	}
+	
 	// Gets actual state of navigation menu from cookies and returns its class
 	@ModelAttribute("navClass")
 	public String navClass(HttpServletRequest request) {

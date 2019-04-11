@@ -241,6 +241,7 @@ public class EditorTask {
 		}
 		Task task;
 		if (create) {
+			recievedTask.setStatus("1");
 			task = facade.getTaskDAO().insert(recievedTask);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());

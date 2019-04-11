@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Context>
+<Parameter name="url" value="jdbc:mysql://192.168.0.109:2244/competencyjpa?useUnicode=yes&characterEncoding=UTF-8&useSSL=false" />
+<Parameter name="username" value="mastercjpa" />
+<Parameter name="password" value="TestingPassword" />
+</Context>

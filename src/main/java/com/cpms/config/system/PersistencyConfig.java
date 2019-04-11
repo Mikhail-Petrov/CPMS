@@ -2,6 +2,8 @@ package com.cpms.config.system;
 
 import java.util.Properties;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.security.CustomUserDetailsService;
+import com.cpms.web.controllers.CommonModelAttributes;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -86,6 +89,14 @@ public class PersistencyConfig {
     public DataSource getDataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(driver);
+        try {
+			InitialContext ic = new InitialContext();
+			String lookup = ic.toString();
+			CommonModelAttributes.test(lookup);
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         config.setJdbcUrl(url);
         config.setUsername(username);
         config.setPassword(password);
