@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+<Parameter name="ConBaseServer.service.mis.url" value="http://cais.iias.spb.su/cpms/" override="false" />
+<Resource auth="Container" driverClassName="com.mysql.jdbc.Driver"
+		maxActive="20" maxIdle="10" maxWait="-1" name="jdbc/ConBase"
+		password="TestingPassword" type="javax.sql.DataSource"  
+		url="jdbc:mysql://192.168.0.109:2244/competencyjpa?useUnicode=yes&characterEncoding=UTF-8&useSSL=false"" username="mastercjpa" />
+    
+</Context>

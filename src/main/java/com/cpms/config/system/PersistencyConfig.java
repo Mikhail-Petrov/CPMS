@@ -2,6 +2,7 @@ package com.cpms.config.system;
 
 import java.util.Properties;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -90,12 +91,14 @@ public class PersistencyConfig {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(driver);
         try {
-			InitialContext ic = new InitialContext();
-			String lookup = ic.toString();
-			CommonModelAttributes.test(lookup);
+        	Context initContext = new InitialContext();
+			Context envContext = (Context) initContext.lookup("java:/comp/env");
+			DataSource datasource = (DataSource) envContext.lookup("jdbc/ConBase");
+			if (datasource != null)
+				CommonModelAttributes.test(datasource.toString());
+			return datasource;
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			CommonModelAttributes.test(e.getMessage());
 		}
         config.setJdbcUrl(url);
         config.setUsername(username);
