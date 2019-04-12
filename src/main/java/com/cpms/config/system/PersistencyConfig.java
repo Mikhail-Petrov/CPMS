@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -90,19 +91,27 @@ public class PersistencyConfig {
     public DataSource getDataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(driver);
+        DriverManagerDataSource dm = null;
         try {
         	Context initContext = new InitialContext();
 			Context envContext = (Context) initContext.lookup("java:/comp/env");
-			DataSource datasource = (DataSource) envContext.lookup("jdbc/ConBase");
+			DataSource datasource = (DataSource) envContext.lookup("jdbc/CPMS");
+			dm = (DriverManagerDataSource) datasource;
 			if (datasource != null)
-				CommonModelAttributes.test(datasource.toString());
-			return datasource;
+				CommonModelAttributes.test(dm.toString());
 		} catch (NamingException e) {
 			CommonModelAttributes.test(e.getMessage());
+			e.printStackTrace();
 		}
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
+        if (dm == null) {
+	        config.setJdbcUrl(url);
+	        config.setUsername(username);
+	        config.setPassword(password);
+        } else {
+	        config.setJdbcUrl(dm.getUrl());
+	        config.setUsername(dm.getUsername());
+	        config.setPassword(dm.getPassword());
+        }
 
         return new HikariDataSource(config);
     }
