@@ -96,7 +96,7 @@ public class PersistencyConfig {
         	Context initContext = new InitialContext();
 			Context envContext = (Context) initContext.lookup("java:/comp/env");
 			DataSource datasource = (DataSource) envContext.lookup("jdbc/CPMS");
-			dm = (BasicDataSource) datasource;
+			//dm = (BasicDataSource) datasource;
 			if (datasource != null)
 				CommonModelAttributes.test(dm.toString());
 		} catch (NamingException e) {
