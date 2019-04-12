@@ -45,8 +45,9 @@
 	</dependency>
 	
 <dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-dbcp2</artifactId>
+    <groupId>org.apache.tomcat</groupId>
+    <artifactId>tomcat-dbcp</artifactId>
+    <version>9.0.17</version>
 </dependency>
 
 	<dependency>
