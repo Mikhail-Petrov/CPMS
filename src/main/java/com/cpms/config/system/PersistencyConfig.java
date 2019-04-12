@@ -15,12 +15,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 
 import com.cpms.dao.implementations.jpa.JPALanguagesDAO;
 import com.cpms.dao.implementations.jpa.JPAMessageDAO;
@@ -91,26 +91,22 @@ public class PersistencyConfig {
     public DataSource getDataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(driver);
-        BasicDataSource dm = null;
+        boolean success = false;
         try {
         	Context initContext = new InitialContext();
 			Context envContext = (Context) initContext.lookup("java:/comp/env");
-			DataSource datasource = (DataSource) envContext.lookup("jdbc/CPMS");
-			//dm = (BasicDataSource) datasource;
-			if (datasource != null)
-				CommonModelAttributes.test(dm.toString());
+	        config.setJdbcUrl((String) initContext.lookup("java:/comp/env/url"));
+	        config.setUsername((String) initContext.lookup("java:/comp/env/username"));
+	        config.setPassword((String) initContext.lookup("java:/comp/env/password"));
+	        success = true;
 		} catch (NamingException e) {
 			CommonModelAttributes.test(e.getMessage());
 			e.printStackTrace();
 		}
-        if (dm == null) {
+        if (!success) {
 	        config.setJdbcUrl(url);
 	        config.setUsername(username);
 	        config.setPassword(password);
-        } else {
-	        config.setJdbcUrl(dm.getUrl());
-	        config.setUsername(dm.getUsername());
-	        config.setPassword(dm.getPassword());
         }
 
         return new HikariDataSource(config);
