@@ -21,6 +21,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 import com.cpms.dao.implementations.jpa.JPALanguagesDAO;
 import com.cpms.dao.implementations.jpa.JPAMessageDAO;
@@ -91,12 +92,12 @@ public class PersistencyConfig {
     public DataSource getDataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(driver);
-        DriverManagerDataSource dm = null;
+        BasicDataSource dm = null;
         try {
         	Context initContext = new InitialContext();
 			Context envContext = (Context) initContext.lookup("java:/comp/env");
 			DataSource datasource = (DataSource) envContext.lookup("jdbc/CPMS");
-			dm = (DriverManagerDataSource) datasource;
+			dm = (BasicDataSource) datasource;
 			if (datasource != null)
 				CommonModelAttributes.test(dm.toString());
 		} catch (NamingException e) {
