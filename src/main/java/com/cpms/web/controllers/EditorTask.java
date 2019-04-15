@@ -134,7 +134,7 @@ public class EditorTask {
 		Message taskMessage = createTaskMessage(task, principal, userDAO);
 		List<Long> performers = new ArrayList<>();
 		for (Message message : facade.getMessageDAO().getAll()) {
-			if (message.getTitle().equals(taskMessage.getTitle()) && message.getText().equals(taskMessage.getText())) {
+			if (message.getTitle().equals(taskMessage.getTitle())) {
 				// add performers from the message
 				for (MessageCenter recepient : message.getRecipients())
 					performers.add(recepient.getUser().getId());
@@ -190,8 +190,7 @@ public class EditorTask {
 		List<User> oldPerformers = new ArrayList<>();
 		if (!create)
 			for (Message message : facade.getMessageDAO().getAll()) {
-				if ((message.getOwner() == null || message.getOwner().equals(message.getOwner())) && message.getTitle().equals(newMessage.getTitle())
-						&& message.getText().equals(newMessage.getText())) {
+				if (message.getTitle().equals(newMessage.getTitle())) {
 					// remove old performers
 					for (MessageCenter center : message.getRecipients())
 						if (performers.contains(center.getUser().getId()))
@@ -219,7 +218,7 @@ public class EditorTask {
 		newMessage.setOwner(owner);
 		if (newMessage.getOwner() == null)
 			newMessage.setOwner(userDAO.getAll().get(0));
-		newMessage.setTitle("New translation task: " + task.getPresentationName());
+		newMessage.setTitle(String.format("New translation task: %s (id: %d)", task.getPresentationName(), task.getId()));
 		newMessage.setText(
 				String.format("Translation from language '%s' to language '%s'.",
 					task.getSource() == null ? "" : task.getSource().getCode(),
@@ -269,8 +268,7 @@ public class EditorTask {
 		// find the same messages
 		if (!create)
 			for (Message message : facade.getMessageDAO().getAll()) {
-				if ((message.getOwner() == null || message.getOwner().equals(message.getOwner())) && message.getTitle().equals(newMessage.getTitle())
-						&& message.getText().equals(newMessage.getText())) {
+				if (message.getTitle().equals(newMessage.getTitle())) {
 					// remove old performers
 					for (MessageCenter center : message.getRecipients())
 						performers.remove(center.getUser().getId());
@@ -291,6 +289,14 @@ public class EditorTask {
 	public String taskDelete(Model model, @RequestParam(name = "id", required = true) Long id) {
 		Task task = facade.getTaskDAO().getOne(id);
 		facade.getTaskDAO().delete(task);
+		return "redirect:/viewer/tasks";
+	}
+
+	@RequestMapping(path = "/task/status", method = RequestMethod.GET)
+	public String taskStatus(Model model, @RequestParam(name = "id", required = true) Long id, @RequestParam(name = "status", required = true) String status) {
+		Task task = facade.getTaskDAO().getOne(id);
+		task.setStatus(status.equals("1") ? "2" : "3");
+		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/tasks";
 	}
 

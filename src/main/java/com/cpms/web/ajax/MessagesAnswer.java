@@ -18,7 +18,7 @@ public class MessagesAnswer implements IAjaxAnswer {
 
 	private long id;
 	private String parentId;
-	private String title, text;
+	private String title, text, type;
 	private List<Long> recepients;
 	private boolean successful = false;
 	private String owner;
@@ -27,6 +27,7 @@ public class MessagesAnswer implements IAjaxAnswer {
 		id = source.getId();
 		title = source.getPresentationName();
 		text = source.getText();
+		setType(source.getType());
 		if (source.getOwner() == null)
 			this.owner = "-";
 		else
@@ -46,6 +47,7 @@ public class MessagesAnswer implements IAjaxAnswer {
 		id = 0;
 		title = "Message not found";
 		text = "Message not found";
+		setType("1");
 		successful = false;
 	}
 
@@ -115,5 +117,13 @@ public class MessagesAnswer implements IAjaxAnswer {
 	public void setOwner(User owner) {
 		if (owner == null) this.owner = "-";
 		else this.owner = owner.getPresentationName();
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

@@ -59,6 +59,12 @@
 	                                        </a>
 	                                    </div>
 	                                </div>
+	                                <div class="row"
+th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNames, username) and (task.status=='1') or (username==managerName) and (task.status=='2')}">
+                                    	<a th:href="@{/editor/task/status(id=${task.id},status=${task.status})}">
+                                        	<button type="button" class="btn btn-primary btn-block" th:text="${task.status}=='1'?#{task.resolve}:#{task.approve}"></button>
+                                        </a>
+	                                </div>
 	                                <br/>
 								<p><b><span th:text="#{task.requirements}"></span></b></p>
                                 <form action="#" th:action="@{/editor/task/saveChanges}" th:object="${requirements}" method="post">

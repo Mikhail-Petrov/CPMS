@@ -101,7 +101,7 @@ public class PersistencyConfig {
 	        success = true;
 		} catch (NamingException e) {
 			CommonModelAttributes.test(e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
         if (!success) {
 	        config.setJdbcUrl(url);

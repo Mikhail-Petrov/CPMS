@@ -36,6 +36,8 @@ import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Language;
+import com.cpms.data.entities.Message;
+import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Option;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Requirements;
@@ -272,7 +274,7 @@ public class Viewer {
 
 	@RequestMapping(value = "/task", method = RequestMethod.GET)
 	public String task(Model model, @RequestParam(value = "id", required = true) Long id,
-			@RequestParam(value = "returnUrl", required = false) String returnUrl, HttpServletRequest request) {
+			@RequestParam(value = "returnUrl", required = false) String returnUrl, HttpServletRequest request, Principal principal) {
 		if (returnUrl == null) {
 			returnUrl = "/viewer/tasks";
 		}
@@ -298,6 +300,18 @@ public class Viewer {
 		model.addAttribute("_VIEW_TITLE", task.getPresentationName());
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
+		// Add performers and task manager
+		String managerName = "";
+		ArrayList<String> performerNames = new ArrayList<>();
+		Message taskMessage = EditorTask.createTaskMessage(task, principal, userDAO);
+		for (Message message : facade.getMessageDAO().getAll())
+			if (message.getTitle().equals(taskMessage.getTitle())) {
+				managerName = message.getOwner().getUsername();
+				message.getRecipients().stream().forEach(x -> performerNames.add(x.getUser().getUsername()));
+				break;
+			}
+		model.addAttribute("managerName", managerName);
+		model.addAttribute("performerNames", performerNames);
 		return "viewTask";
 	}
 

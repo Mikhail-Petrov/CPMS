@@ -114,6 +114,7 @@ public class Messages {
 				answer.setTitle("");
 				answer.setText("");
 				answer.setParentId("");
+				answer.setType("1");
 				answer.setId(0);
 				answer.setOwner(Security.getUser(principal, userDAO));
 				if (id > 0) {
