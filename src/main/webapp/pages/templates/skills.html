@@ -122,8 +122,7 @@
                             <div class="x_title row">
                                 <h3 style="float: left;" th:text="#{navbar.skills}"></h3>
                                 <div th:if="${isAdmin or isResident}" style="float: right; margin-top: 5px;">
-                                       <button type="button" class="btn btn-success pull-left" data-toggle="modal"
-                                               onclick="ajaxSkillDialog(rootPath + 'viewer/ajaxSkill', '0')"><i class="fa fa-plus"></i></button>
+                                       <button type="button" class="btn btn-success pull-left" data-toggle="modal" id="plusButton"><i class="fa fa-plus"></i></button>
                                 </div>
                             </div>
                             <div class="x_content" th:include="fragments/skillTree :: skillTree"></div>
@@ -154,6 +153,7 @@
 				$('#dtn' + toShow[i]).prop('hidden', false);
 		}
 	}
-	$(skillFilter).on("input", function() {applyFilter()});
+	$("#skillFilter").on("input", function() {applyFilter()});
+	$("#plusButton").on("click", function() {ajaxSkillDialog(rootPath + 'viewer/ajaxSkill', '0')});
 	/*]]>*/
 	</script>

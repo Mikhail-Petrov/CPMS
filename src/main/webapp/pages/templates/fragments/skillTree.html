@@ -72,11 +72,24 @@
 				return res;
 			}
 			
-			class SkillLevel{
+			/*class SkillLevel{
 				constructor(about) {
 					this.about = about;
 				}
-			}
+			}*/
+			//some 'babel' magic
+			"use strict";
+
+			function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return right[Symbol.hasInstance](left); } else { return left instanceof right; } }
+
+			function _classCallCheck(instance, Constructor) { if (!_instanceof(instance, Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+			var SkillLevel = function SkillLevel(about) {
+			  _classCallCheck(this, SkillLevel);
+
+			  this.about = about;
+			};
+			//end of babel
 			
 			function ajaxSkillDialog(requestUrl) {
 				
