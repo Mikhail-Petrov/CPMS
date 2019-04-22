@@ -70,6 +70,7 @@ import com.jayway.jsonpath.JsonPath;
 public class Viewer {
 
 	private static final String NAME_KEY = "name";
+	private static final String STATUS_KEY = "status";
 	private static final String ID_KEY = "id";
 
 	@Autowired
@@ -227,6 +228,12 @@ public class Viewer {
 						Map<String, Object> map = new HashMap<>();
 						map.put(NAME_KEY, x.getPresentationName());
 						map.put(ID_KEY, x.getId());
+						switch(x.getStatus()) {
+						case "1": map.put(STATUS_KEY, UserSessionData.localizeText("Assigned")); break;
+						case "2": map.put(STATUS_KEY, UserSessionData.localizeText("Resolved")); break;
+						case "3": map.put(STATUS_KEY, UserSessionData.localizeText("Approved")); break;
+						default: map.put(STATUS_KEY, "");
+						}
 						return map;
 					}).collect(Collectors.toList());
 		} else {

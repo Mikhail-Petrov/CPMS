@@ -40,7 +40,7 @@
                        	<th:block th:if="${task.type}=='4'">
                                 <p><span th:text="#{task.type.file}"></span>: <a th:href="${task.about}" th:text="${task.about}" target="_blank"></a></p>
                         </th:block>
-                                <p><span th:text="#{editor.task.due}"></span>: <span th:text="${task.dueDate}"></span></p>
+                                <p><span th:text="#{editor.task.due}"></span>: <span th:text="${#dates.format(task.dueDate)}"></span></p>
                                 <p><span th:text="#{editor.task.source}"></span>: <span th:text="${task.source?.code}"></span></p>
                                 <p><span th:text="#{editor.task.target}"></span>: <span th:text="${task.target}"></span></p>
                                 
