@@ -1,29 +1,6 @@
-			<div class="row" th:if="${isAdmin}">
-                <div class="col-md-12">
-                    <div class="x_panel">
-                       	<a th:href="@{/dashboard/index}">
-                       		<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.index}"></button>
-						</a>
-                  	</div>
-                 </div>
+			<div class="row">
+				<p><span th:text="#{statistics.tasks.all} + ': ' + ${totalTasks}"></span></p>
+				<p><span th:text="#{statistics.tasks.done} + ': ' + ${doneTasks}"></span></p>
+				<p><span th:text="#{statistics.tasks.undone.good} + ': ' + ${processTasks}"></span></p>
+				<p><span th:text="#{statistics.tasks.undone.deadline} + ': ' + ${deadlineTasks}"></span></p>
             </div>
-            <div class="row" th:if="${isAdmin}">
-                <div class="col-md-12">
-                    <div class="x_panel">
-                       	<a th:href="@{/security/register}">
-                       		<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.register}"></button>
-						</a>
-                  	</div>
-                 </div>
-            </div>
-            <div class="row" th:if="${isAdmin}">
-                <div class="col-md-12">
-                    <div class="x_panel">
-                       	<a th:href="@{/security/users}">
-                       		<button class="btn btn-primary btn-block" type="submit" th:text="#{dashboard.users}"></button>
-						</a>
-                  	</div>
-                 </div>
-            </div>
-			<div th:replace="fragments/operations :: operations"></div>
-			<div th:replace="fragments/applications :: applications"></div>

@@ -1,7 +1,11 @@
 package com.cpms.web.controllers;
 
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,11 +25,13 @@ import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
+import com.cpms.data.entities.TaskCenter;
 import com.cpms.exceptions.NoSessionProfileException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.operations.interfaces.ITaskComparator;
 import com.cpms.security.RoleTypes;
+import com.cpms.security.entities.User;
 import com.cpms.web.ApplicationsPostForm;
 import com.cpms.web.PagingUtils;
 import com.cpms.web.SkillUtils;
@@ -63,22 +69,35 @@ public class Dashboard {
 	private IUserDAO userDAO;
 
 	@RequestMapping(value = {"/", ""})
-	public String viewDashboard(Model model, HttpServletRequest request) {
+	public String viewDashboard(Model model, Principal principal, HttpServletRequest request) {
 		model.addAttribute("_VIEW_TITLE", "title.dashboard");
 		model.addAttribute("_FORCE_CSRF", true);
-		model.addAttribute("sessionData", sessionData);
-		model.addAttribute("backPath", "/");
-		model.addAttribute("competency", new Competency());
-		model.addAttribute("create", true);
-		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
-		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(facade.getSkillDAO().getAll()));
-		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			model.addAttribute("competencyApplications",
-					applicationsService.retrieveSuggestedCompetencies());
-			model.addAttribute("applicationsForm", new ApplicationsPostForm());
+		User user = Security.getUser(principal, userDAO);
+		List<Task> tasks;
+		if (user == null) {
+			tasks = facade.getTaskDAO().getAll();
+		} else {
+			Set<TaskCenter> taskCenters = user.getTasks();
+			tasks = new ArrayList<Task>();
+			for (TaskCenter center : taskCenters)
+				tasks.add(center.getTask());
 		}
+		model.addAttribute("totalTasks", tasks.size());
+		int doneTasks = 0, processTasks = 0, deadlineTasks = 0;
+		final String doneStatus = "3";
+		Date today = new Date();
+		for (Task task : tasks) {
+			if (task.getStatus().equals(doneStatus))
+				doneTasks++;
+			else
+				if (task.getDueDate().after(today))
+					deadlineTasks++;
+				else
+					processTasks++;
+		}
+		model.addAttribute("doneTasks", doneTasks);
+		model.addAttribute("processTasks", processTasks);
+		model.addAttribute("deadlineTasks", deadlineTasks);
 		return "dashboard";
 	}
 	

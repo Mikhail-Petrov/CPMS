@@ -16,9 +16,9 @@ import com.cpms.security.entities.User;
  */
 public class MessagesAnswer implements IAjaxAnswer {
 
-	private long id;
+	private long id, taskId;
 	private String parentId;
-	private String title, text, type;
+	private String title, text, type, taskTitle;
 	private List<Long> recepients;
 	private boolean successful = false;
 	private String owner;
@@ -36,6 +36,13 @@ public class MessagesAnswer implements IAjaxAnswer {
 			parentId = null;
 		else
 			parentId = String.format("%d", source.getParent().getId());
+		if (source.getTask() == null) {
+			taskId = 0;
+			taskTitle = "";
+		} else {
+			taskId = source.getTask().getId();
+			taskTitle = source.getTask().getName();
+		}
 		this.successful = successful;
 		Set<MessageCenter> centers = source.getRecipients();
 		getRecepients();
@@ -47,6 +54,8 @@ public class MessagesAnswer implements IAjaxAnswer {
 		id = 0;
 		title = "Message not found";
 		text = "Message not found";
+		taskId = 0;
+		taskTitle = "";
 		setType("1");
 		successful = false;
 	}
@@ -125,5 +134,21 @@ public class MessagesAnswer implements IAjaxAnswer {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getTaskTitle() {
+		return taskTitle;
+	}
+
+	public void setTaskTitle(String taskTitle) {
+		this.taskTitle = taskTitle;
+	}
+
+	public long getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(long taskId) {
+		this.taskId = taskId;
 	}
 }

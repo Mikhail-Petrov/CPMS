@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
+import com.cpms.data.entities.TaskCenter;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.SecurityUser;
@@ -67,6 +68,10 @@ public class User extends AbstractDomainObject {
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user", orphanRemoval = true)
 	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
 	private Set<MessageCenter> inMessages;
+
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
+	private Set<TaskCenter> tasks;
 	
 	public boolean isHashed() {
 		return hashed;
@@ -215,6 +220,18 @@ public class User extends AbstractDomainObject {
 	public void setInMessages(Set<MessageCenter> inMessages) {
 		this.inMessages = inMessages;
 		this.inMessages.forEach(x -> x.setUser(this));
+	}
+
+	public Set<TaskCenter> getTasks() {
+		if (tasks == null) {
+			tasks = new LinkedHashSet<TaskCenter>();
+		}
+		return new LinkedHashSet<TaskCenter>(tasks);
+	}
+
+	public void setTasks(Set<TaskCenter> tasks) {
+		this.tasks = tasks;
+		this.tasks.forEach(x -> x.setUser(this));
 	}
 
 }

@@ -32,6 +32,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
+import com.cpms.security.entities.User;
 
 /**
  * Entity class for task.
@@ -83,6 +84,11 @@ public class Task extends AbstractDomainObject {
 	private Date dueDate;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "USER", nullable = true)
+	@Cascade({CascadeType.DETACH})
+	private User user;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "SOURCE", nullable = true)
 	@Cascade({CascadeType.DETACH})
 	private Language source;
@@ -94,6 +100,15 @@ public class Task extends AbstractDomainObject {
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST})
 	private Set<TaskRequirement> requirements;
+	
+	@OneToMany(fetch = FetchType.EAGER,	mappedBy = "task", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST})
+	private Set<TaskCenter> recipients;
+	
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "task")
+	@Cascade({CascadeType.DETACH})
+	private Set<Message> messages;
 	
 	public Task() {}
 	
@@ -235,5 +250,63 @@ public class Task extends AbstractDomainObject {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Set<TaskCenter> getRecipients() {
+		if (recipients == null) {
+			recipients = new LinkedHashSet<TaskCenter>();
+		}
+		return new LinkedHashSet<TaskCenter>(recipients);
+	}
+
+	public void setRecipients(Set<TaskCenter> recipients) {
+		if (this.recipients != null) {
+			throw new DataAccessException("Cannot insert, Hibernate will lose track!");
+		}
+		this.recipients = recipients;
+		this.recipients.forEach(x -> x.setTask(this));
+	}
+
+	public void removeRecipient(TaskCenter recipient) {
+		if (recipient == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if(this.equals(recipient.getTask())) {
+			removeEntityFromManagedCollection(recipient, recipients);
+			recipient.setTask(null);
+		}
+	}
+	
+	public void removeRecepient(User user) {
+		for (TaskCenter recepient : getRecipients())
+			if (recepient.getUser().equals(user))
+				removeRecipient(recepient);
+	}
+
+	public void addRecipient(TaskCenter recipient) {
+		if (recipient == null || recipient.getUser() == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (recipients == null) {
+			getRecipients();
+		}
+		recipients.add(recipient);
+		recipient.setTask(this);
+	}
+
+	public Set<Message> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(Set<Message> messages) {
+		this.messages = messages;
 	}
 }

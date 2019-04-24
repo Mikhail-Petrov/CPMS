@@ -7,6 +7,7 @@
   		<form action="#" th:action="@{/messages/async}" th:object="${message}" method="post" id="messageCreate">
   			<input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/>
   			<p><span class="warning" id="warning"></span></p>
+ 			<p id="taskLinkBlock"><a id="taskLink" href="#"></a></p>
  			<p th:text="#{message.title}"></p>
 			<p><input type="text" class="form-control" th:field="*{title}" placeholder="title" th:placeholder="#{message.title}" id="message_title"/></p>
  			<p th:text="#{message.text}"></p>

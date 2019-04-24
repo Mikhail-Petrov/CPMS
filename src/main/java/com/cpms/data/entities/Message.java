@@ -62,12 +62,16 @@ public class Message extends AbstractDomainObject {
 	@JoinColumn(name = "PARENT", nullable = true)
 	@Cascade({CascadeType.DETACH})
 	private Message parent;
-
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "OWNER", nullable = true)
 	@Cascade({CascadeType.DETACH})
 	private User owner;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "TASK", nullable = true)
+	@Cascade({CascadeType.DETACH})
+	private Task task;
 	
 	@Column(name = "TYPE", nullable = true, length = 100)
 	private String type;
@@ -180,6 +184,7 @@ public class Message extends AbstractDomainObject {
 		returnValue.setOwner(getOwner());
 		returnValue.setType(getType());
 		returnValue.setSendedTime(getSendedTime());
+		returnValue.setTask(getTask());
 		return returnValue;
 	}
 
@@ -253,6 +258,16 @@ public class Message extends AbstractDomainObject {
 
 	public void setSendedTime(Date sendedTime) {
 		this.sendedTime = sendedTime;
+	}
+
+
+	public Task getTask() {
+		return task;
+	}
+
+
+	public void setTask(Task task) {
+		this.task = task;
 	}
 	
 	

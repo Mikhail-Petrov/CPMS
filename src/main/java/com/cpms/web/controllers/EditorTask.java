@@ -29,6 +29,7 @@ import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
+import com.cpms.data.entities.TaskCenter;
 import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
@@ -131,16 +132,9 @@ public class EditorTask {
 		model.addAttribute("languages", langs);
 		List<User> users = userDAO.getAll();
 		model.addAttribute("users", users);
-		Message taskMessage = createTaskMessage(task, principal, userDAO);
 		List<Long> performers = new ArrayList<>();
-		for (Message message : facade.getMessageDAO().getAll()) {
-			if (message.getTitle().equals(taskMessage.getTitle())) {
-				// add performers from the message
-				for (MessageCenter recepient : message.getRecipients())
-					performers.add(recepient.getUser().getId());
-				break;
-			}
-		}
+		for (TaskCenter recepient : task.getRecipients())
+			performers.add(recepient.getUser().getId());
 		if (performers.size() == users.size()) {
 			performers.clear();
 			performers.add(-1L);
@@ -186,34 +180,42 @@ public class EditorTask {
 		// forget about old performers
 		// to do this, create a message about it
 		Message newMessage = createTaskMessage(task, principal, userDAO);
-		// find the same messages
-		List<User> oldPerformers = new ArrayList<>();
+		// find the same message
 		if (!create)
 			for (Message message : facade.getMessageDAO().getAll()) {
 				if (message.getTitle().equals(newMessage.getTitle())) {
-					// remove old performers
-					for (MessageCenter center : message.getRecipients())
-						if (performers.contains(center.getUser().getId()))
-							performers.remove(center.getUser().getId());
-						else
-							oldPerformers.add(center.getUser());
 					newMessage = message;
 					break;
 				}
 			}
+		// remove old performers
+		List<User> oldPerformers = new ArrayList<>();
+		for (TaskCenter center : task.getRecipients())
+			if (performers.contains(center.getUser().getId()))
+				performers.remove(center.getUser().getId());
+			else
+				oldPerformers.add(center.getUser());
+		
 		if (!performers.isEmpty() && newMessage.getId() <= 0)
 			newMessage = facade.getMessageDAO().insert(newMessage);
-		for (long userID : performers)
-			newMessage.addRecipient(new MessageCenter(userDAO.getByUserID(userID)));
-		for (User user : oldPerformers)
+		for (long userID : performers) {
+			User newRecipient = userDAO.getByUserID(userID);
+			newMessage.addRecipient(new MessageCenter(newRecipient));
+			task.addRecipient(new TaskCenter(newRecipient));
+		}
+		for (User user : oldPerformers) {
 			newMessage.removeRecepient(user);
+			task.removeRecepient(user);
+		}
 		if (newMessage.getId() > 0)
 			facade.getMessageDAO().update(newMessage);
+		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
 	}
 	
 	public static Message createTaskMessage(Task task, Principal principal, IUserDAO userDAO) {
 		Message newMessage = new Message();
+		newMessage.setTask(task);
 		User owner = Security.getUser(principal, userDAO);
 		newMessage.setOwner(owner);
 		if (newMessage.getOwner() == null)
@@ -241,6 +243,10 @@ public class EditorTask {
 		Task task;
 		if (create) {
 			recievedTask.setStatus("1");
+			User owner = Security.getUser(principal, userDAO);
+			if (owner == null)
+				owner = userDAO.getAll().get(0);
+			recievedTask.setUser(owner);
 			task = facade.getTaskDAO().insert(recievedTask);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
@@ -263,24 +269,19 @@ public class EditorTask {
 					} catch (NumberFormatException e) {}
 
 		// forget about old performers
-		// to do this, create a message about it
-		Message newMessage = createTaskMessage(task, principal, userDAO);
-		// find the same messages
 		if (!create)
-			for (Message message : facade.getMessageDAO().getAll()) {
-				if (message.getTitle().equals(newMessage.getTitle())) {
-					// remove old performers
-					for (MessageCenter center : message.getRecipients())
-						performers.remove(center.getUser().getId());
-					newMessage = message;
-					break;
-				}
-			}
+			for (TaskCenter center : task.getRecipients())
+ 				performers.remove(center.getUser().getId());
 		if (!performers.isEmpty()) {
+			Message newMessage = createTaskMessage(task, principal, userDAO);
 			newMessage = facade.getMessageDAO().insert(newMessage);
-			for (long userID : performers)
-				newMessage.addRecipient(new MessageCenter(userDAO.getByUserID(userID)));
+			for (long userID : performers) {
+				User newRecipient = userDAO.getByUserID(userID);
+				newMessage.addRecipient(new MessageCenter(newRecipient));
+				task.addRecipient(new TaskCenter(newRecipient));
+			}
 			facade.getMessageDAO().update(newMessage);
+			facade.getTaskDAO().update(task);
 		}		
 		return "fragments/editTaskModal :: taskCreationSuccess";
 	}

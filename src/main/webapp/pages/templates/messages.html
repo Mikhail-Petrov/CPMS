@@ -90,8 +90,8 @@
                                			</td>
                                			<td th:text="${#dates.format(message.sendedTime)}"></td>
                                			<td class="center">
-                               				<a th:href="(*{message.type}=='2')?'#':@{/messages/delete(id=${message.id})}">
-                               					<button type="button" class="btn btn-danger" title="(*{message.type}=='2')?'':#{message.delete.cant}"><i class="fa fa-remove"></i></button>
+                               				<a th:href="@{/messages/delete(id=${message.id})}">
+                               					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                				</a>
                                				<button type="button" class="btn btn-trans" th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', '+ *{message.id} +')'">
                                					<img th:src="@{/resources/images/reply.png}"></img>
@@ -113,8 +113,8 @@
                                			</td>
                                			<td th:text="${#dates.format(message.sendedTime)}"></td>
                                			<td class="center">
-                               				<a th:href="(*{message.type}=='2')?'#':@{/messages/delete(id=${message.id})}">
-                               					<button type="button" class="btn btn-danger" title="(*{message.type}=='2')?'':#{message.delete.cant}"><i class="fa fa-remove"></i></button>
+                               				<a th:href="@{/messages/delete(id=${message.id})}">
+                               					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                				</a>
                                			</td>
                                		</tr>
@@ -181,10 +181,17 @@
 							$('#usersTo option[value="' + res.recepients[i] + '"]').prop('selected', true);
 					    // Remember id of the changed message
 					    $("#selfId").val(res.id);
+					    // Edit or hide task link
+					    if (res.taskId > 0) {
+					    	$("#taskLinkBlock").show();
+					    	$("#taskLink").attr('href', rootPath + 'viewer/task?id=' + res.taskId);
+					    	$("#taskLink").html(res.taskTitle);
+					    } else
+					    	$("#taskLinkBlock").hide();
 					    
 					    // Disable fields if input and enable them otherwise
 					    var disable = (res.owner !== username) && (username !== "admin");
-				    	$("#message_title")[0].disabled = disable || res.type == "2";
+				    	$("#message_title")[0].disabled = disable;// || res.type == "2";
 				    	$("#message_text")[0].disabled = disable;
 				    	$("#usersTo")[0].disabled = disable;
 				    	$("#messageSubmitButton")[0].disabled = disable;

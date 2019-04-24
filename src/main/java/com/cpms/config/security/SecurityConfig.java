@@ -79,8 +79,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       .authorizeRequests()
           	.antMatchers("/").permitAll()
           	.antMatchers("/viewer","/viewer/**")
-          	//.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
-          		.permitAll()
+          	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
+          		//.permitAll()
              .antMatchers("/editor/skill", "/editor/skill/alternative",
               			"/editor/skill/delete", "/editor/skill/delete/force",
               			"/editor/profile",
@@ -94,7 +94,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/motivations","/motivation/**")
             	//.permitAll()
           		.hasAnyRole(RoleTypes.MANAGER.toString(), RoleTypes.HR.toString())
-            .antMatchers("/messages","/messages/**")
+            .antMatchers("/messages","/messages/**", "/dashboard")
         		//.permitAll()
       			.authenticated()
           	.antMatchers("/security/me")
