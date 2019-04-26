@@ -83,7 +83,9 @@ public class Dashboard {
 				tasks.add(center.getTask());
 		}
 		model.addAttribute("totalTasks", tasks.size());
-		int doneTasks = 0, processTasks = 0, deadlineTasks = 0;
+		int doneTasks = 0;
+		List<Task> deadlineTasks = new ArrayList<Task>();
+		List<Task> processTasks = new ArrayList<Task>();
 		final String doneStatus = "3";
 		Date today = new Date();
 		for (Task task : tasks) {
@@ -91,9 +93,9 @@ public class Dashboard {
 				doneTasks++;
 			else
 				if (task.getDueDate().after(today))
-					deadlineTasks++;
+					deadlineTasks.add(task);
 				else
-					processTasks++;
+					processTasks.add(task);
 		}
 		model.addAttribute("doneTasks", doneTasks);
 		model.addAttribute("processTasks", processTasks);

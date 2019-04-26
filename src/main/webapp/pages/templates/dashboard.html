@@ -1,6 +1,10 @@
 			<div class="row">
 				<p><span th:text="#{statistics.tasks.all} + ': ' + ${totalTasks}"></span></p>
 				<p><span th:text="#{statistics.tasks.done} + ': ' + ${doneTasks}"></span></p>
-				<p><span th:text="#{statistics.tasks.undone.good} + ': ' + ${processTasks}"></span></p>
-				<p><span th:text="#{statistics.tasks.undone.deadline} + ': ' + ${deadlineTasks}"></span></p>
+				<p><span th:text="#{statistics.tasks.undone.good} + ': ' + ${#lists.size(processTasks)}"></span></p>
+				<p th:each="task, iterStat : ${processTasks}">
+					<a th:text="${iterStat.count + ') ' + task.name}" th:href="@{/viewer/task(id=${task.id})}" target="_blank"></a></p>
+				<p><span th:text="#{statistics.tasks.undone.deadline} + ': ' + ${#lists.size(deadlineTasks)}"></span></p>
+				<p th:each="task, iterStat : ${deadlineTasks}">
+					<a th:text="${iterStat.count + ') ' + task.name}" th:href="@{/viewer/task(id=${task.id})}" target="_blank"></a></p>
             </div>
