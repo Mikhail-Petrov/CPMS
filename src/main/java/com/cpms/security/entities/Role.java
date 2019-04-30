@@ -35,7 +35,7 @@ public class Role implements DomainObject {
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "OWNER", nullable = false)
-	private User owner;
+	private Users owner;
 	
 	public String getRolename() {
 		return rolename;
@@ -45,11 +45,11 @@ public class Role implements DomainObject {
 		this.rolename = rolename;
 	}
 
-	public User getOwner() {
+	public Users getOwner() {
 		return owner;
 	}
 
-	public void setOwner(User owner) {
+	public void setOwner(Users owner) {
 		this.owner = owner;
 	}
 

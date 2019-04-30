@@ -9,22 +9,22 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.cpms.security.entities.Role;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
- * Connector for {@link User} which allows Spring security to use it.
+ * Connector for {@link Users} which allows Spring security to use it.
  * 
- * @see User
+ * @see Users
  * 
  * @author Gordeev Boris
  * @since 1.0
  */
 @SuppressWarnings({ "serial" })
-public class SecurityUser extends User implements UserDetails {
+public class SecurityUser extends Users implements UserDetails {
 
 	public SecurityUser() {	}
 	
-	public SecurityUser(User user) {
+	public SecurityUser(Users user) {
 		if (user != null) {
 			setId(user.getId());
 			setUsername(user.getUsername());

@@ -13,7 +13,7 @@
    			<p th:text="#{editor.task.due}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <input type="date" class="form-control" th:field="*{dueDate}"/>
+                                        <input type="date" class="form-control" th:field="*{dueDate}" min="1970-01-01" max="2100-01-01"/>
                                     </div>
                                 </div>
                                 <div class="two-buttons">

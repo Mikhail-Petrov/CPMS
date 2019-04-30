@@ -30,7 +30,7 @@ import com.cpms.exceptions.WrongUserProfileException;
 import com.cpms.security.RegistrationForm;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Role;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.security.entities.UserData;
 import com.cpms.web.UserSessionData;
 
@@ -66,9 +66,9 @@ public class Security {
 	@Qualifier(value = "userSessionData")
 	private UserSessionData sessionData;
 
-	public static User getUser(Principal principal, IUserDAO userDAO) {
+	public static Users getUser(Principal principal, IUserDAO userDAO) {
 		if (principal == null) return null;
-		User user = null;
+		Users user = null;
 		String username = ((UsernamePasswordAuthenticationToken) principal).getName();
 		if (!username.equals(Security.adminName))
 			user = userDAO.getByUsername(username);
@@ -90,7 +90,7 @@ public class Security {
 		if (profile != null)
 			form.setProfileId(profile.getId());
 		if (!isCreate) {
-			User user = userDAO.getByUserID(id);
+			Users user = userDAO.getByUserID(id);
 			form.setId(id);
 			form.setRole(user.getRole());
 			form.setUsername(user.getUsername());
@@ -107,7 +107,7 @@ public class Security {
 		// Get profiles which are not attached to user (plus this user's profile)
 		List<Profile> profileList = profileDAO.getAll(), removeList = new ArrayList<>();
 		for (Profile profileInList : profileList) {
-			User profileUser = userDAO.getByProfile(profileInList);
+			Users profileUser = userDAO.getByProfile(profileInList);
 			if (profileUser != null && (id == null || profileUser.getId() != id))
 				removeList.add(profileInList);
 		}
@@ -129,7 +129,7 @@ public class Security {
 			model.addAttribute("_FORCE_CSRF", true);
 			return "register";
 		}
-		User user = new User();
+		Users user = new Users();
 		boolean isCreate = false;
 		Long userId = registrationForm.id;
 		if (userId == null)
@@ -160,7 +160,7 @@ public class Security {
 			throw new WrongUserProfileException(UserSessionData.localizeText(
 					"Вы не выбрали профиль", "You have no chosen profile"), request.getPathInfo());
 		}
-		User profileUser = userDAO.getByProfile(profile);
+		Users profileUser = userDAO.getByProfile(profile);
 		if (profileUser != null && profileUser.getId() != userId) {
 			throw new WrongUserProfileException(UserSessionData.localizeText(
 					"Уже есть пользователь с таким профилем",
@@ -176,9 +176,9 @@ public class Security {
 		return "users";
 	}
 
-	private List<UserData> getUsersData(List<User> users) {
+	private List<UserData> getUsersData(List<Users> users) {
 		List<UserData> res = new ArrayList<>();
-		for (User user : users) {
+		for (Users user : users) {
 			res.add(new UserData(user));
 			Long pid = user.getProfileId();
 			if (profileDAO != null && pid != null) {
@@ -192,7 +192,7 @@ public class Security {
 
 	@RequestMapping(path = { "/delete" }, method = RequestMethod.GET)
 	public String profileDelete(Model model, @RequestParam(name = "userId", required = true) Long id) {
-		User user = userDAO.getByUserID(id);
+		Users user = userDAO.getByUserID(id);
 		for (MessageCenter messageCenter : user.getInMessages()) {
 			Message message = messageCenter.getMessage();
 			message.removeRecipient(messageCenter);

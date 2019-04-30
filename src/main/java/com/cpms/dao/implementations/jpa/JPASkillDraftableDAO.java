@@ -23,7 +23,7 @@ public class JPASkillDraftableDAO extends JPASkillDAO
 	
 	@Override
 	public List<Skill> getAll() {
-		return skillRepo.findByDraft(false);
+		return skillRepo.findByDraft();
 	}
 	
 	@Override
@@ -33,7 +33,7 @@ public class JPASkillDraftableDAO extends JPASkillDAO
 	
 	@Override
 	public List<Skill> getDraftsOfUser(Long id) {
-		return skillRepo.findByDraftAndOwner(true, id);
+		return skillRepo.findByDraftAndOwner(id);
 	}
 
 }

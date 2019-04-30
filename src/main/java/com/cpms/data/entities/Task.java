@@ -32,7 +32,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * Entity class for task.
@@ -82,11 +82,16 @@ public class Task extends AbstractDomainObject {
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@Temporal(TemporalType.DATE)
 	private Date dueDate;
+
+	@Column(name = "COMPLETED", nullable = true)
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
+	private Date completedDate;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "USER", nullable = true)
+	@JoinColumn(name = "UID", nullable = true)
 	@Cascade({CascadeType.DETACH})
-	private User user;
+	private Users user;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "SOURCE", nullable = true)
@@ -252,11 +257,11 @@ public class Task extends AbstractDomainObject {
 		this.status = status;
 	}
 
-	public User getUser() {
+	public Users getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(Users user) {
 		this.user = user;
 	}
 
@@ -285,7 +290,7 @@ public class Task extends AbstractDomainObject {
 		}
 	}
 	
-	public void removeRecepient(User user) {
+	public void removeRecepient(Users user) {
 		for (TaskCenter recepient : getRecipients())
 			if (recepient.getUser().equals(user))
 				removeRecipient(recepient);
@@ -308,5 +313,13 @@ public class Task extends AbstractDomainObject {
 
 	public void setMessages(Set<Message> messages) {
 		this.messages = messages;
+	}
+
+	public Date getCompletedDate() {
+		return completedDate;
+	}
+
+	public void setCompletedDate(Date completedDate) {
+		this.completedDate = completedDate;
 	}
 }

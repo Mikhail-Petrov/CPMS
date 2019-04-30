@@ -12,10 +12,10 @@ import com.cpms.data.entities.Skill;
 @Repository(value = "Skill")
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
-	@Query("Select skill from Skill skill where skill.draft = :draft")
-	public List<Skill> findByDraft(@Param("draft") boolean draft);
+	@Query("Select skill from Skill skill")
+	public List<Skill> findByDraft();
 	
-	@Query("Select skill from Skill skill where skill.draft = :draft and skill.owner = :owner")
-	public List<Skill> findByDraftAndOwner(@Param("draft") boolean draft, @Param("owner") Long owner);
+	@Query("Select skill from Skill skill where skill.owner = :owner")
+	public List<Skill> findByDraftAndOwner(@Param("owner") Long owner);
 	
 }

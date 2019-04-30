@@ -7,18 +7,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
-@Repository(value = "User")
-public interface UserRepository extends JpaRepository<User, Long> {
+@Repository(value = "Users")
+public interface UserRepository extends JpaRepository<Users, Long> {
 
-	@Query("Select user from User user where user.username = :username")
-	public List<User> retrieveUserByUsername(@Param("username") String username);
+	@Query("Select u from Users u where u.username = :username")
+	public List<Users> retrieveUserByUsername(@Param("username") String username);
 	
-	@Query("Select user from User user where user.profileId = :profileId")
-	public User retrieveUserByProfileId(@Param("profileId") long profileId);
+	@Query("Select u from Users u where u.profileId = :profileId")
+	public Users retrieveUserByProfileId(@Param("profileId") long profileId);
 	
-	@Query("Select user from User user where user.id = :userId")
-	public User retrieveUserByUserId(@Param("userId") long userId);
+	@Query("Select u from Users u where u.id = :userId")
+	public Users retrieveUserByUserId(@Param("userId") long userId);
 	
 }

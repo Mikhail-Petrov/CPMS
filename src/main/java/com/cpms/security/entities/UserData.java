@@ -17,7 +17,7 @@ public class UserData {
 	public boolean isAdmin, isResident;
 	public List<Role> roles;
 
-	public UserData(User user) {
+	public UserData(Users user) {
 		this.id = user.getId();
 		this.name = user.getUsername();
 		this.password = user.getPassword();

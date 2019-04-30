@@ -2,6 +2,7 @@ package com.cpms.web.controllers;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -34,7 +35,7 @@ import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * Handles task CRUD web application requests.
@@ -130,7 +131,7 @@ public class EditorTask {
 		model.addAttribute("create", create);
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		model.addAttribute("languages", langs);
-		List<User> users = userDAO.getAll();
+		List<Users> users = userDAO.getAll();
 		model.addAttribute("users", users);
 		List<Long> performers = new ArrayList<>();
 		for (TaskCenter recepient : task.getRecipients())
@@ -159,6 +160,7 @@ public class EditorTask {
 			task.setOriginal(recievedTask.getOriginal());
 			task.setName(recievedTask.getName());
 			task.setDueDate(recievedTask.getDueDate());
+			task.setDueDate(new Date(recievedTask.getDueDate().getTime()));
 			task.setTarget(recievedTask.getTarget());
 			task.setSource(recievedTask.getSource());
 			task.setType(recievedTask.getType());
@@ -170,7 +172,7 @@ public class EditorTask {
 		List<Long> performers = new ArrayList<>();
 		if (userIDs != null)
 			if (userIDs.length > 0 && userIDs[0].equals("all"))
-				for (User user : userDAO.getAll())
+				for (Users user : userDAO.getAll())
 					performers.add(user.getId());
 			else
 				for (int i = 0; i < userIDs.length; i++)
@@ -189,7 +191,7 @@ public class EditorTask {
 				}
 			}
 		// remove old performers
-		List<User> oldPerformers = new ArrayList<>();
+		List<Users> oldPerformers = new ArrayList<>();
 		for (TaskCenter center : task.getRecipients())
 			if (performers.contains(center.getUser().getId()))
 				performers.remove(center.getUser().getId());
@@ -199,11 +201,11 @@ public class EditorTask {
 		if (!performers.isEmpty() && newMessage.getId() <= 0)
 			newMessage = facade.getMessageDAO().insert(newMessage);
 		for (long userID : performers) {
-			User newRecipient = userDAO.getByUserID(userID);
+			Users newRecipient = userDAO.getByUserID(userID);
 			newMessage.addRecipient(new MessageCenter(newRecipient));
 			task.addRecipient(new TaskCenter(newRecipient));
 		}
-		for (User user : oldPerformers) {
+		for (Users user : oldPerformers) {
 			newMessage.removeRecepient(user);
 			task.removeRecepient(user);
 		}
@@ -216,7 +218,7 @@ public class EditorTask {
 	public static Message createTaskMessage(Task task, Principal principal, IUserDAO userDAO) {
 		Message newMessage = new Message();
 		newMessage.setTask(task);
-		User owner = Security.getUser(principal, userDAO);
+		Users owner = Security.getUser(principal, userDAO);
 		newMessage.setOwner(owner);
 		if (newMessage.getOwner() == null)
 			newMessage.setOwner(userDAO.getAll().get(0));
@@ -243,7 +245,7 @@ public class EditorTask {
 		Task task;
 		if (create) {
 			recievedTask.setStatus("1");
-			User owner = Security.getUser(principal, userDAO);
+			Users owner = Security.getUser(principal, userDAO);
 			if (owner == null)
 				owner = userDAO.getAll().get(0);
 			recievedTask.setUser(owner);
@@ -261,7 +263,7 @@ public class EditorTask {
 		List<Long> performers = new ArrayList<>();
 		if (userIDs != null)
 			if (userIDs[0].equals("all"))
-				for (User user : userDAO.getAll())
+				for (Users user : userDAO.getAll())
 					performers.add(user.getId());
 			else
 				for (int i = 0; i < userIDs.length; i++)
@@ -276,7 +278,7 @@ public class EditorTask {
 			Message newMessage = createTaskMessage(task, principal, userDAO);
 			newMessage = facade.getMessageDAO().insert(newMessage);
 			for (long userID : performers) {
-				User newRecipient = userDAO.getByUserID(userID);
+				Users newRecipient = userDAO.getByUserID(userID);
 				newMessage.addRecipient(new MessageCenter(newRecipient));
 				task.addRecipient(new TaskCenter(newRecipient));
 			}
@@ -297,6 +299,8 @@ public class EditorTask {
 	public String taskStatus(Model model, @RequestParam(name = "id", required = true) Long id, @RequestParam(name = "status", required = true) String status) {
 		Task task = facade.getTaskDAO().getOne(id);
 		task.setStatus(status.equals("1") ? "2" : "3");
+		if (task.getStatus().equals("2"))
+			task.setCompletedDate(new Date(System.currentTimeMillis()));
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/tasks";
 	}

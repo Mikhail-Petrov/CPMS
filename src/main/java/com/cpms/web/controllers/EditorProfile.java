@@ -29,7 +29,7 @@ import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Role;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * Handles profile CRUD web application requests.
@@ -124,7 +124,7 @@ public class EditorProfile {
 			profile.update(expert);
 			profile.addProofsFromText(facade.getLanguageDAO().getAll(), expert.getAbout());
 			profile = facade.getProfileDAO().insert(profile);
-			User user = new User();
+			Users user = new Users();
 			if (userDAO.getByUsername(profile.getName()) == null) {
 				user.setUsername(profile.getName());
 				user.setProfileId(profile.getId());
@@ -147,7 +147,7 @@ public class EditorProfile {
 	public String profileDelete(Model model,
 			@RequestParam(name = "id", required = true) Long id) {
 		Profile profile = facade.getProfileDAO().getOne(id);
-		User user = userDAO.getByProfile(profile);
+		Users user = userDAO.getByProfile(profile);
 		if (user != null) {
 			user.setProfileId(null);
 			userDAO.updateUser(user);

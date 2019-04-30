@@ -21,7 +21,7 @@ import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.UserSessionData;
 
 /**
@@ -110,7 +110,7 @@ public class CommonModelAttributes {
 	
 	@ModelAttribute("newMessages")
 	public int newMessages(Principal principal) {
-		User user = Security.getUser(principal, userDAO);
+		Users user = Security.getUser(principal, userDAO);
 		Set<MessageCenter> centers = null;
 		if (user == null) {
 			List<Message> messages = facade.getMessageDAO().getAll();

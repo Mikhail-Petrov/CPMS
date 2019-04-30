@@ -40,7 +40,7 @@ public class SkillAnswer implements IAjaxAnswer {
 			parentId = String.format("%d", source.getParent().getId());
 		this.successful = successful;
 		levels = new ArrayList<SkillLevelAnswer>();
-		draft = source.isDraft();
+		draft = false;//source.isDraft();
 		for (SkillLevel level : source.getFullSkillLevels()) {
 			SkillLevelAnswer newLevel = new SkillLevelAnswer(level, true);
 			levels.add(newLevel);

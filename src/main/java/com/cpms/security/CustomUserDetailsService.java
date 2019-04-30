@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import com.cpms.dao.interfaces.IUserDAO;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * Connector of {@link IUserDAO} that allows Spring Security to use it
@@ -28,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userDAO.getByUsername(username);
+		Users user = userDAO.getByUsername(username);
         if(user == null){
             throw new UsernameNotFoundException("UserName " + username +
             		" not found");

@@ -20,7 +20,7 @@ import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Motivation;
 import com.cpms.facade.ICPMSFacade;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.MessagePostForm;
 import com.cpms.web.MotivationPostForm;
 import com.cpms.web.ajax.IAjaxAnswer;
@@ -53,7 +53,7 @@ public class Messages {
 		model.addAttribute("_VIEW_TITLE", "navbar.messages");
 		model.addAttribute("_FORCE_CSRF", true);
 		
-		User user = Security.getUser(principal, userDAO);
+		Users user = Security.getUser(principal, userDAO);
 		List<Message> inMessages = new ArrayList<>();
 		if (user == null)
 			inMessages = facade.getMessageDAO().getAll();
@@ -75,7 +75,7 @@ public class Messages {
 			HttpServletRequest request,
 			@RequestParam(name = "id", required = true) Long id) {
 		Message message = facade.getMessageDAO().getOne(id);
-		User user = Security.getUser(principal, userDAO);
+		Users user = Security.getUser(principal, userDAO);
 		if (user == null)
 			facade.getMessageDAO().delete(message);
 		else {
@@ -97,7 +97,7 @@ public class Messages {
 				// Change/view message
 				id = -id;
 				Message message = facade.getMessageDAO().getOne(id);
-				User curUser = Security.getUser(principal, userDAO);
+				Users curUser = Security.getUser(principal, userDAO);
 				boolean isChanged = false;
 				for (MessageCenter messageCenter : message.getRecipients())
 					if (messageCenter.getUser().equals(curUser) && !messageCenter.isRed()) {
@@ -169,7 +169,7 @@ public class Messages {
 			long userId = 0L;
 			try { userId = Long.parseLong(userIDs[i]);
 			} catch(NumberFormatException e) {}
-			User recepient = userDAO.getByUserID(userId);
+			Users recepient = userDAO.getByUserID(userId);
 			if (recepient != null && !message.getRecipients().stream().anyMatch(x -> x.getUser().equals(recepient)))
 				message.addRecipient(new MessageCenter(recepient));
 		}

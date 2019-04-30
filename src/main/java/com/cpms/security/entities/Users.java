@@ -35,9 +35,9 @@ import com.cpms.security.SecurityUser;
  * @since 1.0
  */
 @Entity
-@Table(name = "USER")
+@Table(name = "USERS")
 @SuppressWarnings("serial")
-public class User extends AbstractDomainObject {
+public class Users extends AbstractDomainObject {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,11 +65,11 @@ public class User extends AbstractDomainObject {
 	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
 	private Set<Message> messages;
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user", orphanRemoval = true)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "uid", orphanRemoval = true)
 	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
 	private Set<MessageCenter> inMessages;
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "uid")
 	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
 	private Set<TaskCenter> tasks;
 	
@@ -194,7 +194,7 @@ public class User extends AbstractDomainObject {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public User localize(Locale locale) {
+	public Users localize(Locale locale) {
 		return this;
 	}
 

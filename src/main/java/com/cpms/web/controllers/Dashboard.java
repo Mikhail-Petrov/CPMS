@@ -31,7 +31,7 @@ import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.operations.interfaces.ITaskComparator;
 import com.cpms.security.RoleTypes;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.ApplicationsPostForm;
 import com.cpms.web.PagingUtils;
 import com.cpms.web.SkillUtils;
@@ -72,7 +72,7 @@ public class Dashboard {
 	public String viewDashboard(Model model, Principal principal, HttpServletRequest request) {
 		model.addAttribute("_VIEW_TITLE", "title.dashboard");
 		model.addAttribute("_FORCE_CSRF", true);
-		User user = Security.getUser(principal, userDAO);
+		Users user = Security.getUser(principal, userDAO);
 		List<Task> tasks;
 		if (user == null) {
 			tasks = facade.getTaskDAO().getAll();

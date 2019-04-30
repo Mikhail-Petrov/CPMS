@@ -25,7 +25,7 @@ import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * Handles skill level CRUD web application requests.
@@ -49,12 +49,12 @@ public class EditorSkillLevel {
 			HttpServletRequest request) {
 		if (parentSkill != null) {
 			if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-				User owner = userDAO.getByUsername((
+				Users owner = userDAO.getByUsername((
 						(UsernamePasswordAuthenticationToken)principal
 						).getName());
 				if (parentSkill.getOwner() == null ||
-						owner.getId() != parentSkill.getOwner().longValue() ||
-						!parentSkill.isDraft()) {
+						owner.getId() != parentSkill.getOwner().longValue()) {// ||
+						//!parentSkill.isDraft()) {
 					throw new AccessDeniedException(
 							"You are not allowed to edit this skill.", null);
 				}

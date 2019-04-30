@@ -32,7 +32,7 @@ import com.cpms.exceptions.ManualValidationException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.SkillPostForm;
 import com.cpms.web.SkillUtils;
 import com.cpms.web.UserSessionData;
@@ -66,7 +66,7 @@ public class EditorSkill {
 			HttpServletRequest request, boolean create) {
 		model.addAttribute("create", create);
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			User owner = userDAO.getByUsername((
+			Users owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
@@ -86,12 +86,12 @@ public class EditorSkill {
 		if (recievedSkill.getId() != 0) {
 			if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 				Skill oldSkill = facade.getSkillDAO().getOne(recievedSkill.getId());
-				User owner = userDAO.getByUsername((
+				Users owner = userDAO.getByUsername((
 						(UsernamePasswordAuthenticationToken)principal
 						).getName());
 				if (oldSkill.getOwner() == null ||
-						owner.getId() != oldSkill.getOwner().longValue() ||
-						!oldSkill.isDraft()) {
+						owner.getId() != oldSkill.getOwner().longValue()) {// ||
+						//!oldSkill.isDraft()) {
 					throw new AccessDeniedException(UserSessionData.localizeText(
 							"У вас недостаточно прав для редактирования этого умения.",
 							"You are not allowed to edit this skill."), null);
@@ -111,7 +111,7 @@ public class EditorSkill {
 			HttpServletRequest request,
 			Skill recievedSkill) {
 		if (recievedSkill.getParent() != null && 
-				recievedSkill.getParent().isDraft() &&
+				//recievedSkill.getParent().isDraft() &&
 				CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			throw new ManualValidationException(UserSessionData.localizeText(
 					"Отправлено некорректное умение", "Invalid skill submitted!"),
@@ -154,8 +154,8 @@ public class EditorSkill {
 			throw new SessionExpiredException(null);
 		}
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
-				recievedSkill.setDraft(true);
+			//if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
+				//recievedSkill.setDraft(true);
 			recievedSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName()).getId());
@@ -295,8 +295,8 @@ public class EditorSkill {
 		newSkill.setAbout(recievedSkill.getAbout());
 		newSkill.setType(recievedSkill.getType());
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
-				newSkill.setDraft(true);
+			//if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
+				//newSkill.setDraft(true);
 			newSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName()).getId());
@@ -369,8 +369,8 @@ public class EditorSkill {
 		newSkill.setAbout(recievedSkill.getAbout());
 		newSkill.setType(recievedSkill.getType());
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
-				newSkill.setDraft(true);
+			//if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
+				//newSkill.setDraft(true);
 			newSkill.setOwner(userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName()).getId());
@@ -401,7 +401,7 @@ public class EditorSkill {
 			@RequestParam(name = "id", required = false) Long id) {
 		Skill skill = facade.getSkillDAO().getOne(id);
 		checkNotChildrenOfDraft(request, skill);
-		skill.setDraft(false);
+		//skill.setDraft(false);
 		facade.getSkillDAO().update(skill);
 		//return "redirect:/viewer/tree";
 		return "redirect:/skills";

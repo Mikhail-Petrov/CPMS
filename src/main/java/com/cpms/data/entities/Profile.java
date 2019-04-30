@@ -19,8 +19,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
 
@@ -57,6 +62,11 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 	
 	@Column(name = "Availability", nullable = true)
 	private String availability;
+
+	@Column(name = "Start", nullable = true)
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
+	private Date startDate;
 
 	
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -190,6 +200,7 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 		clone.setLevel(getLevel());
 		clone.setAvailability(getAvailability());
 		clone.setLocal(getLocal());
+		clone.setStartDate(getStartDate());
 		return clone;
 	}
 	
@@ -208,6 +219,7 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 		setLevel(source.getLevel());
 		setAvailability(source.getAvailability());
 		setLocal(source.getLocal());
+		setStartDate(source.getStartDate());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -350,5 +362,13 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 
 	public void setLocal(Language local) {
 		this.local = local;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
 	}
 }

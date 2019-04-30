@@ -78,9 +78,6 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	@Cascade({CascadeType.DETACH})
 	private Skill parent;
 	
-	@Column(name = "draft", nullable = false)
-	private boolean draft = false;
-	
 	@Column(name = "owner", nullable = true)
 	private Long owner;
 	
@@ -110,14 +107,6 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	public Skill(String name, String about) {
 		this.name = name;
 		this.about = about;
-	}
-	
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
 	}
 
 	public String getType() {
@@ -343,7 +332,6 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	@Override
 	public Skill localize(Locale locale) {
 		Skill returnValue = new Skill();
-		returnValue.setDraft(isDraft());
 		returnValue.setName(getName());
 		returnValue.setId(getId());
 		returnValue.setChildren(getChildren());

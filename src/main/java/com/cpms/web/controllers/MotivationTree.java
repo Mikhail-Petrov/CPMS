@@ -27,7 +27,7 @@ import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Skill;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.MotivationNameIdTuple;
 import com.cpms.web.SkillNameIdTuple;
 import com.cpms.web.UserSessionData;

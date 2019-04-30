@@ -15,7 +15,7 @@ import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Profile;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.security.entities.Role;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * Service for CRUD operations with user entity.
@@ -34,7 +34,7 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 	private MessageCenterRepository messageRepository;
 	
 	@Autowired
-	@Qualifier(value = "User")
+	@Qualifier(value = "Users")
 	public void setUserRepository(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
@@ -59,17 +59,17 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 	}
 
 	@Override
-	public User getByUsername(final String username) {
+	public Users getByUsername(final String username) {
 		if (username == null) {
 			throw new DataAccessException("Null value.", null);
 		}
-		User user = userRepository.retrieveUserByUsername(username)
+		Users user = userRepository.retrieveUserByUsername(username)
 				.stream().findFirst().orElse(null);
 		return user;
 	}
 
 	@Override
-	public void insertUser(User user) {
+	public void insertUser(Users user) {
 		if (user == null || user.getRoles() == null) {
 			throw new DataAccessException("Null value.", null);
 		}
@@ -89,7 +89,7 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 	}
 
 	@Override
-	public void updateUser(User user) {
+	public void updateUser(Users user) {
 		if (user == null || user.getRoles() == null) {
 			throw new DataAccessException("Null value.", null);
 		}
@@ -109,7 +109,7 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 	}
 
 	@Override
-	public void deleteUser(User user) {
+	public void deleteUser(Users user) {
 		if (user == null) {
 			throw new DataAccessException("Attempt to delete null", null);
 		}
@@ -117,7 +117,7 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 	}
 
 	@Override
-	public User getByProfile(Profile profile) {
+	public Users getByProfile(Profile profile) {
 		if (profile == null) {
 			throw new DataAccessException("Null value.");
 		}
@@ -133,12 +133,12 @@ public class JPAUserDAO implements IUserDAO, ICleanable {
 	}
 
 	@Override
-	public List<User> getAll() {
+	public List<Users> getAll() {
 		return userRepository.findAll();
 	}
 
 	@Override
-	public User getByUserID(Long userId) {
+	public Users getByUserID(Long userId) {
 		if (userId == null) {
 			throw new DataAccessException("Null value.");
 		}

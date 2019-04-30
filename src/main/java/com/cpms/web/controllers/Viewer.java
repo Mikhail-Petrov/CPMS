@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,12 +46,13 @@ import com.cpms.data.entities.Resident;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
+import com.cpms.data.entities.TaskCenter;
 import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.WrongJsonException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.operations.implementations.Porter;
 import com.cpms.security.RoleTypes;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.PagingUtils;
 import com.cpms.web.SkillUtils;
 import com.cpms.web.UserSessionData;
@@ -116,7 +118,7 @@ public class Viewer {
 
 	private void addSkillsListToModel(Model model, Principal principal, HttpServletRequest request) {
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			User owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
+			Users owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
 			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
@@ -146,7 +148,7 @@ public class Viewer {
 		model.addAttribute("defaultLevels", defLevels);
 
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			User owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
+			Users owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
 			model.addAttribute("skills", SkillTree.produceTree(skills));
@@ -241,6 +243,7 @@ public class Viewer {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
 	public String profile(Model model, Principal principal, @RequestParam(value = "id", required = true) Long id,
 			@RequestParam(value = "returnUrl", required = false) String returnUrl, HttpServletRequest request) {
@@ -259,6 +262,44 @@ public class Viewer {
 		model.addAttribute("isOwner", false);
 		model.addAttribute("competency", new Competency());
 		model.addAttribute("competencies", new Competencies(id));
+		
+		double gsl1 = 0, gsl2, gsl3, gsl4 = 0;
+		
+		Users user = userDAO.getByUsername(attrProfile.getName());
+		if (user != null) {
+			Set<TaskCenter> tasks = user.getTasks();
+			for (TaskCenter task : tasks)
+				if (task.getTask().getCompletedDate() != null && task.getTask().getCompletedDate().before(task.getTask().getDueDate()))
+					gsl1++;
+			if (!tasks.isEmpty())
+				gsl1 /= tasks.size();
+		}
+		
+		gsl2 = attrProfile.getAvailability().equals("1") ? 1 : (
+				attrProfile.getAvailability().equals("2") ? 2.0/3 : (
+						attrProfile.getAvailability().equals("3") ? 1.0/3 : 0));
+		
+		Date startDate = attrProfile.getStartDate();
+		Date today = new Date();
+		if (startDate == null) startDate = today;
+		gsl3 = (today.getYear() - startDate.getYear()) * 12 + today.getMonth() - startDate.getMonth();
+		if (today.getDate() < startDate.getDate())
+			gsl3--;
+		gsl3 = (gsl3 + 1) / 36;
+		if (gsl3 < 0) gsl3 = 0;
+		
+		Set<Competency> comps = attrProfile.getCompetencies();
+		for (Competency comp : comps)
+			gsl4 += comp.getLevel();
+		if (!comps.isEmpty())
+			gsl4 /= comps.size();
+		gsl4 /= 6;
+
+		model.addAttribute("globalLevel", gsl1*gsl2*gsl3*gsl4);
+		model.addAttribute("globalLevel1", gsl1);
+		model.addAttribute("globalLevel2", gsl2);
+		model.addAttribute("globalLevel3", gsl3);
+		model.addAttribute("globalLevel4", gsl4);
 
 		model.addAttribute("skillsList",
 				SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));

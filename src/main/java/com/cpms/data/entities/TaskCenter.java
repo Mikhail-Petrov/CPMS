@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import com.cpms.data.AbstractDomainObject;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * Entity class for competencies.
@@ -32,8 +32,8 @@ public class TaskCenter extends AbstractDomainObject {
 	private long id;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "USER", nullable = false)
-	private User user;
+	@JoinColumn(name = "UID", nullable = false)
+	private Users uid;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "TASK", nullable = false)
@@ -42,8 +42,8 @@ public class TaskCenter extends AbstractDomainObject {
 	
 	public TaskCenter() {}
 	
-	public TaskCenter(User user) {
-		this.user = user;
+	public TaskCenter(Users uid) {
+		this.uid = uid;
 	}
 	
 	public TaskCenter(Task task) {
@@ -51,12 +51,12 @@ public class TaskCenter extends AbstractDomainObject {
 	}
 	
 
-	public User getUser() {
-		return user;
+	public Users getUser() {
+		return uid;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUser(Users uid) {
+		this.uid = uid;
 	}
 
 	public void setId(long id) {

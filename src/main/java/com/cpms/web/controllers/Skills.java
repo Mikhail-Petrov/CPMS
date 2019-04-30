@@ -27,7 +27,7 @@ import com.cpms.data.entities.Task;
 import com.cpms.exceptions.WrongJsonException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.PagingUtils;
 import com.cpms.web.SkillUtils;
 //import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,7 +73,7 @@ public class Skills {
 	private List<Skill> addSkillsListToModel(Principal principal, HttpServletRequest request) {
 		List<Skill> skills;
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			User owner = userDAO.getByUsername((
+			Users owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
 			skills = facade.getSkillDAO().getAll();
@@ -104,7 +104,7 @@ public class Skills {
 		model.addAttribute("defaultLevels", defLevels);
 		
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			User owner = userDAO.getByUsername((
+			Users owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import com.cpms.data.AbstractDomainObject;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * Entity class for competencies.
@@ -32,8 +32,8 @@ public class MessageCenter extends AbstractDomainObject {
 	private long id;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "USER", nullable = false)
-	private User user;
+	@JoinColumn(name = "UID", nullable = false)
+	private Users uid;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "MESSAGE", nullable = false)
@@ -51,8 +51,8 @@ public class MessageCenter extends AbstractDomainObject {
 	
 	public MessageCenter() {}
 	
-	public MessageCenter(User user) {
-		this.user = user;
+	public MessageCenter(Users uid) {
+		this.uid = uid;
 		this.copy = false;
 		this.hidden = false;
 		this.setRed(false);
@@ -65,12 +65,12 @@ public class MessageCenter extends AbstractDomainObject {
 	}
 	
 
-	public User getUser() {
-		return user;
+	public Users getUser() {
+		return uid;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUser(Users uid) {
+		this.uid = uid;
 	}
 
 	public void setId(long id) {

@@ -31,7 +31,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.UserSessionData;
 
 /**
@@ -66,7 +66,7 @@ public class Message extends AbstractDomainObject {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "OWNER", nullable = true)
 	@Cascade({CascadeType.DETACH})
-	private User owner;
+	private Users owner;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "TASK", nullable = true)
@@ -105,11 +105,11 @@ public class Message extends AbstractDomainObject {
 		this.type = type;
 	}
 
-	public User getOwner() {
+	public Users getOwner() {
 		return owner;
 	}
 
-	public void setOwner(User owner) {
+	public void setOwner(Users owner) {
 		this.owner = owner;
 	}
 
@@ -218,7 +218,7 @@ public class Message extends AbstractDomainObject {
 		}
 	}
 	
-	public void removeRecepient(User user) {
+	public void removeRecepient(Users user) {
 		for (MessageCenter recepient : getRecipients())
 			if (recepient.getUser().equals(user))
 				removeRecipient(recepient);

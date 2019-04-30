@@ -33,7 +33,7 @@ import com.cpms.exceptions.DataAccessException;
 import com.cpms.exceptions.NoResidentUserProfile;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.ApplicationsPostForm;
 import com.cpms.web.SkillUtils;
 
@@ -81,7 +81,7 @@ public class Applications {
 		model.addAttribute("competency", new Competency());
 		model.addAttribute("create", true);
 		List<Skill> skills = facade.getSkillDAO().getAll();
-		User owner = userDAO.getByUsername((
+		Users owner = userDAO.getByUsername((
 				(UsernamePasswordAuthenticationToken)principal
 				).getName());
 		skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
@@ -126,7 +126,7 @@ public class Applications {
 		CompetencyApplication application = new CompetencyApplication();
 		application.setLevel(recievedCompetency.getLevel());
 		application.setSkillId(recievedCompetency.getSkill().getId());
-		User owner = userDAO.getByUsername((
+		Users owner = userDAO.getByUsername((
 				(UsernamePasswordAuthenticationToken)principal
 				).getName());
 		Long ownerId = owner.getProfileId();

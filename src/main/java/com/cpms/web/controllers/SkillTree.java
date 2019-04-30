@@ -26,7 +26,7 @@ import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Skill;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 import com.cpms.web.SkillNameIdTuple;
 import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.IAjaxAnswer;
@@ -62,7 +62,7 @@ public class SkillTree {
 		model.addAttribute("_VIEW_TITLE", "title.tree");
 		model.addAttribute("_FORCE_CSRF", true);
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			User owner = userDAO.getByUsername((
+			Users owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
 			List<Skill> skills = facade.getSkillDAO().getAll();
@@ -130,10 +130,10 @@ public class SkillTree {
 		for(Skill skill : skills) {
 			if (skill.getParent() == null) {
 				addToTree(result, (long)0, skill.getId(), 
-						skill.getPresentationName(), skill.isDraft(), skill.getType());
+						skill.getPresentationName(), false, skill.getType());
 			} else {
 				addToTree(result, skill.getParent().getId(), skill.getId(), 
-						skill.getPresentationName(), skill.isDraft(), skill.getType());
+						skill.getPresentationName(), false, skill.getType());
 			}
 		}
 		return result;

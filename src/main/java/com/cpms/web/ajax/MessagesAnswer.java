@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
-import com.cpms.security.entities.User;
+import com.cpms.security.entities.Users;
 
 /**
  * AJAX answer that returns information about a certain skill.
@@ -123,7 +123,7 @@ public class MessagesAnswer implements IAjaxAnswer {
 		this.owner = owner;
 	}
 
-	public void setOwner(User owner) {
+	public void setOwner(Users owner) {
 		if (owner == null) this.owner = "-";
 		else this.owner = owner.getPresentationName();
 	}
