@@ -94,7 +94,7 @@ public class Security {
 			form.setId(id);
 			form.setRole(user.getRole());
 			form.setUsername(user.getUsername());
-			if (form.getRole().equals(RoleTypes.EXPERT.toRoleName()))
+			if (form.getRole() != null && form.getRole().equals(RoleTypes.EXPERT.toRoleName()))
 				form.setProfileId(user.getProfileId());
 		}
 		model.addAttribute("registrationForm", form);

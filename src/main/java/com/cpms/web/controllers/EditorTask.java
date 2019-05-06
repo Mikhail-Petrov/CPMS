@@ -288,6 +288,26 @@ public class EditorTask {
 		return "fragments/editTaskModal :: taskCreationSuccess";
 	}
 
+	@RequestMapping(path = { "/task/send" }, method = RequestMethod.POST)
+	public String taskSend(Model model, Principal principal, @ModelAttribute("task_id") @Valid long id,
+			@ModelAttribute("message_text") @Valid String text) {
+		Task task = facade.getTaskDAO().getOne(id);
+		String returnVal = "redirect:/viewer/task?id=" + task.getId();
+		if (text.isEmpty())
+			return returnVal;
+		Message message = new Message();
+		Users owner = Security.getUser(principal, userDAO);
+		if (owner == null)
+			owner = userDAO.getAll().get(0);
+		message.setOwner(owner);
+		message.setTask(task);
+		message.setType("3");
+		message.setText(text);
+		message.setTitle("");
+		facade.getMessageDAO().insert(message);
+		return returnVal;
+	}
+
 	@RequestMapping(path = "/task/delete", method = RequestMethod.GET)
 	public String taskDelete(Model model, @RequestParam(name = "id", required = true) Long id) {
 		Task task = facade.getTaskDAO().getOne(id);

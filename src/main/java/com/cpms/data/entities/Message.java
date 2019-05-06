@@ -44,7 +44,7 @@ import com.cpms.web.UserSessionData;
 @Entity
 @Indexed
 @Table(name = "MESSAGE")
-public class Message extends AbstractDomainObject {
+public class Message extends AbstractDomainObject implements Comparable<Message>  {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -268,6 +268,14 @@ public class Message extends AbstractDomainObject {
 
 	public void setTask(Task task) {
 		this.task = task;
+	}
+
+
+	@Override
+	public int compareTo(Message mes) {
+		if (getSendedTime() == null) return -1;
+		if (mes.getSendedTime() == null) return 1;
+		return getSendedTime().compareTo(mes.getSendedTime());
 	}
 	
 	

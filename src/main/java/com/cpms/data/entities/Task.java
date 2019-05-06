@@ -1,7 +1,10 @@
 package com.cpms.data.entities;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -307,8 +310,13 @@ public class Task extends AbstractDomainObject {
 		recipient.setTask(this);
 	}
 
-	public Set<Message> getMessages() {
-		return messages;
+	public List<Message> getMessages() {
+		List<Message> res = new ArrayList<>();
+		if (messages != null)
+			for (Message mes : messages)
+				res.add(mes);
+		Collections.sort(res);
+		return res;
 	}
 
 	public void setMessages(Set<Message> messages) {
