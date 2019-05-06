@@ -260,7 +260,7 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 	public void addProofsFromText(List<Language> langs, String text) {
 		if (text == null) return;
 		Set<Proofreading> oldProofs = getProofs();
-		setProofs(null);
+		setProofs(null); getProofs();
 		for (String proof : text.split(";")) {
 			if (proof.isEmpty()) continue;
 			Language from = null, to = null;

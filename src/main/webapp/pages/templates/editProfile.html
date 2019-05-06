@@ -8,9 +8,19 @@
 			<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</p>
 			<p><span th:text="#{editor.placeholder.name}" text="Expert name"></span>:
 			<input class="form-control" type="text" th:field="*{name}" placeholder="Expert name" th:placeholder="#{editor.placeholder.name}" onblur="addCheck(this, 3, 100)"/></p>
-			<p th:text="#{profile.position}"></p>
-			<p><input class="form-control" type="text" th:field="*{position}" placeholder="Expert position" th:placeholder="#{editor.placeholder.position}"/>
-				<span th:if="${#fields.hasErrors('position')}" th:errors="*{position}">Name Error</span></p>
+			<div class="row">
+				<div class="two-buttons">
+				<p th:text="#{profile.position}"></p>
+				<p><input class="form-control" type="text" th:field="*{position}" placeholder="Expert position" th:placeholder="#{editor.placeholder.position}"/>
+					<span th:if="${#fields.hasErrors('position')}" th:errors="*{position}">Name Error</span></p>
+				</div>
+				<div class="two-buttons">
+	   			<p th:text="#{profile.start}"></p>
+	                <div class="col-md-12">
+	                    <input type="date" class="form-control" th:field="*{startDate}" min="1970-01-01" max="2100-01-01"/>
+	                </div>
+	            </div>
+	        </div>
 			<p th:text="#{profile.availability}"></p>
 			<!--p><input class="form-control" type="text" th:field="*{availability}" placeholder="Expert availability" th:placeholder="#{editor.placeholder.availability}"/>
 				<span th:if="${#fields.hasErrors('availability')}" th:errors="*{availability}">Name Error</span></p-->

@@ -28,6 +28,7 @@
                                 	<p><span th:text="#{profile.gsl.2}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel2,1,4)}"></span></p>
                                 	<p><span th:text="#{profile.gsl.3}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel3,1,4)}"></span></p>
                                 	<p><span th:text="#{profile.gsl.4}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel4,1,4)}"></span></p>
+                                	<p><span th:text="#{profile.start}"></span>: <span th:text="${profile.startDate==null?'':#dates.format(profile.startDate)}"></span></p>
                                 </th:block>
                                 <br/>
                                 <div class="row">
