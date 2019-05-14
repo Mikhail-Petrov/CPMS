@@ -318,6 +318,16 @@ public class Task extends AbstractDomainObject {
 		Collections.sort(res);
 		return res;
 	}
+	
+	public void update(Task task) {
+		setAbout(task.getAbout());
+		setOriginal(task.getOriginal());
+		setName(task.getName());
+		setDueDate(task.getDueDate());
+		setTarget(task.getTarget());
+		setSource(task.getSource());
+		setType(task.getType());
+	}
 
 	public void setMessages(Set<Message> messages) {
 		this.messages = messages;

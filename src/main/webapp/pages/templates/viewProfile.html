@@ -23,11 +23,11 @@
   										<span th:if="${profile.availability}=='4'" th:text="#{profile.availability.uncertain}">Uncertain, due to work amount</span></p>
                                 <p><span th:text="#{profile.local}"></span>: <span th:text="${profile.local?.code}"></span></p>
                                 <th:block th:if="${isAdmin}">
-                                	<p><span th:text="#{profile.gsl}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel,1,4)}"></span></p>
-                                	<p><span th:text="#{profile.gsl.1}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel1,1,4)}"></span></p>
-                                	<p><span th:text="#{profile.gsl.2}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel2,1,4)}"></span></p>
-                                	<p><span th:text="#{profile.gsl.3}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel3,1,4)}"></span></p>
-                                	<p><span th:text="#{profile.gsl.4}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel4,1,4)}"></span></p>
+                                	<p><span th:text="#{profile.gsl}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel*100,1,1) + ' %'}"></span></p>
+                                	<p><span th:text="#{profile.gsl.1}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel1*100,1,1) + ' %'}"></span></p>
+                                	<p><span th:text="#{profile.gsl.2}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel2*100,1,1) + ' %'}"></span></p>
+                                	<p><span th:text="#{profile.gsl.3}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel3*100,1,1) + ' %'}"></span></p>
+                                	<p><span th:text="#{profile.gsl.4}"></span>: <span th:text="${#numbers.formatDecimal(globalLevel4*100,1,1) + ' %'}"></span></p>
                                 	<p><span th:text="#{profile.start}"></span>: <span th:text="${profile.startDate==null?'':#dates.format(profile.startDate)}"></span></p>
                                 </th:block>
                                 <br/>

@@ -115,18 +115,23 @@ public class EditorTask {
 		return "fragments/editRequirementModal :: requirementCreationSuccess";
 	}
 
+	private Task existedTask = null;
+	
 	@RequestMapping(path = "/task", method = RequestMethod.GET)
 	public String task(Model model, Principal principal, @RequestParam(name = "id", required = false) Long id) {
 		model.addAttribute("_VIEW_TITLE", "title.edit.task");
 		Task task;
-		boolean create;
-		if (id == null) {
+		boolean create = false;
+		if (existedTask != null)
+			task = existedTask;
+		else if (id == null) {
 			task = new Task();
 			create = true;
 		} else {
 			task = facade.getTaskDAO().getOne(id);
 			create = false;
 		}
+		existedTask = null;
 		model.addAttribute("task", task);
 		model.addAttribute("create", create);
 		List<Language> langs = facade.getLanguageDAO().getAll();
@@ -153,17 +158,15 @@ public class EditorTask {
 		boolean create = (recievedTask.getId() == 0);
 		Task task;
 		if (create) {
+			for (Task existed : facade.getTaskDAO().getAll())
+				if (existed.getName() != null && existed.getName().equals(recievedTask.getName())) {
+					existedTask = existed;
+					existedTask.update(recievedTask);
+				}
 			task = facade.getTaskDAO().insert(recievedTask);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
-			task.setAbout(recievedTask.getAbout());
-			task.setOriginal(recievedTask.getOriginal());
-			task.setName(recievedTask.getName());
-			task.setDueDate(recievedTask.getDueDate());
-			task.setDueDate(new Date(recievedTask.getDueDate().getTime()));
-			task.setTarget(recievedTask.getTarget());
-			task.setSource(recievedTask.getSource());
-			task.setType(recievedTask.getType());
+			task.update(recievedTask);
 			task = facade.getTaskDAO().update(task);
 		}
 

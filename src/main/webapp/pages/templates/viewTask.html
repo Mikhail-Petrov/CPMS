@@ -1,8 +1,11 @@
 				<div class="row">
                     <div class="col-md-12">
                         <div class="x_panel">
-                            <div class="x_title">
+                            <div class="x_title two-buttons">
                                 <h3 id="taskTitle" th:text="${task.presentationName}"></h3>
+                            </div>
+                            <div class="x_title two-buttons">
+                                <h3 id="taskTitle" th:text="#{editor.task.chat}"></h3>
                             </div>
                             <div class="x_content">
                             <div class="row">
@@ -50,11 +53,12 @@
                             <form action="#" th:action="@{/editor/task/send}" method="post" th:object="${task}">
 							<input type="hidden" th:name="task_id" th:value="${task.id}"/>
 								<table class="table table-responsive table-striped">
-									<tr th:each="message : ${task.messages}">
-										<td th:if="${message.type=='3'}"><b><span th:text="${message.owner?.username + ': '}"></span></b><span th:text="${message.text}"></span></td>
+									<tr th:each="message : ${task.messages}" th:if="${message.type=='3'}">
+										<td><b><span th:text="${message.owner?.username + ': '}"></span></b><span th:text="${message.text}"></span></td>
+                               			<td th:text="${#dates.format(message.sendedTime)}"></td>
 									</tr>
 									<tr>
-										<td>
+										<td colspan="2">
 											<p><textarea class="form-control" type="textarea" placeholder="text" th:placeholder="#{message.text}" name="message_text"></textarea></p>
 											<p><input type="submit" class="btn btn-primary btn-block" value="Save" th:value="#{message.save}"/></p>
 										</td>
