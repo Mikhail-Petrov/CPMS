@@ -9,7 +9,8 @@
 
             <!-- menu profile quick info -->
             <div class="profile">
-                <a th:href="${isResident} ? @{/viewer/profile(id=${companyId})} : @{/security/me}">
+                <!-- a th:href="${isResident} ? @{/viewer/profile(id=${companyId})} : @{/security/me}"-->
+                <a th:href="@{/security/me}">
               <div class="profile_pic">
               	<th:block th:if="${!isAuthenticated}">
                 	<img th:src="@{/resources/images/no-user.png}" class="img-circle profile_img"></img>
@@ -36,7 +37,8 @@
                   <li><a th:href="@{/dashboard}"><i class="fa fa-edit"></i> <span th:text="#{navbar.statistics}">Statistics</span></a></li>
                   <li th:if="${isAdmin or isResident}"><a><i class="fa fa-info"></i><span th:text="#{navbar.block1}">Experts Network Creation</span> <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li><a th:href="@{/viewer}"><span th:text="#{navbar.experts}">Experts</span></a></li>
+                      <li th:if="${isAdmin}"><a th:href="@{/viewer}"><span th:text="#{navbar.experts}">Experts</span></a></li>
+                      <li th:if="${isResident}"><a th:href="@{/viewer/profile(id=${companyId})}" th:text="#{navbar.new.company}">Expert Profile</a></li>
                       <li><a th:href="@{/skills}"><span th:text="#{navbar.skills}">Skills</span></a></li>
                     </ul>
                   </li>
