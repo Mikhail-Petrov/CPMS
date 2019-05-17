@@ -32,7 +32,7 @@
                                 </th:block>
                                 <br/>
                                 <div class="row">
-                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12" th:if="${isResident}">
                                         <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.skills.add}"></button>
                                     </div>
                                     <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
@@ -49,7 +49,7 @@
                                 <br/>
                                 <p><b><span th:text="#{profile.skills}"></span></b></p>
                                 <form action="#" th:action="@{/editor/profile/saveChanges}" th:object="${competencies}" method="post">
-			<p><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
+			<p th:if="${isResident}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
 			<input type="hidden" th:field="*{data}" id="competenciesData"/>
 			<input type="hidden" th:field="*{profileId}" th:value="${profile.id}"/>
 			<script>
@@ -62,7 +62,7 @@
                                     <tr th:each="competency : ${profile.competencies}">
                                         <td>
                                             <span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level} + ' / ' + ${competency.skill.maxLevel}"></span>
-                                            <div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isAdmin}">
+                                            <div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isResident}">
                                             	<a th:href="@{/editor/competency/delete(id=${competency.id}, profileId=${profile.id})}">
                                             		<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                                 </a>

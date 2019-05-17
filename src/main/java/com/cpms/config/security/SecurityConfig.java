@@ -89,7 +89,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
             	//.permitAll()
           	.antMatchers("/editor","/editor/**")
-          		.hasRole(RoleTypes.MANAGER.toString())
+          		.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
             	//.permitAll()
             .antMatchers("/motivations","/motivation/**")
             	//.permitAll()
