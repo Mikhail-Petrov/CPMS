@@ -2,7 +2,10 @@ package com.cpms.web.controllers;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,15 +57,22 @@ public class Messages {
 		model.addAttribute("_FORCE_CSRF", true);
 		
 		Users user = Security.getUser(principal, userDAO);
-		List<Message> inMessages = new ArrayList<>();
-		if (user == null)
-			inMessages = facade.getMessageDAO().getAll();
-		else {
+		List<Message> messages = new ArrayList<>();
+		List<MessageCenter> inMessages = new ArrayList<>();
+		if (user == null) {
+			messages = facade.getMessageDAO().getAll();
+			for (Message mes : messages)
+				inMessages.addAll(mes.getRecipients());
+		} else {
 			for (MessageCenter mes : user.getInMessages())
-				inMessages.add(mes.getMessage());
+				inMessages.add(mes);
+			for (Message mes : user.getMessages())
+				messages.add(mes);
 		}
+		Collections.sort(inMessages);
 		model.addAttribute("inMessages", inMessages);
-		model.addAttribute("messages", user == null ? inMessages : user.getMessages());
+		Collections.sort(messages);
+		model.addAttribute("messages", messages);
 		model.addAttribute("users", userDAO.getAll());
 		model.addAttribute("message", new Message());
 		

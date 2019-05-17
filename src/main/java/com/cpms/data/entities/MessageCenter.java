@@ -24,7 +24,7 @@ import com.cpms.security.entities.Users;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "MESSAGECENTER")
-public class MessageCenter extends AbstractDomainObject {
+public class MessageCenter extends AbstractDomainObject implements Comparable<MessageCenter> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -138,6 +138,13 @@ public class MessageCenter extends AbstractDomainObject {
 
 	public void setRed(boolean red) {
 		this.red = red;
+	}
+
+	@Override
+	public int compareTo(MessageCenter mes) {
+		if (getMessage() == null || getMessage().getSendedTime() == null) return -1;
+		if (mes == null || mes.getMessage() == null || mes.getMessage().getSendedTime() == null) return 1;
+		return -getMessage().getSendedTime().compareTo(mes.getMessage().getSendedTime());
 	}
 	
 }

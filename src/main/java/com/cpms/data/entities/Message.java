@@ -275,7 +275,7 @@ public class Message extends AbstractDomainObject implements Comparable<Message>
 	public int compareTo(Message mes) {
 		if (getSendedTime() == null) return -1;
 		if (mes.getSendedTime() == null) return 1;
-		return getSendedTime().compareTo(mes.getSendedTime());
+		return -getSendedTime().compareTo(mes.getSendedTime());
 	}
 	
 	

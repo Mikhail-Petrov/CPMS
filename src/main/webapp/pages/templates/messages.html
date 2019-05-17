@@ -74,26 +74,34 @@
 	                		<option value="1" th:text="#{message.in}">Inbox</option>
 	                		<option value="2" th:text="#{message.out}">Sent</option>
 	                	</select>
+	                	<input type='checkbox' id='unredOnly' th:text="#{message.unredonly}"/>
 	                </div>
                 
                 </div>
                            <div class="x_content">
                                <div id="inTable">
                                <h2 th:text="#{message.in}"></h2>
-                               <table class="table table-responsive table-striped">
+                               <table class="table table-responsive table-striped" id="inTable">
                                		<tbody>
-                               		<tr th:each="message : ${inMessages}">
-                               			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{message.id} +')'">
-                               				<b th:text="${message.title}"></b>
+                               		<tr th:each="center : ${inMessages}" th:id="${'mc' + center.id}">
+                               			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{center.message.id} +')'">
+                               			<i th:if="${center.red == false}">
+                               				<b th:text="${center.message.title}"></b>
                                				<br/>
-                               				<span id="text" th:text="${message.text}"></span>
+                               				<span id="text" th:text="${center.message.text}"></span>
+                               			</i>
+                               			<span th:if="${center.red == true}">
+                               				<b th:text="${center.message.title}"></b>
+                               				<br/>
+                               				<span id="text" th:text="${center.message.text}"></span>
+                               			</span>
                                			</td>
-                               			<td th:text="${#dates.format(message.sendedTime)}"></td>
+                               			<td th:text="${#dates.format(center.message.sendedTime)}"></td>
                                			<td class="center">
-                               				<a th:href="@{/messages/delete(id=${message.id})}">
+                               				<a th:href="@{/messages/delete(id=${center.message.id})}">
                                					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                				</a>
-                               				<button type="button" class="btn btn-trans" th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', '+ *{message.id} +')'">
+                               				<button type="button" class="btn btn-trans" th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', '+ *{center.message.id} +')'">
                                					<img th:src="@{/resources/images/reply.png}"></img>
                                				</button>
                                			</td>
@@ -138,6 +146,15 @@
             	else $("#inTable").hide();
             	if (mesFilter == "0" || mesFilter == "2") $("#outTable").show();
             	else $("#outTable").hide();
+            });
+            $("#unredOnly").on('input', function() {
+				$.each($("#inTable tr"), function(){
+					if (document.getElementById('unredOnly').checked) {
+						if (this.childNodes[1].childNodes[1].nodeName == "SPAN")
+							$("#" + this.id).hide();
+					} else
+						$("#" + this.id).show();
+				})
             });
             
 			function ajaxMessageDialog(requestUrl) {
