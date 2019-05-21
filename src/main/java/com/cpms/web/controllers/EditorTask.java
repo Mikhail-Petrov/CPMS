@@ -33,9 +33,11 @@ import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.DependentEntityNotFoundException;
+import com.cpms.exceptions.ManualValidationException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
+import com.cpms.web.UserSessionData;
 
 /**
  * Handles task CRUD web application requests.
@@ -241,6 +243,8 @@ public class EditorTask {
 		if (recievedTask == null) {
 			throw new SessionExpiredException(null);
 		}
+		if (recievedTask.getName().length() < 5 || recievedTask.getName().length() > 100)
+			throw new SessionExpiredException(null);
 		boolean create = (recievedTask.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			return ("fragments/editTaskModal :: taskModalForm");

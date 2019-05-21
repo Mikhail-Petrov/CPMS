@@ -114,6 +114,8 @@ public class EditorProfile {
 		if (expert == null) {
 			throw new SessionExpiredException(null);
 		}
+		if (expert.getName().length() < 3 || expert.getName().length() > 100)
+			throw new SessionExpiredException(null);
 		boolean create = (expert.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			return ("fragments/editProfileModal :: profileModalForm");

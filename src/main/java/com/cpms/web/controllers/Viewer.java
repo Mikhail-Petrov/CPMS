@@ -142,6 +142,10 @@ public class Viewer {
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("profile", new Profile());
 		model.addAttribute("task", new Task());
+		List<String> names = new ArrayList<>();
+		for (Profile profile : facade.getProfileDAO().getAll())
+			names.add(profile.getName());
+		model.addAttribute("names", names);
 
 		String[][] defLevels = { { "Foundation", "Основы" }, { "Intermediate", "Средний уровень" },
 				{ "Advanced", "Продвинутый уровень" }, { "Highly specialised", "Высокоспециализированный уровень" } };
@@ -181,6 +185,10 @@ public class Viewer {
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		model.addAttribute("languages", langs);
 		model.addAttribute("users", userDAO.getAll());
+		List<String> names = new ArrayList<>();
+		for (Task task : facade.getTaskDAO().getAll())
+			names.add(task.getName());
+		model.addAttribute("names", names);
 		return "tasks";
 	}
 

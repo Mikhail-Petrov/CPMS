@@ -10,10 +10,12 @@
                             </div>
                             <div class="modal-body">
                             	<input type="hidden" th:field="*{id}" />
+  			<p class="warning" id="warningText"></p>
    			<p th:text="#{editor.expert.name}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="Name" th:field="*{name}" th:placeholder="#{editor.placeholder.name}" onblur="addCheck(this, 3, 100)"/>
+                                        <input type="text" class="form-control" placeholder="Name" th:field="*{name}" th:placeholder="#{editor.placeholder.name}"
+                                        th:onblur="'addCheck(this, 3, 100, \'' + #{editor.title.warning} + '\')'"/>
                                     </div>
                                 </div>
    			<p th:text="#{editor.expert.position}"></p>
@@ -64,11 +66,25 @@
 									if (langFrom == langTo)
 										err = "same langs";
 									if (err == "") {
-										$(resTable).append("<tr><td>" + langFrom + ' -- ' + langTo + "</td><td>" + buttonCode + "</td></tr>");
-										$(results).html("");
+										$("#resTable").append("<tr><td>" + langFrom + ' -- ' + langTo + "</td><td>" + buttonCode + "</td></tr>");
+										$("#results").html("");
 									} else
-										$(results).html(err);
+										$("#results").html(err);
 								}
+
+					            $("#name").on('input', function() {
+					            	var name = $("#name").val();
+					            	var names = /*[[${names}]]*/ [];
+					            	var existWarning = /*[[#{editor.error.exists.profile}]]*/ "";
+					    			$("#warningText").html("");
+					    			$("#submitBut")[0].disabled = false;
+					            	for (var i = 0; i < names.length; i++)
+					            		if (names[i] == name) {
+					            			$("#warningText").html(existWarning);
+					            			$("#submitBut")[0].disabled = true;
+					            			break;
+					            		}
+					            });
 								/*]]>*/
 								</script>
 			<div class="two-buttons">
@@ -125,7 +141,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" onclick="javascript:submitProfileForm();return false;" th:text="#{editor.create}"></button>
+                                <button type="button" id="submitBut" class="btn btn-primary" onclick="javascript:submitProfileForm();return false;" th:text="#{editor.create}"></button>
                                 <input type="submit" value="submit" onclick="javascript:submitProfileForm();return false;" hidden="true"/>
                             </div>
                         </div>
