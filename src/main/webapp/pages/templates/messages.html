@@ -74,7 +74,10 @@
 	                		<option value="1" th:text="#{message.in}">Inbox</option>
 	                		<option value="2" th:text="#{message.out}">Sent</option>
 	                	</select>
-	                	<input type='checkbox' id='unredOnly' th:text="#{message.unredonly}"/>
+	                	<select id="unredOnly">
+	                		<option value="0" th:text="#{message.unredonly}">New messages</option>
+	                		<option value="1" th:text="#{message.all}">All messages</option>
+	                	</select>
 	                </div>
                 
                 </div>
@@ -149,13 +152,14 @@
             });
             $("#unredOnly").on('input', function() {
 				$.each($("#inTable tr"), function(){
-					if (document.getElementById('unredOnly').checked) {
+					if ($("#unredOnly").val() == '0') {
 						if (this.childNodes[1].childNodes[1].nodeName == "SPAN")
 							$("#" + this.id).hide();
 					} else
 						$("#" + this.id).show();
 				})
             });
+            $("#unredOnly").trigger('input');
             
 			function ajaxMessageDialog(requestUrl) {
 				
