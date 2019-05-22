@@ -80,6 +80,9 @@ public class Task extends AbstractDomainObject {
 	
 	@Column(name = "status", nullable = true, length = 100)
 	private String status;
+	
+	@Column(name = "reference", nullable = true, length = 1000)
+	private String reference;
 
 	@Column(name = "DUE", nullable = true)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -327,6 +330,7 @@ public class Task extends AbstractDomainObject {
 		setTarget(task.getTarget());
 		setSource(task.getSource());
 		setType(task.getType());
+		setReference(task.getReference());
 	}
 
 	public void setMessages(Set<Message> messages) {
@@ -339,5 +343,13 @@ public class Task extends AbstractDomainObject {
 
 	public void setCompletedDate(Date completedDate) {
 		this.completedDate = completedDate;
+	}
+
+	public String getReference() {
+		return reference;
+	}
+
+	public void setReference(String reference) {
+		this.reference = reference;
 	}
 }

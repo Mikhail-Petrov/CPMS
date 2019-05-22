@@ -80,6 +80,12 @@
                                     </div>
                                 </div>
                                 <hr class="separator"/>
+   			<p th:text="#{editor.task.reference}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" placeholder="Link" th:field="*{reference}" th:placeholder="#{task.type.link}"/>
+                                    </div>
+                                </div>
    			<p th:text="#{editor.task.type}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
