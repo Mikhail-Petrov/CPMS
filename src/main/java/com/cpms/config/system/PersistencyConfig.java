@@ -26,6 +26,7 @@ import com.cpms.dao.implementations.jpa.JPALanguagesDAO;
 import com.cpms.dao.implementations.jpa.JPAMessageDAO;
 import com.cpms.dao.implementations.jpa.JPAMotivationDAO;
 import com.cpms.dao.implementations.jpa.JPAProfileDAO;
+import com.cpms.dao.implementations.jpa.JPARewardsDAO;
 import com.cpms.dao.implementations.jpa.JPASkillDraftableDAO;
 import com.cpms.dao.implementations.jpa.JPATaskDAO;
 import com.cpms.dao.implementations.jpa.JPAUserDAO;
@@ -36,6 +37,7 @@ import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.security.CustomUserDetailsService;
@@ -200,6 +202,16 @@ public class PersistencyConfig {
     @Bean(name = "motivationDAO")
     public IDAO<Motivation> getMotivationDAO() {
     	return new JPAMotivationDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Motivation entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "rewardsDAO")
+    public IDAO<Reward> getRewardsDAO() {
+    	return new JPARewardsDAO();
     }
     
     /**

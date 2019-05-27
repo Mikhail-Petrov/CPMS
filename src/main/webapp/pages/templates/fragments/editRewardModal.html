@@ -1,0 +1,34 @@
+<div th:fragment="rewardModalForm" th:remove="tag">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+	<div class="modal-body">
+  		<div class="collection-object force-width" id="newRewardForm">
+  		<h3 id="rewardFormTitle"><span id="rewardTitle" th:text="#{reward.create.new}"></span></h3>
+  		<form action="#" th:action="@{/rewards/async}" th:object="${reward}" method="post" id="rewardCreate">
+  			<input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/>
+  			<p><span class="warning" id="warning"></span></p>
+  			<p th:text="#{reward.name}">:</p>
+			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Name" th:placeholder="#{reward.name}" pattern=".{0,100}" id="reward_name" onblur="addCheck(this, 3, 100)"/></p>
+			<p id="descriptionTitle" th:text="#{reward.description}">:</p>
+			<p><textarea type="textarea" class="form-control" th:field="*{description}" placeholder="Description" th:placeholder="#{reward.description}" pattern=".{0,1000}" id="reward_description"></textarea></p>
+  			<p id="expertsTitle" th:text="#{reward.experts}">:</p>
+			<p><select th:field="*{experts}" size="7" multiple="true" >
+					<option value="" th:text="#{reward.experts.all}">All</option>
+					<option th:each="expert : ${experts}" th:value="${expert.id}" th:text="${expert.name}">Expert</option>
+			</select></p>
+
+			<p><div class="two-buttons" id="submitBlock"><input type="submit" id="rewardSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{reward.save}"/></div>
+			<div class="two-buttons"><a id="deleteLink" href="#"><span class="input-group-btn">
+				<span class="btn btn-primary btn-block" th:text="#{reward.delete}">Delete</span>
+			</span></a></div></p>
+		</form>
+  		</div>
+  	</div>
+  	</div>
+	</div>
+	</div>
+	
+			
+<div th:fragment="rewardCreationSuccess" th:remove="tag">
+  <p>Form successfully submitted</p>
+</div>

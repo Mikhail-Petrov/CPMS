@@ -5,6 +5,7 @@ import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.operations.interfaces.*;
@@ -28,6 +29,8 @@ public interface ICPMSFacade {
 	public IDAO<Task> getTaskDAO();
 	
 	public IDAO<Motivation> getMotivationDAO();
+	
+	public IDAO<Reward> getRewardDAO();
 	
 	public ISubprofiler getSubprofiler();
 	

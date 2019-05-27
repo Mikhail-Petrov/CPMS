@@ -11,6 +11,7 @@ import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.operations.interfaces.*;
@@ -41,6 +42,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Autowired
 	@Qualifier(value = "motivationDAO")
 	private IDAO<Motivation> motivationDAO;
+	
+	@Autowired
+	@Qualifier(value = "rewardsDAO")
+	private IDAO<Reward> rewardsDAO;
 	
 	@Autowired
 	@Qualifier(value = "messageDAO")
@@ -76,6 +81,14 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 
 	public void setMessageDAO(IDAO<Message> messageDAO) {
 		this.messageDAO = messageDAO;
+	}
+
+	public void setMotivationDAO(IDAO<Motivation> motivationDAO) {
+		this.motivationDAO = motivationDAO;
+	}
+
+	public void setRewardsDAO(IDAO<Reward> rewardsDAO) {
+		this.rewardsDAO = rewardsDAO;
 	}
 
 	public void setProfileDAO(IDAO<Profile> profileDAO) {
@@ -137,6 +150,11 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Override
 	public IDAO<Motivation> getMotivationDAO() {
 		return motivationDAO;
+	}
+
+	@Override
+	public IDAO<Reward> getRewardDAO() {
+		return rewardsDAO;
 	}
 
 	@Override
