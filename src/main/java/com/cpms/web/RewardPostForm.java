@@ -19,27 +19,25 @@ public class RewardPostForm implements IAjaxAnswer {
 
 	private long id;
 	
-	private String name;
-	
-	private String description;
-	
 	private List<Profile> experts;
 	
 	private List<Motivation> motivations;
 	
+	private String sendedTime;
+	
 	public RewardPostForm() {
 		setId(0);
-		setName("");
-		setDescription("");
+		getExperts();
+		getMotivations();
+		setSendedTime("");
 	}
 	
 	public RewardPostForm(Reward reward, ICPMSFacade facade) {
-		setName(reward.getName());
-		setDescription(reward.getDescription());
 		setId(reward.getId());
+		setSendedTime(reward.getSendedTime().toString());
 		getExperts();
 		String[] expertsIDs = reward.getExperts().split(",");
-		if (expertsIDs.length > 0 && expertsIDs[0] == "0")
+		if (expertsIDs.length > 0 && expertsIDs[0].equals("0"))
 			for (Profile expert : facade.getProfileDAO().getAll())
 				experts.add(expert);
 		else
@@ -53,6 +51,20 @@ public class RewardPostForm implements IAjaxAnswer {
 					experts.add(expert);
 			}
 		getMotivations();
+		String[] motivationsIDs = reward.getMotivations().split(",");
+		if (motivationsIDs.length > 0 && motivationsIDs[0].equals("0"))
+			for (Motivation motivation : facade.getMotivationDAO().getAll())
+				motivations.add(motivation);
+		else
+			for (int i = 0; i < motivationsIDs.length; i++) {
+				long motivationId = 0;
+				try { motivationId = Long.parseLong(motivationsIDs[i]); }
+				catch (NumberFormatException e) {}
+				if (motivationId <= 0) continue;
+				Motivation motivation = facade.getMotivationDAO().getOne(motivationId);
+				if (motivation != null)
+					motivations.add(motivation);
+			}
 	}
 
 	public long getId() {
@@ -61,22 +73,6 @@ public class RewardPostForm implements IAjaxAnswer {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public List<Profile> getExperts() {
@@ -95,6 +91,14 @@ public class RewardPostForm implements IAjaxAnswer {
 
 	public void setMotivations(List<Motivation> motivations) {
 		this.motivations = motivations;
+	}
+
+	public String getSendedTime() {
+		return sendedTime;
+	}
+
+	public void setSendedTime(String sendedTime) {
+		this.sendedTime = sendedTime;
 	}
 	
 }

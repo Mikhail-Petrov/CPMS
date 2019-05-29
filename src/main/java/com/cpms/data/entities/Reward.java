@@ -1,5 +1,7 @@
 package com.cpms.data.entities;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,7 +9,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import org.hibernate.search.annotations.Field;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.cpms.data.AbstractDomainObject;
 
@@ -26,13 +33,11 @@ public class Reward extends AbstractDomainObject implements Comparable<Reward>{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", nullable = false)
 	private long id;
-	
-	@Column(name = "Description", nullable = true, length = 1000)
-	private String description;
-	
-	@Column(name = "NAME", nullable = true, length = 100)
-	@Field
-	private String name;
+
+	@Column(name = "SENDED", nullable = true)
+	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date sendedTime;
 	
 	@Column(name = "Experts", nullable = true, length = 1000)
 	private String experts;
@@ -41,32 +46,23 @@ public class Reward extends AbstractDomainObject implements Comparable<Reward>{
 	private String motivations;
 	
 	public Reward() {
-		description = "";
-		name = "";
 		setExperts("");
+		setMotivations("");
+		setSendedTime(new Date(System.currentTimeMillis()));
 	}
 	
-	public Reward(String description, String name, String experts, String motivations) {
-		this.description = description;
-		this.name = name;
-		this.setExperts(experts);
-		this.setMotivations(motivations);
+	public Reward(String experts, String motivations) {
+		setExperts(experts);
+		setMotivations(motivations);
+		setSendedTime(new Date(System.currentTimeMillis()));
 	}
 	
 	public Reward(Reward source) {
-		this(source.getDescription(), source.getName(), source.getExperts(), source.getMotivations());
+		this(source.getExperts(), source.getMotivations());
 	}
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDescription() {
-		return description;
 	}
 
 	@Override
@@ -79,28 +75,20 @@ public class Reward extends AbstractDomainObject implements Comparable<Reward>{
 		return Reward.class;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getPresentationName() {
-		return name;
+		return new SimpleDateFormat("LLLL y", LocaleContextHolder.getLocale()).format(getSendedTime());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Reward localize(Locale locale) {
-		return new Reward(description, name, experts, motivations);
+		return new Reward( experts, motivations);
 	}
 
 	@Override
 	public int compareTo(Reward o) {
-		return this.getPresentationName().compareTo(o.getPresentationName());
+		return -this.getSendedTime().compareTo(o.getSendedTime());
 	}
 
 	public String getExperts() {
@@ -117,6 +105,14 @@ public class Reward extends AbstractDomainObject implements Comparable<Reward>{
 
 	public void setMotivations(String motivations) {
 		this.motivations = motivations;
+	}
+
+	public Date getSendedTime() {
+		return sendedTime;
+	}
+
+	public void setSendedTime(Date sendedTime) {
+		this.sendedTime = sendedTime;
 	}
 	
 }

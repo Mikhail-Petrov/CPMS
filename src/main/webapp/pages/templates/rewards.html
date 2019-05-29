@@ -1,55 +1,8 @@
-	<script type="text/javascript" th:src="@{/resources/js/tableLoader.js}"></script>
-
-	<link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" />
 	
 	<style>
         a {
             cursor: pointer;
         }
-    </style>
-
-    <style>
-        .Container {
-            padding: 0;
-            margin: 0;
-        }
-        .Container li {
-            list-style-type: none;
-        }
-        }
-        .IsRoot {
-            margin-left: 0;
-        }
-        .Expand {
-            width: 18px;
-            height: 18px;
-            float: left;
-        }
-        .Content {
-            margin-left:18px;
-            min-height: 18px;
-        }
-
-        * html .Content {
-        }
-        .ExpandOpen .Expand {
-            background-image: url(/resources/images/minus.gif);
-        }
-        .ExpandClosed .Expand {
-            background-image: url(/resources/images/plus.gif);
-        }
-        .IsLast {}
-
-        .ExpandLeaf .Expand {
-            cursor: auto;
-        }
-        .ExpandLoading   {
-            width: 18px;
-            height: 18px;
-            float: left;
-            background-image: url(/resources/images/expand_loading.gif);
-        }
-
     </style>
     
     <style>
@@ -71,28 +24,34 @@
                                <table class="table table-responsive table-striped table-hover" id="rewTable">
                                		<thead>
                                			<tr>
-                               				<th data-field="name"><span th:text="#{reward.name}"></span></th>
-                               				<th data-field="description"><span th:text="#{reward.description}"></span></th>
                                				<th data-field="experts"><span th:text="#{reward.experts}"></span></th>
                                				<th data-field="motivations"><span th:text="#{reward.motivations}"></span></th>
+                               				<th data-field="sendedTime"><span th:text="#{reward.sended}"></span></th>
                                			</tr>
                                		</thead>
                                		<tbody>
-                               		<tr th:each="reward : ${rewards}">
-                               			<td th:onclick="'ajaxRewardDialog(\''+ @{/rewards/ajaxReward} +'\', -'+ ${reward.id} +')'" th:text="${reward.name}"></td>
-                               			<td th:onclick="'ajaxRewardDialog(\''+ @{/rewards/ajaxReward} +'\', -'+ ${reward.id} +')'" th:text="${reward.description}"></td>
+                               		<th:block th:each="block : ${rewards}">
+                               		<tr>
+                               			<td colspan="4" class="center"><b th:text="${block.key}"></b></td>
+                               		</tr>
+                               		<tr th:each="reward : ${block.value}">
 										<td><p th:each="expert : ${reward.experts}">
 											<a th:href="@{/viewer/profile(id=${expert.id})}" th:text="${expert.name}"></a>
 										</p></td>
 										<td><p th:each="motivation : ${reward.motivations}">
-											<a th:href="@{/viewer/profile(id=${motivation.id})}" th:text="${motivation.name}"></a>
+											<p th:text="${motivation.name}"></p>
 										</p></td>
+										<td th:text="${reward.sendedTime}"></td>
                                			<td class="center">
+                               				<button type="button" class="btn btn-trans" th:onclick="'ajaxRewardDialog(\''+ @{/rewards/ajaxReward} +'\', -'+ ${reward.id} +')'">
+                               					<img th:src="@{/resources/images/edit.png}"></img>
+                               				</button>
                                				<a th:href="@{/rewards/delete(id=${reward.id})}">
                                					<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                				</a>
                                			</td>
                                		</tr>
+                               		</th:block>
                                		</tbody>
                                </table>
                            </div>
@@ -128,14 +87,12 @@
 					data : JSON.stringify(inputArgs),
 					headers: headers,
 					success: function (res) {
-						$("#reward_name").val(res.name);
-						$("#reward_description").val(res.description);
 						// Clear experts
 						$("#experts").val('-1');
 						//$('#usersTo :first').prop('selected', false);
 						// Select experts
-						for (var i = 0; i < res.experts.length; i++)
-							$('#experts option[value="' + res.experts[i].id + '"]').prop('selected', true);
+						for (var i = 0; i < res.expertsIDs.length; i++)
+							$('#experts option[value="' + res.expertsIDs[i] + '"]').prop('selected', true);
 					    // Remember id of the changed message
 					    $("#selfId").val(res.id);
 
@@ -146,6 +103,14 @@
 							rewardTitle = /*[[#{reward.create.new}]]*/ "Create new reward";
 						}
 						document.getElementById('rewardFormTitle').innerHTML= "<span id=\"rewardName\">" + rewardTitle + "</span>";
+						if (!isChange) {
+							$("#deleteLink").hide();
+							$('#submitBlock').attr('class', '')
+						}
+						else {
+							$("#deleteLink").show();
+							$('#submitBlock').attr('class', 'two-buttons')
+						}
 						$('#createRewardModal').modal('show');
 					},
 					error: function (xhRequest, ErrorText, thrownError) {

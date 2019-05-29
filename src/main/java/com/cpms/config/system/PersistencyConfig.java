@@ -102,7 +102,7 @@ public class PersistencyConfig {
 	        config.setPassword((String) initContext.lookup("java:/comp/env/password"));
 	        success = true;
 		} catch (NamingException e) {
-			CommonModelAttributes.test(e.getMessage());
+			//CommonModelAttributes.test(e.getMessage());
 			//e.printStackTrace();
 		}
         if (!success) {

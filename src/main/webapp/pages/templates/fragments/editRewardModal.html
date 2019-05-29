@@ -7,14 +7,15 @@
   		<form action="#" th:action="@{/rewards/async}" th:object="${reward}" method="post" id="rewardCreate">
   			<input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/>
   			<p><span class="warning" id="warning"></span></p>
-  			<p th:text="#{reward.name}">:</p>
-			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Name" th:placeholder="#{reward.name}" pattern=".{0,100}" id="reward_name" onblur="addCheck(this, 3, 100)"/></p>
-			<p id="descriptionTitle" th:text="#{reward.description}">:</p>
-			<p><textarea type="textarea" class="form-control" th:field="*{description}" placeholder="Description" th:placeholder="#{reward.description}" pattern=".{0,1000}" id="reward_description"></textarea></p>
   			<p id="expertsTitle" th:text="#{reward.experts}">:</p>
 			<p><select th:field="*{experts}" size="7" multiple="true" >
-					<option value="" th:text="#{reward.experts.all}">All</option>
+					<option value="0" th:text="#{reward.experts.all}">All</option>
 					<option th:each="expert : ${experts}" th:value="${expert.id}" th:text="${expert.name}">Expert</option>
+			</select></p>
+  			<p id="motivationsTitle" th:text="#{reward.motivations}">:</p>
+			<p><select th:field="*{motivations}" size="7" multiple="true" >
+					<option value="0" th:text="#{reward.motivations.all}">All</option>
+					<option th:each="motivation : ${motivations}" th:value="${motivation.id}" th:text="${motivation.name}">Motivation</option>
 			</select></p>
 
 			<p><div class="two-buttons" id="submitBlock"><input type="submit" id="rewardSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{reward.save}"/></div>
