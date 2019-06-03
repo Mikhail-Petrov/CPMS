@@ -52,10 +52,11 @@ public class RewardPostForm implements IAjaxAnswer {
 			}
 		getMotivations();
 		String[] motivationsIDs = reward.getMotivations().split(",");
-		if (motivationsIDs.length > 0 && motivationsIDs[0].equals("0"))
+		if (motivationsIDs.length > 0 && motivationsIDs[0].equals("0")) {
 			for (Motivation motivation : facade.getMotivationDAO().getAll())
-				motivations.add(motivation);
-		else
+				if (!motivation.getIsGroup())
+					motivations.add(motivation);
+		} else
 			for (int i = 0; i < motivationsIDs.length; i++) {
 				long motivationId = 0;
 				try { motivationId = Long.parseLong(motivationsIDs[i]); }

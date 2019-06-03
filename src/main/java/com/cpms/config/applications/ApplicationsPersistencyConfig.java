@@ -2,6 +2,9 @@ package com.cpms.config.applications;
 
 import java.util.Properties;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,9 +67,23 @@ public class ApplicationsPersistencyConfig {
     public DataSource getDataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(driver);
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
+        boolean success = false;
+        try {
+        	Context initContext = new InitialContext();
+			Context envContext = (Context) initContext.lookup("java:/comp/env");
+	        config.setJdbcUrl((String) initContext.lookup("java:/comp/env/url"));
+	        config.setUsername((String) initContext.lookup("java:/comp/env/username"));
+	        config.setPassword((String) initContext.lookup("java:/comp/env/password"));
+	        success = true;
+		} catch (NamingException e) {
+			//CommonModelAttributes.test(e.getMessage());
+			//e.printStackTrace();
+		}
+        if (!success) {
+	        config.setJdbcUrl(url);
+	        config.setUsername(username);
+	        config.setPassword(password);
+        }
 
         return new HikariDataSource(config);
     }

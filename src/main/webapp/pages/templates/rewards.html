@@ -93,6 +93,11 @@
 						// Select experts
 						for (var i = 0; i < res.expertsIDs.length; i++)
 							$('#experts option[value="' + res.expertsIDs[i] + '"]').prop('selected', true);
+						// Clear motivations
+						$("#motivations").val('-1');
+						// Select motivations
+						for (var i = 0; i < res.motivationsIDs.length; i++)
+							$('#motivations option[value="' + res.motivationsIDs[i] + '"]').prop('selected', true);
 					    // Remember id of the changed message
 					    $("#selfId").val(res.id);
 

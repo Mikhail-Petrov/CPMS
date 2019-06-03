@@ -23,6 +23,7 @@ import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Reward;
 import com.cpms.facade.ICPMSFacade;
+import com.cpms.web.MotivationUtils;
 import com.cpms.web.RewardPostForm;
 import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.RewardAnswer;
@@ -67,7 +68,7 @@ public class Rewards {
 			blocks.put(curMounth, rewards);
 		model.addAttribute("rewards", blocks);
 		model.addAttribute("experts", facade.getProfileDAO().getAll());
-		model.addAttribute("motivations", facade.getMotivationDAO().getAll());
+		model.addAttribute("motivations", MotivationUtils.sortAndAddIndents(facade.getMotivationDAO().getAll()));
 		model.addAttribute("reward", new RewardPostForm());
 		
 		return "rewards";

@@ -15,7 +15,8 @@
   			<p id="motivationsTitle" th:text="#{reward.motivations}">:</p>
 			<p><select th:field="*{motivations}" size="7" multiple="true" >
 					<option value="0" th:text="#{reward.motivations.all}">All</option>
-					<option th:each="motivation : ${motivations}" th:value="${motivation.id}" th:text="${motivation.name}">Motivation</option>
+					<option th:each="motivation : ${motivations}" th:value="${motivation.id}" th:text="${motivation.name}"
+						th:disabled="${motivation.isGroup} ? 'disabled' : 'false'">Motivation</option>
 			</select></p>
 
 			<p><div class="two-buttons" id="submitBlock"><input type="submit" id="rewardSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{reward.save}"/></div>
