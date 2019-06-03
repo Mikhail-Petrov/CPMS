@@ -19,10 +19,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Message;
+import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Reward;
 import com.cpms.facade.ICPMSFacade;
+import com.cpms.security.entities.Users;
 import com.cpms.web.MotivationUtils;
 import com.cpms.web.RewardPostForm;
 import com.cpms.web.ajax.IAjaxAnswer;
@@ -42,6 +46,10 @@ public class Rewards {
 	@Autowired
 	@Qualifier(value = "facade")
 	private ICPMSFacade facade;
+
+	@Autowired
+	@Qualifier("userDAO")
+	private IUserDAO userDAO;
 	
 	@RequestMapping(value = {"/", ""},
 			method = RequestMethod.GET)
@@ -113,7 +121,7 @@ public class Rewards {
 		if (recievedReward.getId() > 0) 
 			reward = facade.getRewardDAO().getOne(recievedReward.getId());
 		
-		String experts = "", motivations = "";
+		String experts = "", motivations = "", oldExperts = reward.getExperts(), motivationsList = "";
 		if (recievedReward.getExperts().isEmpty())
 			experts = "0";
 		else for (Profile expert : recievedReward.getExperts())
@@ -131,8 +139,15 @@ public class Rewards {
 				motivations = "0";
 				break;
 			}
-			else if (motivations.isEmpty()) motivations += motivation.getId();
-			else motivations += "," + motivation.getId();
+			else if (motivations.isEmpty()) {
+				motivations += motivation.getId();
+				motivationsList += motivation.getPresentationName();
+			}
+			else {
+				motivations += "," + motivation.getId();
+				motivationsList += ", " + motivation.getPresentationName();
+			}
+		if (motivations.equals("0")) motivationsList = "all";
 		reward.setMotivations(motivations);
 		
 		if (recievedReward.getId() == 0)
@@ -140,6 +155,43 @@ public class Rewards {
 		else
 			reward = facade.getRewardDAO().update(reward);
 
+		// Send messages to new experts
+		if (oldExperts == null) oldExperts = "";
+		if (!oldExperts.equals("0")) {
+			String[] oldIDs = oldExperts.split(",");
+			// get new experts
+			List<Profile> newProfiles;
+			if (recievedReward.getExperts().isEmpty() || recievedReward.getExperts().get(0) == null)
+				newProfiles = facade.getProfileDAO().getAll();
+			else newProfiles = recievedReward.getExperts();
+			// remove old experts
+			for (int i = 0; i < oldIDs.length; i++)
+				try {
+					long oldID = Long.parseLong(oldIDs[i]);
+					Profile oldProfile = facade.getProfileDAO().getOne(oldID);
+					if (oldProfile != null)
+						newProfiles.remove(oldProfile);
+				} catch (NumberFormatException e) {}
+			// send messages
+			if (!newProfiles.isEmpty()) {
+				Message newMessage = new Message();
+				Users owner = Security.getUser(principal, userDAO);
+				newMessage.setOwner(owner);
+				if (newMessage.getOwner() == null)
+					newMessage.setOwner(userDAO.getAll().get(0));
+				newMessage.setTitle(String.format("New reward"));
+				newMessage.setText(String.format("You have been rewarded by motivations: %s.", motivationsList));
+				newMessage.setType("4");
+				for (Profile newProfile : newProfiles) {
+					if (newProfile == null) continue;
+					Users newRecepient = userDAO.getByProfile(newProfile);
+					if (newRecepient != null)
+						newMessage.addRecipient(new MessageCenter(newRecepient));
+				}
+				
+				facade.getMessageDAO().insert(newMessage);
+			}
+		}
 		return "redirect:/rewards";
 	}
 }
