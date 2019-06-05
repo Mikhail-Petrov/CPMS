@@ -1,6 +1,11 @@
 package com.cpms.web.controllers;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,8 +18,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
@@ -22,6 +30,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,7 +50,6 @@ import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
-import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Option;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Requirements;
@@ -369,6 +380,23 @@ public class Viewer {
 		model.addAttribute("managerName", managerName);
 		model.addAttribute("performerNames", performerNames);
 		return "viewTask";
+	}
+
+	@RequestMapping(path = "/viewRef", method = RequestMethod.GET)
+	public String viewRef(Model model, @RequestParam(name = "id", required = true) Long id, HttpServletResponse response) {
+		model.addAttribute("_VIEW_TITLE", "title.edit.task");
+		Task task = facade.getTaskDAO().getOne(id);
+		byte[] bytes = task.getImage();
+		if (bytes != null) {
+			response.setContentType(task.getImageType());
+			try (
+					OutputStream outputStream = response.getOutputStream();
+					InputStream input = new ByteArrayInputStream(bytes); ){
+				IOUtils.copy(input, outputStream);
+				outputStream.flush();
+			} catch (IOException e) {}
+		}
+		return "";
 	}
 
 	private void updateTime(String event) {

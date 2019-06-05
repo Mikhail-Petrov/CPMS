@@ -1,5 +1,6 @@
 package com.cpms.web.controllers;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competency;
@@ -33,11 +35,9 @@ import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.DependentEntityNotFoundException;
-import com.cpms.exceptions.ManualValidationException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
-import com.cpms.web.UserSessionData;
 
 /**
  * Handles task CRUD web application requests.
@@ -122,6 +122,7 @@ public class EditorTask {
 	@RequestMapping(path = "/task", method = RequestMethod.GET)
 	public String task(Model model, Principal principal, @RequestParam(name = "id", required = false) Long id) {
 		model.addAttribute("_VIEW_TITLE", "title.edit.task");
+		model.addAttribute("_FORCE_CSRF", true);
 		Task task;
 		boolean create = false;
 		if (existedTask != null)
@@ -150,9 +151,9 @@ public class EditorTask {
 		model.addAttribute("performers", performers);
 		return "editTask";
 	}
-
+	
 	@RequestMapping(path = "/task", method = RequestMethod.POST)
-	public String taskCreate(Model model, HttpServletRequest request, @ModelAttribute("task") @Valid Task recievedTask,
+	public String taskCreate(Model model, HttpServletRequest request, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam("file") MultipartFile file,
 			BindingResult bindingResult, Principal principal) {
 		if (recievedTask == null) {
 			throw new SessionExpiredException(null);
@@ -160,15 +161,27 @@ public class EditorTask {
 		boolean create = (recievedTask.getId() == 0);
 		Task task;
 		if (create) {
-			for (Task existed : facade.getTaskDAO().getAll())
-				if (existed.getName() != null && existed.getName().equals(recievedTask.getName())) {
-					existedTask = existed;
-					existedTask.update(recievedTask);
-				}
+			recievedTask.setStatus("1");
+			Users owner = Security.getUser(principal, userDAO);
+			if (owner == null)
+				owner = userDAO.getAll().get(0);
+			recievedTask.setUser(owner);
+			if (file != null && !file.isEmpty()) {
+				try {
+					recievedTask.setImage(file.getBytes());
+				} catch (IOException e) {}
+				recievedTask.setImageType(file.getContentType());
+			}
 			task = facade.getTaskDAO().insert(recievedTask);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
 			task.update(recievedTask);
+			if (file != null && !file.isEmpty()) {
+				try {
+					task.setImage(file.getBytes());
+				} catch (IOException e) {}
+				task.setImageType(file.getContentType());
+			}
 			task = facade.getTaskDAO().update(task);
 		}
 
@@ -238,7 +251,7 @@ public class EditorTask {
 	}
 
 	@RequestMapping(path = "/taskAsync", method = RequestMethod.POST)
-	public String taskCreateAsync(Model model, @ModelAttribute("task") @Valid Task recievedTask, HttpServletRequest request, Principal principal,
+	public String taskCreateAsync(Model model, @ModelAttribute("task") @Valid Task recievedTask, HttpServletRequest request, Principal principal, @RequestParam("file") MultipartFile file,
 			BindingResult bindingResult) {
 		if (recievedTask == null) {
 			throw new SessionExpiredException(null);
@@ -256,6 +269,12 @@ public class EditorTask {
 			if (owner == null)
 				owner = userDAO.getAll().get(0);
 			recievedTask.setUser(owner);
+			if (file != null && !file.isEmpty()) {
+				try {
+					recievedTask.setImage(file.getBytes());
+				} catch (IOException e) {}
+				recievedTask.setImageType(file.getContentType());
+			}
 			task = facade.getTaskDAO().insert(recievedTask);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());

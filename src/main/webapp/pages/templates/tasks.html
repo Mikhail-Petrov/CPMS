@@ -198,6 +198,7 @@
     	            		$("#about").val($("#fileValue").val());
     					
                 	  	var $form = $('#taskCreate');
+                	    var data = new FormData($form);
                 	    
                 	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
                 	    var csrfToken = $("meta[name='_csrf']").attr("content");
@@ -207,8 +208,13 @@
                 	    $.ajax({
                 	      url: $form.attr('action'),
                 	      type: 'post',
-                	      data: $form.serialize(),
+                	      data: data,
                 	      headers: headers,
+                	      enctype: 'multipart/form-data',
+                	      processData: false,
+                	      contentType: false,
+                	      cache: false,
+                	      timeout: 1000000,
                 	      success: function(response) {
                 	        if (response.indexOf("Form successfully submitted") === -1) {
                 	        	$form.replaceWith(response);

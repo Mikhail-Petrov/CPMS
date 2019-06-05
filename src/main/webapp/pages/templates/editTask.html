@@ -1,5 +1,5 @@
 		<div class="collection-object">
-		<form action="#" th:action="@{/editor/task}" th:object="${task}" method="post" id="taskEditForm">
+		<form action="#" th:action="@{'/editor/task?' + ${_csrf.parameterName} + '=' + ${_csrf.token}}" th:object="${task}" method="post" id="taskEditForm" enctype="multipart/form-data">
 			<h3 th:if="${create}" th:text="#{firstline.create.task}">Create new task</h3>
 			<h3 th:if="${!create}" th:text="#{firstline.update.task}">Update task</h3>
 			<hr/>
@@ -90,6 +90,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <input type="text" class="form-control" placeholder="Link" th:field="*{reference}" th:placeholder="#{task.type.link}"/>
+                                        <input type="file" class="form-control" name="file"/>
                                     </div>
                                 </div>
    			<p th:text="#{editor.task.type}"></p>

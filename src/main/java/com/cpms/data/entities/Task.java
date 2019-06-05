@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -77,6 +78,13 @@ public class Task extends AbstractDomainObject {
 	// text type
 	@Column(name = "TYPE", nullable = true)
 	private String type;
+	
+	@Lob
+	@Column(name = "image", nullable = true)
+	private byte[] image;
+	
+	@Column(name = "imageType", nullable = true)
+	private String imageType;
 	
 	@Column(name = "status", nullable = true, length = 100)
 	private String status;
@@ -351,5 +359,21 @@ public class Task extends AbstractDomainObject {
 
 	public void setReference(String reference) {
 		this.reference = reference;
+	}
+
+	public byte[] getImage() {
+		return image;
+	}
+
+	public void setImage(byte[] image) {
+		this.image = image;
+	}
+
+	public String getImageType() {
+		return imageType;
+	}
+
+	public void setImageType(String imageType) {
+		this.imageType = imageType;
 	}
 }

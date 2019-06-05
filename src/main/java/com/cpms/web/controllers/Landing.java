@@ -1,22 +1,49 @@
 package com.cpms.web.controllers;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cpms.dao.implementations.jpa.repositories.system.CompetencyRepository;
+import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Skill;
+import com.cpms.data.entities.Task;
+import com.cpms.data.entities.TaskRequirement;
+import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.facade.ICPMSFacade;
 
 /**
@@ -111,13 +138,41 @@ public class Landing {
 	private final Comparator<Skill> comparatorFrequency = new SkillCompetencyFrequencyComparator<Skill>();
 	private final Comparator<AverageStat> comparatorAverage = new SkillCompetencyAverageComparator<AverageStat>();
 
+	private byte[] bytes = null;
+	private MultipartFile ffile = null;
+	
 	@RequestMapping(path = "/", method = RequestMethod.GET)
-	public String landing(Model model) {
+	public String landing(Model model, HttpServletResponse response) {
 		model.addAttribute("datesList", datesList().toArray());
 		model.addAttribute("totalCompetencies", totalCompetencies());
 		model.addAttribute("skillFrequencyList", skillFrequencyList());
 		model.addAttribute("skillAveragesList", skillAveragesList());
 		model.addAttribute("_VIEW_TITLE", "title.welcome");
+		model.addAttribute("bytes", bytes == null ? null : Base64.getEncoder().encodeToString(bytes));
+		if (bytes != null) {
+			BufferedImage image = null;
+			OutputStream outputStream = null;
+			InputStream input = null;
+			
+			try {
+				input = new ByteArrayInputStream(bytes);
+				image = ImageIO.read(input);
+				response.setContentType(ffile.getContentType());
+				outputStream = response.getOutputStream();
+				RenderedImage renderedImage = (RenderedImage)image;
+				ImageIO.write(renderedImage, "PNG", outputStream);
+			} catch (IOException e) {}
+			finally {
+				try {
+					if (outputStream != null) {
+						outputStream.flush();
+						outputStream.close();
+					} if (input != null) {
+						input.close();
+					}
+				} catch (IOException e) {}
+			}
+		}
 		return "landing";
 	}
 

@@ -20,6 +20,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import com.cpms.dao.applications.ApplicationsService;
 import com.cpms.dao.interfaces.IApplicationsService;
@@ -88,6 +89,14 @@ public class ApplicationsPersistencyConfig {
         return new HikariDataSource(config);
     }
 
+    @Bean(name = "filterMultipartResolver")
+    public CommonsMultipartResolver filterMultipartResolver() {
+       CommonsMultipartResolver filterMultipartResolver = new CommonsMultipartResolver();
+       filterMultipartResolver.setDefaultEncoding("utf-8");
+       filterMultipartResolver.setMaxUploadSize(10*1024*1024);
+       return filterMultipartResolver;
+ }
+    
     /**
      * @param dataSource data source for database
      * @return fully configured LocalContainerEntityManagerFactoryBean
