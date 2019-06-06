@@ -161,7 +161,7 @@ public class EditorTask {
 	}
 	
 	@RequestMapping(path = "/task", method = RequestMethod.POST)
-	public String taskCreate(Model model, HttpServletRequest request, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam("file") MultipartFile file,
+	public String taskCreate(Model model, HttpServletRequest request, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam(required=false, name="file") MultipartFile file,
 			BindingResult bindingResult, Principal principal) {
 		if (recievedTask == null) {
 			throw new SessionExpiredException(null);

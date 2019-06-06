@@ -130,7 +130,7 @@ public class Applications {
 				(UsernamePasswordAuthenticationToken)principal
 				).getName());
 		Long ownerId = owner.getProfileId();
-		if (ownerId == null) {
+		if (ownerId == null || ownerId <= 0) {
 			throw new NoResidentUserProfile("", request.getPathInfo());
 		}
 		application.setOwnerId(ownerId);
