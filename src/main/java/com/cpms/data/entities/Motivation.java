@@ -183,7 +183,7 @@ public class Motivation extends AbstractDomainObject implements Comparable<Motiv
 
 	@Override
 	public int compareTo(Motivation o) {
-		return this.getPresentationName().compareTo(o.getPresentationName());
+		return this.getPresentationName().toLowerCase().compareTo(o.getPresentationName().toLowerCase());
 	}
 
 	public String getLocal() {

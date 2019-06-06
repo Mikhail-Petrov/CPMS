@@ -2,6 +2,7 @@ package com.cpms.web.controllers;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -113,7 +114,8 @@ public class Security {
 		}
 		for (Profile profileInList : removeList)
 			profileList.remove(profileInList);
-		model.addAttribute("profileList", profileList );
+		Collections.sort(profileList);
+		model.addAttribute("profileList", profileList);
 		return "register";
 	}
 
@@ -178,6 +180,7 @@ public class Security {
 
 	private List<UserData> getUsersData(List<Users> users) {
 		List<UserData> res = new ArrayList<>();
+		Collections.sort(users);
 		for (Users user : users) {
 			res.add(new UserData(user));
 			Long pid = user.getProfileId();

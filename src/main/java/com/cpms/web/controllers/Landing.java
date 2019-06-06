@@ -148,31 +148,6 @@ public class Landing {
 		model.addAttribute("skillFrequencyList", skillFrequencyList());
 		model.addAttribute("skillAveragesList", skillAveragesList());
 		model.addAttribute("_VIEW_TITLE", "title.welcome");
-		model.addAttribute("bytes", bytes == null ? null : Base64.getEncoder().encodeToString(bytes));
-		if (bytes != null) {
-			BufferedImage image = null;
-			OutputStream outputStream = null;
-			InputStream input = null;
-			
-			try {
-				input = new ByteArrayInputStream(bytes);
-				image = ImageIO.read(input);
-				response.setContentType(ffile.getContentType());
-				outputStream = response.getOutputStream();
-				RenderedImage renderedImage = (RenderedImage)image;
-				ImageIO.write(renderedImage, "PNG", outputStream);
-			} catch (IOException e) {}
-			finally {
-				try {
-					if (outputStream != null) {
-						outputStream.flush();
-						outputStream.close();
-					} if (input != null) {
-						input.close();
-					}
-				} catch (IOException e) {}
-			}
-		}
 		return "landing";
 	}
 

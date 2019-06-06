@@ -346,7 +346,7 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 
 	@Override
 	public int compareTo(Skill o) {
-		return this.getPresentationName().compareTo(o.getPresentationName());
+		return this.getPresentationName().toLowerCase().compareTo(o.getPresentationName().toLowerCase());
 	}
 	
 	

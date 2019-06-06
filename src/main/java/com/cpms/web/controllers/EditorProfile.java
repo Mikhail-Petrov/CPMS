@@ -1,5 +1,7 @@
 package com.cpms.web.controllers;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -70,7 +72,13 @@ public class EditorProfile {
 		attrProfile.setAbout(profile.getTextFromProofs());
 		model.addAttribute("profile", attrProfile);
 		model.addAttribute("create", create);
+		List<String> names = new ArrayList<>();
+		for (Profile curProfile : facade.getProfileDAO().getAll())
+			if (!curProfile.equals(profile))
+				names.add(curProfile.getName());
+		model.addAttribute("names", names);
 		List<Language> langs = facade.getLanguageDAO().getAll();
+		Collections.sort(langs);
 		model.addAttribute("languages", langs);
 		return "editProfile";
 	}

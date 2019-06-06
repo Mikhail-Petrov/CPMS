@@ -3,6 +3,7 @@ package com.cpms.web.controllers;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -138,9 +139,16 @@ public class EditorTask {
 		model.addAttribute("task", task);
 		model.addAttribute("create", create);
 		List<Language> langs = facade.getLanguageDAO().getAll();
+		Collections.sort(langs);
 		model.addAttribute("languages", langs);
 		List<Users> users = userDAO.getAll();
+		Collections.sort(users);
 		model.addAttribute("users", users);
+		List<String> names = new ArrayList<>();
+		for (Task curTask : facade.getTaskDAO().getAll())
+			if (!curTask.equals(task))
+				names.add(curTask.getName());
+		model.addAttribute("names", names);
 		List<Long> performers = new ArrayList<>();
 		for (TaskCenter recepient : task.getRecipients())
 			performers.add(recepient.getUser().getId());
@@ -337,6 +345,10 @@ public class EditorTask {
 	@RequestMapping(path = "/task/delete", method = RequestMethod.GET)
 	public String taskDelete(Model model, @RequestParam(name = "id", required = true) Long id) {
 		Task task = facade.getTaskDAO().getOne(id);
+		for (Message mes : task.getMessages()) {
+			mes.setTask(null);
+			facade.getMessageDAO().update(mes);
+		}
 		facade.getTaskDAO().delete(task);
 		return "redirect:/viewer/tasks";
 	}

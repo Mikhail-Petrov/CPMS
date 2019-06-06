@@ -35,7 +35,7 @@
 		<script th:inline="javascript">
 			/*<![CDATA[*/
 			var expertRole = /*[[${expertRole}]]*/ "ROLE_EXPERT";
-			$("#roleSelect").on("input", function() {
+			document.getElementById("roleSelect").onchange = function() {
 				if ($("#roleSelect").val() != expertRole) {
 					$("#profileText").hide();
 					$("#profileSelect").hide();
@@ -43,8 +43,8 @@
 					$("#profileText").show();
 					$("#profileSelect").show();
 				}
-			});
-			$("#roleSelect").trigger("input");
+			};
+			$("#roleSelect").trigger("change");
 			/*]]>*/
 		</script>
 		<p>

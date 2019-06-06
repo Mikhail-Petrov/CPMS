@@ -180,15 +180,15 @@
             	checkInputs();
             });
 
+            $("#fileInput").on('input', function() {
+            	checkInputs();
+            });
+
             $("#type").on('input', function() {
             	hideOrShowElement($("#textAbout"), $("#type").val() == "1");
             	hideOrShowElement($("#acronisAbout"), $("#type").val() == "2");
             	hideOrShowElement($("#linkAbout"), $("#type").val() == "3");
             	hideOrShowElement($("#fileAbout"), $("#type").val() == "4");
-            });
-
-            $("#fileInput").on('input', function() {
-            	checkInputs();
             });
             
 			/*]]>*/

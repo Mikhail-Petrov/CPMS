@@ -4,6 +4,7 @@
 			<h3 th:if="${!create}" th:text="#{firstline.update.task}">Update task</h3>
 			<hr/>
 			<input type="hidden" th:field="*{id}" />
+  			<p class="warning" id="warningText"></p>
   			<p th:text="#{editor.task.name}"></p>
                                 <div class="row">
                                     <div class="col-md-6">
@@ -90,7 +91,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <input type="text" class="form-control" placeholder="Link" th:field="*{reference}" th:placeholder="#{task.type.link}"/>
-                                        <input type="file" class="form-control" name="file"/>
+                                        <input type="file" class="form-control" name="file" id="fileInput"/>
                                     </div>
                                 </div>
    			<p th:text="#{editor.task.type}"></p>
@@ -150,6 +151,39 @@
 				else element.hide();
 			}
 
+			function checkInputs() {
+            	var existWarning = /*[[#{editor.error.exists.task}]]*/ "";
+            	var tooBigWarning = /*[[#{editor.error.bigsize}]]*/ "";
+            	var warning = "";
+            	var disabled = false;
+
+            	var name = $("#name").val();
+            	var names = /*[[${names}]]*/ [];
+            	for (var i = 0; i < names.length; i++)
+            		if (names[i] == name) {
+            			warning = warning + existWarning + " ";
+            			disabled = true;
+            			break;
+            		}
+
+            	if (document.getElementById("fileInput").files.length > 0)
+	            	if (document.getElementById("fileInput").files[0].size > 1000000) {
+	            		warning = warning + tooBigWarning + " ";
+	        			disabled = true;
+	            	}
+
+    			$("#submitBut")[0].disabled = disabled;
+    			$("#warningText").html(warning);
+			}
+			
+            $("#name").on('input', function() {
+            	checkInputs();
+            });
+
+            $("#fileInput").on('input', function() {
+            	checkInputs();
+            });
+
             $("#type").on('input', function() {
             	hideOrShowElement($("#textAbout"), $("#type").val() == "1");
             	hideOrShowElement($("#acronisAbout"), $("#type").val() == "2");
@@ -181,6 +215,6 @@
 			}
 			/*]]>*/
 			</script>
-			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
+			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" id="submitBut" /></p>
 		</form>
 		</div>

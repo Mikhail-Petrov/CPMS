@@ -41,7 +41,7 @@ import com.cpms.web.UserSessionData;
 @Entity
 @SuppressWarnings("serial")
 @Table(name = "Languages")
-public class Language extends AbstractDomainObject {
+public class Language extends AbstractDomainObject implements Comparable<Language> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -118,5 +118,10 @@ public class Language extends AbstractDomainObject {
 
 	public void setExperts(Set<Profile> experts) {
 		this.experts = experts;
+	}
+
+	@Override
+	public int compareTo(Language object) {
+		return this.getPresentationName().toLowerCase().compareTo(object.getPresentationName().toLowerCase());
 	}
 }

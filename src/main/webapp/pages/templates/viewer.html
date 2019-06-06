@@ -144,6 +144,24 @@
                                     		changeProfilePage(profilePage - 1);
                                     	}
                                     }
+
+                        			function checkInputs() {
+                                    	var existWarning = /*[[#{editor.error.exists.profile}]]*/ "";
+                                    	var warning = "";
+                                    	var disabled = false;
+
+                                    	var name = $("#name").val();
+                                    	var names = /*[[${names}]]*/ [];
+                                    	for (var i = 0; i < names.length; i++)
+                                    		if (names[i] == name) {
+                                    			warning = warning + existWarning + " ";
+                                    			disabled = true;
+                                    			break;
+                                    		}
+
+                            			$("#submitBut")[0].disabled = disabled;
+                            			$("#warningText").html(warning);
+                        			}
                             	/*]]>*/
                                </script>
                            </div>

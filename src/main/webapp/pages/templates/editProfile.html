@@ -4,6 +4,7 @@
 			<h3 th:if="${!create}" th:text="#{firstline.update.profile}">Update company profile</h3>
 			<hr/>
 			<input type="hidden" th:field="*{id}" />
+  			<p class="warning" id="warningText"></p>
 			<p th:text="#{editor.expert.name}"></p>
 			<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</p>
 			<p><span th:text="#{editor.placeholder.name}" text="Expert name"></span>:
@@ -109,8 +110,31 @@
 			}
 			/*]]>*/
 			</script>
-			<script>
+			<script th:inline="javascript">
 			/*<![CDATA[*/
+
+			function checkInputs() {
+            	var existWarning = /*[[#{editor.error.exists.profile}]]*/ "";
+            	var warning = "";
+            	var disabled = false;
+
+            	var name = $("#name").val();
+            	var names = /*[[${names}]]*/ [];
+            	for (var i = 0; i < names.length; i++)
+            		if (names[i] == name) {
+            			warning = warning + existWarning + " ";
+            			disabled = true;
+            			break;
+            		}
+
+    			$("#submitBut")[0].disabled = disabled;
+    			$("#warningText").html(warning);
+			}
+			
+            $("#name").on('input', function() {
+            	checkInputs();
+            });
+            
 			$("#profileEditForm").on("submit", function() {
 				$("#resText").val("");
 				$.each($("#resTable td:even"), function() {
@@ -128,6 +152,6 @@
 			}
 			/*]]>*/
 			</script>
-			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" /></p>
+			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" id="submitBut" /></p>
 		</form>
 		</div>

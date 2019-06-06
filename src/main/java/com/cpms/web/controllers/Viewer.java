@@ -1,7 +1,5 @@
 package com.cpms.web.controllers;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +16,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,10 +27,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -181,6 +174,7 @@ public class Viewer {
 		}
 		addSkillsListToModel(model, principal, request);
 		List<Language> langs = facade.getLanguageDAO().getAll();
+		Collections.sort(langs);
 		model.addAttribute("languages", langs);
 		return "viewer";
 	}
@@ -194,8 +188,11 @@ public class Viewer {
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("task", new Task());
 		List<Language> langs = facade.getLanguageDAO().getAll();
+		Collections.sort(langs);
 		model.addAttribute("languages", langs);
-		model.addAttribute("users", userDAO.getAll());
+		List<Users> users = userDAO.getAll();
+		Collections.sort(users);
+		model.addAttribute("users", users);
 		List<String> names = new ArrayList<>();
 		for (Task task : facade.getTaskDAO().getAll())
 			names.add(task.getName());
@@ -293,10 +290,12 @@ public class Viewer {
 			if (!tasks.isEmpty())
 				gsl1 /= tasks.size();
 		}
-		
-		gsl2 = attrProfile.getAvailability().equals("1") ? 1 : (
-				attrProfile.getAvailability().equals("2") ? 2.0/3 : (
-						attrProfile.getAvailability().equals("3") ? 1.0/3 : 0));
+		String availability = attrProfile.getAvailability();
+		if (availability == null || availability.isEmpty())
+			gsl2 = 0;
+		else gsl2 = availability.equals("1") ? 1 : (
+				availability.equals("2") ? 2.0/3 : (
+						availability.equals("3") ? 1.0/3 : 0));
 		
 		Date startDate = attrProfile.getStartDate();
 		Date today = new Date();

@@ -21,6 +21,7 @@ import org.hibernate.annotations.CascadeType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.cpms.data.AbstractDomainObject;
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.TaskCenter;
@@ -37,7 +38,7 @@ import com.cpms.security.SecurityUser;
 @Entity
 @Table(name = "USERS")
 @SuppressWarnings("serial")
-public class Users extends AbstractDomainObject {
+public class Users extends AbstractDomainObject implements Comparable<Users> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -232,6 +233,11 @@ public class Users extends AbstractDomainObject {
 	public void setTasks(Set<TaskCenter> tasks) {
 		this.tasks = tasks;
 		this.tasks.forEach(x -> x.setUser(this));
+	}
+
+	@Override
+	public int compareTo(Users object) {
+		return this.getPresentationName().toLowerCase().compareTo(object.getPresentationName().toLowerCase());
 	}
 
 }
