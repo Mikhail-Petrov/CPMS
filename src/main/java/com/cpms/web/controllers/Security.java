@@ -145,7 +145,7 @@ public class Security {
 			if (registrationForm.getProfileId() != null)
 				user.setProfileId(registrationForm.getProfileId());
 			else
-				user.setProfileId(0L);
+				user.setProfileId(null);
 		if (isCreate || registrationForm.getPassword() != null && !registrationForm.getPassword().isEmpty())
 			user.setPassword(registrationForm.getPassword());
 		else
@@ -187,7 +187,7 @@ public class Security {
 		for (Users user : users) {
 			res.add(new UserData(user));
 			Long pid = user.getProfileId();
-			if (profileDAO != null && pid != null && pid >= 0) {
+			if (profileDAO != null && pid != null && pid > 0) {
 				Profile profile = profileDAO.getOne(pid);
 				if (profile != null)
 					res.get(res.size() - 1).setProfileName(profile.getPresentationName());

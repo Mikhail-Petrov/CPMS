@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Motivation;
@@ -75,7 +76,9 @@ public class Rewards {
 		if (!rewards.isEmpty())
 			blocks.put(curMounth, rewards);
 		model.addAttribute("rewards", blocks);
-		model.addAttribute("experts", facade.getProfileDAO().getAll());
+		List<Profile> experts = facade.getProfileDAO().getAll();
+		Collections.sort(experts);
+		model.addAttribute("experts", experts);
 		model.addAttribute("motivations", MotivationUtils.sortAndAddIndents(facade.getMotivationDAO().getAll()));
 		model.addAttribute("reward", new RewardPostForm());
 		

@@ -143,12 +143,13 @@ public class Landing {
 	
 	@RequestMapping(path = "/", method = RequestMethod.GET)
 	public String landing(Model model, HttpServletResponse response) {
-		model.addAttribute("datesList", datesList().toArray());
+		/*model.addAttribute("datesList", datesList().toArray());
 		model.addAttribute("totalCompetencies", totalCompetencies());
 		model.addAttribute("skillFrequencyList", skillFrequencyList());
 		model.addAttribute("skillAveragesList", skillAveragesList());
 		model.addAttribute("_VIEW_TITLE", "title.welcome");
-		return "landing";
+		return "landing";*/
+		return "redirect:/security/login";
 	}
 
 	private List<Long[]> datesList() {

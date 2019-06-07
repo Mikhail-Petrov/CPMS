@@ -92,7 +92,7 @@ public class Dashboard {
 			if (task.getStatus().equals(doneStatus))
 				doneTasks++;
 			else
-				if (task.getDueDate().after(today))
+				if (task.getDueDate() != null && task.getDueDate().before(today))
 					deadlineTasks.add(task);
 				else
 					processTasks.add(task);
