@@ -8,7 +8,7 @@
   			<p th:text="#{editor.task.name}"></p>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" th:field="*{name}" placeholder="Task name" th:placeholder="#{editor.placeholder.name}" onblur="addCheck(this, 5, 100)"/>
+                                        <input type="text" class="form-control" th:field="*{name}" placeholder="Task name" th:placeholder="#{editor.placeholder.name}"/>
                                     </div>
                                </div>
    			<p th:text="#{editor.task.due}"></p>
@@ -143,6 +143,7 @@
                                     </div>
                                 </div>
             </div>
+			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" id="submitBut" /></p>
 	<script th:inline="javascript">
 			/*<![CDATA[*/
 			
@@ -153,7 +154,9 @@
 
 			function checkInputs() {
             	var existWarning = /*[[#{editor.error.exists.task}]]*/ "";
+            	var shortWarning = /*[[#{editor.title.warning}]]*/ "";
             	var tooBigWarning = /*[[#{editor.error.bigsize}]]*/ "";
+            	var emptyDateWarning = /*[[#{editor.error.date}]]*/ "";
             	var warning = "";
             	var disabled = false;
 
@@ -165,12 +168,21 @@
             			disabled = true;
             			break;
             		}
+            	if (name.length < 5 || name.length > 100) {
+        			warning = warning + shortWarning + " ";
+        			disabled = true;
+            	}
 
             	if (document.getElementById("fileInput").files.length > 0)
 	            	if (document.getElementById("fileInput").files[0].size > 1000000) {
 	            		warning = warning + tooBigWarning + " ";
 	        			disabled = true;
 	            	}
+
+            	if ($("#dueDate").val() == "") {
+            		warning = warning + emptyDateWarning + " ";
+        			disabled = true;
+            	}
 
     			$("#submitBut")[0].disabled = disabled;
     			$("#warningText").html(warning);
@@ -183,6 +195,12 @@
             $("#fileInput").on('input', function() {
             	checkInputs();
             });
+
+            $("#dueDate").on('input', function() {
+            	checkInputs();
+            });
+            
+            checkInputs();
 
             $("#type").on('input', function() {
             	hideOrShowElement($("#textAbout"), $("#type").val() == "1");
@@ -215,6 +233,5 @@
 			}
 			/*]]>*/
 			</script>
-			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" id="submitBut" /></p>
 		</form>
 		</div>

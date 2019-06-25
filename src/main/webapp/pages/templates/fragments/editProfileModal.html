@@ -88,14 +88,15 @@
 								/*]]>*/
 								</script>
 			<div class="two-buttons">
-   			<p th:text="#{editor.prooflevel}"></p>
+   			<p th:text="#{editor.availability}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
-                                    <select th:field="*{prooflevel}" size="4">
-  										<option value="0"></option>
-  										<option th:text="#{profile.prooflevel.beginner}" value='1'>Beginner</option>
-  										<option th:text="#{profile.prooflevel.average}" value='2'>Average</option>
-  										<option th:text="#{profile.prooflevel.professional}" value='3'>Professional</option>
+                                        <!-- input type="text" class="form-control" placeholder="Availability" th:field="*{availability}" th:placeholder="#{editor.placeholder.availability}"/-->
+									<select th:field="*{availability}" size="4">
+										<option th:text="#{profile.availability.always}" value='1'>Always</option>
+										<option th:text="#{profile.availability.special}" value='2'>Only for special language questions</option>
+										<option th:text="#{profile.availability.good}" value='3'>Good</option>
+										<option th:text="#{profile.availability.uncertain}" value='4'>Uncertain, due to work amount</option>
 									</select>
                                     </div>
                                 </div>
@@ -114,25 +115,13 @@
    			</div>
                                 <div class="row">
                                     <div class="col-md-12">
-   			<p th:text="#{editor.availability}"></p>
-                                        <!-- input type="text" class="form-control" placeholder="Availability" th:field="*{availability}" th:placeholder="#{editor.placeholder.availability}"/-->
-									<select th:field="*{availability}" size="4">
-										<option th:text="#{profile.availability.always}" value='1'>Always</option>
-										<option th:text="#{profile.availability.special}" value='2'>Only for special language questions</option>
-										<option th:text="#{profile.availability.good}" value='3'>Good</option>
-										<option th:text="#{profile.availability.uncertain}" value='4'>Uncertain, due to work amount</option>
-									</select>
-                                    </div>
-                                </div>
    			<p th:text="#{editor.local}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <!-- input type="text" class="form-control" placeholder="Availability" th:field="*{availability}" th:placeholder="#{editor.placeholder.availability}"/-->
-									<select th:field="*{local}" size="4">
-										<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
-									</select>
-                                    </div>
-                                </div>
+	                                        <!-- input type="text" class="form-control" placeholder="Availability" th:field="*{availability}" th:placeholder="#{editor.placeholder.availability}"/-->
+										<select th:field="*{local}" size="4">
+											<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
+										</select>
+	                                    </div>
+	                                </div>
    			<p th:text="#{editor.expert.password}"></p>
                                 <div class="row">
                                     <div class="col-md-12">

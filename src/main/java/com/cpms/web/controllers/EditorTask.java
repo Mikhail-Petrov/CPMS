@@ -183,6 +183,8 @@ public class EditorTask {
 			task = facade.getTaskDAO().insert(recievedTask);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
+			if (recievedTask.getDueDate() == null)
+				recievedTask.setDueDate(task.getDueDate());
 			task.update(recievedTask);
 			if (file != null && !file.isEmpty()) {
 				try {

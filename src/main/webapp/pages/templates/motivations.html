@@ -248,7 +248,7 @@
                 	<div th:replace="fragments/editMotivationModal :: motivationModalForm"></div>
                 </div>
                 <script>
-                $("#motivationCreate").on('submit', function() {if ($("#motivationCreate").val() == "") $("#motivation_cost").val(0);});
+                $("#motivationCreate").on('submit', function() {if ($("#motivation_cost").val() == "") $("#motivation_cost").val(0);});
                 	var submitMotivationForm = function() {
                 	  	var $form = $('#motivationCreate');
                 	    

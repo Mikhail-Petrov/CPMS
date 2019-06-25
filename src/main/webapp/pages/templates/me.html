@@ -11,6 +11,6 @@
 			<p><span th:text="${authority}"></span></p>
 		</th:object>
 		<th:object th:if="${isResident}">
-		<a th:href="@{/viewer/profile(id=${profileId})}" th:text="#{me.profile}"></a>
+		<a th:href="@{/viewer/profile(id=${companyId})}" th:text="#{me.profile}"></a>
 		</th:object>
 		</div>

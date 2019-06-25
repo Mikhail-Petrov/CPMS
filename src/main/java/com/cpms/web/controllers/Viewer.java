@@ -65,18 +65,11 @@ import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.MessageAnswer;
 import com.jayway.jsonpath.JsonPath;
 
-/**
- * Viewer for profile and task entities.
- * 
- * @author Gordeev Boris
- * @since 1.0
- */
 @Controller
 @RequestMapping(path = "/viewer")
 public class Viewer {
 
 	private static final String NAME_KEY = "name";
-	private static final String STATUS_KEY = "status";
 	private static final String ID_KEY = "id";
 
 	@Autowired
@@ -181,9 +174,6 @@ public class Viewer {
 
 	@RequestMapping(value = "/tasks", method = RequestMethod.GET)
 	public String task(Model model, HttpServletRequest request, Principal principal) {
-		long countTasks = facade.getTaskDAO().count();
-		model.addAttribute("taskPages",
-				countTasks / PagingUtils.PAGE_SIZE + (countTasks % PagingUtils.PAGE_SIZE > 0 ? 1 : 0));
 		model.addAttribute("_VIEW_TITLE", "navbar.task");
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("task", new Task());
@@ -197,6 +187,13 @@ public class Viewer {
 		for (Task task : facade.getTaskDAO().getAll())
 			names.add(task.getName());
 		model.addAttribute("names", names);
+		List<Task> tasks = new ArrayList<>();
+		Users owner = Security.getUser(principal, userDAO);
+		if (owner == null || !CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT))
+			tasks = facade.getTaskDAO().getAll();
+		else for (TaskCenter center : owner.getTasks())
+			tasks.add(center.getTask());
+		model.addAttribute("tasks", tasks);
 		return "tasks";
 	}
 
@@ -235,30 +232,6 @@ public class Viewer {
 		}
 	}
 
-	@ResponseBody
-	@RequestMapping(value = "/ajaxTasks", method = RequestMethod.POST)
-	public List<Map<String, Object>> listTasks(@RequestBody String json) {
-		List<Object> values = parseJsonObject(json);
-		if (values.size() >= 1 && values.get(0).getClass().equals(Integer.class)) {
-			int page = (Integer) values.get(0);
-			return facade.getTaskDAO().getRange((page - 1) * PagingUtils.PAGE_SIZE, page * PagingUtils.PAGE_SIZE)
-					.stream().map(x -> {
-						Map<String, Object> map = new HashMap<>();
-						map.put(NAME_KEY, x.getPresentationName());
-						map.put(ID_KEY, x.getId());
-						switch(x.getStatus()) {
-						case "1": map.put(STATUS_KEY, UserSessionData.localizeText("Assigned")); break;
-						case "2": map.put(STATUS_KEY, UserSessionData.localizeText("Resolved")); break;
-						case "3": map.put(STATUS_KEY, UserSessionData.localizeText("Approved")); break;
-						default: map.put(STATUS_KEY, "");
-						}
-						return map;
-					}).collect(Collectors.toList());
-		} else {
-			return new ArrayList<>();
-		}
-	}
-
 	@SuppressWarnings("deprecation")
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
 	public String profile(Model model, Principal principal, @RequestParam(value = "id", required = true) Long id,
@@ -284,9 +257,12 @@ public class Viewer {
 		Users user = userDAO.getByUsername(attrProfile.getName());
 		if (user != null) {
 			Set<TaskCenter> tasks = user.getTasks();
-			for (TaskCenter task : tasks)
-				if (task.getTask().getCompletedDate() != null && task.getTask().getCompletedDate().before(task.getTask().getDueDate()))
+			for (TaskCenter task : tasks) {
+				Date completedDate = task.getTask().getCompletedDate();
+				Date dueDate = task.getTask().getDueDate();
+				if (completedDate != null && (dueDate == null || completedDate.before(dueDate)))
 					gsl1++;
+			}
 			if (!tasks.isEmpty())
 				gsl1 /= tasks.size();
 		}
@@ -809,22 +785,5 @@ public class Viewer {
 			}
 		}
 		return result;
-	}
-
-	private String getTaggedData(String data) {
-		String model = "russian-syntagrus-ud-2.0-conll17-170315";
-		String link = "http://lindat.mff.cuni.cz/services/udpipe/api/process?model=" + model
-				+ "&tokenizer&tagger&data=";
-		try {
-			byte[] bb = data.replace(" ", "%20").getBytes("UTF-8");
-			String s = link + bb;
-			Content content = Request.Get(s).execute().returnContent();
-			String res = content.asString();
-			bb = res.getBytes("UTF-16");
-			return res;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return "";
 	}
 }
