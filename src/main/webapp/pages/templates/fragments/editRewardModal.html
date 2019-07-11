@@ -10,12 +10,12 @@
   			<p id="expertsTitle" th:text="#{reward.experts}">:</p>
 			<p><select th:field="*{experts}" size="7" multiple="true" >
 					<option value="0" th:text="#{reward.experts.all}" class="font-bold">All</option>
-					<option th:each="expert : ${experts}" th:value="${expert.id}" th:text="${expert.name}" class="font-bold">Expert</option>
+					<option th:each="expert : ${experts}" th:value="${expert.id}" th:text="${expert.name} + ' (' + #{reward.allowed} + ${expert.sumBenefit + ')'}" class="font-bold">Expert</option>
 			</select></p>
   			<p id="motivationsTitle" th:text="#{reward.motivations}">:</p>
 			<p><select th:field="*{motivations}" size="7" multiple="true" >
 					<option value="0" th:text="#{reward.motivations.all}">All</option>
-					<option th:each="motivation : ${motivations}" th:value="${motivation.id}" th:text="${motivation.name}"
+					<option th:each="motivation : ${motivations}" th:value="${motivation.id}" th:text="${motivation.name + ' (' + motivation.benefit + ')'}"
 						th:disabled="${motivation.isGroup} ? 'disabled' : 'false'" th:class="${motivation.isGroup} ? 'font-italic' : 'font-bold'">Motivation</option>
 			</select></p>
 
@@ -23,6 +23,62 @@
 			<div class="two-buttons"><a id="deleteLink" href="#"><span class="input-group-btn">
 				<span class="btn btn-primary btn-block" th:text="#{reward.delete}">Delete</span>
 			</span></a></div></p>
+			
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+
+			function checkInputs() {
+            	var benWarning = /*[[#{editor.error.benefit}]]*/ "";
+            	var warning = "";
+            	var disabled = false;
+
+            	var minBen = /*[[${minBen}]]*/ "";
+            	var sumMotiv = /*[[${sumMotiv}]]*/ "";
+            	var motivs = $("#motivations option:selected");
+            	var sumMot = 0;
+            	if ($("#motivations :first")[0].selected || motivs.length < 1)
+            		sumMot = sumMotiv;
+            	else for (var i = 0; i < motivs.length; i++) {
+            		var spl = motivs[i].innerHTML.split("(");
+            		var ben = spl[spl.length - 1].split(")")[0];
+            		if (ben == "" || !(ben > 0))
+            			continue;
+            		sumMot += Number(ben);
+            	}
+            	var experts = $("#experts option:selected");
+            	if ($("#experts :first")[0].selected || experts.length < 1) {
+            		if (minBen < sumMot) {
+            			warning = warning + benWarning + " ";
+            			disabled = true;
+            		}
+				} else
+	            	for (var i = 0; i < experts.length; i++) {
+	            		var spl = experts[i].innerHTML.split("(");
+	            		var ben = spl[spl.length - 1].split(")")[0].split(": ")[1];
+	            		if (ben == "" || !(ben > 0 || ben <= 0))
+	            			continue;
+	            		if (ben < sumMot) {
+	            			warning = warning + benWarning + " ";
+	            			disabled = true;
+	            			break;
+	            		}
+	            	}
+            	
+    			$("#rewardSubmitButton")[0].disabled = disabled;
+    			$("#warning").html(warning);
+			}
+
+            $("#motivations").on('input', function() {
+            	checkInputs();
+            });
+            $("#experts").on('input', function() {
+            	checkInputs();
+            });
+
+			$("#rewardSubmitButton")[0].disabled = true;
+            
+			/*]]>*/
+			</script>
 		</form>
   		</div>
   	</div>

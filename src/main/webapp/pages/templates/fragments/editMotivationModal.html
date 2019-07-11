@@ -25,6 +25,16 @@
 			<p><input type="number" class="form-control" th:field="*{cost}" min="0" id="motivation_cost"/></p>
   			</div>
   			</div>
+ 			<div class="row">
+			<div class="two-buttons">
+			<p id="benTitle" th:text="#{motivations.benefit}"></p>
+			<p><input type="number" class="form-control" th:field="*{benefit}" min="0" id="motivation_ben"/></p>
+			</div>
+			<div class="two-buttons">
+			<p id="budTitle" th:text="#{motivations.budget}"></p>
+			<p><input type="number" class="form-control" th:field="*{budget}" min="0" id="motivation_budget"/></p>
+  			</div>
+  			</div>
   			<p id="localTitle" th:text="#{motivation.local}">:</p>
 			<p><select th:field="*{local}" size="7" multiple="true" >
 					<option value="" th:text="#{motivation.local.all}">Global</option>

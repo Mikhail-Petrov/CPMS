@@ -326,18 +326,32 @@ public class EditorTask {
 
 	@RequestMapping(path = { "/task/send" }, method = RequestMethod.POST)
 	public String taskSend(Model model, Principal principal, @ModelAttribute("task_id") @Valid long id,
-			@ModelAttribute("message_text") @Valid String text) {
+			@ModelAttribute("message_text") @Valid String text, @ModelAttribute("isFinal") @Valid String isFinal) {
 		Task task = facade.getTaskDAO().getOne(id);
 		String returnVal = "redirect:/viewer/task?id=" + task.getId();
-		if (text.isEmpty())
+		if (isFinal.equals("1"))
+			for (Message mes : task.getMessages())
+				if (mes.getType().equals("f")) {
+					mes.setType("3");
+					facade.getMessageDAO().update(mes);
+				}
+		if (text.isEmpty()) {
+			if (isFinal.equals("1")) {
+				List<Message> messages = task.getMessages();
+				Collections.sort(messages);
+				Message message = messages.get(0);
+				message.setType("f");
+				facade.getMessageDAO().update(message);
+			}
 			return returnVal;
+		}
 		Message message = new Message();
 		Users owner = Security.getUser(principal, userDAO);
 		if (owner == null)
 			owner = userDAO.getAll().get(0);
 		message.setOwner(owner);
 		message.setTask(task);
-		message.setType("3");
+		message.setType(isFinal.equals("1") ? "f" : "3");
 		message.setText(text);
 		message.setTitle("");
 		facade.getMessageDAO().insert(message);

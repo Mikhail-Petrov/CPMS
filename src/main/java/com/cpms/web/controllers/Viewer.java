@@ -43,10 +43,12 @@ import com.cpms.data.entities.Competencies;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
+import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Option;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Resident;
+import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
@@ -252,7 +254,7 @@ public class Viewer {
 		model.addAttribute("competency", new Competency());
 		model.addAttribute("competencies", new Competencies(id));
 		
-		double gsl1 = 0, gsl2, gsl3, gsl4 = 0;
+		double gsl1 = 0, gsl2, gsl3, gsl4 = 0, gsl5 = 0;
 		
 		Users user = userDAO.getByUsername(attrProfile.getName());
 		if (user != null) {
@@ -260,7 +262,7 @@ public class Viewer {
 			for (TaskCenter task : tasks) {
 				Date completedDate = task.getTask().getCompletedDate();
 				Date dueDate = task.getTask().getDueDate();
-				if (completedDate != null && (dueDate == null || completedDate.before(dueDate)))
+				if (completedDate != null && (dueDate == null || !completedDate.after(dueDate)))
 					gsl1++;
 			}
 			if (!tasks.isEmpty())
@@ -279,7 +281,8 @@ public class Viewer {
 		gsl3 = (today.getYear() - startDate.getYear()) * 12 + today.getMonth() - startDate.getMonth();
 		if (today.getDate() < startDate.getDate())
 			gsl3--;
-		gsl3 = (gsl3 + 1) / 36;
+		//gsl3 = (gsl3 + 1) / 36;
+		gsl3 = 1 - 1 / (gsl3 / 12 + 1);
 		if (gsl3 < 0) gsl3 = 0;
 		
 		Set<Competency> comps = attrProfile.getCompetencies();
@@ -288,12 +291,32 @@ public class Viewer {
 		if (!comps.isEmpty())
 			gsl4 /= comps.size();
 		gsl4 /= 6;
+		
+		for (Reward reward : facade.getRewardDAO().getAll()) {
+			String[] expertIDs = reward.getExperts().split(",");
+			boolean myReward = false;
+			for (int i = 0; i < expertIDs.length; i++)
+				if (expertIDs[i].equals(attrProfile.getId() + ""))
+					myReward = true;
+			if (!myReward) continue;
+			String[] motivIDs = reward.getMotivations().split(",");
+			for (int i = 0; i < motivIDs.length; i++) {
+				long motivID = 0;
+				try { motivID = Long.parseLong(motivIDs[i]); }
+				catch (NumberFormatException e) {}
+				if (motivID <= 0) continue;
+				Motivation motiv = facade.getMotivationDAO().getOne(motivID);
+				if (motiv != null) gsl5 += motiv.getCost();
+			}
+		}
+		gsl5 = 1 - 1 / (0.3 * gsl5 + 1);
 
 		model.addAttribute("globalLevel", gsl1*gsl2*gsl3*gsl4);
 		model.addAttribute("globalLevel1", gsl1);
 		model.addAttribute("globalLevel2", gsl2);
 		model.addAttribute("globalLevel3", gsl3);
 		model.addAttribute("globalLevel4", gsl4);
+		model.addAttribute("globalLevel5", gsl5);
 
 		model.addAttribute("skillsList",
 				SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
@@ -345,15 +368,17 @@ public class Viewer {
 		// Add performers and task manager
 		String managerName = "";
 		ArrayList<String> performerNames = new ArrayList<>();
-		Message taskMessage = EditorTask.createTaskMessage(task, principal, userDAO);
-		for (Message message : facade.getMessageDAO().getAll())
-			if (message.getTitle().equals(taskMessage.getTitle())) {
-				managerName = message.getOwner().getUsername();
-				message.getRecipients().stream().forEach(x -> performerNames.add(x.getUser().getUsername()));
-				break;
-			}
+		managerName = task.getUser().getUsername();
+		task.getRecipients().stream().forEach(x -> performerNames.add(x.getUser().getUsername()));
 		model.addAttribute("managerName", managerName);
 		model.addAttribute("performerNames", performerNames);
+		boolean noFinal = true;
+		for (Message mes : task.getMessages())
+			if (mes.getType().equals("f")) {
+				noFinal = false;
+				break;
+			}
+		model.addAttribute("noFinal", noFinal);
 		return "viewTask";
 	}
 

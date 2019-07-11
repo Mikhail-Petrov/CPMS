@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,11 @@ import com.cpms.data.entities.Reward;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
 import com.cpms.web.MotivationUtils;
+import com.cpms.web.ProfileRewardPostForm;
 import com.cpms.web.RewardPostForm;
 import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.RewardAnswer;
+import com.google.common.base.Functions;
 
 /**
  * Handles skill CRUD web application requests.
@@ -51,11 +54,23 @@ public class Rewards {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
+
+	private long prevTime = -1;
+
+	private String timeLog = "";
+
+
+	private void updateTime(String event) {
+		long curTime = System.currentTimeMillis();
+		timeLog += String.format("\n%s: %d", event, (prevTime < 0) ? 0 : (curTime - prevTime));
+		prevTime = curTime;
+	}
 	
 	@RequestMapping(value = {"/", ""},
 			method = RequestMethod.GET)
 	public String rewards(Model model, Principal principal,
 			HttpServletRequest request) {
+		updateTime("start");
 		model.addAttribute("_VIEW_TITLE", "navbar.reward");
 		model.addAttribute("_FORCE_CSRF", true);
 		
@@ -64,6 +79,11 @@ public class Rewards {
 		String curMounth = "";
 		List<Reward> allRewards = facade.getRewardDAO().getAll();
 		Collections.sort(allRewards);
+		updateTime("rewards got");
+		List<Profile> allProfiles = facade.getProfileDAO().getAll();
+		Map<Long, Profile> profilesMap = allProfiles.stream().collect(Collectors.toMap(profile -> profile.getId(), profile -> profile));
+		List<Motivation> allMotivations = facade.getMotivationDAO().getAll();
+		Map<Long, Motivation> motivationMap = allMotivations.stream().collect(Collectors.toMap(motivation -> motivation.getId(), motivation ->motivation));
 		for (Reward reward : allRewards) {
 			if (!reward.getPresentationName().equals(curMounth)) {
 				if (!rewards.isEmpty())
@@ -71,17 +91,33 @@ public class Rewards {
 				curMounth = reward.getPresentationName();
 				rewards = new ArrayList<>();
 			}
-			rewards.add(new RewardPostForm(reward, facade));
+			rewards.add(new RewardPostForm(reward, allProfiles, allMotivations, profilesMap, motivationMap));
 		}
 		if (!rewards.isEmpty())
 			blocks.put(curMounth, rewards);
 		model.addAttribute("rewards", blocks);
+		updateTime("blocks added");
 		List<Profile> experts = facade.getProfileDAO().getAll();
 		Collections.sort(experts);
-		model.addAttribute("experts", experts);
+		List<ProfileRewardPostForm> profiles = new ArrayList<>();
+		for (Profile profile : experts)
+			profiles.add(new ProfileRewardPostForm(profile, allRewards, facade.getMotivationDAO()));
+		model.addAttribute("experts", profiles);
+		updateTime("experts added");
+		int sumMotiv = 0, minBen = 0;
+		if (profiles.size() > 0) minBen = profiles.get(0).getSumBenefit();
+		for (ProfileRewardPostForm prof : profiles)
+			if (prof.getSumBenefit() < minBen) minBen = prof.getSumBenefit();
+		for (Motivation motiv : facade.getMotivationDAO().getAll())
+			sumMotiv += motiv.getBenefit();
+		model.addAttribute("sumMotiv", sumMotiv);
+		updateTime("motivations added");
+		model.addAttribute("minBen", minBen);
 		model.addAttribute("motivations", MotivationUtils.sortAndAddIndents(facade.getMotivationDAO().getAll()));
 		model.addAttribute("reward", new RewardPostForm());
-		
+
+		updateTime("finish");
+		model.addAttribute("timeLog", timeLog);
 		return "rewards";
 	}
 	

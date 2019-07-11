@@ -44,6 +44,10 @@
 				hideOrShowElement($("#descriptionTitle"), isGroup);
 				hideOrShowElement($("#costTitle"), isGroup);
 				hideOrShowElement($("#motivation_cost"), isGroup);
+				hideOrShowElement($("#benTitle"), isGroup);
+				hideOrShowElement($("#motivation_ben"), isGroup);
+				hideOrShowElement($("#budTitle"), isGroup);
+				hideOrShowElement($("#motivation_budget"), isGroup);
 				hideOrShowElement($("#local"), !isGroup);
 				hideOrShowElement($("#localTitle"), !isGroup);
 				
@@ -118,6 +122,8 @@
 							$("#motivation_name").val(res.name);
 							$("#motivation_description").val(res.description);
 							$("#motivation_cost").val(res.cost);
+							$("#motivation_ben").val(res.benefit);
+							$("#motivation_budget").val(res.budget);
 							$("#motivation_code").val(res.code);
 						    $("#selfIsGroup").val(res.isGroup);
 						    // Remember id of the changed motivation
@@ -133,6 +139,8 @@
 							$("#motivation_name").val("");
 							$("#motivation_description").val("");
 							$("#motivation_cost").val(1);
+							$("#motivation_ben").val(1);
+							$("#motivation_budget").val(1);
 							$("#motivation_code").val("");
 							$("#local").val("");
 						    $("#selfIsGroup").val(res.isGroup);
@@ -206,8 +214,10 @@
                                				<th data-field="name"><span th:text="#{motivations.name}"></span></th>
                                				<th data-field="description"><span th:text="#{motivations.description}"></span></th>
                                				<th data-field="code"><span th:text="#{motivations.code}"></span></th>
-                               				<th data-field="cost"><span th:text="#{profile.local}"></span></th>
+                               				<th data-field="local"><span th:text="#{profile.local}"></span></th>
+                               				<th data-field="budget"><span th:text="#{motivations.budget}"></span></th>
                                				<th data-field="cost"><span th:text="#{motivations.cost}"></span></th>
+                               				<th data-field="benefit"><span th:text="#{motivations.benefit}"></span></th>
                                			</tr>
                                		</thead>
                                		<tbody>
@@ -220,7 +230,9 @@
 											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.description}"></span></td>
 											<td><span th:text="${motivation.code}"></span></td>
 											<td><span th:text="${motivation.local}"></span></td>
+											<td><span th:unless="${motivation.isGroup}" th:if="${motivation.budget} > 0" th:text="${motivation.budget}"></span></td>
 											<td><span th:unless="${motivation.isGroup}" th:if="${motivation.cost} > 0" th:text="${motivation.cost}"></span></td>
+											<td><span th:unless="${motivation.isGroup}" th:if="${motivation.benefit} > 0" th:text="${motivation.benefit}"></span></td>
                                			</tr>
                                		</tbody>
                                </table>
@@ -248,7 +260,11 @@
                 	<div th:replace="fragments/editMotivationModal :: motivationModalForm"></div>
                 </div>
                 <script>
-                $("#motivationCreate").on('submit', function() {if ($("#motivation_cost").val() == "") $("#motivation_cost").val(0);});
+                $("#motivationCreate").on('submit', function() {
+                	if ($("#motivation_cost").val() == "") $("#motivation_cost").val(0);
+                	if ($("#motivation_ben").val() == "") $("#motivation_ben").val(0);
+                	if ($("#motivation_budget").val() == "") $("#motivation_budget").val(0);
+                });
                 	var submitMotivationForm = function() {
                 	  	var $form = $('#motivationCreate');
                 	    

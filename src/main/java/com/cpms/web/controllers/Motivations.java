@@ -79,6 +79,8 @@ public class Motivations {
 		model.addAttribute("motivations", MotivationTree.produceTree(motivations));
 		Motivation newMotivation = new Motivation();
 		newMotivation.setCost(1);
+		newMotivation.setBenefit(1);
+		newMotivation.setBudget(1);
 		model.addAttribute("motivation", newMotivation);
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		model.addAttribute("languages", langs);
@@ -144,6 +146,8 @@ public class Motivations {
 		else parent = null;
 		newMotivation.setParent(parent);
 		newMotivation.setCost(recievedMotivation.getCost());
+		newMotivation.setBudget(recievedMotivation.getBudget());
+		newMotivation.setBenefit(recievedMotivation.getBenefit());
 		newMotivation.setName(recievedMotivation.getName());
 		newMotivation.setDescription(recievedMotivation.getDescription());
 		newMotivation.setCode(recievedMotivation.getCode());

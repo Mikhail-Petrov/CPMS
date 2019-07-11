@@ -6,6 +6,9 @@
                 <!-- a id="menu_toggle"><i class="fa fa-bars" onclick="document.cookie = 'menuHidden=' + $('body').hasClass('nav-md')"></i></a-->
               </div>
 
+            <div class="navbar navbar-right enforce-auto-width" style="border: 0;">
+              <a th:href="@{/security/me}" class="site_title"> <!-- span th:text="'CPMS'"></span--><img th:src="@{/resources/images/Logo_Festo.png}"></img></a>
+            </div>
               <ul class="nav navbar-nav navbar-right enforce-auto-width">
                 <li class="">
                   <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">

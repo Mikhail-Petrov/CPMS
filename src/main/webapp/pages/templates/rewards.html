@@ -122,6 +122,7 @@
 							$("#deleteLink").show();
 							$('#submitBlock').attr('class', 'two-buttons')
 						}
+						$("#rewardSubmitButton")[0].disabled = !isChange;
 						$('#createRewardModal').modal('show');
 					},
 					error: function (xhRequest, ErrorText, thrownError) {

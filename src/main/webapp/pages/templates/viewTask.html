@@ -55,14 +55,26 @@
                             <form action="#" th:action="@{/editor/task/send}" method="post" th:object="${task}">
 							<input type="hidden" th:name="task_id" th:value="${task.id}"/>
 								<table class="table table-responsive table-striped">
-									<tr th:each="message : ${task.messages}" th:if="${message.type=='3'}">
+									<tr th:each="message : ${task.messages}" th:if="${message.type=='3' or message.type=='f'}">
 										<td><b><span th:text="${message.owner?.username + ': '}"></span></b><span th:text="${message.text}"></span></td>
                                			<td th:text="${#dates.format(message.sendedTime)}"></td>
+                               			<td th:text="${message.type} == 'f' ? #{message.final} : ''"></td>
 									</tr>
-									<tr>
+									<tr th:unless="${task.status}=='3'">
 										<td colspan="2">
 											<p><textarea class="form-control" type="textarea" placeholder="text" th:placeholder="#{message.text}" name="message_text"></textarea></p>
-											<p><input type="submit" class="btn btn-primary btn-block" value="Save" th:value="#{message.save}"/></p>
+											<p class="two-buttons"><input type="submit" class="btn btn-primary btn-block" value="Save" th:value="#{message.save}"/></p>
+											<p class="two-buttons"><input id="saveas" type="submit" class="btn btn-primary btn-block" value="Save as final" th:value="#{message.save.final}"/></p>
+											<input type="hidden" name="isFinal" id="isFinal" value="0"/>
+											<script>
+											$("#saveas").on('click', function() {$("#isFinal").val("1");});
+											</script>
+	                                <div class="row"
+th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNames, username) and (task.status=='1') or (username==managerName) and (task.status=='2')}">
+                                    	<a th:href="@{/editor/task/status(id=${task.id},status=${task.status})}">
+                                        	<button type="button" class="btn btn-primary btn-block" th:text="${task.status}=='1'?#{task.resolve}:#{task.approve}" th:disabled="${noFinal}"></button>
+                                        </a>
+	                                </div>
 										</td>
 									</tr>
                             	</table>
@@ -83,12 +95,6 @@
 	                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{task.delete}"></button>
 	                                        </a>
 	                                    </div>
-	                                </div>
-	                                <div class="row"
-th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNames, username) and (task.status=='1') or (username==managerName) and (task.status=='2')}">
-                                    	<a th:href="@{/editor/task/status(id=${task.id},status=${task.status})}">
-                                        	<button type="button" class="btn btn-primary btn-block" th:text="${task.status}=='1'?#{task.resolve}:#{task.approve}"></button>
-                                        </a>
 	                                </div>
 	                                <br/>
 								<p><b><span th:text="#{task.requirements}"></span></b></p>

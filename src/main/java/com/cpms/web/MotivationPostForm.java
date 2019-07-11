@@ -16,6 +16,10 @@ public class MotivationPostForm {
 	
 	private int cost;
 	
+	private int budget;
+	
+	private int benefit;
+	
 	private String parent;
 	
 	private boolean isGroup;
@@ -89,6 +93,22 @@ public class MotivationPostForm {
 
 	public void setLocal(String local) {
 		this.local = local;
+	}
+
+	public int getBudget() {
+		return budget;
+	}
+
+	public void setBudget(int budget) {
+		this.budget = budget;
+	}
+
+	public int getBenefit() {
+		return benefit;
+	}
+
+	public void setBenefit(int benefit) {
+		this.benefit = benefit;
 	}
 	
 }

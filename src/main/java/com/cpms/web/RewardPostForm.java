@@ -2,6 +2,7 @@ package com.cpms.web;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
@@ -32,13 +33,13 @@ public class RewardPostForm implements IAjaxAnswer {
 		setSendedTime("");
 	}
 	
-	public RewardPostForm(Reward reward, ICPMSFacade facade) {
+	public RewardPostForm(Reward reward, List<Profile> allProfiles, List<Motivation> allMotivations, Map<Long, Profile> profilesMap, Map<Long, Motivation> motivationMap) {
 		setId(reward.getId());
 		setSendedTime(reward.getSendedTime().toString());
 		getExperts();
 		String[] expertsIDs = reward.getExperts().split(",");
 		if (expertsIDs.length > 0 && expertsIDs[0].equals("0"))
-			for (Profile expert : facade.getProfileDAO().getAll())
+			for (Profile expert : allProfiles)
 				experts.add(expert);
 		else
 			for (int i = 0; i < expertsIDs.length; i++) {
@@ -46,14 +47,14 @@ public class RewardPostForm implements IAjaxAnswer {
 				try { expertId = Long.parseLong(expertsIDs[i]); }
 				catch (NumberFormatException e) {}
 				if (expertId <= 0) continue;
-				Profile expert = facade.getProfileDAO().getOne(expertId);
+				Profile expert = profilesMap.get(expertId);
 				if (expert != null)
 					experts.add(expert);
 			}
 		getMotivations();
 		String[] motivationsIDs = reward.getMotivations().split(",");
 		if (motivationsIDs.length > 0 && motivationsIDs[0].equals("0")) {
-			for (Motivation motivation : facade.getMotivationDAO().getAll())
+			for (Motivation motivation : allMotivations)
 				if (!motivation.getIsGroup())
 					motivations.add(motivation);
 		} else
@@ -62,7 +63,7 @@ public class RewardPostForm implements IAjaxAnswer {
 				try { motivationId = Long.parseLong(motivationsIDs[i]); }
 				catch (NumberFormatException e) {}
 				if (motivationId <= 0) continue;
-				Motivation motivation = facade.getMotivationDAO().getOne(motivationId);
+				Motivation motivation = motivationMap.get(motivationId);
 				if (motivation != null)
 					motivations.add(motivation);
 			}

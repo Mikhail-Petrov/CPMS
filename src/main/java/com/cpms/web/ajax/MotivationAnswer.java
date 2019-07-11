@@ -12,13 +12,15 @@ public class MotivationAnswer implements IAjaxAnswer {
 
 	private long id;
 	private String parentId;
-	private int cost;
+	private int cost, budget, benefit;
 	private String name, description, code, local;
 	private boolean successful = false, isGroup, hasChildren;
 	
 	public MotivationAnswer(Motivation source, boolean successful) {
 		id = source.getId();
 		cost = source.getCost();
+		budget = source.getBudget();
+		benefit = source.getBenefit();
 		name = source.getPresentationName();
 		description = source.getDescription();
 		code = source.getCode();
@@ -35,6 +37,8 @@ public class MotivationAnswer implements IAjaxAnswer {
 	public MotivationAnswer() {
 		id = 0;
 		cost = 0;
+		budget = 0;
+		benefit = 0;
 		name = "Motivation not found";
 		description = "Motivation not found";
 		code = "";
@@ -128,6 +132,22 @@ public class MotivationAnswer implements IAjaxAnswer {
 
 	public void setLocal(String local) {
 		this.local = local;
+	}
+
+	public int getBudget() {
+		return budget;
+	}
+
+	public void setBudget(int budget) {
+		this.budget = budget;
+	}
+
+	public int getBenefit() {
+		return benefit;
+	}
+
+	public void setBenefit(int benefit) {
+		this.benefit = benefit;
 	}
 	
 }

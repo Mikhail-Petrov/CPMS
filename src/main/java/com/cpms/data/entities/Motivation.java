@@ -58,6 +58,12 @@ public class Motivation extends AbstractDomainObject implements Comparable<Motiv
 	@Column(name = "Cost", nullable = true)
 	private int cost;
 	
+	@Column(name = "budget", nullable = true)
+	private int budget;
+	
+	@Column(name = "benefit", nullable = true)
+	private int benefit;
+	
 	@Column(name = "isGroup", nullable = false)
 	private boolean isGroup = false;
 	
@@ -75,18 +81,20 @@ public class Motivation extends AbstractDomainObject implements Comparable<Motiv
 		local = "";
 	}
 	
-	public Motivation(String description, String name, Motivation parent, String code, int cost, boolean isGroup, String local) {
+	public Motivation(String description, String name, Motivation parent, String code, int cost, int budget, int benefit, boolean isGroup, String local) {
 		this.description = description;
 		this.name = name;
 		this.setParent(parent);
 		this.code = code;
 		this.cost = cost;
+		this.budget = budget;
+		this.benefit = benefit;
 		this.isGroup = isGroup;
 		this.local = local;
 	}
 	
 	public Motivation(Motivation source) {
-		this(source.getDescription(), source.getName(), source.getParent(), source.getCode(), source.getCost(), source.getIsGroup(), source.getLocal());
+		this(source.getDescription(), source.getName(), source.getParent(), source.getCode(), source.getCost(), source.getBudget(), source.getBenefit(), source.getIsGroup(), source.getLocal());
 	}
 
 	public void setId(long id) {
@@ -143,7 +151,7 @@ public class Motivation extends AbstractDomainObject implements Comparable<Motiv
 	@SuppressWarnings("unchecked")
 	@Override
 	public Motivation localize(Locale locale) {
-		return new Motivation(description, name, getParent(), code, cost, isGroup, local);
+		return new Motivation(description, name, getParent(), code, cost, budget, benefit, isGroup, local);
 	}
 
 	public boolean getIsGroup() {
@@ -192,6 +200,22 @@ public class Motivation extends AbstractDomainObject implements Comparable<Motiv
 
 	public void setLocal(String local) {
 		this.local = local;
+	}
+
+	public int getBudget() {
+		return budget;
+	}
+
+	public void setBudget(int budget) {
+		this.budget = budget;
+	}
+
+	public int getBenefit() {
+		return benefit;
+	}
+
+	public void setBenefit(int benefit) {
+		this.benefit = benefit;
 	}
 	
 }
