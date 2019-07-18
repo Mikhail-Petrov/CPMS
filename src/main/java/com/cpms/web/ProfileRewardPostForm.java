@@ -1,6 +1,7 @@
 package com.cpms.web;
 
 import java.util.List;
+import java.util.Map;
 
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.data.entities.Motivation;
@@ -28,12 +29,11 @@ public class ProfileRewardPostForm implements IAjaxAnswer {
 		setSumBenefit(0);
 	}
 	
-	public ProfileRewardPostForm(Profile profile, List<Reward> rewards, IDAO<Motivation> motivationDAO) {
+	public ProfileRewardPostForm(Profile profile, List<Reward> rewards, Map<Long, Motivation> allMotivations) {
 		setId(profile.getId());
 		setName(profile.getName());
 		
 		sumBenefit = 0;
-		List<Motivation> motivs = motivationDAO.getAll();
 		for (Reward reward : rewards) {
 			String[] expertIDs = reward.getExperts().split(",");
 			boolean myReward = expertIDs[0].equals("0");
@@ -44,15 +44,15 @@ public class ProfileRewardPostForm implements IAjaxAnswer {
 				int sumMotBen = 0;
 				String[] motivIDs = reward.getMotivations().split(",");
 				if (motivIDs[0].equals("0"))
-					for (Motivation motiv : motivs)
-						sumMotBen += motiv.getBenefit();
+					for (Map.Entry<Long, Motivation> motiv : allMotivations.entrySet())
+						sumMotBen += motiv.getValue().getBenefit();
 				else
 					for (int i = 0; i < motivIDs.length; i++) {
 						long motivID = 0;
 						try { motivID = Long.parseLong(motivIDs[i]); }
 						catch (NumberFormatException e) {}
 						if (motivID <= 0) continue;
-						Motivation motiv = motivationDAO.getOne(motivID);
+						Motivation motiv = allMotivations.get(motivID);
 						if (motiv != null)
 							sumMotBen += motiv.getBenefit();
 					}

@@ -11,10 +11,8 @@
                             <div class="row">
                             <div class="two-buttons">
                        	<th:block th:if="${task.type}=='1'">
-								<p><span th:text="#{task.type.original}"></span>:</p>
-								<p><span id="taskOriginal" th:text="${task.original}">About</span></p>
-								<p><span th:text="#{task.type.translate}"></span>:</p>
-								<p><span id="taskTranslate" th:text="${task.about}">About</span></p>
+								<p><span th:text="#{task.type.original}"></span>: <input id="taskOriginal" th:value="${task.original}" disabled="true" /></p>
+								<p><span th:text="#{task.type.translate}"></span>: <input id="taskTranslate" th:value="${task.about}" disabled="true" /></p>
                                <script th:inline="javascript">
                          		/*<![CDATA[*/
                                 var descr = "<p>" + $("#taskOriginal").html() + "</p";
@@ -71,8 +69,11 @@
 											</script>
 	                                <div class="row"
 th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNames, username) and (task.status=='1') or (username==managerName) and (task.status=='2')}">
-                                    	<a th:href="@{/editor/task/status(id=${task.id},status=${task.status})}">
+                                    	<a th:href="@{/editor/task/status(id=${task.id},status=${task.status})}" th:class="${task.status}=='2'?'two-buttons':''">
                                         	<button type="button" class="btn btn-primary btn-block" th:text="${task.status}=='1'?#{task.resolve}:#{task.approve}" th:disabled="${noFinal}"></button>
+                                        </a>
+                                    	<a th:if="${task.status}=='2'" th:href="@{/editor/task/status(id=${task.id},status=${'-'+task.status})}" th:class="${task.status}=='2'?'two-buttons':''">
+                                        	<button type="button" class="btn btn-primary btn-block" th:text="#{task.reassign}"></button>
                                         </a>
 	                                </div>
 										</td>
@@ -99,7 +100,7 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
 	                                <br/>
 								<p><b><span th:text="#{task.requirements}"></span></b></p>
                                 <form action="#" th:action="@{/editor/task/saveChanges}" th:object="${requirements}" method="post">
-			<p th:if="${isAdmin}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
+			<!-- p th:if="${isAdmin}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p-->
 			<input type="hidden" th:field="*{data}" id="requirementsData"/>
 			<input type="hidden" th:field="*{taskId}" th:value="${task.id}"/>
 			<script>
@@ -119,7 +120,7 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
 												<a th:href="@{/editor/{taskId}/requirement(id=${requirement.id}, taskId=${task.id})}">
 													<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
 												</a>
-				<input type="number" min="1" th:max="${requirement.skill.maxLevel}" th:id="${requirement.id}" th:value="${requirement.level}" th:onchange="'changeData(' + ${requirement.id} + ');'"/>
+				<!-- input type="number" min="1" th:max="${requirement.skill.maxLevel}" th:id="${requirement.id}" th:value="${requirement.level}" th:onchange="'changeData(' + ${requirement.id} + ');'"/-->
 											</div>
 										</td>
 									</tr>

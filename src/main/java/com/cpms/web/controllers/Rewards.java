@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cpms.dao.interfaces.IUserDAO;
-import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Motivation;
@@ -34,7 +33,6 @@ import com.cpms.web.ProfileRewardPostForm;
 import com.cpms.web.RewardPostForm;
 import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.RewardAnswer;
-import com.google.common.base.Functions;
 
 /**
  * Handles skill CRUD web application requests.
@@ -70,7 +68,7 @@ public class Rewards {
 			method = RequestMethod.GET)
 	public String rewards(Model model, Principal principal,
 			HttpServletRequest request) {
-		updateTime("start");
+		//updateTime("start");
 		model.addAttribute("_VIEW_TITLE", "navbar.reward");
 		model.addAttribute("_FORCE_CSRF", true);
 		
@@ -79,7 +77,7 @@ public class Rewards {
 		String curMounth = "";
 		List<Reward> allRewards = facade.getRewardDAO().getAll();
 		Collections.sort(allRewards);
-		updateTime("rewards got");
+		//updateTime("rewards got");
 		List<Profile> allProfiles = facade.getProfileDAO().getAll();
 		Map<Long, Profile> profilesMap = allProfiles.stream().collect(Collectors.toMap(profile -> profile.getId(), profile -> profile));
 		List<Motivation> allMotivations = facade.getMotivationDAO().getAll();
@@ -96,28 +94,27 @@ public class Rewards {
 		if (!rewards.isEmpty())
 			blocks.put(curMounth, rewards);
 		model.addAttribute("rewards", blocks);
-		updateTime("blocks added");
-		List<Profile> experts = facade.getProfileDAO().getAll();
-		Collections.sort(experts);
+		//updateTime("blocks added");
+		Collections.sort(allProfiles);
 		List<ProfileRewardPostForm> profiles = new ArrayList<>();
-		for (Profile profile : experts)
-			profiles.add(new ProfileRewardPostForm(profile, allRewards, facade.getMotivationDAO()));
+		for (Profile profile : allProfiles)
+			profiles.add(new ProfileRewardPostForm(profile, allRewards, motivationMap));
 		model.addAttribute("experts", profiles);
-		updateTime("experts added");
+		//updateTime("experts added");
 		int sumMotiv = 0, minBen = 0;
 		if (profiles.size() > 0) minBen = profiles.get(0).getSumBenefit();
 		for (ProfileRewardPostForm prof : profiles)
 			if (prof.getSumBenefit() < minBen) minBen = prof.getSumBenefit();
-		for (Motivation motiv : facade.getMotivationDAO().getAll())
+		for (Motivation motiv : allMotivations)
 			sumMotiv += motiv.getBenefit();
 		model.addAttribute("sumMotiv", sumMotiv);
-		updateTime("motivations added");
+		//updateTime("motivations added");
 		model.addAttribute("minBen", minBen);
-		model.addAttribute("motivations", MotivationUtils.sortAndAddIndents(facade.getMotivationDAO().getAll()));
+		model.addAttribute("motivations", MotivationUtils.sortAndAddIndents(allMotivations));
 		model.addAttribute("reward", new RewardPostForm());
 
-		updateTime("finish");
-		model.addAttribute("timeLog", timeLog);
+		//updateTime("finish");
+		//model.addAttribute("timeLog", timeLog);
 		return "rewards";
 	}
 	
@@ -161,24 +158,16 @@ public class Rewards {
 			reward = facade.getRewardDAO().getOne(recievedReward.getId());
 		
 		String experts = "", motivations = "", oldExperts = reward.getExperts(), motivationsList = "";
-		if (recievedReward.getExperts().isEmpty())
-			experts = "0";
-		else for (Profile expert : recievedReward.getExperts())
-			if (expert == null) {
-				experts = "0";
-				break;
-			}
-			else if (experts.isEmpty()) experts += expert.getId();
+		if (recievedReward.getExperts().isEmpty() || recievedReward.getExperts().get(0) == null)
+			recievedReward.setExperts(facade.getProfileDAO().getAll());
+		for (Profile expert : recievedReward.getExperts())
+			if (experts.isEmpty()) experts += expert.getId();
 			else experts += "," + expert.getId();
 		reward.setExperts(experts);
-		if (recievedReward.getMotivations().isEmpty())
-			motivations = "0";
-		else for (Motivation motivation : recievedReward.getMotivations())
-			if (motivation == null) {
-				motivations = "0";
-				break;
-			}
-			else if (motivations.isEmpty()) {
+		if (recievedReward.getMotivations().isEmpty() || recievedReward.getMotivations().get(0) == null)
+			recievedReward.setMotivations(facade.getMotivationDAO().getAll());
+		for (Motivation motivation : recievedReward.getMotivations())
+			if (motivations.isEmpty()) {
 				motivations += motivation.getId();
 				motivationsList += motivation.getPresentationName();
 			}

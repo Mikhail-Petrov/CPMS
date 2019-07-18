@@ -5,7 +5,11 @@
               <div class="nav toggle">
                 <!-- a id="menu_toggle"><i class="fa fa-bars" onclick="document.cookie = 'menuHidden=' + $('body').hasClass('nav-md')"></i></a-->
               </div>
-
+              
+            <th:block th:unless="${getRole==''}">
+	            <a class="btn" th:href="@{/viewer/tasks}" th:text = "#{statistics.tasks.undone.good} + ': ' + ${newTasks}">Tasks</a>
+	            <a class="btn" th:href="@{/messages}" th:text = "#{navbar.messages} + ': ' + ${newMessages}">Messages</a>
+            </th:block>
             <div class="navbar navbar-right enforce-auto-width" style="border: 0;">
               <a th:href="@{/security/me}" class="site_title"> <!-- span th:text="'CPMS'"></span--><img th:src="@{/resources/images/Logo_Festo.png}"></img></a>
             </div>

@@ -170,6 +170,8 @@ public class EditorTask {
 		Task task;
 		if (create) {
 			recievedTask.setStatus("1");
+			if (recievedTask.getDueDate() == null)
+				return "redirect:/viewer/task";
 			Users owner = Security.getUser(principal, userDAO);
 			if (owner == null)
 				owner = userDAO.getAll().get(0);
@@ -372,9 +374,14 @@ public class EditorTask {
 	@RequestMapping(path = "/task/status", method = RequestMethod.GET)
 	public String taskStatus(Model model, @RequestParam(name = "id", required = true) Long id, @RequestParam(name = "status", required = true) String status) {
 		Task task = facade.getTaskDAO().getOne(id);
-		task.setStatus(status.equals("1") ? "2" : "3");
-		if (task.getStatus().equals("2"))
-			task.setCompletedDate(new Date(System.currentTimeMillis()));
+		if (status.startsWith("-")) {
+			task.setStatus("1");
+			task.setCompletedDate(null);
+		} else {
+			task.setStatus(status.equals("1") ? "2" : "3");
+			if (task.getStatus().equals("2"))
+				task.setCompletedDate(new Date(System.currentTimeMillis()));
+		}
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/tasks";
 	}

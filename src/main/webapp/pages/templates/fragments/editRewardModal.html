@@ -32,6 +32,7 @@
             	var warning = "";
             	var disabled = false;
 
+            	if ($("#selfId").val() == 0) {
             	var minBen = /*[[${minBen}]]*/ "";
             	var sumMotiv = /*[[${sumMotiv}]]*/ "";
             	var motivs = $("#motivations option:selected");
@@ -63,15 +64,15 @@
 	            			break;
 	            		}
 	            	}
-            	
+            	}
     			$("#rewardSubmitButton")[0].disabled = disabled;
     			$("#warning").html(warning);
 			}
 
-            $("#motivations").on('input', function() {
+            $("#motivations").on('click', function() {
             	checkInputs();
             });
-            $("#experts").on('input', function() {
+            $("#experts").on('click', function() {
             	checkInputs();
             });
 

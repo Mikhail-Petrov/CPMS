@@ -82,11 +82,12 @@
                                			<th:block th:each="task : ${tasks}">
                                			<tr th:onclick="'document.location.href=\''+@{/viewer/task(id=${task.id})}+'\''">
                                				<td th:text="${task.name}"></td>
-                               				<td th:switch="${task.status}">
+                               				<td th:text="${task.status}=='1'?#{task.status.1}:(${task.status}=='2'?#{task.status.2}:#{task.status.3})"></td>
+                               				<!--td th:switch="${task.status}">
                                					<span th:case="'1'" th:text="#{task.status.1}"></span>
                                					<span th:case="'2'" th:text="#{task.status.2}"></span>
                                					<span th:case="'3'" th:text="#{task.status.3}"></span>
-                               				</td>
+                               				</td-->
                                			</tr>
                                			</th:block>
                                		</tbody>
@@ -94,8 +95,9 @@
 
                                <div class="row">
                                    <div class="text-center">
-                                       <button type="button" class="btn btn-success"
-                                        onclick="$('#createTaskModal').modal('show')"><i class="fa fa-plus"></i></button>
+	                                    	<a th:href="@{/editor/task}">
+                                       <button type="button" class="btn btn-success"><i class="fa fa-plus"></i></button>
+                                       		</a>
                                    </div>
                                </div>
                                <script th:inline="javascript">
@@ -104,7 +106,7 @@
                                		var stat1 = /*[[#{task.status.1}]]*/ 1;
                                		var stat2 = /*[[#{task.status.2}]]*/ 2;
                                		var stat3 = /*[[#{task.status.3}]]*/ 3;
-                                    $("#taskFilter").on('input', function() {
+                                    $("#taskFilter").on('click', function() {
                                     	var taskFilter = $("#taskFilter").val();
                                     	
                                     	taskTable = $('#tasksTable');

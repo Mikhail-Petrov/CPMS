@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
+import com.cpms.data.entities.Task;
+import com.cpms.data.entities.TaskCenter;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Users;
@@ -108,19 +110,37 @@ public class CommonModelAttributes {
 		return user.getName();
 	}
 	
+	@ModelAttribute("newTasks")
+	public int newTasks(Principal principal) {
+		Users user = Security.getUser(principal, userDAO);
+		int result = 0;
+		final String doneStatus = "3";
+		if (username(principal).equals(Security.adminName)) {
+			for (Task task : facade.getTaskDAO().getAll())
+				if (!task.getStatus().equals(doneStatus))
+					result++;
+		} else if (user == null)
+			return 0;
+		else for (TaskCenter center : user.getTasks())
+			if (!center.getTask().getStatus().equals(doneStatus))
+				result++;
+		return result;
+	}
+	
 	@ModelAttribute("newMessages")
 	public int newMessages(Principal principal) {
 		Users user = Security.getUser(principal, userDAO);
 		Set<MessageCenter> centers = null;
-		if (user == null) {
+		if (username(principal).equals(Security.adminName)) {
 			List<Message> messages = facade.getMessageDAO().getAll();
 			for (Message mes : messages)
 				if (centers == null)
 					centers = mes.getRecipients();
 				else
 					centers.addAll(mes.getRecipients());
-		} else
-			centers = user.getInMessages();
+		} else if (user == null)
+			return 0;
+		else centers = user.getInMessages();
 		if (centers == null) return 0;
 		int result = centers.size();
 		for (MessageCenter center : centers)

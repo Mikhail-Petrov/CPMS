@@ -230,9 +230,9 @@
 											<td><span th:unless="${motivation.isGroup}" th:text="${motivation.description}"></span></td>
 											<td><span th:text="${motivation.code}"></span></td>
 											<td><span th:text="${motivation.local}"></span></td>
-											<td><span th:unless="${motivation.isGroup}" th:if="${motivation.budget} > 0" th:text="${motivation.budget}"></span></td>
-											<td><span th:unless="${motivation.isGroup}" th:if="${motivation.cost} > 0" th:text="${motivation.cost}"></span></td>
-											<td><span th:unless="${motivation.isGroup}" th:if="${motivation.benefit} > 0" th:text="${motivation.benefit}"></span></td>
+											<td align="center"><span th:unless="${motivation.isGroup}" th:if="${motivation.budget} > 0" th:text="${motivation.budget}"></span></td>
+											<td align="center"><span th:unless="${motivation.isGroup}" th:if="${motivation.cost} > 0" th:text="${motivation.cost}"></span></td>
+											<td align="center"><span th:unless="${motivation.isGroup}" th:if="${motivation.benefit} > 0" th:text="${motivation.benefit}"></span></td>
                                			</tr>
                                		</tbody>
                                </table>
