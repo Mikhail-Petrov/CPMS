@@ -22,6 +22,7 @@ import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Motivation;
+import com.cpms.data.entities.TaskCenter;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
 import com.cpms.web.MessagePostForm;
@@ -89,6 +90,7 @@ public class Messages {
 		if (user == null)
 			facade.getMessageDAO().delete(message);
 		else {
+			CommonModelAttributes.newMes.put(user.getId(), -1);
 			message.removeRecepient(user);
 			facade.getMessageDAO().update(message);
 		}
@@ -115,8 +117,11 @@ public class Messages {
 						messageCenter.setRed(true);
 						break;
 					}
-				if (isChanged)
+				if (isChanged) {
 					message = facade.getMessageDAO().update(message);
+					for (MessageCenter center : message.getRecipients())
+						CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
+				}
 				return new MessagesAnswer(message, true);
 			} else {
 				// New message
@@ -173,6 +178,7 @@ public class Messages {
 			message = facade.getMessageDAO().insert(message);
 		else
 			message = facade.getMessageDAO().update(message);
+		
 
 		String[] userIDs = request.getParameterValues("usersTo");
 		for (int i = 0; i < userIDs.length; i++) {
@@ -184,6 +190,8 @@ public class Messages {
 				message.addRecipient(new MessageCenter(recepient));
 		}
 		facade.getMessageDAO().update(message);
+		for (MessageCenter center : message.getRecipients())
+			CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
 		return "redirect:/messages";
 	}
 }

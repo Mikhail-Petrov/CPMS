@@ -2,7 +2,9 @@ package com.cpms.web.controllers;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,6 +18,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
@@ -41,13 +44,19 @@ public class CommonModelAttributes {
 	private IUserDAO userDAO;
 
 	@Autowired
-	@Qualifier(value = "facade")
-	private ICPMSFacade facade;
+	@Qualifier(value = "messageDAO")
+	private IDAO<Message> messageDAO;
+
+	@Autowired
+	@Qualifier(value = "taskDAO")
+	private IDAO<Task> taskDAO;
 
 	@ModelAttribute("isAuthenticated")
 	public boolean isAuthenticated(Principal principal) {
 		return principal != null;
 	}
+	
+	public static Map<Long, Integer> newMes, newTask;
 
 	static String testVal = "";
 	@ModelAttribute("test")
@@ -112,39 +121,54 @@ public class CommonModelAttributes {
 	
 	@ModelAttribute("newTasks")
 	public int newTasks(Principal principal) {
+		if (principal == null) return 0;
+		if (newTask == null) newTask = new HashMap<>();
 		Users user = Security.getUser(principal, userDAO);
-		int result = 0;
-		final String doneStatus = "3";
-		if (username(principal).equals(Security.adminName)) {
-			for (Task task : facade.getTaskDAO().getAll())
-				if (!task.getStatus().equals(doneStatus))
+		long userId = user == null ? 0 : user.getId();
+		int result = newTask.containsKey(userId) ? newTask.get(userId) : -1;
+		if (result >= 0) return result;
+		result = 0;
+		final String assignedStatus = "1";
+		if (user == null) {
+			for (Task task : taskDAO.getAll())
+				if (task.getStatus().equals(assignedStatus))
 					result++;
-		} else if (user == null)
-			return 0;
-		else for (TaskCenter center : user.getTasks())
-			if (!center.getTask().getStatus().equals(doneStatus))
+		} else for (TaskCenter center : user.getTasks())
+			if (center.getTask().getStatus().equals(assignedStatus))
 				result++;
+		newTask.put(userId, result);
 		return result;
+	}
+	
+	public static void setNewTasks(Principal principal) {
+		
 	}
 	
 	@ModelAttribute("newMessages")
 	public int newMessages(Principal principal) {
+		if (principal == null) return 0;
+		if (newMes == null) newMes = new HashMap<>();
 		Users user = Security.getUser(principal, userDAO);
+		long userId = user == null ? 0 : user.getId();
+		int result = newMes.containsKey(userId) ? newMes.get(userId) : -1;
+		if (result >= 0) return result;
 		Set<MessageCenter> centers = null;
-		if (username(principal).equals(Security.adminName)) {
-			List<Message> messages = facade.getMessageDAO().getAll();
+		if (user == null) {
+			List<Message> messages = messageDAO.getAll();
 			for (Message mes : messages)
 				if (centers == null)
 					centers = mes.getRecipients();
 				else
 					centers.addAll(mes.getRecipients());
-		} else if (user == null)
+		} else centers = user.getInMessages();
+		if (centers == null) {
+			newMes.put(userId, 0);
 			return 0;
-		else centers = user.getInMessages();
-		if (centers == null) return 0;
-		int result = centers.size();
+		}
+		result = centers.size();
 		for (MessageCenter center : centers)
 			if (center.isRed()) result--;
+		newMes.put(userId, result);
 		return result;
 	}
 	

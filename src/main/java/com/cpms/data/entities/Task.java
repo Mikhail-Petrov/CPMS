@@ -53,7 +53,7 @@ import com.cpms.security.entities.Users;
 	filters = {
 			@TokenFilterDef(factory = LowerCaseFilterFactory.class),
 })
-public class Task extends AbstractDomainObject {
+public class Task extends AbstractDomainObject implements Comparable<Task> {
 	
 	//TODO solve the osiv thing maybe
 	
@@ -101,6 +101,11 @@ public class Task extends AbstractDomainObject {
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@Temporal(TemporalType.DATE)
 	private Date completedDate;
+
+	@Column(name = "CREATED", nullable = true)
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
+	private Date createdDate;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "UID", nullable = true)
@@ -375,5 +380,18 @@ public class Task extends AbstractDomainObject {
 
 	public void setImageType(String imageType) {
 		this.imageType = imageType;
+	}
+
+	@Override
+	public int compareTo(Task arg0) {
+		return Long.compare(arg0.getId(), getId());
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
 }

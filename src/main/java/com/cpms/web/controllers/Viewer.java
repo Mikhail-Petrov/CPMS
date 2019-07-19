@@ -178,23 +178,13 @@ public class Viewer {
 	public String task(Model model, HttpServletRequest request, Principal principal) {
 		model.addAttribute("_VIEW_TITLE", "navbar.task");
 		model.addAttribute("_FORCE_CSRF", true);
-		model.addAttribute("task", new Task());
-		List<Language> langs = facade.getLanguageDAO().getAll();
-		Collections.sort(langs);
-		model.addAttribute("languages", langs);
-		List<Users> users = userDAO.getAll();
-		Collections.sort(users);
-		model.addAttribute("users", users);
-		List<String> names = new ArrayList<>();
-		for (Task task : facade.getTaskDAO().getAll())
-			names.add(task.getName());
-		model.addAttribute("names", names);
 		List<Task> tasks = new ArrayList<>();
 		Users owner = Security.getUser(principal, userDAO);
 		if (owner == null || !CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT))
 			tasks = facade.getTaskDAO().getAll();
 		else for (TaskCenter center : owner.getTasks())
 			tasks.add(center.getTask());
+		Collections.sort(tasks);
 		model.addAttribute("tasks", tasks);
 		return "tasks";
 	}

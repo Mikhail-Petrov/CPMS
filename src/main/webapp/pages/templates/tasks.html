@@ -54,6 +54,9 @@
             .right_col {
                 font-size: 15px;
             }
+            .bold {
+                font-weight:bold;
+            }
         </style>
 
                 <div class="row">
@@ -63,7 +66,7 @@
                                 <h3 th:text="#{navbar.task}"></h3>
                            </div>
                                <div class="row">
-	                	<select id="taskFilter">
+	                	<select id="taskFilter" style="width: auto;">
 	                		<option value="0" th:text="#{task.status.all}">All tasks</option>
 	                		<option value="1" th:text="#{task.status.1}">Assigned</option>
 	                		<option value="2" th:text="#{task.status.2}">Resolved</option>
@@ -76,11 +79,14 @@
                                			<tr>
                                				<th><span th:text="#{viewer.new.name}"></span></th>
                                				<th><span th:text="#{task.status}"></span></th>
+                               				<th><span th:text="#{task.created}"></span></th>
+                               				<th><span th:text="#{editor.task.due}"></span></th>
                                			</tr>
                                		</thead>
                                		<tbody>
                                			<th:block th:each="task : ${tasks}">
-                               			<tr th:onclick="'document.location.href=\''+@{/viewer/task(id=${task.id})}+'\''">
+                               			<tr th:onclick="'document.location.href=\''+@{/viewer/task(id=${task.id})}+'\''"
+                               			th:class="${task.dueDate.before(#dates.createNow()) and task.status=='1' ? 'warning bold' : ''}">
                                				<td th:text="${task.name}"></td>
                                				<td th:text="${task.status}=='1'?#{task.status.1}:(${task.status}=='2'?#{task.status.2}:#{task.status.3})"></td>
                                				<!--td th:switch="${task.status}">
@@ -88,6 +94,8 @@
                                					<span th:case="'2'" th:text="#{task.status.2}"></span>
                                					<span th:case="'3'" th:text="#{task.status.3}"></span>
                                				</td-->
+                               				<td th:text="${#dates.format(task.createdDate, 'dd MMMM yyyy')}"></td>
+                               				<td th:text="${#dates.format(task.dueDate, 'dd MMMM yyyy')}"></td>
                                			</tr>
                                			</th:block>
                                		</tbody>
@@ -129,54 +137,3 @@
                        </div>
                    </div>
                 </div>
-
-                <div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
-                	<div th:replace="fragments/editTaskModal :: taskModalForm"></div>
-                </div>
-                <script>
-                	var submitTaskForm = function() {
-    					$.each($("#resTable td:even"), function() {
-    						$("#resText").val($("#resText").val() + $(this).html() + ';');
-    					});
-    					
-    	            	if ($("#type").val() == "2")
-    	            		$("#about").val($("#acronisValue").val());
-    	            	if ($("#type").val() == "3")
-    	            		$("#about").val($("#linkValue").val());
-    	            	if ($("#type").val() == "4")
-    	            		$("#about").val($("#fileValue").val());
-    					
-                	  	var $form = $('#taskCreate');
-                	    var data = new FormData($form);
-                	    
-                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-                	    var csrfToken = $("meta[name='_csrf']").attr("content");
-                	    var headers = {};
-                	    headers[csrfHeader] = csrfToken;
-                	    
-                	    $.ajax({
-                	      url: $form.attr('action'),
-                	      type: 'post',
-                	      data: data,
-                	      headers: headers,
-                	      enctype: 'multipart/form-data',
-                	      processData: false,
-                	      contentType: false,
-                	      cache: false,
-                	      timeout: 1000000,
-                	      success: function(response) {
-                	        if (response.indexOf("Form successfully submitted") === -1) {
-                	        	$form.replaceWith(response);
-                	        } else {
-                	        	location.reload();
-                	        }
-                	      },
-                	      error: function (xhRequest, ErrorText, thrownError) {
-                				console.log('xhRequest: ' + xhRequest + "\n");
-                	            console.log('ErrorText: ' + ErrorText + "\n");
-                	            console.log('thrownError: ' + thrownError + "\n");
-                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
-                	      }
-                	});
-                	}
-                </script>

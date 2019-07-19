@@ -172,6 +172,7 @@ public class EditorTask {
 			recievedTask.setStatus("1");
 			if (recievedTask.getDueDate() == null)
 				return "redirect:/viewer/task";
+			recievedTask.setCreatedDate(new Date(System.currentTimeMillis()));
 			Users owner = Security.getUser(principal, userDAO);
 			if (owner == null)
 				owner = userDAO.getAll().get(0);
@@ -241,6 +242,10 @@ public class EditorTask {
 		}
 		if (newMessage.getId() > 0)
 			facade.getMessageDAO().update(newMessage);
+		for (MessageCenter center : newMessage.getRecipients())
+			CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
+		for (TaskCenter center : task.getRecipients())
+			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
 	}
@@ -288,6 +293,8 @@ public class EditorTask {
 				recievedTask.setImageType(file.getContentType());
 			}
 			task = facade.getTaskDAO().insert(recievedTask);
+			for (TaskCenter center : task.getRecipients())
+				CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
 			task.setAbout(recievedTask.getAbout());
@@ -314,15 +321,21 @@ public class EditorTask {
  				performers.remove(center.getUser().getId());
 		if (!performers.isEmpty()) {
 			Message newMessage = createTaskMessage(task, principal, userDAO);
+			for (MessageCenter center : newMessage.getRecipients())
+				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
 			newMessage = facade.getMessageDAO().insert(newMessage);
 			for (long userID : performers) {
 				Users newRecipient = userDAO.getByUserID(userID);
 				newMessage.addRecipient(new MessageCenter(newRecipient));
 				task.addRecipient(new TaskCenter(newRecipient));
 			}
+			for (MessageCenter center : newMessage.getRecipients())
+				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
 			facade.getMessageDAO().update(newMessage);
 			facade.getTaskDAO().update(task);
-		}		
+		}
+		for (TaskCenter center : task.getRecipients())
+			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
 		return "fragments/editTaskModal :: taskCreationSuccess";
 	}
 
@@ -356,6 +369,8 @@ public class EditorTask {
 		message.setType(isFinal.equals("1") ? "f" : "3");
 		message.setText(text);
 		message.setTitle("");
+		for (MessageCenter center : message.getRecipients())
+			CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
 		facade.getMessageDAO().insert(message);
 		return returnVal;
 	}
@@ -367,6 +382,8 @@ public class EditorTask {
 			mes.setTask(null);
 			facade.getMessageDAO().update(mes);
 		}
+		for (TaskCenter center : task.getRecipients())
+			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
 		facade.getTaskDAO().delete(task);
 		return "redirect:/viewer/tasks";
 	}
@@ -382,6 +399,8 @@ public class EditorTask {
 			if (task.getStatus().equals("2"))
 				task.setCompletedDate(new Date(System.currentTimeMillis()));
 		}
+		for (TaskCenter center : task.getRecipients())
+			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/tasks";
 	}
