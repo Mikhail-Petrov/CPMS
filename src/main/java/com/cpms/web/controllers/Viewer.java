@@ -301,7 +301,8 @@ public class Viewer {
 		}
 		gsl5 = 1 - 1 / (0.3 * gsl5 + 1);
 
-		model.addAttribute("globalLevel", gsl1*gsl2*gsl3*gsl4);
+		model.addAttribute("globalLevel", (gsl1+gsl2+gsl3+gsl4+gsl5)/5.0);
+		//model.addAttribute("globalLevel", gsl1*gsl2*gsl3*gsl4);
 		model.addAttribute("globalLevel1", gsl1);
 		model.addAttribute("globalLevel2", gsl2);
 		model.addAttribute("globalLevel3", gsl3);
