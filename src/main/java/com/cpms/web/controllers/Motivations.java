@@ -120,6 +120,10 @@ public class Motivations {
 			HttpServletRequest request,
 			@RequestParam(name = "id", required = true) Long id) {
 		Motivation motivation = facade.getMotivationDAO().getOne(id);
+		for (Motivation child : motivation.getChildren()) {
+			child.setParent(null);
+			facade.getMotivationDAO().update(child);
+		}
 		facade.getMotivationDAO().delete(motivation);
 		return "redirect:/motivations";
 	}
