@@ -11,6 +11,7 @@ public class RegistrationForm {
 	public Long id;
 	public String username;
 	public String password;
+	private String email;
 	public String role;
 	private Long profileId;
 	
@@ -58,6 +59,14 @@ public class RegistrationForm {
 
 	public void setProfileId(Long profileId) {
 		this.profileId = profileId;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
 }

@@ -13,6 +13,10 @@
 			<span th:if="${isCreate}==false" th:text="#{register.password.change}"></span>
 		</p>
 		<p>
+			<input type="text" th:field="*{email}" placeholder="Email" class="form-control"
+				th:placeholder="#{register.email}" />
+		</p>
+		<p>
 			<span th:text="#{register.roles}">Roles:</span>
 		</p>
 		<p>

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -52,6 +53,10 @@ public class Rewards {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
+
+    @Autowired
+	@Qualifier(value = "mailSender")
+    public JavaMailSender emailSender;
 
 	private long prevTime = -1;
 
@@ -216,6 +221,9 @@ public class Rewards {
 					if (newRecepient != null)
 						newMessage.addRecipient(new MessageCenter(newRecepient));
 				}
+				
+				for (MessageCenter center : newMessage.getRecipients())
+					Messages.sendEmail(emailSender, center.getUser().getEmail(), newMessage.getText());
 				
 				facade.getMessageDAO().insert(newMessage);
 			}

@@ -14,6 +14,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -57,6 +58,10 @@ public class EditorTask {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
+
+    @Autowired
+	@Qualifier(value = "mailSender")
+    public JavaMailSender emailSender;
 
 	@RequestMapping(path = "/{taskId}/requirementAsyncNew", method = RequestMethod.POST)
 	public String competencyCreateAsyncNew(Model model, HttpServletRequest request, @PathVariable("taskId") Long taskId,
@@ -235,6 +240,7 @@ public class EditorTask {
 			Users newRecipient = userDAO.getByUserID(userID);
 			newMessage.addRecipient(new MessageCenter(newRecipient));
 			task.addRecipient(new TaskCenter(newRecipient));
+			Messages.sendEmail(emailSender, newRecipient.getEmail(), newMessage.getText());
 		}
 		for (Users user : oldPerformers) {
 			newMessage.removeRecepient(user);
@@ -328,6 +334,7 @@ public class EditorTask {
 				Users newRecipient = userDAO.getByUserID(userID);
 				newMessage.addRecipient(new MessageCenter(newRecipient));
 				task.addRecipient(new TaskCenter(newRecipient));
+				Messages.sendEmail(emailSender, newRecipient.getEmail(), newMessage.getText());
 			}
 			for (MessageCenter center : newMessage.getRecipients())
 				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);

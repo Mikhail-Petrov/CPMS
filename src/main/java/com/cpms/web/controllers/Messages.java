@@ -9,6 +9,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -49,6 +52,10 @@ public class Messages {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
+
+    @Autowired
+	@Qualifier(value = "mailSender")
+    public JavaMailSender emailSender;
 	
 	@RequestMapping(value = {"/", ""},
 			method = RequestMethod.GET)
@@ -156,6 +163,9 @@ public class Messages {
 		Message message = new Message();
 		if (recievedMessage.getId() > 0) 
 			message = facade.getMessageDAO().getOne(recievedMessage.getId());
+		List<Long> oldTo = new ArrayList<Long>();
+		for (MessageCenter center : message.getRecipients())
+			oldTo.add(center.getUser().getId());
 		Long parentId = 0L;
 		if (recievedMessage.getParent() != null && recievedMessage.getParent() != "")
 			try {
@@ -178,7 +188,7 @@ public class Messages {
 			message = facade.getMessageDAO().insert(message);
 		else
 			message = facade.getMessageDAO().update(message);
-		
+
 
 		String[] userIDs = request.getParameterValues("usersTo");
 		for (int i = 0; i < userIDs.length; i++) {
@@ -192,6 +202,29 @@ public class Messages {
 		facade.getMessageDAO().update(message);
 		for (MessageCenter center : message.getRecipients())
 			CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
+		for (MessageCenter center : message.getRecipients())
+			if (!oldTo.contains(center.getUser().getId()))
+				Messages.sendEmail(emailSender, center.getUser().getEmail(), message.getText());
 		return "redirect:/messages";
+	}
+	
+	public static void sendEmail(JavaMailSender emailSender, String to, String text) {
+		
+		if (emailSender == null || to == null || to.isEmpty())
+			return;
+		
+		// Create a Simple MailMessage.
+        SimpleMailMessage message = new SimpleMailMessage();
+         
+        message.setTo(to);
+        message.setSubject("New message");
+        message.setText(text);
+ 
+        // Send Message!
+        try {
+        	emailSender.send(message);
+        } catch (MailException e) {
+        	e.printStackTrace();
+        }
 	}
 }

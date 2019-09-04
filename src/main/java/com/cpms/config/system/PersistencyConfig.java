@@ -16,6 +16,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -112,6 +114,39 @@ public class PersistencyConfig {
         }
 
         return new HikariDataSource(config);
+    }
+    
+    @Bean(name="mailSender")
+    public JavaMailSender getJavaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        boolean success = false;
+        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "rtyyb;bd";
+        int port = 587;
+        try {
+        	Context initContext = new InitialContext();
+			Context envContext = (Context) initContext.lookup("java:/comp/env");
+			host = (String) initContext.lookup("java:/comp/env/mhost");
+			username = (String) initContext.lookup("java:/comp/env/muser");
+			password = (String) initContext.lookup("java:/comp/env/mpass");
+			port = (Integer) initContext.lookup("java:/comp/env/mport");
+	        success = true;
+		} catch (Exception e) {
+		}
+        if (!success) {
+        	//return null;
+        }
+        mailSender.setHost(host);
+        mailSender.setPort(port);
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);
+ 
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.debug", "false");
+ 
+        return mailSender;
     }
 
     /**

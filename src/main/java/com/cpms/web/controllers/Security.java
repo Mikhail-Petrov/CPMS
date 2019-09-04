@@ -10,6 +10,8 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -97,6 +99,7 @@ public class Security {
 			form.setUsername(user.getUsername());
 			if (form.getRole() != null && form.getRole().equals(RoleTypes.EXPERT.toRoleName()))
 				form.setProfileId(user.getProfileId());
+			form.setEmail(user.getEmail());
 		}
 		model.addAttribute("registrationForm", form);
 		model.addAttribute("isCreate", isCreate);
@@ -150,6 +153,7 @@ public class Security {
 			user.setPassword(registrationForm.getPassword());
 		else
 			user.setPassword("123");
+		user.setEmail(registrationForm.getEmail());
 		Role newRole = new Role();
 		newRole.setRolename(registrationForm.role);
 		user.addRole(newRole);

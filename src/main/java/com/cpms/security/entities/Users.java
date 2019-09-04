@@ -54,6 +54,9 @@ public class Users extends AbstractDomainObject implements Comparable<Users> {
 	@Column(name = "profileId", nullable = true)
 	protected Long profileId; //TODO think of a safer way
 	
+	@Column(name = "EMAIL", nullable = true, length = 60)
+	private String email;
+	
 	@Transient
 	protected boolean hashed = false;
 	
@@ -238,6 +241,14 @@ public class Users extends AbstractDomainObject implements Comparable<Users> {
 	@Override
 	public int compareTo(Users object) {
 		return this.getPresentationName().toLowerCase().compareTo(object.getPresentationName().toLowerCase());
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 }
