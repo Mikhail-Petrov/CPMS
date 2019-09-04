@@ -87,12 +87,10 @@ public class Messages {
 		return "messages";
 	}
 	
-	@RequestMapping(path = {"/delete"}, 
-			method = RequestMethod.GET)
-	public String motivationDelete(Model model, Principal principal,
-			HttpServletRequest request,
-			@RequestParam(name = "id", required = true) Long id) {
+	private void deleteMessage(Principal principal, Long id) {
+		if (id <= 0) return;
 		Message message = facade.getMessageDAO().getOne(id);
+		if (message == null) return;
 		Users user = Security.getUser(principal, userDAO);
 		if (user == null)
 			facade.getMessageDAO().delete(message);
@@ -100,6 +98,65 @@ public class Messages {
 			CommonModelAttributes.newMes.put(user.getId(), -1);
 			message.removeRecepient(user);
 			facade.getMessageDAO().update(message);
+		}
+	}
+	
+	private Message readMessage(Principal principal, Long id) {
+		if (id <= 0) return null;
+		Message message = facade.getMessageDAO().getOne(id);
+		if (message == null) return null;
+		Users curUser = Security.getUser(principal, userDAO);
+		boolean isChanged = false;
+		for (MessageCenter messageCenter : message.getRecipients())
+			if (messageCenter.getUser().equals(curUser) && !messageCenter.isRed()) {
+				isChanged = true;
+				messageCenter.setRed(true);
+				break;
+			}
+		if (isChanged) {
+			message = facade.getMessageDAO().update(message);
+			for (MessageCenter center : message.getRecipients())
+				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
+		}
+		return message;
+	}
+	
+	@RequestMapping(path = {"/delete"}, 
+			method = RequestMethod.GET)
+	public String motivationDelete(Model model, Principal principal,
+			HttpServletRequest request,
+			@RequestParam(name = "id", required = true) Long id) {
+		deleteMessage(principal, id);
+		return "redirect:/messages";
+	}
+	
+	@RequestMapping(path = {"/selected/delete"}, 
+			method = RequestMethod.GET)
+	public String selectedDelete(Model model, Principal principal,
+			@RequestParam(name = "ids", required = true) String ids) {
+		String[] split = ids.split(",");
+		for (int i = 1; i < split.length; i++) {
+			long id = 0;
+			try {
+				id = Long.parseLong(split[i]);
+			} catch (NumberFormatException e) {}
+			deleteMessage(principal, id);
+		}
+		return "redirect:/messages";
+	}
+	
+	@RequestMapping(path = {"/selected/read"}, 
+			method = RequestMethod.GET)
+	public String selectedRead(Model model, Principal principal,
+			@RequestParam(name = "ids", required = true) String ids) {
+		String[] split = ids.split(",");
+		for (int i = 1; i < split.length; i++) {
+			long id = 0;
+			try {
+				id = Long.parseLong(split[i]);
+				if (id <= 0) continue;
+				readMessage(principal, id);
+			} catch (NumberFormatException e) {}
 		}
 		return "redirect:/messages";
 	}
@@ -115,21 +172,7 @@ public class Messages {
 			if (id < 0) {
 				// Change/view message
 				id = -id;
-				Message message = facade.getMessageDAO().getOne(id);
-				Users curUser = Security.getUser(principal, userDAO);
-				boolean isChanged = false;
-				for (MessageCenter messageCenter : message.getRecipients())
-					if (messageCenter.getUser().equals(curUser) && !messageCenter.isRed()) {
-						isChanged = true;
-						messageCenter.setRed(true);
-						break;
-					}
-				if (isChanged) {
-					message = facade.getMessageDAO().update(message);
-					for (MessageCenter center : message.getRecipients())
-						CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
-				}
-				return new MessagesAnswer(message, true);
+				return new MessagesAnswer(readMessage(principal, id), true);
 			} else {
 				// New message
 				MessagesAnswer answer = new MessagesAnswer(new Message(), true);
@@ -217,7 +260,7 @@ public class Messages {
         SimpleMailMessage message = new SimpleMailMessage();
          
         message.setTo(to);
-        message.setSubject("New message");
+        message.setSubject("Proofreading: new message");
         message.setText(text);
  
         // Send Message!

@@ -79,14 +79,39 @@
 	                		<option value="1" th:text="#{message.all}">All messages</option>
 	                	</select>
 	                </div>
-                
                 </div>
+                <script th:inline="javascript">
+			/*<![CDATA[*/
+				function showActions() {
+					if ($("input:checked").length > 0)
+						$("#selectedActions").show();
+					else
+						$("#selectedActions").hide();
+				}
+				function selectedAction(action) {
+					var url = rootPath + 'messages/selected/' + action + '?ids=0';
+					$.each($("input:checked"), function(){
+						url += ',' + this.id.substr(2);
+					})
+					$(location).attr('href',url);
+				}
+			/*]]>*/
+                </script>
+                <div class="row" id="selectedActions" hidden="true">
+	                <div class="two-buttons">
+						<span class="btn btn-primary btn-block" th:text="#{message.read.all}" onclick="selectedAction('read');"></span>
+	                </div>
+	                <div class="two-buttons">
+						<span class="btn btn-primary btn-block" th:text="#{message.delete.all}" onclick="selectedAction('delete');"></span>
+	                </div>
+	    		</div>
                            <div class="x_content">
                                <div id="inTable">
                                <h2 th:text="#{message.in}"></h2>
                                <table class="table table-responsive table-striped" id="inTable">
                                		<tbody>
                                		<tr th:each="center : ${inMessages}" th:id="${'mc' + center.id}">
+                               			<td><input type='checkbox' th:id="'ch'+ *{center.message.id}" oninput="showActions()" /></td>
                                			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{center.message.id} +')'">
                                			<i th:if="${center.red == false}">
                                				<b th:text="${center.message.title}"></b>
@@ -117,6 +142,7 @@
                                <table class="table table-responsive table-striped">
                                		<tbody>
                                		<tr th:each="message : ${messages}">
+                               			<td><input type='checkbox' th:id="'ch'+ *{message.id}" oninput="showActions()" /></td>
                                			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{message.id} +')'">
                                				<b th:text="${message.title}"></b>
                                				<br/>
