@@ -240,7 +240,7 @@ public class EditorTask {
 			Users newRecipient = userDAO.getByUserID(userID);
 			newMessage.addRecipient(new MessageCenter(newRecipient));
 			task.addRecipient(new TaskCenter(newRecipient));
-			Messages.sendEmail(emailSender, newRecipient.getEmail(), newMessage.getText());
+			Messages.sendEmail(request, emailSender, newRecipient, newMessage.getText());
 		}
 		for (Users user : oldPerformers) {
 			newMessage.removeRecepient(user);
@@ -334,7 +334,7 @@ public class EditorTask {
 				Users newRecipient = userDAO.getByUserID(userID);
 				newMessage.addRecipient(new MessageCenter(newRecipient));
 				task.addRecipient(new TaskCenter(newRecipient));
-				Messages.sendEmail(emailSender, newRecipient.getEmail(), newMessage.getText());
+				Messages.sendEmail(request, emailSender, newRecipient, newMessage.getText());
 			}
 			for (MessageCenter center : newMessage.getRecipients())
 				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);

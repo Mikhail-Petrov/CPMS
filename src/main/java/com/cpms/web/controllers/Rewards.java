@@ -223,7 +223,7 @@ public class Rewards {
 				}
 				
 				for (MessageCenter center : newMessage.getRecipients())
-					Messages.sendEmail(emailSender, center.getUser().getEmail(), newMessage.getText());
+					Messages.sendEmail(request, emailSender, center.getUser(), newMessage.getText());
 				
 				facade.getMessageDAO().insert(newMessage);
 			}

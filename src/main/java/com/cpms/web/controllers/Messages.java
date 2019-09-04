@@ -6,12 +6,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -247,26 +250,36 @@ public class Messages {
 			CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
 		for (MessageCenter center : message.getRecipients())
 			if (!oldTo.contains(center.getUser().getId()))
-				Messages.sendEmail(emailSender, center.getUser().getEmail(), message.getText());
+				Messages.sendEmail(request, emailSender, center.getUser(), message.getText());
 		return "redirect:/messages";
 	}
 	
-	public static void sendEmail(JavaMailSender emailSender, String to, String text) {
+	public static void sendEmail(HttpServletRequest request, JavaMailSender emailSender, Users to, String text) {
 		
-		if (emailSender == null || to == null || to.isEmpty())
+		if (emailSender == null || to == null || to.getEmail() == null || to.getEmail().isEmpty())
 			return;
 		
+        text = "Dear " + to.getUsername() + ",<br>You have got new message in the CPM system.<br>" + text;
+        String url = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+        text += "<br>Please, look through by the following link: <a href='" + url + "'>" + url + "</a><br>CPM system administartor";
+        
 		// Create a Simple MailMessage.
-        SimpleMailMessage message = new SimpleMailMessage();
+        //SimpleMailMessage message = new SimpleMailMessage();
+        
+        try {
+			MimeMessage message = emailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+			helper.setSubject("Proofreading: new message");
+			helper.setTo(to.getEmail());
+			helper.setText(text, true);
          
-        message.setTo(to);
+        /*message.setTo(to.getEmail());
         message.setSubject("Proofreading: new message");
-        message.setText(text);
+        message.setText(text);*/
  
         // Send Message!
-        try {
         	emailSender.send(message);
-        } catch (MailException e) {
+        } catch (MailException | MessagingException e) {
         	e.printStackTrace();
         }
 	}
