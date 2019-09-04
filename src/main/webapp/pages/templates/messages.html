@@ -179,7 +179,7 @@
             $("#unredOnly").on('input', function() {
 				$.each($("#inTable tr"), function(){
 					if ($("#unredOnly").val() == '0') {
-						if (this.childNodes[1].childNodes[1].nodeName == "SPAN")
+						if (this.childNodes[3].childNodes[1].nodeName == "SPAN")
 							$("#" + this.id).hide();
 					} else
 						$("#" + this.id).show();
