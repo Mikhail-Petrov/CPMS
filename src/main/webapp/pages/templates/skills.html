@@ -98,8 +98,8 @@
 					<p><input type="text" class="form-control" id="skillFilter"/></p>
 					<script>
 					function clearFilter(){
-						$(skillFilter).val("");
-						$(skillFilter).trigger("input");
+						$("#skillFilter").val("");
+						$("#skillFilter").trigger("input");
 					}
 					</script>
 					<p><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
@@ -132,7 +132,7 @@
 	<script th:inline="javascript">
 			/*<![CDATA[*/
 	function applyFilter() {
-		var filterText = $(skillFilter).val().toLowerCase();
+		var filterText = $("#skillFilter").val().toLowerCase();
 		var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
 		for (var skill in skillsAndParents) {
 			$('#dtn' + skill).prop('hidden', filterText!=="");
