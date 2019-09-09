@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -43,7 +42,6 @@ import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.security.CustomUserDetailsService;
-import com.cpms.web.controllers.CommonModelAttributes;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -120,7 +118,7 @@ public class PersistencyConfig {
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         boolean success = false;
-        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "rtyyb;bd";
+        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "";
         int port = 587;
         try {
         	Context initContext = new InitialContext();
@@ -133,7 +131,7 @@ public class PersistencyConfig {
 		} catch (Exception e) {
 		}
         if (!success) {
-        	//return null;
+        	return null;
         }
         mailSender.setHost(host);
         mailSender.setPort(port);
@@ -169,6 +167,12 @@ public class PersistencyConfig {
         jpaProperties.put(org.hibernate.cfg.Environment.HBM2DDL_AUTO, hbm2ddlAuto);
         jpaProperties.put("hibernate.search.default.directory_provider",
         		directoryProvider);
+        try {
+        	Context initContext = new InitialContext();
+			Context envContext = (Context) initContext.lookup("java:/comp/env");
+			indexBase = (String) initContext.lookup("java:/comp/env/indexBase");
+		} catch (Exception e) {
+		}
         jpaProperties.put("hibernate.search.default.indexBase", indexBase);
         jpaProperties.put("hibernate.search.default.refresh", refreshRate);
         entityManagerFactoryBean.setJpaProperties(jpaProperties);

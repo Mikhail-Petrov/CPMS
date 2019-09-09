@@ -173,6 +173,12 @@ public class TestingConfig implements TransactionManagementConfigurer {
         jpaProperties.put(org.hibernate.cfg.Environment.HBM2DDL_AUTO, hbm2ddlAuto);
         jpaProperties.put("hibernate.search.default.directory_provider",
         		directoryProvider);
+        try {
+        	Context initContext = new InitialContext();
+			Context envContext = (Context) initContext.lookup("java:/comp/env");
+			indexBase = (String) initContext.lookup("java:/comp/env/indexBase") + "testing/";
+		} catch (Exception e) {
+		}
         jpaProperties.put("hibernate.search.default.indexBase", indexBase);
         jpaProperties.put("hibernate.search.default.refresh", refreshRate);
         entityManagerFactoryBean.setJpaProperties(jpaProperties);

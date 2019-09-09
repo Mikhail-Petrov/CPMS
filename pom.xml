@@ -210,6 +210,7 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+                    <warSourceIncludes>META-INF/context.xml</warSourceIncludes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -220,6 +221,19 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+			<plugin>
+                        	<groupId>org.apache.maven.plugins</groupId>
+	                        <artifactId>maven-war-plugin</artifactId>
+	                        <version>3.2.3</version>
+        	                <configuration>
+                	            <webResources>
+                        	        <resource>
+                                	    <directory>src/main/resources/META-INF</directory>
+	                                    <targetPath>META-INF</targetPath>
+        	                        </resource>
+                	            </webResources>
+                        	</configuration>
+	                 </plugin>
 		</plugins>
 	</build>
 	
