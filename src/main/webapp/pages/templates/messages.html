@@ -111,7 +111,7 @@
                                <table class="table table-responsive table-striped" id="inTable">
                                		<tbody>
                                		<tr th:each="center : ${inMessages}" th:id="${'mc' + center.id}">
-                               			<td><input type='checkbox' th:id="'ch'+ *{center.message.id}" oninput="showActions()" /></td>
+                               			<td><input type='checkbox' th:id="'ch'+ *{center.message.id}" onclick="showActions()" /></td>
                                			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{center.message.id} +')'">
                                			<i th:if="${center.red == false}">
                                				<b th:text="${center.message.title}"></b>
@@ -142,7 +142,7 @@
                                <table class="table table-responsive table-striped">
                                		<tbody>
                                		<tr th:each="message : ${messages}">
-                               			<td><input type='checkbox' th:id="'ch'+ *{message.id}" oninput="showActions()" /></td>
+                               			<td><input type='checkbox' th:id="'ch'+ *{message.id}" onclick="showActions()" /></td>
                                			<td th:onclick="'ajaxMessageDialog(\''+ @{/messages/ajaxMessage} +'\', -'+ *{message.id} +')'">
                                				<b th:text="${message.title}"></b>
                                				<br/>

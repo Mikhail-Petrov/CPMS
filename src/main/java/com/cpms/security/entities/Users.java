@@ -139,7 +139,8 @@ public class Users extends AbstractDomainObject implements Comparable<Users> {
 		if (roles == null) {
 			throw new DataAccessException("Null value.", null);
 		}
-		this.roles.forEach(x -> x.setOwner(null));
+		if (this.roles != null)
+			this.roles.forEach(x -> x.setOwner(null));
 		this.roles = roles;
 		this.roles.forEach(x -> x.setOwner(this));
 	}

@@ -95,9 +95,13 @@ public class Messages {
 		Message message = facade.getMessageDAO().getOne(id);
 		if (message == null) return;
 		Users user = Security.getUser(principal, userDAO);
-		if (user == null)
+		if (user == null || message.getOwner() != null && message.getOwner().getId() == user.getId()) {
+			for (Message child : message.getChildren()) {
+				child.setParent(null);
+				facade.getMessageDAO().update(child);
+			}
 			facade.getMessageDAO().delete(message);
-		else {
+		} else {
 			CommonModelAttributes.newMes.put(user.getId(), -1);
 			message.removeRecepient(user);
 			facade.getMessageDAO().update(message);
