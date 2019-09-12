@@ -49,8 +49,6 @@
 		<p>
 			<span th:text="#{editor.parentskill}"></span> <select id="parentSelect"
 				th:field="*{parent}">
-				<option th:value="null" th:text="#{editor.noparent}">No
-					parent</option>
 				<option th:each="skillInList : ${skillsList}"
 					th:value="${skillInList.id}" th:text="${skillInList.name}">A
 					skill</option>
