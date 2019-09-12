@@ -316,7 +316,7 @@ public class Viewer {
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			Long ownerId = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName())
 					.getProfileId();
-			if (ownerId == profile.getId()) {
+			if (ownerId != null && ownerId == profile.getId()) {
 				model.addAttribute("userCompetencyApplications",
 						applicationsService.retrieveSuggestedCompetenciesOfUser(ownerId.longValue()));
 				model.addAttribute("isOwner", true);

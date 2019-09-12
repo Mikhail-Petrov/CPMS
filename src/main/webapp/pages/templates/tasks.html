@@ -117,41 +117,26 @@
                                		var stat1 = /*[[#{task.status.1}]]*/ 1;
                                		var stat2 = /*[[#{task.status.2}]]*/ 2;
                                		var stat3 = /*[[#{task.status.3}]]*/ 3;
-                                    $("#taskFilter").on('click', function() {
-                                    	var taskFilter = $("#taskFilter").val();
-                                    	
-                                    	taskTable = $('#tasksTable');
-                                    	var tbody = taskTable.find('tbody').find('tr');
-                                    	for (var i = 0; i < tbody.length; i++) {
-                                    		var tr = tbody.eq(i);
-                                    		if (taskFilter == "0") {
-                                    			tr.show(); continue;
-                                    		}
-                                    		var status = tr.find('td').eq(1).html();
-                                    		if (status == stat1 && taskFilter == "1" || status == stat2 && taskFilter == "2" || status == stat3 && taskFilter == "3")
-                                    			tr.show();
-                                    		else
-                                    			tr.hide();
-                                    	}
-                                    });
-		                        	function applyFilter() {
+                               		
+		                        	function applyFilters() {
 		                        		var filterText = $("#taskTextFilter").val().toLowerCase();
+                                    	var taskFilter = $("#taskFilter").val();
 
                                     	taskTable = $('#tasksTable');
                                     	var tbody = taskTable.find('tbody').find('tr');
                                     	for (var i = 0; i < tbody.length; i++) {
                                     		var tr = tbody.eq(i);
-                                    		if (taskFilter == "") {
-                                    			tr.show(); continue;
-                                    		}
                                     		var name = tr.find('td').eq(0).html().toLowerCase();
-                                    		if (name.indexOf(filterText) >= 0)
+                                    		var status = tr.find('td').eq(1).html();
+                                    		if ((taskFilter == "" || name.indexOf(filterText) >= 0) &&
+                                    				(taskFilter == "0" || status == stat1 && taskFilter == "1" || status == stat2 && taskFilter == "2" || status == stat3 && taskFilter == "3"))
                                     			tr.show();
                                     		else
                                     			tr.hide();
                                     	}
 		                        	}
-		                        	$("#taskTextFilter").on("input", function() {applyFilter()});
+                                    $("#taskFilter").on('click', function() {applyFilters()});
+		                        	$("#taskTextFilter").on("input", function() {applyFilters()});
                             	/*]]>*/
                                </script>
                            </div>

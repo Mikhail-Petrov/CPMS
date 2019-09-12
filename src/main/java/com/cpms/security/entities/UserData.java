@@ -26,7 +26,7 @@ public class UserData {
 		this.isAdmin = user.checkRole(RoleTypes.MANAGER);
 		this.isResident= user.checkRole(RoleTypes.EXPERT);
 		
-		if (this.isResident && user.getProfileId() != null)
+		if (this.isResident && user.getProfileId() != null && user.getProfileId() != 0)
 			this.profileId = user.getProfileId();
 		else
 			this.profileId = 0;

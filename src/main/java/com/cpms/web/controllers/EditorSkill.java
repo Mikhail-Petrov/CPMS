@@ -110,7 +110,7 @@ public class EditorSkill {
 	private void checkNotChildrenOfDraft(
 			HttpServletRequest request,
 			Skill recievedSkill) {
-		if (recievedSkill.getParent() != null && 
+		/*if (recievedSkill.getParent() != null && 
 				//recievedSkill.getParent().isDraft() &&
 				CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			throw new ManualValidationException(UserSessionData.localizeText(
@@ -119,7 +119,7 @@ public class EditorSkill {
 							"Неподтверждённое умение не может иметь дочерние умения, сперва необходимо подтвердить его.",
 							"You can't create children of a draft skill, approve it's parent first."),
 					null);
-		}
+		}*/
 	}
 	
 	@RequestMapping(path = "/skill", 

@@ -33,14 +33,14 @@
 										</thead>
                                 		<tr th:each="resident : ${option.residents}">
                                 			<td>
-											<a th:href="@{/viewer/profile(id=${resident.id})}" th:text="${resident.name}"></a>
+											<p><a th:href="@{/viewer/profile(id=${resident.id})}" th:text="${resident.name}"></a></p>
 											</td>
 											<td>
 											<p th:each="competency : ${resident.competencies}">
 												<span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level} + ' / ' + ${competency.skill.maxLevel}"></span>
 											</p></td>
-											<td>
-											<span th:text="${resident.cost}"></span>
+											<td align="center">
+											<p th:text="${resident.cost}"></p>
 											</td>
                                 		</tr>
                                 		</table>
