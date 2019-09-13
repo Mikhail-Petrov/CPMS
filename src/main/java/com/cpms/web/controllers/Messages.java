@@ -70,15 +70,21 @@ public class Messages {
 		Users user = Security.getUser(principal, userDAO);
 		List<Message> messages = new ArrayList<>();
 		List<MessageCenter> inMessages = new ArrayList<>();
+		ArrayList<String> showedTypes = new ArrayList<>();
+		showedTypes.add("1");showedTypes.add("2");showedTypes.add("4");
 		if (user == null) {
-			messages = facade.getMessageDAO().getAll();
+			for (Message mes : facade.getMessageDAO().getAll())
+				if (showedTypes.contains(mes.getType()))
+					messages.add(mes);
 			for (Message mes : messages)
-				inMessages.addAll(mes.getRecipients());
+				if (showedTypes.contains(mes.getType()))
+					inMessages.addAll(mes.getRecipients());
 		} else {
 			for (MessageCenter mes : user.getInMessages())
 				inMessages.add(mes);
 			for (Message mes : user.getMessages())
-				messages.add(mes);
+				if (showedTypes.contains(mes.getType()))
+					messages.add(mes);
 		}
 		Collections.sort(inMessages);
 		model.addAttribute("inMessages", inMessages);
@@ -100,6 +106,9 @@ public class Messages {
 				child.setParent(null);
 				facade.getMessageDAO().update(child);
 			}
+			for (MessageCenter center : message.getRecipients())
+				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
+			CommonModelAttributes.newMes.put(0L, -1);
 			facade.getMessageDAO().delete(message);
 		} else {
 			CommonModelAttributes.newMes.put(user.getId(), -1);
@@ -252,6 +261,7 @@ public class Messages {
 		facade.getMessageDAO().update(message);
 		for (MessageCenter center : message.getRecipients())
 			CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
+		CommonModelAttributes.newMes.put(0L, -1);
 		for (MessageCenter center : message.getRecipients())
 			if (!oldTo.contains(center.getUser().getId()))
 				Messages.sendEmail(request, emailSender, center.getUser(), message.getText());
