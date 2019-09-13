@@ -7,7 +7,7 @@
               </div>
               
             <th:block th:unless="${getRole==''}">
-	            <a class="btn" th:href="@{/viewer/tasks}" th:text = "#{tasks.assigned} + ': ' + ${newTasks}">Tasks</a>
+	            <a th:if="${isAdmin or isResident}" class="btn" th:href="@{/viewer/tasks}" th:text = "#{tasks.assigned} + ': ' + ${newTasks}">Tasks</a>
 	            <a class="btn" th:href="@{/messages}" th:text = "#{message.unredonly} + ': ' + ${newMessages}">Messages</a>
             </th:block>
             <div class="navbar navbar-right enforce-auto-width" style="border: 0;">
