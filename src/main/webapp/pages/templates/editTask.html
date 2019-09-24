@@ -174,7 +174,7 @@
             	}
 
             	if (document.getElementById("fileInput").files.length > 0)
-	            	if (document.getElementById("fileInput").files[0].size > 1000000) {
+	            	if (document.getElementById("fileInput").files[0].size > 50*1024*1024) {
 	            		warning = warning + tooBigWarning + " ";
 	        			disabled = true;
 	            	}
