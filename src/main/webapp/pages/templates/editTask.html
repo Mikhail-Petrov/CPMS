@@ -91,7 +91,13 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <input type="text" class="form-control" placeholder="Link" th:field="*{reference}" th:placeholder="#{task.type.link}"/>
+                                        <div id="fileBlock" class="two-buttons row">
                                         <input type="file" class="form-control" name="file" id="fileInput"/>
+                                        </div>
+                                        <div class="two-buttons">
+                                        <button type="button" class="btn btn-danger btn-block" th:text="#{editor.clear}"
+                                        	onclick="document.getElementById('fileBlock').innerHTML=document.getElementById('fileBlock').innerHTML"></button>
+                                        </div>
                                     </div>
                                 </div>
    			<p th:text="#{editor.task.type}"></p>
