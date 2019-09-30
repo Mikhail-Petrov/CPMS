@@ -7,5 +7,6 @@
 <Environment name="muser" type="java.lang.String" value="everyths.alr.taken@gmail.com" />
 <Environment name="mpass" type="java.lang.String" value="rtyyb;bd" />
 <Environment name="mport" type="java.lang.Integer" value="587" />
+<Environment name="auth" type="java.lang.Integer" value="true" />
 <Environment name="indexBase" type="java.lang.String" value="/home/cais/docker/cpmsfesto/indexes/" />
 </Context>

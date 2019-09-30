@@ -118,7 +118,7 @@ public class PersistencyConfig {
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         boolean success = false;
-        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "";
+        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "", auth = "true";
         int port = 587;
         try {
         	Context initContext = new InitialContext();
@@ -126,6 +126,7 @@ public class PersistencyConfig {
 			host = (String) initContext.lookup("java:/comp/env/mhost");
 			username = (String) initContext.lookup("java:/comp/env/muser");
 			password = (String) initContext.lookup("java:/comp/env/mpass");
+			auth = (String) initContext.lookup("java:/comp/env/auth");
 			port = (Integer) initContext.lookup("java:/comp/env/mport");
 	        success = true;
 		} catch (Exception e) {
@@ -140,7 +141,7 @@ public class PersistencyConfig {
  
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.auth", auth);
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.debug", "false");
  
