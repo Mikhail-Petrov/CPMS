@@ -62,10 +62,10 @@
                                			<td th:text="${message.type} == 'f' ? #{message.final} : ''"></td>
 									</tr>
 									<tr th:unless="${task.status}=='3'">
-										<td colspan="2">
+										<td colspan="3">
 											<p><textarea class="form-control" type="textarea" placeholder="text" th:placeholder="#{message.text}" name="message_text"></textarea></p>
-											<p class="two-buttons"><input type="submit" class="btn btn-primary btn-block" value="Save" th:value="#{message.save}" th:title="#{message.title.save}"/></p>
-											<p class="two-buttons"><input id="saveas" type="submit" class="btn btn-primary btn-block" value="Save as final" th:value="#{message.save.final}"
+											<!--p class="two-buttons"><input type="submit" class="btn btn-primary btn-block" value="Save" th:value="#{message.save}" th:title="#{message.title.save}"/></p-->
+											<p class=""><input id="saveas" type="submit" class="btn btn-primary btn-block" value="Save as final" th:value="#{message.save.final}"
 												th:title="#{message.title.save.final}"/></p>
 											<input type="hidden" name="isFinal" id="isFinal" value="0"/>
 											<script>
