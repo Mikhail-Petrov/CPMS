@@ -214,44 +214,28 @@ public class EditorTask {
 				for (int i = 0; i < userIDs.length; i++)
 					try { performers.add(Long.parseLong(userIDs[i]));
 					} catch (NumberFormatException e) {}
-
 		// forget about old performers
-		// to do this, create a message about it
-		Message newMessage = createTaskMessage(task, principal, userDAO);
-		// find the same message
+		List<Users> toRemove = new ArrayList<Users>();
 		if (!create)
-			for (Message message : facade.getMessageDAO().getAll()) {
-				if (message.getTitle().equals(newMessage.getTitle())) {
-					newMessage = message;
-					break;
-				}
-			}
-		// remove old performers
-		List<Users> oldPerformers = new ArrayList<>();
-		for (TaskCenter center : task.getRecipients())
-			if (performers.contains(center.getUser().getId()))
-				performers.remove(center.getUser().getId());
-			else
-				oldPerformers.add(center.getUser());
-		
-		if (!performers.isEmpty() && newMessage.getId() <= 0)
-			newMessage = facade.getMessageDAO().insert(newMessage);
-		for (long userID : performers) {
-			Users newRecipient = userDAO.getByUserID(userID);
-			newMessage.addRecipient(new MessageCenter(newRecipient));
+			for (TaskCenter center : task.getRecipients())
+				if (performers.contains(center.getUser().getId()))
+					performers.remove(center.getUser().getId());
+				else
+					toRemove.add(center.getUser());
+		for (Users oldUser : toRemove) {
+			CommonModelAttributes.newTask.put(oldUser.getId(), -1);
+			task.removeRecepient(oldUser);
+		}
+		// add new performers in the task and send them messages
+		String title = String.format("New translation task: %s (id: %d)", task.getPresentationName(), task.getId());
+		String text = "Dear %s,\n\n" + "New proofreading task has been assigned to you.\n\n" + task.getUser().getUsername();
+		String type = "2";
+		for (Long perfID : performers) {
+			Users newRecipient = userDAO.getByUserID(perfID);
 			task.addRecipient(new TaskCenter(newRecipient));
-			Messages.sendEmail(request, emailSender, newRecipient, newMessage.getText());
+			CommonModelAttributes.newTask.put(perfID, -1);
+			Messages.createSendMessage(task, principal, userDAO, title, String.format(text, newRecipient.getUsername()), type, newRecipient, request, emailSender, facade);
 		}
-		for (Users user : oldPerformers) {
-			newMessage.removeRecepient(user);
-			task.removeRecepient(user);
-		}
-		if (newMessage.getId() > 0)
-			facade.getMessageDAO().update(newMessage);
-		for (MessageCenter center : newMessage.getRecipients())
-			CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
-		for (TaskCenter center : task.getRecipients())
-			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
 	}
@@ -334,7 +318,7 @@ public class EditorTask {
 				Users newRecipient = userDAO.getByUserID(userID);
 				newMessage.addRecipient(new MessageCenter(newRecipient));
 				task.addRecipient(new TaskCenter(newRecipient));
-				Messages.sendEmail(request, emailSender, newRecipient, newMessage.getText());
+				Messages.sendMessageEmail(request, emailSender, newRecipient, newMessage.getText());
 			}
 			for (MessageCenter center : newMessage.getRecipients())
 				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
@@ -396,7 +380,8 @@ public class EditorTask {
 	}
 
 	@RequestMapping(path = "/task/status", method = RequestMethod.GET)
-	public String taskStatus(Model model, @RequestParam(name = "id", required = true) Long id, @RequestParam(name = "status", required = true) String status) {
+	public String taskStatus(Model model, @RequestParam(name = "id", required = true) Long id, @RequestParam(name = "status", required = true) String status,
+			Principal principal, HttpServletRequest request) {
 		Task task = facade.getTaskDAO().getOne(id);
 		if (status.startsWith("-")) {
 			task.setStatus("1");
@@ -408,6 +393,23 @@ public class EditorTask {
 		}
 		for (TaskCenter center : task.getRecipients())
 			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
+		// send messages
+		if (!task.getStatus().equals("1")) {
+			String title = String.format("New translation task status: %s (id: %d)", task.getPresentationName(), task.getId());
+			String type = "2";
+			if (task.getStatus().equals("2")) {
+				Users recipient = task.getUser(), sender = Security.getUser(principal, userDAO);
+				if (sender == null)
+					sender = userDAO.getAll().get(0);
+				String text = String.format("Dear %s,\n\n" + "The task has been resolved. Please, approve or decline it.\n\n%s", recipient.getUsername(), sender.getUsername());
+				Messages.createSendMessage(task, principal, userDAO, title, text, type, recipient, request, emailSender, facade);
+			} else {
+				String text = "Dear %s,\n\n" + "The task has been approved.\n\n" + task.getUser().getUsername();
+				for (TaskCenter center : task.getRecipients())
+					Messages.createSendMessage(task, principal, userDAO, title,
+							String.format(text, center.getUser().getUsername()), type, center.getUser(), request, emailSender, facade);
+			}
+		}
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/tasks";
 	}

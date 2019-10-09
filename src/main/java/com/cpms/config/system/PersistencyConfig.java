@@ -42,6 +42,7 @@ import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.security.CustomUserDetailsService;
+import com.cpms.web.controllers.CommonModelAttributes;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -118,7 +119,7 @@ public class PersistencyConfig {
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         boolean success = false;
-        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "", auth = "true";
+        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "rtyyb;bd", auth = "true", starttls = "true";
         int port = 587;
         try {
         	Context initContext = new InitialContext();
@@ -128,11 +129,13 @@ public class PersistencyConfig {
 			password = (String) initContext.lookup("java:/comp/env/mpass");
 			auth = (String) initContext.lookup("java:/comp/env/auth");
 			port = (Integer) initContext.lookup("java:/comp/env/mport");
+			starttls = (String) initContext.lookup("java:/comp/env/starttls");
 	        success = true;
 		} catch (Exception e) {
+			CommonModelAttributes.test(e.getMessage());
 		}
         if (!success) {
-        	return null;
+        	//return null;
         }
         mailSender.setHost(host);
         mailSender.setPort(port);
@@ -142,9 +145,10 @@ public class PersistencyConfig {
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", auth);
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "false");
- 
+        props.put("mail.smtp.starttls.enable", starttls);
+        props.put("mail.debug", "true");
+
+		CommonModelAttributes.test("success!\n");
         return mailSender;
     }
 

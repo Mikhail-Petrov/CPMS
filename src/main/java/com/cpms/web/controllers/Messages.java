@@ -28,6 +28,7 @@ import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Motivation;
+import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
@@ -213,6 +214,36 @@ public class Messages {
 		}
 	}
 	
+	static void createSendMessage(Task task, Principal principal, IUserDAO userDAO, String title, String text, String type,
+			Users recepient, HttpServletRequest request, JavaMailSender emailSender, ICPMSFacade facade) {
+		List<Users> recepients = new ArrayList<Users>();
+		recepients.add(recepient);
+		createSendMessage(task, principal, userDAO, title, text, type, recepients , request, emailSender, facade);
+	}
+	
+	static void createSendMessage(Task task, Principal principal, IUserDAO userDAO, String title, String text, String type,
+			List<Users> recepients, HttpServletRequest request, JavaMailSender emailSender, ICPMSFacade facade) {
+		if (recepients == null || recepients.isEmpty()) return;
+		Message newMessage = new Message();
+		newMessage.setTask(task);
+		Users owner = Security.getUser(principal, userDAO);
+		newMessage.setOwner(owner);
+		if (newMessage.getOwner() == null)
+			newMessage.setOwner(userDAO.getAll().get(0));
+		newMessage.setTitle(title);
+		newMessage.setText(text);
+		newMessage.setType(type);
+		newMessage = facade.getMessageDAO().insert(newMessage);
+		
+		if (!type.equals("3") && !type.equals("f"))
+			for (Users recepient : recepients) {
+				newMessage.addRecipient(new MessageCenter(recepient));
+				sendMessageEmail(request, emailSender, recepient, text);
+				CommonModelAttributes.newMes.put(recepient.getId(), -1);
+			}
+		newMessage = facade.getMessageDAO().update(newMessage);
+	}
+	
 	@RequestMapping(path = "/async", 
 			method = RequestMethod.POST)
 	public String messageCreateAsync(Model model,
@@ -264,11 +295,11 @@ public class Messages {
 		CommonModelAttributes.newMes.put(0L, -1);
 		for (MessageCenter center : message.getRecipients())
 			if (!oldTo.contains(center.getUser().getId()))
-				Messages.sendEmail(request, emailSender, center.getUser(), message.getText());
+				Messages.sendMessageEmail(request, emailSender, center.getUser(), message.getText());
 		return "redirect:/messages";
 	}
 	
-	public static void sendEmail(HttpServletRequest request, JavaMailSender emailSender, Users to, String text) {
+	public static void sendMessageEmail(HttpServletRequest request, JavaMailSender emailSender, Users to, String text) {
 		
 		if (emailSender == null || to == null || to.getEmail() == null || to.getEmail().isEmpty())
 			return;
@@ -293,8 +324,10 @@ public class Messages {
  
         // Send Message!
         	emailSender.send(message);
+			CommonModelAttributes.test("sended!");
         } catch (MailException | MessagingException e) {
         	e.printStackTrace();
+			CommonModelAttributes.test(e.getMessage());
         }
 	}
 }
