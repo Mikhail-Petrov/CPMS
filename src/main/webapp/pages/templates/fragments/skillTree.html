@@ -131,11 +131,11 @@
 						if (res.id > 0) {
 							document.getElementById('deleteLink').setAttribute('href', './editor/skill/delete?id=' + res.id);
 							document.getElementById('createChildButton').setAttribute('onclick', 'ajaxSkillDialog(\'' + rootPath + 'viewer/ajaxSkill\', -' + res.id + '); return false;');
-							$(deleteLink).show();
-							$(createChildButton).show();
+							$("#deleteLink").show();
+							$("#createChildButton").show();
 						} else {
-							$(deleteLink).hide();
-							$(createChildButton).hide();
+							$("#deleteLink").hide();
+							$("#createChildButton").hide();
 						}
 						
 						if (res.parentId == null)

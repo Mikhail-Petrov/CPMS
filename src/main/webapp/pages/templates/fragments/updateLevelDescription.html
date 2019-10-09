@@ -36,7 +36,7 @@
 		}
 		$("#levelNumber").trigger("input");
 }
-	var oldLevel = $(levelNumber).val();
+	var oldLevel = $("#levelNumber").val();
 	$("#levelNumber").on("input", function() {updateLevelDescription(false)});
 	$("#skillSelector").on("input", function() {updateLevelDescription(true)});
 	$("#skillSelector").trigger("input");

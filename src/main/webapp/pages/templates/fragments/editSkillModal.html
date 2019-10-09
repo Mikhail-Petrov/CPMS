@@ -60,7 +60,7 @@
 				<tbody id="levelsPost">
 				</tbody>
 			</table>
-			<p hidden="true"><input type="submit" class="btn btn-primary btn-block" value="+" onclick="$(levelsNum).val(parseInt($(levelsNum).val())+1); $(levelsNum).trigger('input'); return false"/></p>
+			<p hidden="true"><input type="submit" class="btn btn-primary btn-block" value="+" onclick="$('#levelsNum').val(parseInt($('#levelsNum').val())+1); $('#levelsNum').trigger('input'); return false"/></p>
   			<p hidden="true"><input type="submit" id="skillSubmitButton2" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
 		</form>
   		</div>

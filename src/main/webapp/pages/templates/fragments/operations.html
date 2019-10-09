@@ -133,7 +133,7 @@
 	<script th:inline="javascript">
 			/*<![CDATA[*/
 									function applyFilter() {
-										var filterText = $(skillFilter).val().toLowerCase();
+										var filterText = $("#skillFilter").val().toLowerCase();
 										var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
 										for (var skill in skillsAndParents) {
 											$('#skillSelector option[value="' + skill + '"]').prop('hidden', filterText!=="");
@@ -152,7 +152,7 @@
 											$('#skillSelector option[value="' + toShow[i] + '"]').prop('hidden', false);
 										}
 									}
-									$(skillFilter).on("input", function() {applyFilter()});
+									$("#skillFilter").on("input", function() {applyFilter()});
 									/*]]>*/
 									</script>
 		                                </div>

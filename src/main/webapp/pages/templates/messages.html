@@ -93,11 +93,8 @@
 					$.each($("input:checked"), function(){
 						url += ',' + this.id.substr(2);
 					})
-					$(location).attr('href',url);
+					$("#location").attr('href',url);
 				}
-				var test = /*[[${test}]]*/ "";
-				if (test !== null && test !== "")
-					console.log(test);
 			/*]]>*/
                 </script>
                 <div class="row" id="selectedActions" hidden="true">

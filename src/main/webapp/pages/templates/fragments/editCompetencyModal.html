@@ -20,8 +20,8 @@
 									<p><div class="col-md-6"><input type="text" class="form-control" id="skillFilter"/></div>
 									<script>
 									function clearFilter(){
-										$(skillFilter).val("");
-										$(skillFilter).trigger("input");
+										$("#skillFilter").val("");
+										$("#skillFilter").trigger("input");
 									}
 									</script>
 									<div class="col-md-6"><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></div></p>
@@ -34,7 +34,7 @@
 	<script th:inline="javascript">
 			/*<![CDATA[*/
 									function applyFilter() {
-										var filterText = $(skillFilter).val().toLowerCase();
+										var filterText = $("#skillFilter").val().toLowerCase();
 										var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
 										for (var skill in skillsAndParents) {
 											$('#skillSelector option[value="' + skill + '"]').prop('hidden', filterText!=="");
@@ -65,15 +65,15 @@
 											selectedSkill = selectedSkill.replace("-- ", "");
 										var profileCompetencies = /*[[${profileCompetencies}]]*/ null;
 										var errorMsg = /*[[#{editor.error.exists.competency}]]*/ "error";
-										$(errorfield).html("");
+										$("#errorfield").html("");
 										if (profileCompetencies !== null)
 											for (var i = 0; i < profileCompetencies.length; i++){
 												var competency = profileCompetencies[i];
 												if (competency == selectedSkill)
-													$(errorfield).html(errorMsg);
+													$("#errorfield").html(errorMsg);
 											}
 									}
-									$(skillFilter).on("input", applyFilter);
+									$("#skillFilter").on("input", applyFilter);
 									document.getElementById('skillSelector').addEventListener("input", checkExist);
 									/*]]>*/
 									</script>

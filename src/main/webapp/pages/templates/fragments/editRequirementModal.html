@@ -16,8 +16,8 @@
 									<p><input type="text" class="form-control" id="skillFilter"/>
 									<script>
 									function clearFilter(){
-										$(skillFilter).val("");
-										$(skillFilter).trigger("input");
+										$("#skillFilter").val("");
+										$("#skillFilter").trigger("input");
 									}
 									</script>
 									<span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
@@ -31,7 +31,7 @@
 	<script th:inline="javascript">
 			/*<![CDATA[*/
 									function applyFilter() {
-										var filterText = $(skillFilter).val().toLowerCase();
+										var filterText = $("#skillFilter").val().toLowerCase();
 										var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
 										for (var skill in skillsAndParents) {
 											$('#skillSelector option[value="' + skill + '"]').prop('hidden', filterText!=="");
@@ -62,15 +62,15 @@
 											selectedSkill = selectedSkill.replace("-- ", "");
 										var taskRequirements = /*[[${taskRequirements}]]*/ null;
 										var errorMsg = /*[[#{editor.error.exists.requirement}]]*/ "error";
-										$(errorfield).html("");
+										$("#errorfield").html("");
 										if (taskRequirements !== null)
 											for (var i = 0; i < taskRequirements.length; i++){
 												var requirement = taskRequirements[i];
 												if (requirement == selectedSkill)
-													$(errorfield).html(errorMsg);
+													$("#errorfield").html(errorMsg);
 											}
 									}
-									$(skillFilter).on("input", applyFilter);
+									$("#skillFilter").on("input", applyFilter);
 									document.getElementById('skillSelector').addEventListener("input", checkExist);
 									$("#skill").val($("#skillSelector option")[0].value)
 									/*]]>*/
