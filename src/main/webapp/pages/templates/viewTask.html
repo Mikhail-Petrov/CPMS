@@ -56,7 +56,6 @@
                                 <p th:unless="${task.image}"><span th:text="#{viewer.task.reference}"></span>: <u><b><a th:href="${task.reference}" th:text="${task.reference}" target="_blank"></a></b></u></p>
                             </div>
                             <div class="two-buttons">
-							<input type="hidden" th:name="task_id" th:value="${task.id}"/>
 								<table class="table table-responsive table-striped">
 									<tr th:each="message : ${task.messages}" th:if="${message.type=='3' or message.type=='f'}">
 										<td><b><span th:text="${message.owner?.username + ': '}"></span></b><span th:text="${message.text}"></span></td>
@@ -66,6 +65,7 @@
 									<tr th:unless="${task.status}=='3'">
 										<td colspan="3">
                             <form action="#" th:action="@{/editor/task/send}" method="post" th:object="${task}">
+							<input type="hidden" th:name="task_id" th:value="${task.id}"/>
 											<p><textarea class="form-control" type="textarea" placeholder="text" th:placeholder="#{message.text}" name="message_text"></textarea></p>
 											<!--p class="two-buttons"><input type="submit" class="btn btn-primary btn-block" value="Save" th:value="#{message.save}" th:title="#{message.title.save}"/></p-->
 											<p class=""><input id="saveas" type="submit" class="btn btn-primary btn-block" value="Save as final" th:value="#{message.save.final}"
