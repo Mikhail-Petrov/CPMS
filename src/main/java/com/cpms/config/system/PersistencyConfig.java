@@ -119,7 +119,7 @@ public class PersistencyConfig {
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         boolean success = false;
-        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "rtyyb;bd", auth = "true", starttls = "true";
+        String host = "smtp.gmail.com", username = "everyths.alr.taken@gmail.com", password = "", auth = "true", starttls = "true";
         int port = 587;
         try {
         	Context initContext = new InitialContext();
@@ -135,7 +135,7 @@ public class PersistencyConfig {
 			CommonModelAttributes.test(e.getMessage());
 		}
         if (!success) {
-        	//return null;
+        	return null;
         }
         mailSender.setHost(host);
         mailSender.setPort(port);

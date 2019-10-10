@@ -230,11 +230,12 @@ public class EditorTask {
 		String title = String.format("New translation task: %s (id: %d)", task.getPresentationName(), task.getId());
 		String text = "Dear %s,\n\n" + "New proofreading task has been assigned to you.\n\n" + task.getUser().getUsername();
 		String type = "2";
+		String url = request.getRequestURL().toString();
 		for (Long perfID : performers) {
 			Users newRecipient = userDAO.getByUserID(perfID);
 			task.addRecipient(new TaskCenter(newRecipient));
 			CommonModelAttributes.newTask.put(perfID, -1);
-			Messages.createSendMessage(task, principal, userDAO, title, String.format(text, newRecipient.getUsername()), type, newRecipient, request, emailSender, facade);
+			Messages.createSendMessage(task, principal, userDAO, title, String.format(text, newRecipient.getUsername()), type, newRecipient, url, emailSender, facade);
 		}
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
@@ -314,11 +315,12 @@ public class EditorTask {
 			for (MessageCenter center : newMessage.getRecipients())
 				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
 			newMessage = facade.getMessageDAO().insert(newMessage);
+			String url = request.getRequestURL().toString().replace("editor/task/status", "messages");
 			for (long userID : performers) {
 				Users newRecipient = userDAO.getByUserID(userID);
 				newMessage.addRecipient(new MessageCenter(newRecipient));
 				task.addRecipient(new TaskCenter(newRecipient));
-				Messages.sendMessageEmail(request, emailSender, newRecipient, newMessage.getText());
+				Messages.sendMessageEmail(url, emailSender, newRecipient, newMessage.getText());
 			}
 			for (MessageCenter center : newMessage.getRecipients())
 				CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
@@ -394,21 +396,23 @@ public class EditorTask {
 		for (TaskCenter center : task.getRecipients())
 			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
 		// send messages
-		if (!task.getStatus().equals("1")) {
-			String title = String.format("New translation task status: %s (id: %d)", task.getPresentationName(), task.getId());
-			String type = "2";
-			if (task.getStatus().equals("2")) {
-				Users recipient = task.getUser(), sender = Security.getUser(principal, userDAO);
-				if (sender == null)
-					sender = userDAO.getAll().get(0);
-				String text = String.format("Dear %s,\n\n" + "The task has been resolved. Please, approve or decline it.\n\n%s", recipient.getUsername(), sender.getUsername());
-				Messages.createSendMessage(task, principal, userDAO, title, text, type, recipient, request, emailSender, facade);
-			} else {
-				String text = "Dear %s,\n\n" + "The task has been approved.\n\n" + task.getUser().getUsername();
-				for (TaskCenter center : task.getRecipients())
-					Messages.createSendMessage(task, principal, userDAO, title,
-							String.format(text, center.getUser().getUsername()), type, center.getUser(), request, emailSender, facade);
-			}
+		String title = String.format("New translation task status: %s (id: %d)", task.getPresentationName(), task.getId());
+		String type = "2";
+		String url = request.getRequestURL().toString();
+		if (task.getStatus().equals("2")) {
+			Users recipient = task.getUser(), sender = Security.getUser(principal, userDAO);
+			if (sender == null)
+				sender = userDAO.getAll().get(0);
+			String text = String.format("The task has been resolved. Please, approve or decline it.");
+			Messages.createSendMessage(task, principal, userDAO, title, text, type, recipient, url, emailSender, facade);
+		} else if (task.getStatus().equals("3")) {
+			String text = "The task has been approved.";
+			for (TaskCenter center : task.getRecipients())
+				Messages.createSendMessage(task, principal, userDAO, title, text, type, center.getUser(), url, emailSender, facade);
+		} else {
+			String text = "The task has been returned.";
+			for (TaskCenter center : task.getRecipients())
+				Messages.createSendMessage(task, principal, userDAO, title, text, type, center.getUser(), url, emailSender, facade);
 		}
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/tasks";

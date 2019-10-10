@@ -215,14 +215,14 @@ public class Messages {
 	}
 	
 	static void createSendMessage(Task task, Principal principal, IUserDAO userDAO, String title, String text, String type,
-			Users recepient, HttpServletRequest request, JavaMailSender emailSender, ICPMSFacade facade) {
+			Users recepient, String url, JavaMailSender emailSender, ICPMSFacade facade) {
 		List<Users> recepients = new ArrayList<Users>();
 		recepients.add(recepient);
-		createSendMessage(task, principal, userDAO, title, text, type, recepients , request, emailSender, facade);
+		createSendMessage(task, principal, userDAO, title, text, type, recepients , url, emailSender, facade);
 	}
 	
 	static void createSendMessage(Task task, Principal principal, IUserDAO userDAO, String title, String text, String type,
-			List<Users> recepients, HttpServletRequest request, JavaMailSender emailSender, ICPMSFacade facade) {
+			List<Users> recepients, String url, JavaMailSender emailSender, ICPMSFacade facade) {
 		if (recepients == null || recepients.isEmpty()) return;
 		Message newMessage = new Message();
 		newMessage.setTask(task);
@@ -238,7 +238,7 @@ public class Messages {
 		if (!type.equals("3") && !type.equals("f"))
 			for (Users recepient : recepients) {
 				newMessage.addRecipient(new MessageCenter(recepient));
-				sendMessageEmail(request, emailSender, recepient, text);
+				sendMessageEmail(url, emailSender, recepient, text);
 				CommonModelAttributes.newMes.put(recepient.getId(), -1);
 			}
 		newMessage = facade.getMessageDAO().update(newMessage);
@@ -293,19 +293,19 @@ public class Messages {
 		for (MessageCenter center : message.getRecipients())
 			CommonModelAttributes.newMes.put(center.getUser().getId(), -1);
 		CommonModelAttributes.newMes.put(0L, -1);
+		String url = request.getRequestURL().toString().replace("messages/async", "messages");
 		for (MessageCenter center : message.getRecipients())
 			if (!oldTo.contains(center.getUser().getId()))
-				Messages.sendMessageEmail(request, emailSender, center.getUser(), message.getText());
+				Messages.sendMessageEmail(url, emailSender, center.getUser(), message.getText());
 		return "redirect:/messages";
 	}
 	
-	public static void sendMessageEmail(HttpServletRequest request, JavaMailSender emailSender, Users to, String text) {
+	public static void sendMessageEmail(String url, JavaMailSender emailSender, Users to, String text) {
 		
 		if (emailSender == null || to == null || to.getEmail() == null || to.getEmail().isEmpty())
 			return;
 		
         text = "Dear " + to.getUsername() + ",<br>You have got new message in the CPM system.<br>" + text;
-        String url = request.getRequestURL().toString().replace(request.getRequestURI(), "");
         text += "<br>Please, look through by the following link: <a href='" + url + "'>" + url + "</a><br>CPM system administartor";
         
 		// Create a Simple MailMessage.

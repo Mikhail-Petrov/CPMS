@@ -221,9 +221,10 @@ public class Rewards {
 					if (newRecepient != null)
 						newMessage.addRecipient(new MessageCenter(newRecepient));
 				}
-				
+
+				String url = request.getRequestURL().toString().replace("rewards/async", "messages");
 				for (MessageCenter center : newMessage.getRecipients())
-					Messages.sendMessageEmail(request, emailSender, center.getUser(), newMessage.getText());
+					Messages.sendMessageEmail(url, emailSender, center.getUser(), newMessage.getText());
 				
 				facade.getMessageDAO().insert(newMessage);
 			}
