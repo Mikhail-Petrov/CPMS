@@ -35,7 +35,7 @@
                   <li th:if="${isAdmin or isResident}"><a><i class="fa fa-info"></i><span th:text="#{navbar.block1}">Experts Network Creation</span> <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li th:if="${isAdmin}"><a th:href="@{/viewer}"><span th:text="#{navbar.experts}">Experts</span></a></li>
-                      <li th:if="${isResident}"><a th:href="@{/viewer/profile(id=${companyId})}" th:text="#{navbar.new.company}">Expert Profile</a></li>
+                      <li th:if="${isResident}"><a th:href="@{/viewer/profile(id=${companyId})}" th:text="#{navbar.new.company}" th:disabled="${!(companyId > 0)}">Expert Profile</a></li>
                       <li><a th:href="@{/skills}"><span th:text="#{navbar.skills}">Skills</span></a></li>
                     </ul>
                   </li>

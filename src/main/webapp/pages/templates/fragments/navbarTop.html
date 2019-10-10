@@ -26,7 +26,7 @@
                     <span class="fa fa-angle-down"></span>
                   <ul class="dropdown-menu dropdown-usermenu pull-right">
                     <li><a th:href="@{/security/me}" th:text="#{navbar.new.profile}"></a></li>
-                    <li th:if="${isResident}"><a th:href="@{/viewer/profile(id=${companyId})}" th:text="#{navbar.new.company}"></a></li>
+                    <li th:if="${isResident}"><a th:href="@{/viewer/profile(id=${companyId})}" th:text="#{navbar.new.company}" th:disabled="${!(companyId > 0)}"></a></li>
                     <li><a href="javascript:;" th:text="#{navbar.new.help}" onclick="$('#help').modal('show')"></a></li>
                     <li th:if="${isAuthenticated}">
                     	<form th:action="@{/security/logout}" id="logout-post" method="post"></form>
