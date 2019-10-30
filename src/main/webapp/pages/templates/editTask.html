@@ -62,11 +62,31 @@
 									if (target == "") return;
 									buttonCode = /*[[#{editor.remove}]]*/ "";
 									buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
-									$(resTable).append("<tr><td>" + target + "</td><td>" + buttonCode + "</td></tr>");
+									$("#resTable").append("<tr><td>" + target + "</td><td>" + buttonCode + "</td></tr>");
 								}
 								/*]]>*/
 								</script>
                                 <hr class="separator"/>
+                                <button type="button" class="btn btn-primary btn-block" id="plusButton" th:text="#{task.group.create}"></button>
+                                <p id="curStatus"></p>
+		<div id="groupModal" hidden="true">
+		<table id="groupTable" class="table table-responsive table-striped">
+		<thead>
+			<tr>
+				<th data-field="group"><span th:text="#{motivations.group}"></span></th>
+				<th data-field="experts"><span th:text="#{navbar.experts}"></span></th>
+				<th data-field="gsl"><span th:text="#{profile.gsl}"></span></th>
+				<th data-field="availability"><span th:text="#{profile.availability}"></span></th>
+				<th data-field="tasks"><span th:text="#{profile.gsl.1}"></span></th>
+				<th data-field="button"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+			</tr>
+		</tbody>
+		</table>
+		</div>
    			<p th:text="#{editor.task.performers}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -240,6 +260,103 @@
 				$("#targetSelector option[value='" + targets[i] + "']").prop('selected', true);
 				addTarget();
 			}
+			
+			
+
+			function choseGroup(idsStr) {
+				var ids = idsStr.split(',');
+				// Clear performers
+				$("#performers").val('');
+				$('#performers :first').prop('selected', false);
+				// Select recepients
+				for (var i = 1; i < ids.length; i++)
+					$('#performers option[value="' + ids[i] + '"]').prop('selected', true);
+			}
+
+			function ajaxGroup(requestUrl) {
+				
+				var admin = /*[[${isAdmin}]]*/ false;
+				var resident = /*[[${isResident}]]*/ false;	
+				
+				admin = admin || resident;
+				
+				var isChild = false;
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+
+	            var available1 = /*[[#{profile.availability.always}]]*/ "";
+	            var available2 = /*[[#{profile.availability.special}]]*/ "";
+	            var available3 = /*[[#{profile.availability.good}]]*/ "";
+	            var available4 = /*[[#{profile.availability.uncertain}]]*/ "";
+	            
+	            var average = /*[[#{profile.level.average}]]*/ "";
+	            
+	            var curStatus1 = /*[[#{task.group.status.1}]]*/ "";
+	            var curStatus2 = /*[[#{task.group.status.2}]]*/ "";
+	            
+	            $("#curStatus").html(curStatus1);
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+			            $("#curStatus").html(curStatus2);
+			            $("#groupTable tbody").empty();
+						for (var i = 0; i < res.solutions.length; i++) {
+							var names = '', gsl = '', avail = '', tasks = '', curAva = '', ids = '0';
+							var avgG = 0, avgA = 0, avgT = 0;
+							for (var j = 0; j < res.solutions[i].length; j++) {
+								names += '<p><a href="' + rootPath + 'viewer/profile?id=' + res.solutions[i][j].id + '" target="_blank">' + res.solutions[i][j].name + '</a></p>';
+								gsl += '<p>' + res.solutions[i][j].gsl + '%</p>';
+								avgG += res.solutions[i][j].gsl;
+								curAva = res.solutions[i][j].availability;
+								//avgA += Math.floor(curAva);
+								avail += '<p>' + (curAva == "1" ? available1 : curAva = "2" ? available2 : curAva = "3" ? available3 : available4) + '</p>';
+								tasks += '<p>' + res.solutions[i][j].tasks + '</p>';
+								avgT += res.solutions[i][j].tasks;
+								ids += ',' + res.solutions[i][j].userId;
+							}
+							if (res.solutions[i].length > 0) {
+								//avgA /= res.solutions[i].length;
+								avgG /= res.solutions[i].length;
+								avgT /= res.solutions[i].length;
+							}
+							$("#groupTable").append(
+									'<tr>' + 
+									'<td><p>' + (i + 1) + '. ' + res.groupNames[i] + '</p></td>' +
+									'<td>' + names + '<p><b>' + average + '</b></p></td>' +
+									'<td>' + gsl + '<p><b>' + Math.floor(avgG) + '%</b></p></td>' +
+									//'<td>' + avail + '<p>' + Math.floor(avgA) + '</p></td>' +
+									'<td>' + avail + '<p>-</p></td>' +
+									'<td>' + tasks + '<p><b>' + Math.floor(avgT*10)/10 + '</b></p></td>' +
+									'<td><button type="button" class="btn btn-primary btn-block" onclick="choseGroup(\'' + ids + '\')">Chose</button></td></tr>');
+						}
+						$('#groupModal').show();
+			            $("#curStatus").html('');
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			
+			$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'editor/ajaxGroup')});
+			
 			/*]]>*/
 			</script>
 		</form>

@@ -20,9 +20,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cpms.dao.interfaces.IUserDAO;
@@ -40,6 +42,9 @@ import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
+import com.cpms.web.ajax.GroupAnswer;
+import com.cpms.web.ajax.IAjaxAnswer;
+import com.cpms.web.ajax.SkillAnswer;
 
 /**
  * Handles task CRUD web application requests.
@@ -228,14 +233,14 @@ public class EditorTask {
 		}
 		// add new performers in the task and send them messages
 		String title = String.format("New translation task: %s (id: %d)", task.getPresentationName(), task.getId());
-		String text = "Dear %s,\n\n" + "New proofreading task has been assigned to you.\n\n" + task.getUser().getUsername();
+		String text = "New proofreading task has been assigned to you.";
 		String type = "2";
 		String url = request.getRequestURL().toString();
 		for (Long perfID : performers) {
 			Users newRecipient = userDAO.getByUserID(perfID);
 			task.addRecipient(new TaskCenter(newRecipient));
 			CommonModelAttributes.newTask.put(perfID, -1);
-			Messages.createSendMessage(task, principal, userDAO, title, String.format(text, newRecipient.getUsername()), type, newRecipient, url, emailSender, facade);
+			Messages.createSendMessage(task, principal, userDAO, title, text, type, newRecipient, url, emailSender, facade);
 		}
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
@@ -441,5 +446,19 @@ public class EditorTask {
 		if (change)
 			facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/ajaxGroup",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxGroup(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json);
+		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
+			long id = Long.parseLong(values.get(0).toString());
+			return new GroupAnswer(facade, userDAO);
+		} else {
+			return new GroupAnswer();
+		}
 	}
 }
