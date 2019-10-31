@@ -66,6 +66,43 @@
 								}
 								/*]]>*/
 								</script>
+                            <div class="two-buttons">
+                                <div class="row">
+                                    <div class="col-md-12">
+									<select id="skillSelector" size="4">
+										<option th:each="skill : ${skills}" th:value="${skill.id}" th:text="${skill.name}">skill</option>
+									</select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                	<div class="two-buttons">
+                                		<span th:text="#{editor.skilllevel} + ': '"> </span><input type="number" min="1" max="6" id="reqLvl" th:value="1"/>
+                                	</div>
+                                	<div class="two-buttons">
+                                		<span class="btn btn-warning btn-block" th:text="#{editor.add}" onclick="addSkill();">Add</span>
+                                	</div>
+                                </div>
+                            </div>
+                            <div class="two-buttons">
+                            <div class="row">
+                            	<div class="col-md-12">
+                                <table class="table table-responsive table-striped" id="skillTable">
+                                	
+                                </table>
+                            	</div>
+                            </div>
+							<script th:inline="javascript">
+							/*<![CDATA[*/
+							function addSkill(){
+								skill = $("#skillSelector option:selected").text() + " (" + $("#skillSelector option:selected").val() + "): " + $("#reqLvl").val();
+								if (skill == "") return;
+								buttonCode = /*[[#{editor.remove}]]*/ "";
+								buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
+								$("#skillTable").append("<tr><td>" + skill + "</td><td>" + buttonCode + "</td></tr>");
+							}
+							/*]]>*/
+							</script>
+                            </div>
                                 <hr class="separator"/>
                                 <button type="button" class="btn btn-primary btn-block" id="plusButton" th:text="#{task.group.create}"></button>
                                 <p id="curStatus"></p>
@@ -275,18 +312,23 @@
 
 			function ajaxGroup(requestUrl) {
 				
-				var admin = /*[[${isAdmin}]]*/ false;
-				var resident = /*[[${isResident}]]*/ false;	
-				
-				admin = admin || resident;
-				
-				var isChild = false;
-				
 				var inputArgs = [];
 				var i;
 				for (i = 1; i < arguments.length; i++) {
 					inputArgs.push(arguments[i]);
 				}
+				
+				var skills = '';
+				$.each($("#skillTable td:even"), function() {
+					skills += $(this).html() + ',';
+				});
+				inputArgs.push(skills);
+				inputArgs.push($("#targetSelector option:selected").text());
+				var targets = '';
+				$.each($("#resTable td:even"), function() {
+					targets += $(this).html() + ';';
+				});
+				inputArgs.push(targets);
 				
 				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 			     var csrfToken = $("meta[name='_csrf']").attr("content");

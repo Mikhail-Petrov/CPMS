@@ -124,4 +124,11 @@ public class Language extends AbstractDomainObject implements Comparable<Languag
 	public int compareTo(Language object) {
 		return this.getPresentationName().toLowerCase().compareTo(object.getPresentationName().toLowerCase());
 	}
+	
+	public static Language findByCode(String code, List<Language> langs) {
+		for (Language lang : langs)
+			if (lang.getCode().equals(code))
+				return lang;
+		return null;
+	}
 }

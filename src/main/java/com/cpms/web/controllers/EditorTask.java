@@ -44,7 +44,6 @@ import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
 import com.cpms.web.ajax.GroupAnswer;
 import com.cpms.web.ajax.IAjaxAnswer;
-import com.cpms.web.ajax.SkillAnswer;
 
 /**
  * Handles task CRUD web application requests.
@@ -151,6 +150,9 @@ public class EditorTask {
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		Collections.sort(langs);
 		model.addAttribute("languages", langs);
+		List<Skill> skills = facade.getSkillDAO().getAll();
+		Collections.sort(skills);
+		model.addAttribute("skills", skills);
 		List<Users> users = userDAO.getAll();
 		Collections.sort(users);
 		model.addAttribute("users", users);
@@ -454,9 +456,20 @@ public class EditorTask {
 	public IAjaxAnswer ajaxGroup(
 			@RequestBody String json) {
 		List<Object> values = DashboardAjax.parseJson(json);
-		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
-			long id = Long.parseLong(values.get(0).toString());
-			return new GroupAnswer(facade, userDAO);
+		if (values.size() >= 3 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
+			Task task = new Task();
+			String[] requirements = values.get(0).toString().split(",");
+			for (int i = 0; i < requirements.length; i++) {
+				String[] reqVals = requirements[i].split("(")[1].split("): ");
+				long id = Long.parseLong(reqVals[0]);
+				int lvl = Integer.parseInt(reqVals[1]);
+				Skill skill = facade.getSkillDAO().getOne(id);
+				task.addRequirement(new TaskRequirement(skill, lvl));
+			}
+			List<Language> langs = facade.getLanguageDAO().getAll();
+			task.setSource(Language.findByCode(values.get(1).toString(), langs));
+			task.setTarget(values.get(2).toString());
+			return new GroupAnswer(facade, userDAO, task);
 		} else {
 			return new GroupAnswer();
 		}

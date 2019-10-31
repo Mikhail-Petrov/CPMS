@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Task;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.web.Proofreader;
 
@@ -23,7 +24,7 @@ public class GroupAnswer implements IAjaxAnswer {
 		solutions = new ArrayList<>();
 		setGroupNames(new ArrayList<>());
 	}
-	public GroupAnswer(ICPMSFacade facade, IUserDAO userDAO) {
+	public GroupAnswer(ICPMSFacade facade, IUserDAO userDAO, Task task) {
 		solutions = new ArrayList<>();
 		setGroupNames(new ArrayList<>());
 		int curSize = 1, curInd = 0;
