@@ -7,6 +7,7 @@ import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Proofreading;
 import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.facade.ICPMSFacade;
@@ -16,25 +17,29 @@ public class Proofreader {
 
 	private String name, availability;
 	private long id, userId;
-	private double gsl;
+	private double[] gsl;
 	private int tasks;
+	private String targets;
 	
 	public Proofreader(Profile profile, ICPMSFacade facade, IUserDAO userDAO) {
 		setName(profile.getName());
 		setAvailability(profile.getAvailability());
 		setId(profile.getId());
-		setGsl(Math.round(getGSL(profile, facade, userDAO) * 100));
+		setGsl(getGSL(profile, facade, userDAO));
 		setTasks(calculateTasks(profile, userDAO));
 		Users user = userDAO.getByUsername(profile.getName());
 		if (user == null)
 			setUserId(0);
 		else
 			setUserId(user.getId());
+		setTargets("");
+		for (Proofreading pr : profile.getProofs())
+			setTargets(getTargets() + pr.getTo().getCode() + ",");
 	}
 	
-	public static double getGSL(Profile profile, ICPMSFacade facade, IUserDAO userDAO) {
+	public static double[] getGSL(Profile profile, ICPMSFacade facade, IUserDAO userDAO) {
 
-		double gsl1 = 0, gsl2, gsl3, gsl4 = 0, gsl5 = 0;
+		double perfomance = 0, avail, experience, knowledge = 0, motivs = 0;
 		
 		Users user = userDAO.getByUsername(profile.getName());
 		if (user != null) {
@@ -43,34 +48,34 @@ public class Proofreader {
 				Date completedDate = task.getTask().getCompletedDate();
 				Date dueDate = task.getTask().getDueDate();
 				if (completedDate != null && (dueDate == null || !completedDate.after(dueDate)))
-					gsl1++;
+					perfomance++;
 			}
 			if (!tasks.isEmpty())
-				gsl1 /= tasks.size();
+				perfomance /= tasks.size();
 		}
 		String availability = profile.getAvailability();
 		if (availability == null || availability.isEmpty())
-			gsl2 = 0;
-		else gsl2 = availability.equals("1") ? 1 : (
+			avail = 0;
+		else avail = availability.equals("1") ? 1 : (
 				availability.equals("2") ? 2.0/3 : (
 						availability.equals("3") ? 1.0/3 : 0));
 		
 		Date startDate = profile.getStartDate();
 		Date today = new Date();
 		if (startDate == null) startDate = today;
-		gsl3 = (today.getYear() - startDate.getYear()) * 12 + today.getMonth() - startDate.getMonth();
+		experience = (today.getYear() - startDate.getYear()) * 12 + today.getMonth() - startDate.getMonth();
 		if (today.getDate() < startDate.getDate())
-			gsl3--;
+			experience--;
 		//gsl3 = (gsl3 + 1) / 36;
-		gsl3 = 1 - 1 / (gsl3 / 12 + 1);
-		if (gsl3 < 0) gsl3 = 0;
+		experience = 1 - 1 / (experience / 12 + 1);
+		if (experience < 0) experience = 0;
 		
 		Set<Competency> comps = profile.getCompetencies();
 		for (Competency comp : comps)
-			gsl4 += comp.getLevel();
+			knowledge += comp.getLevel();
 		if (!comps.isEmpty())
-			gsl4 /= comps.size();
-		gsl4 /= 6;
+			knowledge /= comps.size();
+		knowledge /= 6;
 		
 		for (Reward reward : facade.getRewardDAO().getAll()) {
 			String[] expertIDs = reward.getExperts().split(",");
@@ -86,12 +91,13 @@ public class Proofreader {
 				catch (NumberFormatException e) {}
 				if (motivID <= 0) continue;
 				Motivation motiv = facade.getMotivationDAO().getOne(motivID);
-				if (motiv != null) gsl5 += motiv.getCost();
+				if (motiv != null) motivs += motiv.getCost();
 			}
 		}
-		gsl5 = 1 - 1 / (0.3 * gsl5 + 1);
+		motivs = 1 - 1 / (0.3 * motivs + 1);
 		
-		return (gsl1+gsl2+gsl3+gsl4+gsl5)/5.0;
+		double res[] = {(perfomance+avail+experience+knowledge+motivs)/5.0, avail, perfomance, experience, knowledge, motivs};
+		return res;
 	}
 	
 	private int calculateTasks(Profile profile, IUserDAO userDAO) {
@@ -107,10 +113,20 @@ public class Proofreader {
 		return res;
 	}
 	
-	public double getGsl() {
+	public double getOptimality(double[] coefs) {
+		if (coefs == null || coefs.length <= 0) return 0;
+		if (gsl == null || gsl.length <= 0) return 0;
+		double res = tasks * coefs[0];
+		for (int i = 1; i < gsl.length; i++)
+			if (i < coefs.length)
+				res += gsl[i] * coefs[i];
+		return res;
+	}
+	
+	public double[] getGsl() {
 		return gsl;
 	}
-	public void setGsl(double gsl) {
+	public void setGsl(double[] gsl) {
 		this.gsl = gsl;
 	}
 	public int getTasks() {
@@ -150,5 +166,13 @@ public class Proofreader {
 
 	public void setUserId(long userId) {
 		this.userId = userId;
+	}
+
+	public String getTargets() {
+		return targets;
+	}
+
+	public void setTargets(String targets) {
+		this.targets = targets;
 	}
 }

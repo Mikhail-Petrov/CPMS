@@ -361,8 +361,8 @@
 							var avgG = 0, avgA = 0, avgT = 0;
 							for (var j = 0; j < res.solutions[i].length; j++) {
 								names += '<p><a href="' + rootPath + 'viewer/profile?id=' + res.solutions[i][j].id + '" target="_blank">' + res.solutions[i][j].name + '</a></p>';
-								gsl += '<p>' + res.solutions[i][j].gsl + '%</p>';
-								avgG += res.solutions[i][j].gsl;
+								gsl += '<p>' + Math.floor(res.solutions[i][j].gsl[0]*100) + '%</p>';
+								avgG += res.solutions[i][j].gsl[0];
 								curAva = res.solutions[i][j].availability;
 								//avgA += Math.floor(curAva);
 								avail += '<p>' + (curAva == "1" ? available1 : curAva = "2" ? available2 : curAva = "3" ? available3 : available4) + '</p>';
@@ -379,7 +379,7 @@
 									'<tr>' + 
 									'<td><p>' + (i + 1) + '. ' + res.groupNames[i] + '</p></td>' +
 									'<td>' + names + '<p><b>' + average + '</b></p></td>' +
-									'<td>' + gsl + '<p><b>' + Math.floor(avgG) + '%</b></p></td>' +
+									'<td>' + gsl + '<p><b>' + Math.floor(avgG*100) + '%</b></p></td>' +
 									//'<td>' + avail + '<p>' + Math.floor(avgA) + '</p></td>' +
 									'<td>' + avail + '<p>-</p></td>' +
 									'<td>' + tasks + '<p><b>' + Math.floor(avgT*10)/10 + '</b></p></td>' +
