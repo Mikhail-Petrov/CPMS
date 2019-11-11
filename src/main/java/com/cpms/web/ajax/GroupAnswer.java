@@ -54,7 +54,7 @@ public class GroupAnswer implements IAjaxAnswer {
 			targets.add(Language.findByCode(langCodes[i], langs));
 			covered.add(0);
 		}
-		List<Proofreader> best = new ArrayList<>(), worse = new ArrayList<>(), all = new ArrayList<>();
+		List<Proofreader> all = new ArrayList<>();
 		while (!profiles.isEmpty()) {
 			// expert assessment
 			boolean isGood = true;
@@ -94,15 +94,13 @@ public class GroupAnswer implements IAjaxAnswer {
 			
 			// need to add
 			Proofreader toAdd = new Proofreader(profiles.get(curIndex), facade, userDAO);
-			best.add(toAdd);
-			worse.add(toAdd);
 			all.add(toAdd);
 			profiles.remove(curIndex);
 		}
 		
-		solutions.add(best);
+		solutions.add(new ArrayList<>(all));
 		groupNames.add(names[0]);
-		solutions.add(worse);
+		solutions.add(new ArrayList<>(all));
 		groupNames.add(names[1]);
 		// remove extra experts
 		double[] bestCoefs = {0,0,1,1,1,1}, worseCoefs = {1,1,0,0,0,0,0};

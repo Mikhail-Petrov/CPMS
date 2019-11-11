@@ -458,7 +458,7 @@ public class EditorTask {
 		List<Object> values = DashboardAjax.parseJson(json);
 		if (values.size() >= 3) {
 			Task task = new Task();
-			String[] requirements = values.get(0).toString().split(",");
+			String[] requirements = values.get(0).toString().split("\\|");
 			for (int i = 0; i < requirements.length; i++) {
 				String[] reqVals = requirements[i].split("\\(")[1].split("\\): ");
 				long id = Long.parseLong(reqVals[0]);

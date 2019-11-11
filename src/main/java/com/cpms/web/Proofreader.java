@@ -41,7 +41,7 @@ public class Proofreader {
 
 		double perfomance = 0, avail, experience, knowledge = 0, motivs = 0;
 		
-		Users user = userDAO.getByUsername(profile.getName());
+		Users user = userDAO.getByProfile(profile);
 		if (user != null) {
 			Set<TaskCenter> tasks = user.getTasks();
 			for (TaskCenter task : tasks) {
@@ -101,12 +101,12 @@ public class Proofreader {
 	}
 	
 	private int calculateTasks(Profile profile, IUserDAO userDAO) {
-		Users user = userDAO.getByUsername(profile.getName());
+		Users user = userDAO.getByProfile(profile);
 		int res = 0;
 		if (user != null) {
 			Set<TaskCenter> tasks = user.getTasks();
 			for (TaskCenter task : tasks) {
-				if (task.getTask().getCompletedDate() != null)
+				if (task.getTask().getCompletedDate() == null)
 					res++;
 			}
 		}
@@ -116,7 +116,7 @@ public class Proofreader {
 	public double getOptimality(double[] coefs) {
 		if (coefs == null || coefs.length <= 0) return 0;
 		if (gsl == null || gsl.length <= 0) return 0;
-		double res = tasks * coefs[0];
+		double res = 1 / Math.sqrt(tasks + 1) * coefs[0];
 		for (int i = 1; i < gsl.length; i++)
 			if (i < coefs.length)
 				res += gsl[i] * coefs[i];

@@ -320,7 +320,7 @@
 				
 				var skills = '';
 				$.each($("#skillTable td:even"), function() {
-					skills += $(this).html() + ',';
+					skills += $(this).html() + '|';
 				});
 				inputArgs.push(skills);
 				inputArgs.push($("#targetSelector option:selected").text());
