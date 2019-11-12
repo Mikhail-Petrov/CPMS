@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competency;
+import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Proofreading;
@@ -20,14 +21,32 @@ public class Proofreader {
 	private double[] gsl;
 	private int tasks;
 	private String targets;
+	private Date completedDate;
+	private int allIndex;
 	
-	public Proofreader(Profile profile, ICPMSFacade facade, IUserDAO userDAO) {
+	public Proofreader(int allIndex, Set<TaskCenter> tasks, Language lang) {
+		setAllIndex(allIndex);
+		setCompletedDate(null);
+		for (TaskCenter center : tasks) {
+			if (center.getTask().getTarget().contains(lang.getCode())) {
+				Date curDate;
+				if (center.getTask().getCompletedDate() == null)
+					curDate = new Date(System.currentTimeMillis());
+				else
+					curDate = center.getTask().getCompletedDate();
+				if (getCompletedDate() == null || curDate.after(getCompletedDate()))
+					setCompletedDate(curDate);
+			}
+		}
+		
+	}
+	
+	public Proofreader(Profile profile, ICPMSFacade facade, Users user) {
 		setName(profile.getName());
 		setAvailability(profile.getAvailability());
 		setId(profile.getId());
-		setGsl(getGSL(profile, facade, userDAO));
-		setTasks(calculateTasks(profile, userDAO));
-		Users user = userDAO.getByUsername(profile.getName());
+		setGsl(getGSL(profile, facade, user));
+		setTasks(calculateTasks(profile, user));
 		if (user == null)
 			setUserId(0);
 		else
@@ -37,11 +56,10 @@ public class Proofreader {
 			setTargets(getTargets() + pr.getTo().getCode() + ",");
 	}
 	
-	public static double[] getGSL(Profile profile, ICPMSFacade facade, IUserDAO userDAO) {
+	public static double[] getGSL(Profile profile, ICPMSFacade facade, Users user) {
 
 		double perfomance = 0, avail, experience, knowledge = 0, motivs = 0;
 		
-		Users user = userDAO.getByProfile(profile);
 		if (user != null) {
 			Set<TaskCenter> tasks = user.getTasks();
 			for (TaskCenter task : tasks) {
@@ -100,8 +118,7 @@ public class Proofreader {
 		return res;
 	}
 	
-	private int calculateTasks(Profile profile, IUserDAO userDAO) {
-		Users user = userDAO.getByProfile(profile);
+	private int calculateTasks(Profile profile, Users user) {
 		int res = 0;
 		if (user != null) {
 			Set<TaskCenter> tasks = user.getTasks();
@@ -174,5 +191,21 @@ public class Proofreader {
 
 	public void setTargets(String targets) {
 		this.targets = targets;
+	}
+
+	public Date getCompletedDate() {
+		return completedDate;
+	}
+
+	public void setCompletedDate(Date completedDate) {
+		this.completedDate = completedDate;
+	}
+
+	public int getAllIndex() {
+		return allIndex;
+	}
+
+	public void setAllIndex(int allIndex) {
+		this.allIndex = allIndex;
 	}
 }
