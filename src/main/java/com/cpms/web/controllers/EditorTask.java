@@ -460,6 +460,8 @@ public class EditorTask {
 			Task task = new Task();
 			String[] requirements = values.get(0).toString().split("\\|");
 			for (int i = 0; i < requirements.length; i++) {
+				if (requirements[i].isEmpty())
+					continue;
 				String[] reqVals = requirements[i].split("\\(")[1].split("\\): ");
 				long id = Long.parseLong(reqVals[0]);
 				int lvl = Integer.parseInt(reqVals[1]);
