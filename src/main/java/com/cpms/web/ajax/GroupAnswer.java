@@ -112,6 +112,10 @@ public class GroupAnswer implements IAjaxAnswer {
 			profiles.remove(curIndex);
 		}
 		
+		// if some target language is not covered than there is no solution
+		for (Integer cov : covered)
+			if (cov == 0) return;
+		
 		solutions.add(new ArrayList<>(all));
 		groupNames.add(names[0]);
 		solutions.add(new ArrayList<>(all));
