@@ -174,7 +174,7 @@ public class EditorTask {
 	
 	@RequestMapping(path = "/task", method = RequestMethod.POST)
 	public String taskCreate(Model model, HttpServletRequest request, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam(required=false, name="file") MultipartFile file,
-			BindingResult bindingResult, Principal principal) {
+			BindingResult bindingResult, Principal principal, @RequestParam(required=false, name="skills") String skills) {
 		if (recievedTask == null) {
 			throw new SessionExpiredException(null);
 		}
@@ -234,8 +234,8 @@ public class EditorTask {
 			task.removeRecepient(oldUser);
 		}
 		// add new performers in the task and send them messages
-		String title = String.format("New translation task: %s (id: %d)", task.getPresentationName(), task.getId());
-		String text = "New proofreading task has been assigned to you.";
+		String title = String.format("New terminology task: %s (id: %d)", task.getPresentationName(), task.getId());
+		String text = "You have been assigned a new terminology task.";
 		String type = "2";
 		String url = request.getRequestURL().toString();
 		for (Long perfID : performers) {
@@ -244,6 +244,19 @@ public class EditorTask {
 			CommonModelAttributes.newTask.put(perfID, -1);
 			Messages.createSendMessage(task, principal, userDAO, title, text, type, newRecipient, url, emailSender, facade);
 		}
+		
+		// add requirements
+		String[] reqs = skills.split(";");
+		for (int i = 0; i < reqs.length; i++) {
+			if (reqs[i].isEmpty()) continue;
+			try {
+				int level = Integer.parseInt(reqs[i].split("\\): ")[1]);
+				long skillID = Long.parseLong(reqs[i].split("\\): ")[0].split("\\(")[1]);
+				Skill skill = facade.getSkillDAO().getOne(skillID);
+				task.addRequirement(new TaskRequirement(skill, level));
+			} catch (Exception e) {}
+		}
+		
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
 	}

@@ -305,7 +305,7 @@ public class Messages {
 		if (emailSender == null || to == null || to.getEmail() == null || to.getEmail().isEmpty())
 			return;
 		
-        text = "Dear " + to.getUsername() + ",<br>You have got new message in the CPM system.<br>" + text;
+        text = "Dear " + to.getUsername() + ",<br>There is a new message for you in the CPM system.<br>" + text;
         text += "<br>Please, look through by the following link: <a href='" + url + "'>" + url + "</a><br>CPM system administartor";
         
 		// Create a Simple MailMessage.

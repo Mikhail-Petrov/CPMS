@@ -89,13 +89,18 @@
                                 <table class="table table-responsive table-striped" id="skillTable">
                                 	
                                 </table>
+                            	<input type="hidden" name="skills" id="skills"/>
                             	</div>
                             </div>
 							<script th:inline="javascript">
 							/*<![CDATA[*/
 							function addSkill(){
-								skill = $("#skillSelector option:selected").text() + " (" + $("#skillSelector option:selected").val() + "): " + $("#reqLvl").val();
+								level = $("#reqLvl").val();
+								if (level == "" || level < 1)
+									level = "1";
+								skill = $("#skillSelector option:selected").text();
 								if (skill == "") return;
+								skill = skill + " (" + $("#skillSelector option:selected").val() + "): " + level;
 								buttonCode = /*[[#{editor.remove}]]*/ "";
 								buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
 								$("#skillTable").append("<tr><td>" + skill + "</td><td>" + buttonCode + "</td></tr>");
@@ -279,6 +284,10 @@
 				$("#resText").val("");
 				$.each($("#resTable td:even"), function() {
 					$("#resText").val($("#resText").val() + $(this).html() + ';');
+				});
+				$("#skills").val("");
+				$.each($("#skillTable td:even"), function() {
+					$("#skills").val($("#skills").val() + $(this).html() + ';');
 				});
 				
             	if ($("#type").val() == "2")
