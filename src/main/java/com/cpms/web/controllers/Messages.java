@@ -306,7 +306,7 @@ public class Messages {
 			return;
 		
         text = "Dear " + to.getUsername() + ",<br>There is a new message for you in the CPM system.<br>" + text;
-        text += "<br>Please, look through by the following link: <a href='" + url + "'>" + url + "</a><br>CPM system administartor";
+        text += "<br>Click on the following link to access it: <a href='" + url + "'>" + url + "</a><br>CPM system administartor";
         
 		// Create a Simple MailMessage.
         //SimpleMailMessage message = new SimpleMailMessage();
