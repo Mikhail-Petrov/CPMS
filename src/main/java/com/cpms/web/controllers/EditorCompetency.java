@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,6 +41,9 @@ public class EditorCompetency {
 	@Autowired
 	@Qualifier(value = "facade")
 	private ICPMSFacade facade;
+
+    @Autowired
+    private MessageSource messageSource;
 	
 	@RequestMapping(path = "/{profileId}/competencyAsyncNew",
 			method = RequestMethod.POST)
@@ -48,7 +52,7 @@ public class EditorCompetency {
 			@ModelAttribute("competency") @Valid Competency recievedCompetency,
 			BindingResult bindingResult) {
 		if (recievedCompetency == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		Profile profile = facade.getProfileDAO().getOne(profileId);
 		for (String compID : recievedCompetency.getSkillIDs().split(",")) {
@@ -78,7 +82,7 @@ public class EditorCompetency {
 			@ModelAttribute("competency") @Valid Competency recievedCompetency,
 			BindingResult bindingResult) {
 		if (recievedCompetency == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (recievedCompetency.getLevel() > 
 			recievedCompetency.getSkill().getMaxLevel()) {
@@ -117,7 +121,8 @@ public class EditorCompetency {
 						Competency.class,
 						profileId,
 						recievedCompetency.getId(),
-						request.getPathInfo());
+						request.getPathInfo(),
+						messageSource);
 			}
 			competency.setSkill(recievedCompetency.getSkill());
 			competency.setLevel(recievedCompetency.getLevel());
@@ -152,7 +157,8 @@ public class EditorCompetency {
 						Competency.class,
 						profileId,
 						id,
-						request.getPathInfo());
+						request.getPathInfo(),
+						messageSource);
 			}
 			create = false;
 		}
@@ -176,7 +182,7 @@ public class EditorCompetency {
 			@ModelAttribute("competency") @Valid Competency recievedCompetency,
 			BindingResult bindingResult) {
 		if (recievedCompetency == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (recievedCompetency.getLevel() > 
 			recievedCompetency.getSkill().getMaxLevel()) {
@@ -199,8 +205,7 @@ public class EditorCompetency {
 						&& !x.getSkill().equals(oldCompetencySkill))) {
 			//bindingResult.rejectValue("skill", "error.skill",
 					//"Such skill is already used.");
-			throw new DataAccessException(UserSessionData.localizeText(
-					"Компетенция с этим навыком уже существует.", "Such skill is already used."));
+			throw new DataAccessException(UserSessionData.localizeText("exception.DataAcces.competency.explanation", messageSource));
 		}
 		boolean create = (recievedCompetency.getId() == 0);
 		if (bindingResult.hasErrors()) {
@@ -228,7 +233,8 @@ public class EditorCompetency {
 						Competency.class,
 						profileId,
 						recievedCompetency.getId(),
-						request.getPathInfo());
+						request.getPathInfo(),
+						messageSource);
 			}
 			competency.setSkill(recievedCompetency.getSkill());
 			competency.setLevel(recievedCompetency.getLevel());
@@ -255,7 +261,8 @@ public class EditorCompetency {
 					Competency.class,
 					profileId,
 					id,
-					request.getPathInfo());
+					request.getPathInfo(),
+					messageSource);
 		}
 		profile.removeCompetency(competency);
 		facade.getProfileDAO().update(profile);

@@ -18,21 +18,15 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.apache.solr.analysis.LowerCaseFilterFactory;
-import org.apache.solr.analysis.WhitespaceTokenizerFactory;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.TokenFilterDef;
-import org.hibernate.search.annotations.TokenizerDef;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.security.entities.Users;
-import com.cpms.web.UserSessionData;
 
 /**
  * Entity class for skill.
@@ -169,7 +163,7 @@ public class Message extends AbstractDomainObject implements Comparable<Message>
 
 	@Override
 	public String getPresentationName() {
-		return UserSessionData.localizeText(getTitle());
+		return getTitle();
 	}
 
 	@SuppressWarnings("unchecked")

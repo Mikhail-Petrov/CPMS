@@ -51,7 +51,7 @@ public class DashboardAjax {
 			method = RequestMethod.POST)
 	public IAjaxAnswer rememberProfile(
 			@RequestBody String json) {
-		List<Object> values = parseJson(json);
+		List<Object> values = parseJson(json, messageSource);
 		if (values.size() >= 1 && isInteger(values.get(0).toString(), 10)) {
 			Profile profile = facade.getProfileDAO()
 				.getOne(Integer.parseInt(values.get(0).toString()));
@@ -77,7 +77,7 @@ public class DashboardAjax {
 			method = RequestMethod.POST)
 	public IAjaxAnswer rememberSkill(
 			@RequestBody String json) {
-		List<Object> values = parseJson(json);
+		List<Object> values = parseJson(json, messageSource);
 		if (values.size() >= 1 && isInteger(values.get(0).toString(), 10)) {
 			int id = Integer.parseInt(values.get(0).toString(), 10);
 			Skill skill = facade
@@ -111,7 +111,7 @@ public class DashboardAjax {
 			method = RequestMethod.POST)
 	public IAjaxAnswer rememberTask(
 			@RequestBody String json) {
-		List<Object> values = parseJson(json);
+		List<Object> values = parseJson(json, messageSource);
 		if (values.size() >= 1 && isInteger(values.get(0).toString(), 10)) {
 			int id = Integer.parseInt(values.get(0).toString(), 10);
 			Task task = facade
@@ -152,7 +152,7 @@ public class DashboardAjax {
 					LocaleContextHolder.getLocale());
 			return new MessageAnswer(errorMessage);
 		}
-		List<Object> values = parseJson(json);
+		List<Object> values = parseJson(json, messageSource);
 		if (values.size() >= 1 && isInteger(values.get(0).toString(), 10)) {
 			Profile profile = facade.getProfileDAO()
 				.getOne(Integer.parseInt(values.get(0).toString()));
@@ -190,7 +190,7 @@ public class DashboardAjax {
 				recievedProfile = null;
 		Task sessionTask = sessionData.getTask(),
 				recievedTask = null;
-		List<Object> values = parseJson(json);
+		List<Object> values = parseJson(json, messageSource);
 		if (values.size() >= 1 && isInteger(values.get(0).toString(), 10)) {
 			recievedProfile = facade.getProfileDAO()
 				.getOne(Integer.parseInt(values.get(0).toString()));
@@ -248,13 +248,13 @@ public class DashboardAjax {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static List<Object> parseJson(String json) {
+	public static List<Object> parseJson(String json, MessageSource messageSource) {
 		ObjectMapper mapper = new ObjectMapper();
 		List<Object> values = null;
 		try {
 			values = mapper.readValue(json, ArrayList.class);
 		} catch (IOException e) {
-			throw new WrongJsonException(json, e);
+			throw new WrongJsonException(json, e, messageSource);
 		}
 		return values;
 	}

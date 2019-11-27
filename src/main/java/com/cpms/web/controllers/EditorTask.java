@@ -14,6 +14,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -67,12 +68,15 @@ public class EditorTask {
 	@Qualifier(value = "mailSender")
     public JavaMailSender emailSender;
 
+    @Autowired
+    private MessageSource messageSource;
+
 	@RequestMapping(path = "/{taskId}/requirementAsyncNew", method = RequestMethod.POST)
 	public String competencyCreateAsyncNew(Model model, HttpServletRequest request, @PathVariable("taskId") Long taskId,
 			@ModelAttribute("requirement") @Valid TaskRequirement recievedRequirement, BindingResult bindingResult) {
 		String[] skillIDs = request.getParameterValues("skillIDs");
 		if (recievedRequirement == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		Task task = facade.getTaskDAO().getOne(taskId);
 		for (String compID : skillIDs) {
@@ -97,7 +101,7 @@ public class EditorTask {
 	public String competencyCreateAsync(Model model, HttpServletRequest request, @PathVariable("taskId") Long taskId,
 			@ModelAttribute("requirement") @Valid TaskRequirement recievedRequirement, BindingResult bindingResult) {
 		if (recievedRequirement == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (recievedRequirement.getLevel() > recievedRequirement.getSkill().getMaxLevel()) {
 			bindingResult.rejectValue("level", "error.skillLevel",
@@ -118,7 +122,7 @@ public class EditorTask {
 					.filter(x -> x.getId() == recievedRequirement.getId()).findFirst().orElse(null);
 			if (requirement == null) {
 				throw new DependentEntityNotFoundException(Profile.class, Competency.class, taskId,
-						recievedRequirement.getId(), request.getPathInfo());
+						recievedRequirement.getId(), request.getPathInfo(), messageSource);
 			}
 			requirement.setSkill(recievedRequirement.getSkill());
 			requirement.setLevel(recievedRequirement.getLevel());
@@ -176,7 +180,7 @@ public class EditorTask {
 	public String taskCreate(Model model, HttpServletRequest request, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam(required=false, name="file") MultipartFile file,
 			BindingResult bindingResult, Principal principal, @RequestParam(required=false, name="skills") String skills) {
 		if (recievedTask == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		boolean create = (recievedTask.getId() == 0);
 		Task task;
@@ -282,10 +286,10 @@ public class EditorTask {
 	public String taskCreateAsync(Model model, @ModelAttribute("task") @Valid Task recievedTask, HttpServletRequest request, Principal principal, @RequestParam("file") MultipartFile file,
 			BindingResult bindingResult) {
 		if (recievedTask == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (recievedTask.getName().length() < 5 || recievedTask.getName().length() > 100)
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		boolean create = (recievedTask.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			return ("fragments/editTaskModal :: taskModalForm");
@@ -450,7 +454,7 @@ public class EditorTask {
 					.filter(x -> x.getId() == requirChange.getKey()).findFirst().orElse(null);
 			if (requirement == null) {
 				throw new DependentEntityNotFoundException(Task.class, TaskRequirement.class, task.getId(),
-						requirChange.getKey(), request.getPathInfo());
+						requirChange.getKey(), request.getPathInfo(), messageSource);
 			}
 			if (requirement.getLevel() != requirChange.getValue()) {
 				requirement.setLevel(requirChange.getValue());
@@ -468,7 +472,7 @@ public class EditorTask {
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxGroup(
 			@RequestBody String json) {
-		List<Object> values = DashboardAjax.parseJson(json);
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		if (values.size() >= 3) {
 			Task task = new Task();
 			String[] requirements = values.get(0).toString().split("\\|");

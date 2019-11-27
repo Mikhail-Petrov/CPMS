@@ -10,8 +10,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -68,6 +67,9 @@ public class Security {
 	@Autowired
 	@Qualifier(value = "userSessionData")
 	private UserSessionData sessionData;
+	
+    @Autowired
+    private MessageSource messageSource;
 
 	public static Users getUser(Principal principal, IUserDAO userDAO) {
 		if (principal == null) return null;
@@ -127,7 +129,7 @@ public class Security {
 			@ModelAttribute("registrationForm") @Valid RegistrationForm registrationForm, BindingResult bindingResult,
 			Model model) {
 		if (registrationForm == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("_VIEW_TITLE", "title.register");
@@ -167,13 +169,12 @@ public class Security {
 	private void correctProfileCheck(Profile profile, HttpServletRequest request, long userId) {
 		if (profile == null) {
 			throw new WrongUserProfileException(UserSessionData.localizeText(
-					"Вы не выбрали профиль", "You have no chosen profile"), request.getPathInfo());
+					"Вы не выбрали профиль", messageSource), request.getPathInfo(), messageSource);
 		}
 		Users profileUser = userDAO.getByProfile(profile);
 		if (profileUser != null && profileUser.getId() != userId) {
 			throw new WrongUserProfileException(UserSessionData.localizeText(
-					"Уже есть пользователь с таким профилем",
-					"There is already a user with such profile."), request.getPathInfo());
+					"exception.WrongUserProfile.exists", messageSource), request.getPathInfo(), messageSource);
 		}
 	}
 
@@ -218,8 +219,7 @@ public class Security {
 			@RequestParam(name = "error", required = false) String error) throws Exception {
 		model.addAttribute("_VIEW_TITLE", "title.login");
 		if (error != null)
-			error = UserSessionData.localizeText("Неправильное имя пользователя или пароль",
-					"Wrong username or password");
+			error = UserSessionData.localizeText("exception.login", messageSource);
 		else error = "";
 		model.addAttribute("error", error);
 		return "login";

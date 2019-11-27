@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cpms.data.entities.Motivation;
-import com.cpms.data.entities.Skill;
-import com.cpms.web.controllers.Skills;
 
 /**
  * Static utility class which holds utility boilerplate code for skills.

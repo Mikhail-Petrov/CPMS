@@ -4,15 +4,13 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
@@ -27,16 +25,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
-import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Task;
-import com.cpms.data.entities.TaskCenter;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
 import com.cpms.web.MessagePostForm;
-import com.cpms.web.MotivationPostForm;
 import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.MessagesAnswer;
-import com.cpms.web.ajax.MotivationAnswer;
 
 /**
  * Handles skill CRUD web application requests.
@@ -60,6 +54,9 @@ public class Messages {
     @Autowired
 	@Qualifier(value = "mailSender")
     public JavaMailSender emailSender;
+
+    @Autowired
+    private MessageSource messageSource;
 	
 	@RequestMapping(value = {"/", ""},
 			method = RequestMethod.GET)
@@ -183,7 +180,7 @@ public class Messages {
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxMessage(
 			@RequestBody String json, Principal principal) {
-		List<Object> values = DashboardAjax.parseJson(json);
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id < 0) {

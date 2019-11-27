@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,7 +26,6 @@ import com.cpms.web.MotivationPostForm;
 import com.cpms.web.MotivationUtils;
 import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.MotivationAnswer;
-import com.cpms.web.ajax.SkillAnswer;
 
 /**
  * Handles skill CRUD web application requests.
@@ -41,6 +41,9 @@ public class Motivations {
 	@Autowired
 	@Qualifier(value = "facade")
 	private ICPMSFacade facade;
+
+    @Autowired
+    private MessageSource messageSource;
 	
 	public static Map<Long, ArrayList<Long>> getMotivationsAndParents(List<Motivation> allMotivations) {
 		// Find all motivation which are not group and add them to
@@ -94,7 +97,7 @@ public class Motivations {
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxMotivation(
 			@RequestBody String json) {
-		List<Object> values = DashboardAjax.parseJson(json);
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id > 0) {

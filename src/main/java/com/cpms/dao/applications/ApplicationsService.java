@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,9 @@ public class ApplicationsService implements IApplicationsService, ICleanable {
 	public void setFacade(ICPMSFacade facade) {
 		this.facade = facade;
 	}
+	
+    @Autowired
+    private MessageSource messageSource;
 
 	@Override
 	public void suggestCompetency(CompetencyApplication application) {
@@ -59,7 +63,8 @@ public class ApplicationsService implements IApplicationsService, ICleanable {
 					Profile.class,
 					application.getId(),
 					application.getSkillId(),
-					null);
+					null,
+					messageSource);
 		}
 		competencyApplicationsRepo.save(application);
 	}

@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -62,6 +63,9 @@ public class Applications {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
+
+    @Autowired
+    private MessageSource messageSource;
 	
 	/**
 	 * Allows to send Dates via post.
@@ -107,7 +111,7 @@ public class Applications {
 			@ModelAttribute("competency") @Valid Competency recievedCompetency,
 			BindingResult bindingResult, Principal principal) {
 		if (recievedCompetency == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (recievedCompetency.getLevel() > 
 			recievedCompetency.getSkill().getMaxLevel()) {
@@ -131,7 +135,7 @@ public class Applications {
 				).getName());
 		Long ownerId = owner.getProfileId();
 		if (ownerId == null || ownerId <= 0) {
-			throw new NoResidentUserProfile("", request.getPathInfo());
+			throw new NoResidentUserProfile("", request.getPathInfo(), messageSource);
 		}
 		application.setOwnerId(ownerId);
 		applicationsService.suggestCompetency(application);

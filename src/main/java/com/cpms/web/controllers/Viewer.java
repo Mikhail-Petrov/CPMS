@@ -26,6 +26,7 @@ import org.apache.http.client.fluent.Request;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
@@ -90,6 +91,9 @@ public class Viewer {
 	@Qualifier("draftableSkillDAO")
 	private IDraftableSkillDaoExtension skillDao;
 
+    @Autowired
+    private MessageSource messageSource;
+
 	// Current status of the group finding
 	private String curStatus = "";
 	private String timeLog = "";
@@ -104,13 +108,13 @@ public class Viewer {
 	public static Random rand = new Random();
 
 	@SuppressWarnings("unchecked")
-	public static List<Object> parseJsonObject(String json) {
+	public static List<Object> parseJsonObject(String json, MessageSource messageSource) {
 		ObjectMapper mapper = new ObjectMapper();
 		List<Object> values = null;
 		try {
 			values = mapper.readValue(json, ArrayList.class);
 		} catch (IOException e) {
-			throw new WrongJsonException(json, e);
+			throw new WrongJsonException(json, e, messageSource);
 		}
 		return values;
 	}
@@ -198,13 +202,13 @@ public class Viewer {
 			page = 1;
 		}
 		return PagingUtils.preparePageFromDao(page, facade.getProfileDAO(), Profile.class, "/viewer/profiles", model,
-				request, true, search, "/viewer/profile", "Profiles", "/editor/profile");
+				request, true, search, "/viewer/profile", "Profiles", "/editor/profile", messageSource);
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/ajaxProfiles", method = RequestMethod.POST)
 	public List<Map<String, Object>> listProfiles(@RequestBody String json) {
-		List<Object> values = parseJsonObject(json);
+		List<Object> values = parseJsonObject(json, messageSource);
 		if (values.size() >= 1 && values.get(0).getClass().equals(Integer.class)) {
 			int page = (Integer) values.get(0);
 			List<Profile> profiles = facade.getProfileDAO().getAll();
@@ -398,7 +402,7 @@ public class Viewer {
 	
 	@RequestMapping(path = { "/task/group" }, method = RequestMethod.GET)
 	public String createGroup(Model model, @RequestParam(name = "id", required = true) Long id) {
-		curStatus = UserSessionData.localizeText("Формирование шаблона страницы", "Page model forming");
+		curStatus = UserSessionData.localizeText("task.group.status.requirements", messageSource);
 		Task task = facade.getTaskDAO().getOne(id);
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", task.getPresentationName());
@@ -417,12 +421,12 @@ public class Viewer {
 	}
 
 	private void generateResidentsFun(int resAmount) {
-		curStatus = UserSessionData.localizeText("Генерирование резидентов", "Residents generating");
+		curStatus = UserSessionData.localizeText("task.group.generating.status.residents", messageSource);
 		Resident toClone = new Resident(facade.getProfileDAO().getAll().get(0));
 		toClone.setId(0);
 		List<Skill> skills = facade.getSkillDAO().getAll();
 		for (int i = 0; i < resAmount; i++) {
-			curStatus = String.format("%s: %d/%d", UserSessionData.localizeText("Генерирование резидентов", "Residents generating"),
+			curStatus = String.format("%s: %d/%d", UserSessionData.localizeText("task.group.generating.status.residents", messageSource),
 					i + 1, resAmount);
 			Resident newProfile = new Resident(toClone);
 			newProfile.setName(String.format("generated №%d", generatedProfiles.size() + i));
@@ -472,7 +476,7 @@ public class Viewer {
 	}
 
 	private void generateRequirementsFun(Task task, int reqAmount) {
-		curStatus = UserSessionData.localizeText("Генерирование требований", "Requirements generating");
+		curStatus = UserSessionData.localizeText("task.group.generating.status.1", messageSource);
 		List<Skill> skills = facade.getSkillDAO().getAll();
 		List<Profile> profiles = facade.getProfileDAO().getAll();
 		List<Resident> residents = new ArrayList<>();
@@ -537,7 +541,7 @@ public class Viewer {
 		Set<TaskRequirement> originalReqs = task.getRequirements();
 		// adding generated requirements
 		if (generatedReqs.size() > 0)
-			curStatus = UserSessionData.localizeText("Добавление сгенерированных требований", "Adding generated requirements");
+			curStatus = UserSessionData.localizeText("task.group.status.2", messageSource);
 		for (TaskRequirement req : generatedReqs)
 			if (!task.getRequirements().contains(req))
 			task.addRequirement(req);
@@ -556,7 +560,7 @@ public class Viewer {
 		long sumTime = 0;
 		String statusUpdate = "";
 		for (int k = 0; k < testIteration; k++) {
-			statusUpdate = UserSessionData.localizeText("Создание списка требований", "Creating requirements list");
+			statusUpdate = UserSessionData.localizeText("task.group.status.3", messageSource);
 			if (testIteration <= 1)
 				curStatus = statusUpdate;
 			else
@@ -568,7 +572,7 @@ public class Viewer {
 				reqLevels.put(req.getSkill().getId(), req.getLevel());
 			}
 			int unfilled = reqFilled.size();
-			statusUpdate = UserSessionData.localizeText("Получение списка резидентов", "Getting residents list");
+			statusUpdate = UserSessionData.localizeText("task.group.status.4", messageSource);
 			if (testIteration <= 1)
 				curStatus = statusUpdate;
 			else
@@ -581,7 +585,7 @@ public class Viewer {
 		Collections.sort(residents);
 		// adding generated residents
 		if (generatedProfiles.size() > 0) {
-			statusUpdate = UserSessionData.localizeText("Добавление сгенерированных резидентов", "Adding generated residents");
+			statusUpdate = UserSessionData.localizeText("task.group.status.5", messageSource);
 			if (testIteration <= 1)
 				curStatus = statusUpdate;
 			else
@@ -593,7 +597,7 @@ public class Viewer {
 		updateTime("Start searching");
 		sumTime -= prevTime;
 		// check all residents
-		statusUpdate = UserSessionData.localizeText("Проверка резидентов", "Checking residents");
+		statusUpdate = UserSessionData.localizeText("task.group.status.6", messageSource);
 		if (testIteration <= 1)
 			curStatus = statusUpdate;
 		else
@@ -605,8 +609,7 @@ public class Viewer {
 				if (curIndex >= residents.size())
 					curIndex = 0;
 				Resident curProfile = residents.get(curIndex);
-				statusUpdate = UserSessionData.localizeText("Проверка резидента " + curProfile.getName(),
-						"Checking resident " + curProfile.getName());
+				statusUpdate = UserSessionData.localizeText("task.group.status.7", messageSource) + curProfile.getName();
 				if (testIteration <= 1)
 					curStatus = statusUpdate;
 				else
@@ -627,8 +630,7 @@ public class Viewer {
 				}
 				// if he has then add to the group and remove from 'unchecked' list
 				if (hasUnfilled) {
-					statusUpdate = UserSessionData.localizeText("Добавление резидента " + curProfile.getName(),
-							"Adding resident " + curProfile.getName());
+					statusUpdate = UserSessionData.localizeText("task.group.status.8", messageSource) + curProfile.getName();
 					if (testIteration <= 1)
 						curStatus = statusUpdate;
 					else
@@ -659,7 +661,7 @@ public class Viewer {
 					result.add(new Option(curOption));
 				else
 					break;
-				statusUpdate = UserSessionData.localizeText("Оптимизация группы", "Group optimisation");
+				statusUpdate = UserSessionData.localizeText("task.group.status.9", messageSource);
 				if (testIteration <= 1)
 					curStatus = statusUpdate;
 				else
@@ -667,8 +669,7 @@ public class Viewer {
 				curOption.removeBadResident();
 				checked = 0;
 				// find unfilled requirements
-				statusUpdate = UserSessionData.localizeText("Обнаружение невыполненных требований",
-						"Finding unfilled requirements");
+				statusUpdate = UserSessionData.localizeText("task.group.status.10", messageSource);
 				if (testIteration <= 1)
 					curStatus = statusUpdate;
 				else
@@ -697,13 +698,13 @@ public class Viewer {
 			result.add(new Option(curOption));
 		updateTime("Results processing");
 		if (result.size() > 0) {
-			statusUpdate = UserSessionData.localizeText("Сортировка вариантов", "Options sorting");
+			statusUpdate = UserSessionData.localizeText("task.group.status.11", messageSource);
 			if (testIteration <= 1)
 				curStatus = statusUpdate;
 			else
 				curStatus = String.format("Iteration %d.%d of %d. %s", ll+1, k+1, testIteration, statusUpdate);
 			Collections.sort(result);
-			statusUpdate = UserSessionData.localizeText("Нормализация оптимальности", "Optimality normalisation");
+			statusUpdate = UserSessionData.localizeText("task.group.status.12", messageSource);
 			if (testIteration <= 1)
 				curStatus = statusUpdate;
 			else
@@ -719,7 +720,7 @@ public class Viewer {
 		}
 		timeLog = String.format("%s\n\navg time: %d\n", timeLog, Math.round(sumTime/testIteration));
 		if (testLength > 1) {
-			curStatus = UserSessionData.localizeText("Генерация новых условий", "New conditions generation");
+			curStatus = UserSessionData.localizeText("task.group.status.13", messageSource);
 			//generatedProfiles.clear();
 			generatedReqs.clear();
 			//generateResidentsFun((ll+1)*genResAmount);

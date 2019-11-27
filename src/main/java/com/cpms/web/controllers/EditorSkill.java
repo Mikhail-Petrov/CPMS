@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
@@ -61,6 +62,9 @@ public class EditorSkill {
 	@Autowired
 	@Qualifier("draftableSkillDAO")
 	private IDraftableSkillDaoExtension skillDao;
+
+    @Autowired
+    private MessageSource messageSource;
 	
 	private void addSkillsListToModel(Model model, Principal principal,
 			HttpServletRequest request, boolean create) {
@@ -93,8 +97,7 @@ public class EditorSkill {
 						owner.getId() != oldSkill.getOwner().longValue()) {// ||
 						//!oldSkill.isDraft()) {
 					throw new AccessDeniedException(UserSessionData.localizeText(
-							"У вас недостаточно прав для редактирования этого умения.",
-							"You are not allowed to edit this skill."), null);
+							"exception.AccessDenied.explanation", messageSource), null, messageSource);
 				}
 			}
 		}
@@ -151,7 +154,7 @@ public class EditorSkill {
 			HttpServletRequest request,
 			BindingResult bindingResult) {
 		if (recievedSkill == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			//if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
@@ -326,30 +329,25 @@ public class EditorSkill {
 			longEnough = longEnough 
 					&& (level.getAbout().length() >= 0 && level.getAbout().length() <= 1000);
 		}
-		String invSkill = UserSessionData.localizeText(
-				"Отправлен некорректный навык!", "Invalid skill submitted!");
+		String invSkill = UserSessionData.localizeText("exception.ManualValidation", messageSource);
 		if (!longEnough) {
-			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
-							"One of skill levels is shorter than 10 or longer than 1000 symbols."),
+			throw new ManualValidationException(invSkill, UserSessionData.localizeText("skill.error.levellength", messageSource),
 					request.getPathInfo());
 		}
 		if (recievedSkill.getName() != null && recievedSkill.getName().length() < 3) {
 			recievedSkill.setName(null);
 		}
 		if (recievedSkill.getName() == null) {
-			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
-							"Please fill in at least one name for a skill."),
+			throw new ManualValidationException(invSkill, UserSessionData.localizeText("skill.error.noname", messageSource),
 					request.getPathInfo()); 
 		}
 		if ((recievedSkill.getName() != null && recievedSkill.getName().length() > 100)) {
-			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
-							"Skill's name should not be longer than 100 symbols."),
+			throw new ManualValidationException(invSkill, UserSessionData.localizeText("skill.error.long", messageSource),
 					request.getPathInfo()); 
 		}
 		if (!((recievedSkill.getAbout().length() >= 0 && 
 				recievedSkill.getAbout().length() <= 1000))) {
-			throw new ManualValidationException(invSkill, UserSessionData.localizeText(
-							"Description is longer than 1000 symbols."),
+			throw new ManualValidationException(invSkill, UserSessionData.localizeText("skill.error.description", messageSource),
 					request.getPathInfo()); 
 		}
 		Skill newSkill = new Skill();
@@ -413,7 +411,7 @@ public class EditorSkill {
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxSkill(
 			@RequestBody String json) {
-		List<Object> values = DashboardAjax.parseJson(json);
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id > 0) {

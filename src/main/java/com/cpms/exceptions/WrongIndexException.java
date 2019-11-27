@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import org.springframework.context.MessageSource;
+
 import com.cpms.web.UserSessionData;
 
 /**
@@ -12,19 +14,15 @@ import com.cpms.web.UserSessionData;
 public class WrongIndexException extends WebException {
 
 	public WrongIndexException(int total, int index, String page,
-			Exception cause) {
-		super(UserSessionData.localizeText("Попытка доступа к объекту списка с неверным индексом",
-				"Attempt to access item in the list with wrong index. "),
-				UserSessionData.localizeText("Всего объектов: " + total + ", индекс: " + index + ".",
-						"Total items: " + total + ", index: " + index + "."), 
+			Exception cause, MessageSource messageSource) {
+		super(UserSessionData.localizeText("exception.WrongIndex", messageSource),
+				String.format(UserSessionData.localizeText("count.total.index", messageSource), total, index), 
 				cause, page);
 	}
 	
-	public WrongIndexException(int total, int index, String page) {
-		super(UserSessionData.localizeText("Попытка доступа к объекту списка с неверным индексом",
-				"Attempt to access item in the list with wrong index. "),
-				UserSessionData.localizeText("Всего объектов: " + total + ", индекс: " + index + ".",
-						"Total items: " + total + ", index: " + index + "."),  page);
+	public WrongIndexException(int total, int index, String page, MessageSource messageSource) {
+		super(UserSessionData.localizeText("exception.WrongIndex", messageSource),
+				String.format(UserSessionData.localizeText("count.total.index", messageSource), total, index), page);
 	}
 
 }

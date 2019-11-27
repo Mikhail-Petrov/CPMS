@@ -30,12 +30,8 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
-import org.springframework.context.i18n.LocaleContextHolder;
-
 import com.cpms.data.AbstractDomainObject;
-import com.cpms.data.validation.BilingualValidation;
 import com.cpms.exceptions.DataAccessException;
-import com.cpms.web.UserSessionData;
 import com.cpms.web.controllers.Skills;
 
 /**
@@ -321,11 +317,11 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 
 	@Override
 	public String getPresentationName() {
-		return UserSessionData.localizeText(getName());
+		return getName();
 	}
 
 	public String getPresentationAbout() {
-		return UserSessionData.localizeText(getAbout());
+		return getAbout();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -337,8 +333,7 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 		returnValue.setChildren(getChildren());
 		returnValue.setMaxLevel(getMaxLevel());
 		returnValue.setParent(getParent());
-		returnValue.setAbout(
-				UserSessionData.localizeText(getAbout()));
+		returnValue.setAbout(getAbout());
 		getFullSkillLevels()
 			.forEach(x -> returnValue.addLevel(x.localize(locale)));
 		return returnValue;

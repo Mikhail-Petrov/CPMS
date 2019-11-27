@@ -3,7 +3,6 @@ package com.cpms.web;
 import java.util.List;
 import java.util.Map;
 
-import com.cpms.dao.interfaces.IDAO;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Reward;

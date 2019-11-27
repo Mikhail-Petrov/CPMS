@@ -3,7 +3,6 @@ package com.cpms.web;
 import java.util.Date;
 import java.util.Set;
 
-import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Motivation;

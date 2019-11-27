@@ -11,7 +11,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -51,6 +51,9 @@ public class EditorProfile {
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
 
+    @Autowired
+    private MessageSource messageSource;
+
 	@RequestMapping(path = "/profile", 
 			method = RequestMethod.GET)
 	public String profile(Model model,
@@ -89,7 +92,7 @@ public class EditorProfile {
 			@ModelAttribute("company") @Valid Profile expert,
 			BindingResult bindingResult) {
 		if (expert == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		boolean create = (expert.getId() == 0);
 		if (bindingResult.hasErrors()) {
@@ -120,10 +123,10 @@ public class EditorProfile {
 			@ModelAttribute("password") @Valid String password,
 			BindingResult bindingResult) {
 		if (expert == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (expert.getName().length() < 3 || expert.getName().length() > 100)
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		boolean create = (expert.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			return ("fragments/editProfileModal :: profileModalForm");
@@ -188,7 +191,8 @@ public class EditorProfile {
 						Competency.class,
 						profile.getId(),
 						compChange.getKey(),
-						request.getPathInfo());
+						request.getPathInfo(),
+						messageSource);
 			}
 			if (competency.getLevel() != compChange.getValue()) {
 				competency.setLevel(compChange.getValue());

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,7 +25,6 @@ import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
-import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Users;
 import com.cpms.web.UserSessionData;
@@ -50,6 +50,9 @@ public class CommonModelAttributes {
 	@Autowired
 	@Qualifier(value = "taskDAO")
 	private IDAO<Task> taskDAO;
+
+    @Autowired
+    private MessageSource messageSource;
 
 	@ModelAttribute("isAuthenticated")
 	public boolean isAuthenticated(Principal principal) {
@@ -113,7 +116,7 @@ public class CommonModelAttributes {
 	@ModelAttribute("username")
 	public String username(Principal principal) {
 		if (!isAuthenticated(principal)) {
-			return UserSessionData.localizeText("Анонимный пользователь", "Anonymous User");
+			return UserSessionData.localizeText("user.name.anon", messageSource);
 		}
 		UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) principal;
 		return user.getName();

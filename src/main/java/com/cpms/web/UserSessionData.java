@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -37,11 +38,13 @@ public class UserSessionData {
 		this.profiles = new HashSet<Profile>();
 		this.competencies = new ArrayList<Competency>();
 	}
-	
-	
 	public static String localizeText(String text) {
-		Locale locale = LocaleContextHolder.getLocale();
 		return text;
+	}
+    
+	public static String localizeText(String text, MessageSource messageSource) {
+		Locale locale = LocaleContextHolder.getLocale();
+		return messageSource.getMessage(text, new String[]{locale.getDisplayName(locale)}, locale);
 	}
 	
 	

@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import org.springframework.context.MessageSource;
+
 import com.cpms.web.UserSessionData;
 
 /**
@@ -13,12 +15,9 @@ import com.cpms.web.UserSessionData;
  */
 @SuppressWarnings("serial")
 public class AccessDeniedException extends WebException {
-	
-	public AccessDeniedException(String explanation, String path) {
-		super (UserSessionData.localizeText(
-				"Вы пытались получить доступ к чему-то, к чему у вас нет доступа",
-				"You have tried to access something you don't have access to"),
-				explanation, path);
+    
+	public AccessDeniedException(String explanation, String path, MessageSource messageSource) {
+		super (UserSessionData.localizeText("exception.AccessDenied", messageSource), explanation, path);
 	}
 
 }

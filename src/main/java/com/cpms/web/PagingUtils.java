@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 
 import com.cpms.dao.interfaces.IDAO;
@@ -53,15 +54,16 @@ public final class PagingUtils {
 			String search,
 			String objectAddress,
 			String title,
-			String objectAddAddress) {
+			String objectAddAddress,
+		    MessageSource messageSource) {
 		long totalObjects = preparePageCount(dao, search, page, type);
 		int totalPages = totalPages(PAGE_SIZE, totalObjects);
 		if (totalPages == 0) {
 			totalPages++;
 		}
 		if (page < 0 || page > totalPages) {
-			throw new WrongPageException("Page " + page + " out of " + totalPages,
-					request.getPathInfo());
+			throw new WrongPageException(String.format(UserSessionData.localizeText("count.page", messageSource), page) + totalPages,
+					request.getPathInfo(), messageSource);
 		}
 		model.addAttribute("objectsList", 
 				preparePageObjects(dao, search, page, type));
@@ -102,14 +104,15 @@ public final class PagingUtils {
 			Model model,
 			HttpServletRequest request,
 			String objectAddress,
-			String title) {
+			String title,
+		    MessageSource messageSource) {
 		int totalPages = totalPages(PAGE_SIZE, objectsCount);
 		if (totalPages == 0) {
 			totalPages++;
 		}
 		if (page < 0 || page > totalPages) {
-			throw new WrongPageException("Page " + page + " out of " + totalPages,
-					request.getPathInfo());
+			throw new WrongPageException(String.format(UserSessionData.localizeText("count.page", messageSource), page) + totalPages,
+					request.getPathInfo(), messageSource);
 		}
 		model.addAttribute("objectsList", objectsThisPage);
 		model.addAttribute("total", totalPages);

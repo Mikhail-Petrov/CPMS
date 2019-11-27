@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,13 +60,13 @@ public class Skills {
 	private IDraftableSkillDaoExtension skillDao;
 	
 	@SuppressWarnings("unchecked")
-	public static List<Object> parseJsonObject(String json) {
+	public static List<Object> parseJsonObject(String json, MessageSource messageSource) {
 		ObjectMapper mapper = new ObjectMapper();
 		List<Object> values = null;
 		try {
 			values = mapper.readValue(json, ArrayList.class);
 		} catch (IOException e) {
-			throw new WrongJsonException(json, e);
+			throw new WrongJsonException(json, e, messageSource);
 		}
 		return values;
 	}

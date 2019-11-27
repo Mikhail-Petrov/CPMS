@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import org.springframework.context.MessageSource;
+
 import com.cpms.web.UserSessionData;
 
 /**
@@ -12,18 +14,12 @@ import com.cpms.web.UserSessionData;
 @SuppressWarnings("serial")
 public class WrongUserProfileException extends WebException {
 
-	public WrongUserProfileException(String explanation, String path) {
-		super(UserSessionData.localizeText(
-				"Вы попытались создать пользователя-резидента с неверным профилем.",
-				"You have tried to create a resident user with wrong profile."),
-				explanation, path);
+	public WrongUserProfileException(String explanation, String path, MessageSource messageSource) {
+		super(UserSessionData.localizeText("exception.WrongUserProfile", messageSource), explanation, path);
 	}
 	
-	public WrongUserProfileException(String explanation, Exception cause, String path) {
-		super(UserSessionData.localizeText(
-				"Вы попытались создать пользователя-резидента с неверным профилем.",
-				"You have tried to create a resident user with wrong profile."),
-				explanation, cause, path);
+	public WrongUserProfileException(String explanation, Exception cause, String path, MessageSource messageSource) {
+		super(UserSessionData.localizeText("exception.WrongUserProfile", messageSource), explanation, cause, path);
 	}
 
 }

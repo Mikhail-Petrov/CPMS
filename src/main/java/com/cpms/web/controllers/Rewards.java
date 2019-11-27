@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,6 +58,9 @@ public class Rewards {
     @Autowired
 	@Qualifier(value = "mailSender")
     public JavaMailSender emailSender;
+
+    @Autowired
+    private MessageSource messageSource;
 
 	private long prevTime = -1;
 
@@ -137,7 +141,7 @@ public class Rewards {
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxReward(
 			@RequestBody String json, Principal principal) {
-		List<Object> values = DashboardAjax.parseJson(json);
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id < 0) {

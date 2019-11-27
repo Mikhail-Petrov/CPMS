@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,18 +24,14 @@ import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
-import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.exceptions.NoSessionProfileException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.operations.interfaces.ITaskComparator;
-import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Users;
-import com.cpms.web.ApplicationsPostForm;
 import com.cpms.web.PagingUtils;
-import com.cpms.web.SkillUtils;
 import com.cpms.web.UserSessionData;
 
 /**
@@ -67,6 +64,9 @@ public class Dashboard {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
+
+    @Autowired
+    private MessageSource messageSource;
 
 	@RequestMapping(value = {"/", ""})
 	public String viewDashboard(Model model, Principal principal, HttpServletRequest request) {
@@ -125,7 +125,8 @@ public class Dashboard {
 				model,
 				request,
 				"/viewer/profile",
-				"Profiles Ranged");
+				"Profiles Ranged",
+				messageSource);
 	}
 	
 	@RequestMapping(value = "/aggregatePossibilities")
@@ -137,7 +138,7 @@ public class Dashboard {
 			page = 1;
 		}
 		if (sessionData.getProfile() == null && profileId == null) {
-			throw new NoSessionProfileException(request.getPathInfo());
+			throw new NoSessionProfileException(request.getPathInfo(), messageSource);
 		}
 		final Profile profile = (profileId == null ? 
 				sessionData.getProfile() : 
@@ -162,7 +163,8 @@ public class Dashboard {
 				model,
 				request,
 				"/viewer/task",
-				"Possibilities of " + profile.getPresentationName());
+				"Possibilities of " + profile.getPresentationName(),
+				messageSource);
 	}
 	
 	@RequestMapping(path = "/subprofile")
@@ -171,7 +173,7 @@ public class Dashboard {
 		Profile subprofile = null;
 		synchronized (sessionData.getProfile()) { //TODO synchronize user session data within getters/setters
 			if (sessionData.getProfile() == null) {
-				throw new NoSessionProfileException(request.getPathInfo());
+				throw new NoSessionProfileException(request.getPathInfo(), messageSource);
 			}
 			subprofile = facade.getSubprofiler().subprofile(
 					sessionData.getProfile(),
@@ -211,7 +213,8 @@ public class Dashboard {
 				model,
 				request,
 				"/viewer/profile",
-				"Profiles Ranged");
+				"Profiles Ranged",
+				messageSource);
 	}
 	
 	public List<Profile> searchProfileByCompetenciesPage(int page) {
@@ -236,7 +239,7 @@ public class Dashboard {
 			page = 1;
 		}
 		if (sessionData.getTask() == null && taskId == null) {
-			throw new SessionExpiredException(request.getPathInfo());
+			throw new SessionExpiredException(request.getPathInfo(), messageSource);
 		}
 		final Task searchTask = (taskId != null ? 
 				facade.getTaskDAO().getOne(taskId) : 
@@ -258,7 +261,8 @@ public class Dashboard {
 				model,
 				request,
 				"/viewer/profile",
-				"Task Search");
+				"Task Search",
+				messageSource);
 	}
 	
 	@RequestMapping(value = "/index", method = RequestMethod.GET)

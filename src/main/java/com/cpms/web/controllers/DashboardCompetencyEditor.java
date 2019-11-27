@@ -5,6 +5,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,6 +38,9 @@ public class DashboardCompetencyEditor {
 	@Autowired
 	@Qualifier(value = "userSessionData")
 	private UserSessionData sessionData;
+
+    @Autowired
+    private MessageSource messageSource;
 	
 	@RequestMapping(path = "/add", 
 			method = RequestMethod.GET)
@@ -58,7 +62,7 @@ public class DashboardCompetencyEditor {
 			@ModelAttribute("competency") @Valid Competency recievedCompetency,
 			BindingResult bindingResult) {
 		if (recievedCompetency == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (recievedCompetency.getLevel() > 
 			recievedCompetency.getSkill().getMaxLevel()) {
@@ -94,7 +98,7 @@ public class DashboardCompetencyEditor {
 			@ModelAttribute("competency") @Valid Competency recievedCompetency,
 			BindingResult bindingResult) {
 		if (recievedCompetency == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (recievedCompetency.getLevel() > 
 			recievedCompetency.getSkill().getMaxLevel()) {
@@ -128,7 +132,7 @@ public class DashboardCompetencyEditor {
 			if (index < 0 || index >= sessionData.getCompetencies().size()) {
 				throw new WrongIndexException(sessionData.getCompetencies().size(),
 						index + 1,
-						request.getPathInfo());
+						request.getPathInfo(), messageSource);
 			}
 			sessionData.getCompetencies().remove(index);
 		}

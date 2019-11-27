@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,7 @@ import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Users;
+import com.cpms.web.UserSessionData;
 
 /**
  * Handles skill level CRUD web application requests.
@@ -44,6 +46,9 @@ public class EditorSkillLevel {
 	@Autowired
 	@Qualifier("userDAO")
 	private IUserDAO userDAO;
+
+    @Autowired
+    private MessageSource messageSource;
 	
 	private void checkBelongs(Principal principal, Skill parentSkill,
 			HttpServletRequest request) {
@@ -55,8 +60,7 @@ public class EditorSkillLevel {
 				if (parentSkill.getOwner() == null ||
 						owner.getId() != parentSkill.getOwner().longValue()) {// ||
 						//!parentSkill.isDraft()) {
-					throw new AccessDeniedException(
-							"You are not allowed to edit this skill.", null);
+					throw new AccessDeniedException(UserSessionData.localizeText("exception.AccessDenied.explanation", messageSource), null, messageSource);
 				}
 			}
 		}
@@ -96,7 +100,7 @@ public class EditorSkillLevel {
 			@ModelAttribute("skillLevel") @Valid SkillLevel skillLevel,
 			BindingResult bindingResult) {
 		if (skillLevel == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		boolean create = (skillLevel.getId() == 0);
 		if (bindingResult.hasErrors()) {
@@ -119,7 +123,8 @@ public class EditorSkillLevel {
 						SkillLevel.class,
 						skill.getId(),
 						skillLevel.getLevel(),
-						request.getPathInfo());
+						request.getPathInfo(),
+						messageSource);
 			}
 			skillLevelOld.setAbout(skillLevel.getAbout());
 		}

@@ -15,6 +15,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.springframework.context.MessageSource;
 
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.data.DomainObject;
@@ -173,12 +174,11 @@ public class CompetencyApplication extends AbstractDomainObject {
 				"Заявка компетенции №", "Competency Application #") + id;
 	}
 	
-	public String getCompetencyPresentationName() {
+	public String getCompetencyPresentationName(MessageSource messageSource) {
 		if (getSkill() != null) {
-			return UserSessionData.localizeText(getSkill().getName())
-					 + " - " + getLevel();
+			return getSkill().getName() + " - " + getLevel();
 		} else {
-			return UserSessionData.localizeText("Skill not found");
+			return UserSessionData.localizeText("skill.notfound", messageSource);
 		}
 	}
 

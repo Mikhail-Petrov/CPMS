@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import org.springframework.context.MessageSource;
+
 import com.cpms.data.DomainObject;
 import com.cpms.web.UserSessionData;
 
@@ -19,25 +21,15 @@ public class DependentEntityNotFoundException extends WebException {
 			long ownerId,
 			long dependentId,
 			Exception cause,
-			String path) {
+			String path,
+			MessageSource messageSource) {
 		super(
-				dependent.getCanonicalName()
-					+ UserSessionData.localizeText(" ", " of ")
-					+ owner.getCanonicalName()
-					+ UserSessionData.localizeText(", который вы запрашивали, не был найден.",
-							" that you have requested was not found."),
-					UserSessionData.localizeText("Сущность типа ", "Entity of type ") 
-					+ dependent.getCanonicalName()
-					+ UserSessionData.localizeText(" с идентификатором ", " with id of ")
-					+ dependentId
-					+ UserSessionData.localizeText(" владельца ", " of owner ")
-					+ owner.getCanonicalName()
-					+ UserSessionData.localizeText(" с идентификатором ", " with id of ")
-					+ ownerId
-					+ UserSessionData.localizeText(", которая была запрошена, не найдена",
-							" requested and not found."),
-					cause,
-					path);
+				String.format(UserSessionData.localizeText("exception.DependentEntityNotFound", messageSource),
+						dependent.getCanonicalName(), owner.getCanonicalName()),
+				String.format(UserSessionData.localizeText("exception.DependentEntityNotFound.explanation", messageSource),
+						dependent.getCanonicalName(), dependentId, owner.getCanonicalName(), ownerId),
+				cause,
+				path);
 					
 	}
 	
@@ -46,24 +38,14 @@ public class DependentEntityNotFoundException extends WebException {
 			Class<? extends DomainObject> dependent,
 			long ownerId,
 			long dependentId,
-			String path) {
+			String path,
+			MessageSource messageSource) {
 		super(
-				dependent.getCanonicalName()
-				+ UserSessionData.localizeText(" ", " of ")
-				+ owner.getCanonicalName()
-				+ UserSessionData.localizeText(", который вы запрашивали, не был найден.",
-						" that you have requested was not found."),
-				UserSessionData.localizeText("Сущность типа ", "Entity of type ") 
-				+ dependent.getCanonicalName()
-				+ UserSessionData.localizeText(" с идентификатором ", " with id of ")
-				+ dependentId
-				+ UserSessionData.localizeText(" владельца ", " of owner ")
-				+ owner.getCanonicalName()
-				+ UserSessionData.localizeText(" с идентификатором ", " with id of ")
-				+ ownerId
-				+ UserSessionData.localizeText(", которая была запрошена, не найдена",
-						" requested and not found."),
-					path);
+				String.format(UserSessionData.localizeText("exception.DependentEntityNotFound", messageSource),
+						dependent.getCanonicalName(), owner.getCanonicalName()),
+				String.format(UserSessionData.localizeText("exception.DependentEntityNotFound.explanation", messageSource),
+						dependent.getCanonicalName(), dependentId, owner.getCanonicalName(), ownerId),
+				path);
 					
 	}
 

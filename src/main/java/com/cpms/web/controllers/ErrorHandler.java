@@ -4,6 +4,8 @@ import javax.persistence.EntityNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -33,10 +35,13 @@ public class ErrorHandler {
 	private static final Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
 	private static final String DEFAULT_ERROR_TEMPLATE = "error";
 
+    @Autowired
+    private MessageSource messageSource;
+
 	@ExceptionHandler(AuthenticationException.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ModelAndView authenticationExceptionHandler(AuthenticationException exception) {
-		String message = UserSessionData.localizeText("Ошибка доступа к данным!", "Data access error has occured!");
+		String message = UserSessionData.localizeText("exception.DataAcces", messageSource);
 		logger.error(message, exception);
 		return handle(message, exception.getMessage());
 	}
@@ -44,7 +49,7 @@ public class ErrorHandler {
 	@ExceptionHandler(DataAccessException.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ModelAndView dataAccessExceptionHandler(DataAccessException exception) {
-		String message = UserSessionData.localizeText("Ошибка доступа к данным!", "Data access error has occured!");
+		String message = UserSessionData.localizeText("exception.DataAcces", messageSource);
 		logger.error(message, exception);
 		return handle(message, exception.getMessage());
 	}
@@ -52,8 +57,7 @@ public class ErrorHandler {
 	@ExceptionHandler(EntityNotFoundException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ModelAndView EntityNotFoundExceptionHandler(EntityNotFoundException exception) {
-		String message = UserSessionData.localizeText("Был запрошен несуществующий объект!",
-				"You have requested object that doesn't exist!");
+		String message = UserSessionData.localizeText("exception.EntityNotFound", messageSource);
 		logger.warn(message, exception);
 		return handle(message, exception.getMessage());
 	}
@@ -61,8 +65,7 @@ public class ErrorHandler {
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ModelAndView defaultHandler(Exception exception) {
-		String message = UserSessionData.localizeText("Произошла неизвестная ошибка.",
-				"An unknown error has happened.");
+		String message = UserSessionData.localizeText("exception.default", messageSource);
 		logger.error(message, exception);
 		return handle(message, exception.getMessage());
 	}
@@ -70,7 +73,7 @@ public class ErrorHandler {
 	@ExceptionHandler(WebException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ModelAndView webExceptionHandler(WebException exception) {
-		String message = UserSessionData.localizeText("Произошла сетевая ошибка.", "Web error has happened.");
+		String message = UserSessionData.localizeText("exception.web", messageSource);
 		logger.info(message, exception);
 		return handle(exception.getPublicMessage(), exception.getMessage());
 	}

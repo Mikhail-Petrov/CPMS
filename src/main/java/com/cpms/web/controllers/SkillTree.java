@@ -2,7 +2,6 @@ package com.cpms.web.controllers;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,6 +53,9 @@ public class SkillTree {
 	@Qualifier("draftableSkillDAO")
 	private IDraftableSkillDaoExtension skillDao;
 
+    @Autowired
+    private MessageSource messageSource;
+
 	@RequestMapping(value = "/tree",
 			method = RequestMethod.GET)
 	public String tree(Model model, Principal principal, 
@@ -82,7 +84,7 @@ public class SkillTree {
 		}
 		model.addAttribute("useSearch", true);
 		model.addAttribute("search", search);
-		model.addAttribute("skillTitle", UserSessionData.localizeText("уровень", "skill"));
+		model.addAttribute("skillTitle", UserSessionData.localizeText("skill.level", messageSource));
 		if (search != null && search != "") {
 			List<Skill> found =
 					facade.getSkillDAO().searchRange(search, Skill.class, 0, 1);
@@ -103,7 +105,7 @@ public class SkillTree {
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxSkill(
 			@RequestBody String json) {
-		List<Object> values = DashboardAjax.parseJson(json);
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id > 0) {

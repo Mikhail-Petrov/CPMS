@@ -4,11 +4,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
@@ -43,6 +41,9 @@ public class EditorRequirement {
 	@Autowired
 	@Qualifier(value = "facade")
 	private ICPMSFacade facade;
+
+    @Autowired
+    private MessageSource messageSource;
 
 	@RequestMapping(path = "/{taskId}/requirement", 
 			method = RequestMethod.GET)
@@ -74,7 +75,8 @@ public class EditorRequirement {
 						TaskRequirement.class,
 						taskId,
 						id,
-						request.getPathInfo());
+						request.getPathInfo(),
+						messageSource);
 			}
 			create = false;
 		}
@@ -98,7 +100,7 @@ public class EditorRequirement {
 			@ModelAttribute("requirement") @Valid TaskRequirement recievedRequirement,
 			BindingResult bindingResult) {
 		if (recievedRequirement == null) {
-			throw new SessionExpiredException(null);
+			throw new SessionExpiredException(null, messageSource);
 		}
 		if (recievedRequirement.getLevel() >
 				recievedRequirement.getSkill().getMaxLevel()) {
@@ -121,8 +123,7 @@ public class EditorRequirement {
 						&& !x.getSkill().equals(oldRequirementSkill))) {
 	//		bindingResult.rejectValue("skill", "error.skill",
 //					"Such skill is already used.");
-			throw new DataAccessException(UserSessionData.localizeText(
-					"Требование с этим навыком уже существует.", "Such skill is already used."));
+			throw new DataAccessException(UserSessionData.localizeText("exception.DataAcces.requirement.explanation", messageSource));
 		}
 		boolean create = (recievedRequirement.getId() == 0);
 		if (bindingResult.hasErrors()) {
@@ -149,7 +150,8 @@ public class EditorRequirement {
 						TaskRequirement.class,
 						taskId,
 						recievedRequirement.getId(),
-						request.getPathInfo());
+						request.getPathInfo(),
+						messageSource);
 			}
 			requirement.setSkill(recievedRequirement.getSkill());
 			requirement.setLevel(recievedRequirement.getLevel());
@@ -176,7 +178,8 @@ public class EditorRequirement {
 					TaskRequirement.class,
 					taskId,
 					id,
-					request.getPathInfo());
+					request.getPathInfo(),
+					messageSource);
 		}
 		task.removerRequirement(requirement);
 		facade.getTaskDAO().update(task);

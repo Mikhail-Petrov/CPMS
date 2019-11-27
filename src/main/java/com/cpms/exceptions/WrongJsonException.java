@@ -1,5 +1,7 @@
 package com.cpms.exceptions;
 
+import org.springframework.context.MessageSource;
+
 import com.cpms.web.UserSessionData;
 
 /**
@@ -11,12 +13,12 @@ import com.cpms.web.UserSessionData;
 @SuppressWarnings("serial")
 public class WrongJsonException extends CPMSException {
 
-	public WrongJsonException(String json, Exception cause) {
-		super(UserSessionData.localizeText("Получен неверный JSON:\n", "Wrong JSON recieved:\n") + json, cause);
+	public WrongJsonException(String json, Exception cause, MessageSource messageSource) {
+		super(UserSessionData.localizeText("exception.WrongJson", messageSource) + "\n" + json, cause);
 	}
 
-	public WrongJsonException(String json) {
-		super(UserSessionData.localizeText("Получен неверный JSON:\n", "Wrong JSON recieved:\n") + json);
+	public WrongJsonException(String json, MessageSource messageSource) {
+		super(UserSessionData.localizeText("exception.WrongJson", messageSource) + "\n" + json);
 	}
 	
 }
