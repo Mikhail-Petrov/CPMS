@@ -11,8 +11,6 @@ import org.junit.runners.Suite;
    TestFullTextSearch.class,
    TestApplicationsService.class,
    TestSubprofiler.class,
-   TestTaskComparator.class,
-   TestProfileComparator.class,
    TestProfileCompetencySearcher.class,
    TestProfileRanger.class,
    TestPossibilityAggregator.class

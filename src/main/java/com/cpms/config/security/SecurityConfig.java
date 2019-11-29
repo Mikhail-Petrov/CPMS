@@ -85,7 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               			"/editor/skill/delete", "/editor/skill/delete/force",
               			"/editor/profile",
               			"/editor/task", "/editor/task/status", "/editor/task/send",
-              			"/editor/*/skillLevel", "/editor/skill/alternativeAsync")
+              			"/editor/skill/alternativeAsync")
               	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
             	//.permitAll()
           	.antMatchers("/editor","/editor/**")
@@ -104,28 +104,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           		.authenticated()
           	.antMatchers("/security/register")
           		.hasRole(RoleTypes.MANAGER.toString())
-//          	.antMatchers("/applications/delete", "/applications/delete/**", 
-  //        			"/applications/approve", "/applications/approve/**")
-    //      		.hasRole(RoleTypes.MANAGER.toString())
-//          	.antMatchers("/applications/suggest", "/applications/suggest/**", 
-  //            		"/applications/recall", "/applications/recall/**")
-    //          	.hasRole(RoleTypes.EXPERT.toString())
           	.and()
       .formLogin()
           	.loginPage("/security/login")
           			.usernameParameter("username")
           			.passwordParameter("password")
           	.loginProcessingUrl("/security/login")
-          	//.failureUrl("/security/login?error")
-          	/*.failureHandler(new AuthenticationFailureHandler() {
-				
-				@Override
-				public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-						AuthenticationException exception) throws IOException, ServletException {
-					// TODO Auto-generated method stub
-					throw exception;
-				}
-			})*/
           	.permitAll()
           	.defaultSuccessUrl("/security/me", true)
           	.and()

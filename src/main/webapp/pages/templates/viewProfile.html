@@ -80,65 +80,6 @@
                                     </tr>
                                 </table>
                                 </form>
-                                
-                         		<script th:inline="javascript">
-                         		/*<![CDATA[*/
-                         		var header = /*[[#{layout.notification}]]*/ null;
-                         		var profileId = /*[[${profile.id}]]*/
-                         		
-                         		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-                        	    var csrfToken = $("meta[name='_csrf']").attr("content");
-                        	    var headers = {};
-                        	    headers[csrfHeader] = csrfToken;
-                         		           
-                         		function profileSelect() {
-                         			var val = $("#actions").val();
-                         			var message = null;
-                         			var address = null;
-                         			
-                         			var inputArgs = [];
-                            	    inputArgs.push(profileId);
-                         			
-                         			if (val == 1) {
-                         				address = /*[[@{/dashboard/compareProfile}]]*/ null;
-                         			} else if (val == 2) {
-                         				address = /*[[@{/dashboard/compareTask}]]*/ null;
-                         			} else if (val == 3) {
-                         				address = /*[[@{/dashboard/rememberProfile}]]*/ null;
-                         			} else if (val == 4) {
-                         				var address = /*[[@{/dashboard/aggregatePossibilities}]]*/ null;
-                         				window.location.href = address + "?profile=" + profileId;
-                         				return;
-                         			} else {
-                         				return;
-                         			}
-                         			
-                         			$.ajax({
-                         				url : address,
-                         				type: 'POST',
-                         				dataType: 'json',
-                         				contentType: 'application/json; charset=utf-8',
-                         				data : JSON.stringify(inputArgs),
-                         				headers: headers,
-                         				success: function (res) {
-                         					document.getElementById('notificationBody').innerHTML=res.message;
-                         					document.getElementById('notificationHeader').innerHTML=header;
-                         					$('#notificationModal').modal('show'); 
-                         				},
-                         				error: function (xhRequest, ErrorText, thrownError) {
-                         					document.getElementById('notificationBody').innerHTML="Error.";
-                         					document.getElementById('notificationHeader').innerHTML=header;
-                         					$('#notificationModal').modal('show');
-                         					
-                         					console.log('xhRequest: ' + xhRequest + "\n");
-                         					console.log('ErrorText: ' + ErrorText + "\n");
-                         					console.log('thrownError: ' + thrownError + "\n");
-                         					console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
-                         				}
-                         			});
-                         		}
-                         		/*]]>*/
-                         		</script>
 
                                 <style>
                                     p {

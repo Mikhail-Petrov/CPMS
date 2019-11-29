@@ -24,7 +24,7 @@ import com.cpms.operations.interfaces.ITaskComparator;
  */
 @Configuration
 public class OperationConfig {
-	
+
 	/**
 	 * @return implementation of IPossibilityAggregator
 	 * @see IPossibilityAggregator
@@ -35,7 +35,7 @@ public class OperationConfig {
 		target.setComparator(getTaskComparator());
 		return target;
 	}
-	
+
 	/**
 	 * @return implementation of IProfileComparator
 	 * @see IProfileComparator
@@ -44,19 +44,18 @@ public class OperationConfig {
 	public IProfileComparator getProfileComparator() {
 		return new BasicProfileComparator();
 	}
-	
+
 	/**
 	 * @return implementation of IProfileCompetencySearcher
 	 * @see IProfileCompetencySearcher
 	 */
 	@Bean(name = "profileCompetencySearcher")
 	public IProfileCompetencySearcher getProfileCompetencySearcher() {
-		BasicProfileCompetencySearcher target =
-				new BasicProfileCompetencySearcher();
+		BasicProfileCompetencySearcher target = new BasicProfileCompetencySearcher();
 		target.setComparator(getProfileComparator());
 		return target;
 	}
-	
+
 	/**
 	 * @return implementation of IProfileRanger
 	 * @see IProfileRanger
@@ -67,7 +66,7 @@ public class OperationConfig {
 		target.setComparator(getProfileComparator());
 		return target;
 	}
-	
+
 	/**
 	 * @return implementation of ISubprofiles
 	 * @see ISubprofiler
@@ -76,7 +75,7 @@ public class OperationConfig {
 	public ISubprofiler getSubprofiler() {
 		return new BasicSubprofiler();
 	}
-	
+
 	/**
 	 * @return implementation of ITaskComparator
 	 * @see ITaskComparator

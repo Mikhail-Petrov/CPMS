@@ -71,7 +71,7 @@ public class BasicProfileComparator implements IProfileComparator {
 
 	@Override
 	public String getHintMessage() {
-		return "popup.message.compare.hint.basic";
+		return "";
 	}
 	
 }

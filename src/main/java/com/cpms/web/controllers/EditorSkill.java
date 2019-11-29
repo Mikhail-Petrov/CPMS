@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -14,7 +12,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,12 +27,10 @@ import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
 import com.cpms.exceptions.AccessDeniedException;
 import com.cpms.exceptions.ManualValidationException;
-import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Users;
 import com.cpms.web.SkillPostForm;
-import com.cpms.web.SkillUtils;
 import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.IAjaxAnswer;
 import com.cpms.web.ajax.SkillAnswer;
@@ -66,25 +61,6 @@ public class EditorSkill {
     @Autowired
     private MessageSource messageSource;
 	
-	private void addSkillsListToModel(Model model, Principal principal,
-			HttpServletRequest request, boolean create) {
-		model.addAttribute("create", create);
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			Users owner = userDAO.getByUsername((
-					(UsernamePasswordAuthenticationToken)principal
-					).getName());
-			List<Skill> skills = facade.getSkillDAO().getAll();
-			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			List<Skill> skills = skillDao.getAllIncludingDrafts();
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
-		} else {
-			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
-		}
-	}
-	
 	private void checkBelongs(Principal principal, Skill recievedSkill,
 			HttpServletRequest request) {
 		if (recievedSkill.getId() != 0) {
@@ -101,93 +77,6 @@ public class EditorSkill {
 				}
 			}
 		}
-	}
-	
-	private void checkNotChildrenOfDraft(
-			BindingResult bindingResult,
-			Skill recievedSkill,
-			HttpServletRequest request) {
-		checkNotChildrenOfDraft(request, recievedSkill);
-	}
-	
-	private void checkNotChildrenOfDraft(
-			HttpServletRequest request,
-			Skill recievedSkill) {
-		/*if (recievedSkill.getParent() != null && 
-				//recievedSkill.getParent().isDraft() &&
-				CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			throw new ManualValidationException(UserSessionData.localizeText(
-					"Отправлено некорректное умение", "Invalid skill submitted!"),
-					UserSessionData.localizeText(
-							"Неподтверждённое умение не может иметь дочерние умения, сперва необходимо подтвердить его.",
-							"You can't create children of a draft skill, approve it's parent first."),
-					null);
-		}*/
-	}
-	
-	@RequestMapping(path = "/skill", 
-			method = RequestMethod.GET)
-	public String skill(Model model, Principal principal,
-			HttpServletRequest request,
-			@RequestParam(name = "id", required = false) Long id) {
-		model.addAttribute("_VIEW_TITLE", "title.edit.skill");
-		Skill skill;
-		boolean create;
-		if (id == null) {
-			skill = new Skill();
-			skill.setId(0);
-			create = true;
-		} else {
-			skill = facade.getSkillDAO().getOne(id);
-			checkBelongs(principal, skill, request);
-			create = false;
-		}
-		model.addAttribute("skill", skill);
-		addSkillsListToModel(model, principal, request, create);
-		return "editSkill";
-	}
-	
-	@RequestMapping(path = "/skill", 
-			method = RequestMethod.POST)
-	public String skillCreate(Model model, Principal principal,
-			@ModelAttribute("skill") @Valid Skill recievedSkill,
-			HttpServletRequest request,
-			BindingResult bindingResult) {
-		if (recievedSkill == null) {
-			throw new SessionExpiredException(null, messageSource);
-		}
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			//if (!CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
-				//recievedSkill.setDraft(true);
-			recievedSkill.setOwner(userDAO.getByUsername((
-					(UsernamePasswordAuthenticationToken)principal
-					).getName()).getId());
-		}
-		boolean create = (recievedSkill.getId() == 0);
-		Skill skill;
-		checkBelongs(principal, recievedSkill, request);
-		checkNotChildrenOfDraft(bindingResult, recievedSkill, request);
-		if (bindingResult.hasErrors()) {
-			model.addAttribute("create", create);
-			if (create) {
-				recievedSkill.setParent(null);
-			}
-			addSkillsListToModel(model, principal, request, create);
-			return ("editSkill");
-		}
-		if (create) {
-			skill = facade.getSkillDAO().insert(recievedSkill);
-		} else {
-			skill = facade.getSkillDAO().getOne(recievedSkill.getId());
-			skill.setAbout(recievedSkill.getAbout());
-			skill.setParent(recievedSkill.getParent());
-			skill.setName(recievedSkill.getName());
-			skill.setMaxLevel(recievedSkill.getMaxLevel());
-			skill.setType(recievedSkill.getType());
-			skill = facade.getSkillDAO().update(skill);
-		}
-		//return "redirect:/viewer/tree";
-		return "redirect:/skills";
 	}
 	
 	@RequestMapping(path = {"/skill/delete"}, 
@@ -305,7 +194,6 @@ public class EditorSkill {
 					).getName()).getId());
 		}
 		int levelIndex = 1;
-		checkNotChildrenOfDraft(request, newSkill);
 		for(SkillLevel level : recievedSkill.getLevels()) {
 			SkillLevel newLevel = new SkillLevel();
 			newLevel.setAbout(level.getAbout());
@@ -373,7 +261,6 @@ public class EditorSkill {
 					(UsernamePasswordAuthenticationToken)principal
 					).getName()).getId());
 		}
-		checkNotChildrenOfDraft(request, newSkill);
 		for(SkillLevel level : newSkill.getLevels()) {
 			if (recievedSkill.getLevels().size() < level.getLevel())
 				newSkill.removeLevel(level);
@@ -390,18 +277,6 @@ public class EditorSkill {
 			facade.getSkillDAO().insert(newSkill);
 		else
 			facade.getSkillDAO().update(newSkill);
-		return "redirect:/skills";
-	}
-	
-	@RequestMapping(path = "/skill/approve", 
-			method = RequestMethod.GET)
-	public String skillApprove(Model model, HttpServletRequest request,
-			@RequestParam(name = "id", required = false) Long id) {
-		Skill skill = facade.getSkillDAO().getOne(id);
-		checkNotChildrenOfDraft(request, skill);
-		//skill.setDraft(false);
-		facade.getSkillDAO().update(skill);
-		//return "redirect:/viewer/tree";
 		return "redirect:/skills";
 	}
 	

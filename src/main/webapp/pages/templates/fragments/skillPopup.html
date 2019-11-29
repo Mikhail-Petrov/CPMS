@@ -12,11 +12,6 @@
 			</tbody>
 		</table>
   		<div class="input-group">
-			<a hidden="true" id="rememberLink" onclick="#">
-				<span class="input-group-btn">
-					<button class="btn btn-lg" type="submit" th:text="#{skillPopup.remember}">Remember</button>
-				</span>
-			</a>
 			<a id="editLink" th:if="${isAdmin or isResident}" href="#">
 				<span class="input-group-btn">
 					<button class="btn btn-lg" type="submit" th:text="#{skillPopup.edit}">Edit</button>
@@ -25,11 +20,6 @@
 			<a id="deleteLink" th:if="${isAdmin or isResident}" href="#">
 				<span class="input-group-btn">
 					<button class="btn btn-lg" type="submit" th:text="#{skillPopup.delete}">Delete</button>
-				</span>
-			</a>
-			<a hidden="true" id="approveLink" th:if="${isAdmin}" href="#">
-				<span class="input-group-btn">
-					<button class="btn btn-lg" type="submit" th:text="#{skillPopup.approve}">Approve</button>
 				</span>
 			</a>
   		</div>
