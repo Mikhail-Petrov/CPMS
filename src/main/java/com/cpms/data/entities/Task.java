@@ -120,6 +120,9 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 	@Column(name = "TARGETS", nullable = true, length = 1000)
 	private String target;
 	
+	@Column(name = "Cost", nullable = true)
+	private int cost;
+	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "task", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST})
@@ -393,5 +396,13 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
+	}
+
+	public int getCost() {
+		return cost;
+	}
+
+	public void setCost(int cost) {
+		this.cost = cost;
 	}
 }

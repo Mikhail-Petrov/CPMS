@@ -13,4 +13,20 @@
 		<th:object th:if="${companyId > 0}">
 		<a th:href="@{/viewer/profile(id=${companyId})}" th:text="#{me.profile}"></a>
 		</th:object>
+		<div class="row" th:if="${username=='admin'}">
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+				function generate() {
+					var url = rootPath + 'viewer/generate?amount=' + $("#amount").val() + '&perfMin=' + $("#perfMin").val() + '&perfMax=' + $("#perfMax").val();
+					$(location).attr('href',url);
+				}
+			/*]]>*/
+			</script>
+			<span class="two-buttons">Amount: </span><input type="number" class="form-control two-buttons" min="1" id="amount" value="1"/>
+			<span class="two-buttons">Min performers: </span><input type="number" class="form-control two-buttons" min="1" id="perfMin" value="3"/>
+			<span class="two-buttons">Max performers: </span><input type="number" class="form-control two-buttons" min="1" id="perfMax" value="4"/>
+		</div>
+		<div class="row" th:if="${username=='admin'}">
+			<span class="btn btn-primary btn-block" th:text="'Generate tasks'" onclick="generate();"></span>
+		</div>
 		</div>

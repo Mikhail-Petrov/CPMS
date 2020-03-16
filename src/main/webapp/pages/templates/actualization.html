@@ -1,0 +1,41 @@
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="x_title">
+			<h3 th:text="'Competence actualization'"></h3>
+		</div>
+		<div class="x_content">
+			<table class="table table-responsive table-striped">
+				<thead>
+					<tr>
+						<th><span th:text="#{users.management.name}"></span></th>
+						<th><span th:text="'Competency'"></span></th>
+						<th><span th:text="'Current value'"></span></th>
+						<th><span th:text="'New value'"></span></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="expert : ${expertsList}">
+						<td th:text="${expert.name}"></td>
+						<td><p th:each="competency : ${expert.competencies}">
+							<span th:text="${competency.skill.name}"></span>
+						</p></td>
+						<td><p th:each="competency : ${expert.competencies}">
+							<span th:text="${competency.level}"></span>
+						</p></td>
+						<td><p th:each="val : ${expert.values}">
+							<span th:text="${val}"></span>
+						</p></td>
+						<td><p th:each="competency : ${expert.competencies}">
+							<input type='checkbox' th:id="'ch'+ *{competency.id}" th:title="'Apply change'"/>
+						</p></td>
+					</tr>
+				</tbody>
+			</table>
+			<p><a th:href="@{/viewer/task/apply}">
+				<button id="apply" class="btn btn-primary btn-block" type="submit" th:text="'Apply'"></button>
+			</a></p>
+		</div>
+	</div>
+</div>

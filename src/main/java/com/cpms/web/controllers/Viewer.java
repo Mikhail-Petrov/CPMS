@@ -60,6 +60,7 @@ import com.cpms.operations.implementations.Porter;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Users;
 import com.cpms.web.PagingUtils;
+import com.cpms.web.ProfileActualization;
 import com.cpms.web.SkillUtils;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 import com.cpms.web.ajax.IAjaxAnswer;
@@ -375,6 +376,170 @@ public class Viewer {
 		return "viewTask";
 	}
 
+	@RequestMapping(value = "/task/analize", method = RequestMethod.GET)
+	public String analize(Model model, @RequestParam(value = "id", required = true) Long id) {
+		Task task = facade.getTaskDAO().getOne(id);
+		model.addAttribute("_NAMED_TITLE", true);
+		model.addAttribute("_VIEW_TITLE", "Task analyse");
+		// TODO: генерация участников, требований
+		// TODO: добавить проверку выполненности, оценку результата, учёт изменений
+		// evaluate the project
+		Integer s = -1, cost = task.getCost();
+		if (cost != null && cost > 0)
+			s = 1;
+		
+		ArrayList<ProfileActualization> experts = new ArrayList<>();
+		// for each participant
+		for (TaskCenter center : task.getRecipients()) {
+			Users user = center.getUser();
+			if (user == null || user.getProfileId() == null) continue;
+			Profile profile = facade.getProfileDAO().getOne(user.getProfileId());
+			if (profile == null) continue;
+			ProfileActualization pa = new ProfileActualization(profile);
+			// add each competency that was required
+			for (TaskRequirement curReq : task.getRequirements())
+				for (Competency comp : profile.getCompetencies())
+					if (curReq.getSkill().equals(comp.getSkill()))
+						pa.addCompetency(comp, comp.getLevel());
+			if (!pa.getCompetencies().isEmpty())
+				experts.add(pa);
+		}
+		// calculate variables for the task
+		int sumReq = 0;
+		Map<Long, Integer> reqs = new HashMap<>(), sumProf = new HashMap<>();
+		for (TaskRequirement curReq : task.getRequirements()) {
+			sumReq += curReq.getLevel();
+			reqs.put(curReq.getSkill().getId(), curReq.getLevel());
+		}
+		for (ProfileActualization expert : experts)
+			for (Competency comp : expert.getCompetencies())
+				if (!sumProf.containsKey(comp.getSkill().getId()))
+					sumProf.put(comp.getSkill().getId(), comp.getLevel());
+				else
+					sumProf.put(comp.getSkill().getId(), sumProf.get(comp.getSkill().getId()) + comp.getLevel());
+		// calculate competencies' impacts
+		for (ProfileActualization expert : experts)
+			expert.calculateImpacts(sumProf, sumReq, s, reqs);
+		model.addAttribute("expertsList", experts);
+		return "actualization";
+	}
+
+	@RequestMapping(value = "/generate", method = RequestMethod.GET)
+	public String generate(Model model, @RequestParam(value = "amount", required = true) Integer amount, @RequestParam(value = "perfMin", required = true) long perfMin,
+			@RequestParam(value = "perfMax", required = true) long perfMax) {
+		List<Users> allUsers = userDAO.getAll();
+		List<Skill> allSkills = facade.getSkillDAO().getAll();
+		// remember users' profiles and its changes
+		List<Profile> allProfiles = new ArrayList<>();
+		List<Boolean> profileChanges = new ArrayList<>();
+		for (Users user : userDAO.getAll()) {
+			if (user.getProfileId() != null) {
+				Profile profile = facade.getProfileDAO().getOne(user.getProfileId());
+				if (profile == null) {
+					allUsers.remove(user);
+					continue;
+				}
+				allProfiles.add(profile);
+				profileChanges.add(false);
+			}
+			else
+				allUsers.remove(user);
+		}
+
+		for (int i = 0; i < amount; i++) {
+			List<Users> users = new ArrayList<>(allUsers);
+			List<Skill> skills = new ArrayList<>(allSkills);
+			Task task = new Task();
+			
+			task.setStatus("1");
+			task.setCreatedDate(new Date(System.currentTimeMillis()));
+			task.setDueDate(task.getCreatedDate());
+			task.setCost((int) nextRand(2));
+			task.setName("Task №" + (i + 1) + " generated at " + task.getCreatedDate());
+			Users owner = users.get((int) nextRand(users.size()));
+			task.setUser(owner);
+			task = facade.getTaskDAO().insert(task);
+	
+			// add performers in the task
+			long perfAmount = nextRand(perfMin, perfMax);
+			for (int j = 0; j < perfAmount && !users.isEmpty(); j++) {
+				int index = (int) nextRand(users.size());
+				Users newRecipient = users.get(index);
+				users.remove(newRecipient);
+				task.addRecipient(new TaskCenter(newRecipient));
+				CommonModelAttributes.newTask.put(newRecipient.getId(), -1);
+			}
+			
+			// add requirements
+			long reqAmount = nextRand(5, 10);
+			for (int j = 0; j < reqAmount && !skills.isEmpty(); j++) {
+				Skill newSkill = skills.get((int) nextRand(skills.size()));
+				skills.remove(newSkill);
+				task.addRequirement(new TaskRequirement(newSkill, (int) nextRand(1, newSkill.getMaxLevel()/2)));
+			}
+			
+			// identify performers' profiles in the list
+			List<Integer> perfIndexes = new ArrayList<>();
+			for (TaskCenter center: task.getRecipients()) {
+				for (int j = 0; j < allProfiles.size(); j++)
+					if (allProfiles.get(j).getId() == center.getUser().getProfileId()) {
+						perfIndexes.add(j);
+						break;
+					}
+			}
+			// add competencies to the performers
+			for (TaskRequirement req : task.getRequirements()) {
+				perfAmount = nextRand(1, perfIndexes.size()/2);	// how many of performers will have this competency
+				List<Integer> toaddIndexes = new ArrayList<>(perfIndexes);	// indexes of profiles without this competency
+				// check how many of performers already has it
+				for (int j = 0; j < perfIndexes.size() && perfAmount > 0; j++) {
+					Competency comp = null;
+					for (Competency curComp : allProfiles.get(perfIndexes.get(j)).getCompetencies())
+						if (curComp.getSkill().equals(req.getSkill()))
+							comp = curComp;
+					if (comp != null) {
+						// check/change competency level
+						if (comp.getLevel() < req.getLevel()) {
+							comp.setLevel((int) nextRand(req.getLevel(), req.getSkill().getMaxLevel()));
+							profileChanges.set(perfIndexes.get(j), true);
+						}
+						// remove it from the list without the competency
+						--perfAmount;
+						toaddIndexes.remove(j);
+						break;
+					}
+				}
+				// add competency to random performers
+				for (int j = 0; j < perfAmount; j++) {
+					int perfIndex = (int) nextRand(toaddIndexes.size());
+					allProfiles.get(toaddIndexes.get(perfIndex)).addCompetency(new Competency(
+							req.getSkill(), (int) nextRand(req.getLevel(), req.getSkill().getMaxLevel())));
+					profileChanges.set(toaddIndexes.get(perfIndex), true);
+					toaddIndexes.remove(perfIndex);
+				}
+			}
+			facade.getTaskDAO().update(task);
+		}
+		
+		// update changed profiles
+		for (int i = 0; i < allProfiles.size(); i++)
+			if (profileChanges.get(i))
+				facade.getProfileDAO().update(allProfiles.get(i));
+		
+		return "redirect:/viewer/tasks";
+	}
+
+	@RequestMapping(value = "/task/apply", method = RequestMethod.GET)
+	public String apply(Model model, @RequestParam(value = "expertsList", required = false) ArrayList<ProfileActualization> id,
+			HttpServletRequest request, Principal principal) {
+		if (id != null && !id.isEmpty()) {
+		ArrayList<Competency> competencies = id.get(0).getCompetencies();
+		int size = competencies.size();
+		
+		}
+		return "actualization";
+	}
+
 	@RequestMapping(path = "/viewRef", method = RequestMethod.GET)
 	public String viewRef(Model model, @RequestParam(name = "id", required = true) Long id, HttpServletResponse response) {
 		model.addAttribute("_VIEW_TITLE", "title.edit.task");
@@ -392,10 +557,14 @@ public class Viewer {
 		return "";
 	}
 
+	public static long nextRand(long minVal, long maxVal) {
+		return minVal + nextRand(maxVal - minVal + 1);
+	}
+	
 	public static long nextRand(long bound) {
+		if (bound <= 1) return 0;
 		long nextRand = rand.nextLong();
 		nextRand = Math.abs(nextRand);
-		if (bound < 1) bound = 1;
 		nextRand %= bound;
 		return nextRand;
 	}

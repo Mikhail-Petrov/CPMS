@@ -105,6 +105,10 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
 	                                        </a>
 	                                    </div>
 	                                </div>
+	                                <p><a th:href="@{/viewer/task/analize(id=${task.id})}">
+										<button id="analize" class="btn btn-primary btn-block" type="submit" th:text="'Analize'"></button>
+											</a></p>
+									<p id="statusLbl"></p>
 	                                <br/>
 								<p><b><span th:text="#{task.requirements}"></span></b></p>
                                 <form action="#" th:action="@{/editor/task/saveChanges}" th:object="${requirements}" method="post">

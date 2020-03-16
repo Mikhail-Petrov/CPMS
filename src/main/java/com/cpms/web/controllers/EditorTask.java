@@ -186,6 +186,7 @@ public class EditorTask {
 		Task task;
 		if (create) {
 			recievedTask.setStatus("1");
+			recievedTask.setCost(0);
 			if (recievedTask.getDueDate() == null)
 				return "redirect:/viewer/task";
 			recievedTask.setCreatedDate(new Date(System.currentTimeMillis()));
