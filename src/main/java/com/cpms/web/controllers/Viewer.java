@@ -574,6 +574,26 @@ public class Viewer {
 		return new MessageAnswer(curStatus + "...");
 	}
 
+	@RequestMapping(path = { "/api" }, method = RequestMethod.GET)
+	public String API(Model model, @RequestParam(value = "vkid", required = false) String id) {
+		return "test";
+	}
+
+	@RequestMapping(path = { "/testAPI" }, method = RequestMethod.GET)
+	public String testAPI(Model model, @RequestParam(value = "vkid", required = false) String id) {
+		String s = "http://localhost:8080/api/test";
+		Content content;
+		try {
+			content = Request.Get(s).execute().returnContent();
+			String res = content.asString();
+			res += "hvgfyhudf bh  ";
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "redirect:/viewer";
+	}
+
 	@RequestMapping(path = { "/createCompetencyProfile" }, method = RequestMethod.GET)
 	public String createCompetencyProfile(Model model, @RequestParam(value = "vkid", required = true) String id)
 			throws ClientProtocolException, IOException {
