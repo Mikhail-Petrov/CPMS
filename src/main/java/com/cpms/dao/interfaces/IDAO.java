@@ -84,6 +84,8 @@ public interface IDAO<T extends AbstractDomainObject> {
 	 */
 	public T insert(T newInstance);
 	
+	public default List<T> insertAll(List<T> instances) {return null;};
+	
 	/**
 	 * Updates saved entity to the state specified.
 	 * 
@@ -93,6 +95,8 @@ public interface IDAO<T extends AbstractDomainObject> {
 	 * @return updated entity
 	 */
 	public T update(T updateInstance);
+
+	public default List<T> updateAll(List<T> instances) {return null;};
 	
 	/**
 	 * Deletes specified entity from storage.
@@ -100,6 +104,8 @@ public interface IDAO<T extends AbstractDomainObject> {
 	 * @param deleteInstance instance to delete
 	 */
 	public void delete(T deleteInstance);
+
+	public default void deleteAll(List<T> instances) {return;};
 	
 	/**
 	 * Rebuilds full text search index from scratch.

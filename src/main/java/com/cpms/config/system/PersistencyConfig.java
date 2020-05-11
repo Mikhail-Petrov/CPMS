@@ -23,6 +23,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.cpms.dao.implementations.jpa.JPADocumentDAO;
+import com.cpms.dao.implementations.jpa.JPAKeywordDAO;
 import com.cpms.dao.implementations.jpa.JPALanguagesDAO;
 import com.cpms.dao.implementations.jpa.JPAMessageDAO;
 import com.cpms.dao.implementations.jpa.JPAMotivationDAO;
@@ -30,10 +32,14 @@ import com.cpms.dao.implementations.jpa.JPAProfileDAO;
 import com.cpms.dao.implementations.jpa.JPARewardsDAO;
 import com.cpms.dao.implementations.jpa.JPASkillDraftableDAO;
 import com.cpms.dao.implementations.jpa.JPATaskDAO;
+import com.cpms.dao.implementations.jpa.JPATermDAO;
+import com.cpms.dao.implementations.jpa.JPATopicDAO;
 import com.cpms.dao.implementations.jpa.JPAUserDAO;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Article;
+import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
@@ -41,6 +47,8 @@ import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
+import com.cpms.data.entities.Term;
+import com.cpms.data.entities.Topic;
 import com.cpms.security.CustomUserDetailsService;
 import com.cpms.web.controllers.CommonModelAttributes;
 import com.zaxxer.hikari.HikariConfig;
@@ -239,6 +247,36 @@ public class PersistencyConfig {
     }
     
     /**
+     * @return implementation of IDAO interface for Task entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "termDAO")
+    public IDAO<Term> getTermDAO() {
+    	return new JPATermDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Task entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "docDAO")
+    public IDAO<Article> getDocumentDAO() {
+    	return new JPADocumentDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Task entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "keywordDAO")
+    public IDAO<Keyword> getKeywordDAO() {
+    	return new JPAKeywordDAO();
+    }
+    
+    /**
      * @return implementation of IDAO interface for Motivation entity
      * @see IDAO
      * @see Task
@@ -266,6 +304,16 @@ public class PersistencyConfig {
     @Bean(name = "languageDAO")
     public IDAO<Language> getLanguageDAO() {
     	return new JPALanguagesDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Language entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "topicDAO")
+    public IDAO<Topic> getTopicDAO() {
+    	return new JPATopicDAO();
     }
     
     /**

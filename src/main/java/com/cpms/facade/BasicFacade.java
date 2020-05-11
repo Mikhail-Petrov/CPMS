@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.Assert;
 
 import com.cpms.dao.interfaces.*;
+import com.cpms.data.entities.Article;
+import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
@@ -14,16 +16,11 @@ import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Reward;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
+import com.cpms.data.entities.Term;
+import com.cpms.data.entities.Topic;
 import com.cpms.operations.interfaces.*;
 
-/**
- * {@link ICPMSFacade} pattern configured implementation.
- * 
- * @see ICPMSFacade
- * 
- * @author Gordeev Boris
- * @since 1.0
- */
+
 @Configurable
 public class BasicFacade implements ICPMSFacade, InitializingBean {
 	
@@ -40,6 +37,18 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	private IDAO<Task> taskDAO;
 	
 	@Autowired
+	@Qualifier(value = "termDAO")
+	private IDAO<Term> termDAO;
+	
+	@Autowired
+	@Qualifier(value = "keywordDAO")
+	private IDAO<Keyword> keywordDAO;
+	
+	@Autowired
+	@Qualifier(value = "docDAO")
+	private IDAO<Article> docDAO;
+	
+	@Autowired
 	@Qualifier(value = "motivationDAO")
 	private IDAO<Motivation> motivationDAO;
 	
@@ -54,6 +63,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Autowired
 	@Qualifier(value = "languageDAO")
 	private IDAO<Language> languageDAO;
+	
+	@Autowired
+	@Qualifier(value = "topicDAO")
+	private IDAO<Topic> topicDAO;
 	
 	@Autowired
 	@Qualifier(value = "subprofiler")
@@ -102,6 +115,18 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	public void setTaskDAO(IDAO<Task> taskDAO) {
 		this.taskDAO = taskDAO;
 	}
+
+	public void setTermDAO(IDAO<Term> termDAO) {
+		this.termDAO = termDAO;
+	}
+
+	public void setDocumentDAO(IDAO<Article> documentDAO) {
+		this.docDAO = documentDAO;
+	}
+
+	public void setKeywordDAO(IDAO<Keyword> keywordDAO) {
+		this.keywordDAO = keywordDAO;
+	}
 	
 	public void setSubprofiler(ISubprofiler subprofiler) {
 		this.subprofiler = subprofiler;
@@ -148,6 +173,21 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	}
 
 	@Override
+	public IDAO<Term> getTermDAO() {
+		return termDAO;
+	}
+
+	@Override
+	public IDAO<Keyword> getKeywordDAO() {
+		return keywordDAO;
+	}
+
+	@Override
+	public IDAO<Article> getDocumentDAO() {
+		return docDAO;
+	}
+
+	@Override
 	public IDAO<Motivation> getMotivationDAO() {
 		return motivationDAO;
 	}
@@ -160,6 +200,11 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Override
 	public IDAO<Language> getLanguageDAO() {
 		return languageDAO;
+	}
+
+	@Override
+	public IDAO<Topic> getTopicDAO() {
+		return topicDAO;
 	}
 
 	@Override
