@@ -1,0 +1,24 @@
+		<div class="row">
+		
+		<p><span th:text="'amount' + ': ' + ${amount}"></span></p>
+		<p><span th:text="'max id' + ': ' + ${maxid}"></span></p>
+		<p><span th:text="'repeats' + ': ' + ${repeats}"></span>
+			<a th:if="${repeats} > 0" th:href="@{/stat/clearTermsRep}" th:text="' (' + 'clear' + ')'"></a></p>
+		
+		<p><span th:text="'0 keywords' + ': ' + ${nokeyssize}"></span>
+			<a href="#" th:text="' (' + 'show/hide' + ')'" onclick="show()"></a></p>
+		<div id="keys" hidden="true">
+		<p th:each="nokey : ${nokeys}"><span th:text="'id ' + ${nokey} + ' - '"></span>
+			<a th:href="@{/stat/deleteBadTerms(id=${nokey})}" th:text="'delete'"></a></p>
+		</div>
+		<a th:href="@{/stat/deleteBadTerms}" th:text="'delete all'"></a>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+				function show() {
+					if ($("#keys").is(':hidden'))
+						$("#keys").show();
+					else $("#keys").hide();
+				}
+			/*]]>*/
+			</script>
+		</div>

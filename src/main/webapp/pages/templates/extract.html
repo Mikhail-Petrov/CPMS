@@ -1,0 +1,65 @@
+		<div class="row">
+		
+		<form action="#" th:action="@{/stat/extractDocs}" method="post">
+		
+		<p><span>Sources*: </span><textarea id="sources" class="form-control" name="sources" th:text="''"></textarea></p>
+		<p><span>Link mask*: </span><input id="linkm" type="text" name="linkm" th:value="${linkm}"/></p>
+		<p><span>Article mask*: </span><input id="articlem" type="text" name="articlem" th:value="${articlem}"/></p>
+		<p><span>Date mask*: </span><input id="datem" type="text" name="datem" th:value="${datem}"/></p>
+		<p><span>Date format*: </span><input id="datef" type="text" name="datef" th:value="${datef}"/></p>
+		<p><span>Pages and format (i.e. "0-10 page/"): </span><input id="pages" type="text" name="pages"/></p>
+		<p><span>Min date (i.e. 2015-01-01): </span><input id="mindate" type="text" name="mindate"/></p>
+		<p><span>Max date (i.e. 2020-12-31): </span><input id="maxdate" type="text" name="maxdate"/></p>
+		
+		<button type="button" class="btn btn-primary btn-block" id="plusButton" th:text="'Extract'"></button>
+		<p id="curStatus"></p>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			function ajaxGroup(requestUrl) {
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				inputArgs.push($("#sources").val());
+				inputArgs.push($("#linkm").val());
+				inputArgs.push($("#articlem").val());
+				inputArgs.push($("#datem").val());
+				inputArgs.push($("#datef").val());
+				inputArgs.push($("#pages").val());
+				inputArgs.push($("#mindate").val());
+				inputArgs.push($("#maxdate").val());
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+
+		         $("#curStatus").html('extracting...');
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+				         $("#curStatus").html('success');
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+				         $("#curStatus").html('ERROR!!!');
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'stat/ajaxExtract')});
+			
+			/*]]>*/
+			</script>
+		</form>
+		</div>

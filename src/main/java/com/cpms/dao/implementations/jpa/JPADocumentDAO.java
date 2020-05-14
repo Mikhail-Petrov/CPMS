@@ -147,5 +147,11 @@ public class JPADocumentDAO extends AbstractDAO<Article> implements ICleanable {
 	public void rebuildIndex() {
 		super.rebuildIndex(entityManager, Article.class);
 	}
+	
+	@Override
+	public int getInt(Article doc) {
+		Integer ret = docsRepo.getSumCount(doc.getId());
+		return ret == null ? 0 : ret;
+	}
 
 }

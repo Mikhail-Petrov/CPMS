@@ -1,6 +1,5 @@
 package com.cpms.web.controllers;
 
-import java.awt.Toolkit;
 import java.io.IOException;
 import java.security.Principal;
 import java.text.ParseException;
@@ -12,15 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.util.Version;
-import org.crsh.shell.impl.command.system.repl;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -84,10 +80,6 @@ public class Security {
 	@Autowired
 	@Qualifier(value = "taskDAO")
 	private IDAO<Task> taskDAO;
-	
-	@Autowired
-	@Qualifier(value = "docDAO")
-	private IDAO<Article> docDAO;
 	
 	@Autowired
 	@Qualifier(value = "termDAO")
@@ -273,7 +265,6 @@ public class Security {
 		words.clear();
 	}
 
-	private boolean inProcess = false;
 	@RequestMapping(path = "/login", method = RequestMethod.GET)
 	public String login(Model model,
 			@RequestParam(name = "error", required = false) String error) throws Exception {
@@ -282,20 +273,6 @@ public class Security {
 			error = UserSessionData.localizeText("exception.login", messageSource);
 		else error = "";
 		model.addAttribute("error", error);
-		
-		if (!inProcess) {
-		inProcess = true;
-		initialize();
-		//startCrawl();
-		//updateTexts(docDAO.getAll(), "div[class=entry-content]");
-		System.out.print(new Date(System.currentTimeMillis()) + "\n");
-		for (long id = 809; id < 917; id++)	// 800-917
-		extractTerms(docDAO.getOne(id));
-		System.out.print("\n" + new Date(System.currentTimeMillis()));
-		//clearDocDublicates();
-		//getPosts3(docDAO.getAll());
-		inProcess = false;
-		}
 		return "login";
 	}
 	
@@ -329,44 +306,6 @@ public class Security {
 		termDAO.deleteAll(toDelete);
 	}
 	
-	private void updateTexts(List<Article> docs, String articleMask) {
-		SimpleDateFormat df = new SimpleDateFormat("MMM'.' d',' yyyy", Locale.ENGLISH);
-		df.applyPattern("yyyy-MM-dd'T'hh:mm:ss");
-		for (Article doc : docs) {
-			if (doc.getCreationDate() != null) continue;
-			Document curDoc = getDoc(doc.getUrl());
-			if (curDoc == null) continue;
-			Date minDate = null;
-			Elements times = curDoc.select("time");
-			//Elements times = curDoc.select("div[class=published-info]");
-			for (Element time : times) {
-				String attr = time.attr("datetime");
-				//String attr = time.text().replace("Published", "").replace("\n", "").trim();
-				try {
-					Date parse = df.parse(attr);
-					if (minDate == null) minDate = parse;
-					if (minDate.after(parse)) minDate = parse;
-				} catch (ParseException e) {
-					df.applyPattern("MMMM d',' yyyy");
-					Date parse;
-					try {
-						parse = df.parse(attr);
-						if (minDate == null) minDate = parse;
-						if (minDate.after(parse)) minDate = parse;
-					} catch (ParseException e1) {
-						e1.printStackTrace();
-					} finally {
-						df.applyPattern("MMM'.' d',' yyyy");
-					}
-				}
-			}
-			if (minDate != null) {
-				doc.setCreationDate(minDate);
-				docDAO.update(doc);
-			}
-		}
-	}
-	
 	private Map<String, String> getPosts(String url, String postMask) {
 		String initUrl = url;
 		for (int i = 10; i < 20; i++) {
@@ -387,101 +326,6 @@ public class Security {
 		}
 		}
 		return sites;
-	}
-	
-	private void startCrawl() {
-		String[] categories = {"https://joshbersin.com/category/hr-technology/ai/",
-				"https://joshbersin.com/category/business-trends/",
-				"https://joshbersin.com/category/talent-management/career-management/",
-				"https://joshbersin.com/category/enterprise-learning/content-development/",
-				"https://joshbersin.com/category/talent-management/corporate-culture/",
-				"https://joshbersin.com/category/human-resources/diversity-and-inclusion/",
-				"https://joshbersin.com/category/human-resources/employee-engagement/",
-				"https://joshbersin.com/category/enterprise-learning/",
-				"https://joshbersin.com/category/human-resources/ethics-privacy/",
-				"https://joshbersin.com/category/human-resources/hr-skills-and-capability/",
-				"https://joshbersin.com/category/talent-management/hr-systems/",
-				"https://joshbersin.com/category/hr-technology/",
-				"https://joshbersin.com/category/human-resources/hr-transformation/",
-				"https://joshbersin.com/category/human-resources/hrms/",
-				"https://joshbersin.com/category/human-resources/",
-				"https://joshbersin.com/category/enterprise-learning/learning-20/",
-				"https://joshbersin.com/category/talent-management/innovation/",
-				"https://joshbersin.com/category/talent-management/leadership-development/",
-				"https://joshbersin.com/category/enterprise-learning/learning-culture-enterprise-learning/",
-				"https://joshbersin.com/category/enterprise-learning/learning-on-demand-enterprise-learning/",
-				"https://joshbersin.com/category/enterprise-learning/learning-programs/",
-				"https://joshbersin.com/category/enterprise-learning/lms-lcms/",
-				"https://joshbersin.com/category/enterprise-learning/measurement/",
-				"https://joshbersin.com/category/enterprise-learning/organization-governance/",
-				"https://joshbersin.com/category/human-resources/organization-design/",
-				"https://joshbersin.com/category/talent-management/performance-management/",
-				"https://joshbersin.com/category/talent-management/sourcing-and-recruiting/",
-				"https://joshbersin.com/category/talent-management/succession-planning/",
-				"https://joshbersin.com/category/talent-management/talent-analytics-talent-management/",
-				"https://joshbersin.com/category/talent-management/",
-				"https://joshbersin.com/category/talent-management/talent-strategy/",
-				"https://joshbersin.com/category/uncategorized/",
-				"https://joshbersin.com/category/enterprise-learning/vr-ar/",
-				"https://joshbersin.com/category/human-resources/well-being/",
-				"https://joshbersin.com/category/talent-management/workforce-planning/"};
-		String[] categoriesHRMorning = {"https://www.hrmorning.com/benefits/",
-				"https://www.hrmorning.com/recruiting/",
-				"https://www.hrmorning.com/talent-management/",
-				"https://www.hrmorning.com/performance-management/",
-				"https://www.hrmorning.com/hr-technology/",
-				"https://www.hrmorning.com/leadership-strategy/",
-				"https://www.hrmorning.com/compensation-payroll/",
-				"https://www.hrmorning.com/policy-culture/",
-				"https://www.hrmorning.com/wellness-safety/",
-				"https://www.hrmorning.com/employee-services/"};
-		String[] categoriesHRDrive = {"https://www.hrdive.com/topic/talent/",
-				"https://www.hrdive.com/topic/hr-management/",
-				"https://www.hrdive.com/topic/learning/",
-				"https://www.hrdive.com/topic/compensation-benefits/",
-				"https://www.hrdive.com/topic/hr-technology-analytics/"};
-		for (Article doc : docDAO.getAll())
-			oldUrls.add(doc.getUrl());
-		for (int i = 0; i < categoriesHRMorning.length; i++) {
-			sites.putAll(getPosts(categoriesHRMorning[i], "h2 a"));
-		}
-		
-		List<Article> docs = new ArrayList<>();
-		for (String url : urls) {
-			//Article newDoc = getPosts2(url, "div[class*=article-body]");
-			Article newDoc = getPosts2(url, "div[class=entry-content]");
-			//Article newDoc = getPosts2(url, "div[class*=themeform]");
-			if (newDoc != null)
-				docs.add(newDoc);
-		}
-		List<Article> inserted = docDAO.insertAll(docs);
-		//getPosts("https://joshbersin.com/", "h2 a[href*=joshbersin.com/20]", "div[class*=themeform]");
-		/*getPosts("https://www.shrm.org/hr-today/news/hr-news/Pages/default.aspx",
-				"a[id*=_ctl00_hl_CuratedStory_Link]",
-				"div[class=article-content]");*/
-		getPosts3(inserted);
-		//tfIdf(corpus);
-		
-		// save words
-		/*List<Term> terms = termDAO.getAll(), newTerms = new ArrayList<>();
-		List<String> stemmed = new ArrayList<>();
-		for (Term term : terms) stemmed.add(term.getStem());
-		for (Entry<String, String> term : wordsMap.entrySet()) {
-			if (stemmed.contains(term.getKey())) continue;
-			Term newTerm = new Term();
-			newTerm.setPref(term.getValue());
-			newTerm.setStem(term.getKey());
-			newTerms.add(newTerm);
-			stemmed.add(term.getKey());
-		}
-		for (int i = 0; i < newTerms.size(); i++) {
-			if (newTerms.get(i).getPref().length() >= 100 || newTerms.get(i).getStem().length() >= 100) {
-				int ii = i;
-				String string = wordsMap.get(newTerms.get(i).getStem());
-				string += "" + ii;
-			}
-		}
-		termDAO.insertAll(newTerms);*/
 	}
 	
 	private Article getPosts2(String url, String articleMask) {
@@ -534,20 +378,6 @@ public class Security {
 		return newDoc;
 	}
 	
-	private void getPosts3(List<Article> docs) {
-		for (Article doc : docs) {
-			//corpus += (corpus.isEmpty()?"":docsSep) + doc.getText();
-			/*for (Element key : curDoc.select(articleMask + " em"))
-				keyWords += String.format("%s\t", key.text());
-			for (Element key : curDoc.select(articleMask + " strong"))
-				keyWords += String.format("%s\t", key.text());*/
-			
-			//keyWords += "\n";
-			
-			extractTerms(doc);
-		}
-	}
-	
 	public static Document getDoc(String url) {
 		//WebDriver driver = new ChromeDrive(new ChromeP);
 	    //driver.get(url);
@@ -561,106 +391,6 @@ public class Security {
 		}
 		//doc = Jsoup.parse(html_content);
 		return doc;
-	}
-	
-	private void extractTerms(Article doc) {
-		// get stemmed tokens
-		PorterStemmer stemmer = new PorterStemmer();
-		EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_36);
-		CharArraySet stopWords = (CharArraySet) analyzer.getStopwordSet();
-		List<Keyword> allKeys = new ArrayList<>();
-
-		String[] curWords = prepareToTokenize(doc.getText()).split(" ");
-		List<String> tokens = new ArrayList<>();
-		for (int j = 0; j < curWords.length; j++) {
-			String word1 = curWords[j];
-			if (stopWords.contains(word1.toLowerCase())) continue;
-			word1 = stemTerm(word1, stemmer);
-			word1 = word1.trim();
-			tokens.add(word1);
-			String word2 = "";
-			if (j + 1 < curWords.length) {
-				word2 = curWords[j + 1];
-				if (!stopWords.contains(word2.toLowerCase())) {
-					word2 = stemTerm(word2, stemmer);
-					word2 = word2.trim();
-					String newWord = word1 + " " + word2;
-					tokens.add(newWord);
-				}
-			}
-			if (j + 2 < curWords.length) {
-				String word3 = curWords[j + 2];
-				if (stopWords.contains(word3.toLowerCase())) continue;
-				word3 = stemTerm(word3, stemmer);
-				word3 = word3.trim();
-				String newWord = word1 + " " +
-						(stopWords.contains(word2.toLowerCase()) ? "" : word2 + " ") + word3;
-				tokens.add(newWord);
-			}
-		}
-		analyzer.close();
-		// create a map for terms
-		List<Term> allTerms = termDAO.getAll();
-		if (keys.isEmpty())
-		for (Term term : allTerms) {
-			String stem = term.getStem();
-			if (keys.containsKey(stem)) {
-				System.out.print(stem);
-			} else {
-				Keyword newKey = new Keyword();
-				newKey.setTerm(term);
-				keys.put(stem, newKey);
-			}
-		}
-		// count terms in doc
-		List<Term> newTerms = new ArrayList<>();
-		for (String token : tokens) {
-			if (token.equals("you didn't"))
-				token += "";
-			token = token.trim();
-			if (keys.containsKey(token)) {
-				keys.get(token).setCount(keys.get(token).getCount() + 1);
-			} else {
-				Term term = new Term();
-				term.setPref(getUnstemmed(token));
-				term.setStem(token);
-				newTerms.add(term);
-				Keyword newKey = new Keyword();
-				newKey.setTerm(term);
-				newKey.setCount(1);
-				keys.put(token, newKey);
-			}
-		}
-		
-		// save not-zero values
-		for (Entry<String, Keyword> e : keys.entrySet()) {
-			if (e.getValue().getCount() > 0) {
-				e.getValue().setDoc(doc);
-				allKeys.add(e.getValue());
-			}
-		}
-		for (Keyword key : allKeys)
-			keys.put(key.getTerm().getStem(), new Keyword(key));
-		
-		// insert new terms and update references
-		if (!newTerms.isEmpty()) {
-			List<Term> inserted = termDAO.insertAll(newTerms);
-			Map<String, Term> insMap = new HashMap<>();
-			for (Term ins : inserted)
-				insMap.put(ins.getStem(), ins);
-			for (Keyword key : allKeys)
-				if (key.getTerm().getId() == 0) {
-					Term newTerm = insMap.get(key.getTerm().getStem());
-					if (newTerm != null)
-						key.setTerm(newTerm);
-				}
-		}
-		// insert keywords
-		if (!allKeys.isEmpty())
-			keyDAO.insertAll(allKeys);
-		// update wordcount
-		doc.setWordcount(tokens.size());
-		docDAO.update(doc);
 	}
 
 	private String getUnstemmed(String stemmed) {

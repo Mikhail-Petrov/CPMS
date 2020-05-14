@@ -111,5 +111,7 @@ public interface IDAO<T extends AbstractDomainObject> {
 	 * Rebuilds full text search index from scratch.
 	 */
 	public void rebuildIndex();
+
+	public default int getInt(T instances) {return 0;};
 	
 }

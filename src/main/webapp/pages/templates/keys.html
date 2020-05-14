@@ -1,0 +1,27 @@
+		<div class="row">
+		
+		<p><span th:text="'amount' + ': ' + ${amount}"></span></p>
+		<p><span th:text="'max id' + ': ' + ${maxid}"></span></p>
+		<p><span th:text="'max count' + ': ' + ${maxcount}"></span></p>
+		<p><span th:text="'bad term links' + ': ' + ${badterm}"></span>
+			<a th:if="${badterm} > 0" th:href="@{/stat/removeBadKeys(isTerm=true)}" th:text="' (' + 'remove' + ')'"></a></p>
+		<p><span th:text="'bad doc links' + ': ' + ${baddoc}"></span>
+			<a th:if="${baddoc} > 0" th:href="@{/stat/removeBadKeys(isTerm=false)}" th:text="' (' + 'remove' + ')'"></a></p>
+		
+		<p><span th:text="'repeats' + ': ' + ${repeatssize}"></span>
+			<a href="#" th:text="' (' + 'show/hide' + ')'" onclick="show()"></a></p>
+		<div id="keys" hidden="true">
+		<p th:each="nokey : ${repeats}"><span th:text="'id ' + ${nokey} + ' - '"></span>
+			<a th:href="@{/stat/reboundKeysRep(id=${nokey})}" th:text="'rebound'"></a></p>
+		</div>
+		<a th:href="@{/stat/reboundKeysRep}" th:text="'rebound all'"></a>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+				function show() {
+					if ($("#keys").is(':hidden'))
+						$("#keys").show();
+					else $("#keys").hide();
+				}
+			/*]]>*/
+			</script>
+		</div>

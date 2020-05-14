@@ -54,6 +54,7 @@ public class Term extends AbstractDomainObject {
 	
 	public Term() {
 		setInn(false);
+		setPref("");
 	}
 	
 
@@ -127,14 +128,11 @@ public class Term extends AbstractDomainObject {
 			this.getVariants();
 		}
 		if (!this.variants.stream().anyMatch(x -> x.getText() == variant.getText())) {
-			if (this.variants.isEmpty())
+			if (getPref().isEmpty())
 				setPref(variant.getText());
 			this.variants.add(variant);
 			variant.setTerm(this);
-		} /*else {
-			throw new DataAccessException("Attempt to insert duplicate variants.",
-					null);
-		}*/
+		} 
 	}
 	
 	public void removeVariant(TermVariant variant) {

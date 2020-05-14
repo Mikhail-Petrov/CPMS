@@ -53,6 +53,14 @@
                       <li th:if="${isAdmin}"><a th:href="@{/security/users}"><span th:text="#{navbar.user.management}">Users management</span></a></li>
                     </ul>
                   </li>
+                  <li th:if="${isAdmin}"><a><i class="fa fa-info"></i><span th:text="'IM'">IM</span> <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li th:if="${isAdmin}"><a th:href="@{/stat/extract}"><span th:text="'Extract articles'">Extract articles</span></a></li>
+                      <li th:if="${isAdmin}"><a th:href="@{/stat/docs}"><span th:text="'Docs'">Docs</span></a></li>
+                      <li th:if="${isAdmin}"><a th:href="@{/stat/terms}"><span th:text="'Terms'">Terms</span></a></li>
+                      <li th:if="${isAdmin}"><a th:href="@{/stat/keys}"><span th:text="'Keywords'">Keywords</span></a></li>
+                    </ul>
+                  </li>
                   <li th:if="${isHR}"><a th:href="@{/messages}"><i class="fa fa-edit"></i> <span th:text="#{navbar.messages}" id="mesLink">Messaging center</span></a></li>
                 </ul>
               </div>

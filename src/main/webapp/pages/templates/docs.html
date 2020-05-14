@@ -1,0 +1,63 @@
+		<div class="row">
+		
+		<p><span th:text="'amount' + ': ' + ${amount}"></span></p>
+		<p><span th:text="'max id' + ': ' + ${maxid}"></span></p>
+		<p><span th:text="'last parsed' + ': ' + ${parsed}"></span></p>
+		<p><span th:text="'max wordcount' + ': ' + ${maxcount}"></span></p>
+		<p><span th:text="'bad wordcount' + ': ' + ${mincount}"></span></p>
+		
+		<p th:each="year : ${years}"><span th:text="${year[0]} + ': ' + ${year[1]}"></span></p>
+		
+		<p><span th:text="'0 wordcount' + ': ' + ${nokeyssize}"></span>
+			<a href="#" th:text="' (' + 'show/hide' + ')'" onclick="show()"></a></p>
+		<div id="keys" hidden="true">
+		<p th:each="nokey : ${nokeys}"><span th:text="'id ' + ${nokey} + ' - '"></span>
+			<a th:href="@{/stat/analizeDoc(id=${nokey})}" th:text="'analize'"></a></p>
+		</div>
+		<a href="#" id="plusButton" th:text="'analize all'"></a>
+		<p id="curStatus"></p>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+				function show() {
+					if ($("#keys").is(':hidden'))
+						$("#keys").show();
+					else $("#keys").hide();
+				}
+
+				function ajaxGroup(requestUrl) {
+					
+					var inputArgs = [];
+					var i;
+					for (i = 1; i < arguments.length; i++) {
+						inputArgs.push(arguments[i]);
+					}
+					
+					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				     var csrfToken = $("meta[name='_csrf']").attr("content");
+				     var headers = {};
+				     headers[csrfHeader] = csrfToken;
+
+			         $("#curStatus").html('extracting...');
+					$.ajax({
+						url : requestUrl,
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						data : JSON.stringify(inputArgs),
+						headers: headers,
+						success: function (res) {
+					         $("#curStatus").html('success');
+						},
+						error: function (xhRequest, ErrorText, thrownError) {
+					         $("#curStatus").html('ERROR!!!');
+							console.log('xhRequest: ' + xhRequest + "\n");
+							console.log('ErrorText: ' + ErrorText + "\n");
+							console.log('thrownError: ' + thrownError + "\n");
+							console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+						}
+					});
+				}
+				$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'stat/analizeAllDoc')});
+			/*]]>*/
+			</script>
+		</div>
