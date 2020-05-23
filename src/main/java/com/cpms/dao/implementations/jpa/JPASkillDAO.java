@@ -1,5 +1,6 @@
 package com.cpms.dao.implementations.jpa;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -85,6 +86,22 @@ public class JPASkillDAO extends AbstractDAO<Skill> implements ICleanable {
 		}
 		Skill skill = persist(newSkill, skillRepo);
 		return skill;
+	}
+	
+	@Override
+	public List<Skill> insertAll(List<Skill> skills) {
+		int limit = 900;
+		int size = skills.size();
+		if (size <= limit)
+			return skillRepo.save(skills);
+		List<Skill> save = new ArrayList<>();
+		int i;
+		for (i = 0; i < size - limit; i += limit)
+			save.addAll(skillRepo.save(skills.subList(i, i + limit)));
+		if (i < size) {
+			save.addAll(skillRepo.save(skills.subList(i, size)));
+		}
+		return save;
 	}
 
 	@Override

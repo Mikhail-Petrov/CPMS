@@ -27,10 +27,15 @@ public class GroupAnswer implements IAjaxAnswer {
 
 	private List<List<Proofreader>> solutions;
 	private List<String> groupNames;
+	private boolean success;
 
 	public GroupAnswer() {
+		this(false);
+	}
+	public GroupAnswer(boolean success) {
 		solutions = new ArrayList<>();
 		setGroupNames(new ArrayList<>());
+		this.setSuccess(success);
 	}
 	public GroupAnswer(ICPMSFacade facade, IUserDAO userDAO, Task task) {
 		solutions = new ArrayList<>();
@@ -234,6 +239,12 @@ public class GroupAnswer implements IAjaxAnswer {
 
 	public void setGroupNames(List<String> groupNames) {
 		this.groupNames = groupNames;
+	}
+	public boolean isSuccess() {
+		return success;
+	}
+	public void setSuccess(boolean success) {
+		this.success = success;
 	}
 	
 }

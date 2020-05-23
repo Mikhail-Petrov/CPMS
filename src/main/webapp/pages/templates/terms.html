@@ -1,8 +1,9 @@
 		<div class="row">
 		
+		<p><span th:text="${err}"></span></p>
 		<p><span th:text="'amount' + ': ' + ${amount}"></span></p>
 		<p><span th:text="'max id' + ': ' + ${maxid}"></span></p>
-		<p><span th:text="'repeats' + ': ' + ${repeats}"></span>
+		<p><span th:text="'terms' + ': ' + ${repeats}"></span>
 			<a th:if="${repeats} > 0" th:href="@{/stat/clearTermsRep}" th:text="' (' + 'clear' + ')'"></a></p>
 		
 		<p><span th:text="'0 keywords' + ': ' + ${nokeyssize}"></span>
@@ -11,7 +12,9 @@
 		<p th:each="nokey : ${nokeys}"><span th:text="'id ' + ${nokey} + ' - '"></span>
 			<a th:href="@{/stat/deleteBadTerms(id=${nokey})}" th:text="'delete'"></a></p>
 		</div>
-		<a th:href="@{/stat/deleteBadTerms}" th:text="'delete all'"></a>
+		<p><a th:href="@{/stat/deleteBadTerms}" th:text="'delete all'"></a></p>
+		<p><a href="#" id="plusButton" th:text="'get all'"></a></p>
+		<p id="curStatus"></p>
 			<script th:inline="javascript">
 			/*<![CDATA[*/
 				function show() {
@@ -19,6 +22,44 @@
 						$("#keys").show();
 					else $("#keys").hide();
 				}
+
+				function ajaxTerms(requestUrl) {
+					
+					var inputArgs = [];
+					var i;
+					for (i = 1; i < arguments.length; i++) {
+						inputArgs.push(arguments[i]);
+					}
+					
+					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				     var csrfToken = $("meta[name='_csrf']").attr("content");
+				     var headers = {};
+				     headers[csrfHeader] = csrfToken;
+
+			         $("#curStatus").html('getting...');
+					$.ajax({
+						url : requestUrl,
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						data : JSON.stringify(inputArgs),
+						headers: headers,
+						success: function (res) {
+							if (res.success)
+					         $("#curStatus").html('success');
+					        else
+					        ajaxTerms(requestUrl);
+						},
+						error: function (xhRequest, ErrorText, thrownError) {
+					         $("#curStatus").html('ERROR!!!');
+							console.log('xhRequest: ' + xhRequest + "\n");
+							console.log('ErrorText: ' + ErrorText + "\n");
+							console.log('thrownError: ' + thrownError + "\n");
+							console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+						}
+					});
+				}
+				$("#plusButton").on("click", function() {ajaxTerms(rootPath + 'stat/getTerms')});
 			/*]]>*/
 			</script>
 		</div>

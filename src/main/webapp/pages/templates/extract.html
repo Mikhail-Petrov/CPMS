@@ -2,11 +2,16 @@
 		
 		<form action="#" th:action="@{/stat/extractDocs}" method="post">
 		
+		<p><a href="#" th:text="'Josh Bersin'" onclick="fill('josh')"></a></p>
+		<p><a href="#" th:text="'HR Morning'" onclick="fill('HRMorning')"></a></p>
+		<p><a href="#" th:text="'HR Dive'" onclick="fill('HRDive')"></a></p>
+		
 		<p><span>Sources*: </span><textarea id="sources" class="form-control" name="sources" th:text="''"></textarea></p>
 		<p><span>Link mask*: </span><input id="linkm" type="text" name="linkm" th:value="${linkm}"/></p>
 		<p><span>Article mask*: </span><input id="articlem" type="text" name="articlem" th:value="${articlem}"/></p>
 		<p><span>Date mask*: </span><input id="datem" type="text" name="datem" th:value="${datem}"/></p>
 		<p><span>Date format*: </span><input id="datef" type="text" name="datef" th:value="${datef}"/></p>
+		<p><span>Date attribute*: </span><input id="datea" type="text" name="datea" th:value="${datea}"/></p>
 		<p><span>Pages and format (i.e. "0-10 page/"): </span><input id="pages" type="text" name="pages"/></p>
 		<p><span>Min date (i.e. 2015-01-01): </span><input id="mindate" type="text" name="mindate"/></p>
 		<p><span>Max date (i.e. 2020-12-31): </span><input id="maxdate" type="text" name="maxdate"/></p>
@@ -23,6 +28,7 @@
 				for (i = 1; i < arguments.length; i++) {
 					inputArgs.push(arguments[i]);
 				}
+				if (requestUrl == rootPath + 'stat/ajaxExtract') {
 				inputArgs.push($("#sources").val());
 				inputArgs.push($("#linkm").val());
 				inputArgs.push($("#articlem").val());
@@ -31,6 +37,8 @@
 				inputArgs.push($("#pages").val());
 				inputArgs.push($("#mindate").val());
 				inputArgs.push($("#maxdate").val());
+				inputArgs.push($("#datea").val());
+				}
 				
 				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 			     var csrfToken = $("meta[name='_csrf']").attr("content");
@@ -46,7 +54,12 @@
 					data : JSON.stringify(inputArgs),
 					headers: headers,
 					success: function (res) {
+						if (res.success)
 				         $("#curStatus").html('success');
+						else {
+				         $("#curStatus").html('getting articles...');
+				         ajaxGroup(rootPath + 'stat/ajaxGetDocs');
+						}
 					},
 					error: function (xhRequest, ErrorText, thrownError) {
 				         $("#curStatus").html('ERROR!!!');
@@ -59,6 +72,105 @@
 			}
 			$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'stat/ajaxExtract')});
 			
+
+			function fill(source) {
+				var sources, linkm, articlem, datem, datef, datea;
+				switch (source) {
+				case 'josh':
+					sources = "https://joshbersin.com/category/hr-technology/ai/\n" +
+					"https://joshbersin.com/category/business-trends/\n" +
+					"https://joshbersin.com/category/talent-management/career-management/\n" +
+					"https://joshbersin.com/category/enterprise-learning/content-development/\n" +
+					"https://joshbersin.com/category/talent-management/corporate-culture/\n" +
+					"https://joshbersin.com/category/human-resources/diversity-and-inclusion/\n" +
+					"https://joshbersin.com/category/human-resources/employee-engagement/\n" +
+					"https://joshbersin.com/category/enterprise-learning/\n" +
+					"https://joshbersin.com/category/human-resources/ethics-privacy/\n" +
+					"https://joshbersin.com/category/human-resources/hr-skills-and-capability/\n" +
+					"https://joshbersin.com/category/talent-management/hr-systems/\n" +
+					"https://joshbersin.com/category/hr-technology/\n" +
+					"https://joshbersin.com/category/human-resources/hr-transformation/\n" +
+					"https://joshbersin.com/category/human-resources/hrms/\n" +
+					"https://joshbersin.com/category/human-resources/\n" +
+					"https://joshbersin.com/category/enterprise-learning/learning-20/\n" +
+					"https://joshbersin.com/category/talent-management/innovation/\n" +
+					"https://joshbersin.com/category/talent-management/leadership-development/\n" +
+					"https://joshbersin.com/category/enterprise-learning/learning-culture-enterprise-learning/\n" +
+					"https://joshbersin.com/category/enterprise-learning/learning-on-demand-enterprise-learning/\n" +
+					"https://joshbersin.com/category/enterprise-learning/learning-programs/\n" +
+					"https://joshbersin.com/category/enterprise-learning/lms-lcms/\n" +
+					"https://joshbersin.com/category/enterprise-learning/measurement/\n" +
+					"https://joshbersin.com/category/enterprise-learning/organization-governance/\n" +
+					"https://joshbersin.com/category/human-resources/organization-design/\n" +
+					"https://joshbersin.com/category/talent-management/performance-management/\n" +
+					"https://joshbersin.com/category/talent-management/sourcing-and-recruiting/\n" +
+					"https://joshbersin.com/category/talent-management/succession-planning/\n" +
+					"https://joshbersin.com/category/talent-management/talent-analytics-talent-management/\n" +
+					"https://joshbersin.com/category/talent-management/\n" +
+					"https://joshbersin.com/category/talent-management/talent-strategy/\n" +
+					"https://joshbersin.com/category/uncategorized/\n" +
+					"https://joshbersin.com/category/enterprise-learning/vr-ar/\n" +
+					"https://joshbersin.com/category/human-resources/well-being/\n" +
+					"https://joshbersin.com/category/talent-management/workforce-planning/";
+					linkm = "h2 a";
+					articlem = "div[class*=themeform]";
+					datem = "time";
+					datef = "yyyy-MM-dd'T'hh:mm:ss";
+					datea = "datetime";
+					break;
+				case 'HRMorning':
+					sources = "https://www.hrmorning.com/benefits/\n" + 
+					"https://www.hrmorning.com/recruiting/\n" + 
+					"https://www.hrmorning.com/talent-management/\n" + 
+					"https://www.hrmorning.com/performance-management/\n" + 
+					"https://www.hrmorning.com/hr-technology/\n" + 
+					"https://www.hrmorning.com/leadership-strategy/\n" + 
+					"https://www.hrmorning.com/compensation-payroll/\n" + 
+					"https://www.hrmorning.com/policy-culture/\n" + 
+					"https://www.hrmorning.com/wellness-safety/\n" + 
+					"https://www.hrmorning.com/employee-services/";
+					linkm = "h2 a";
+					articlem = "div[class=entry-content]";
+					datem = "time";
+					datef = "yyyy-MM-dd'T'hh:mm:ss";
+					datea = "datetime";
+					break;
+				case 'HRDive':
+					sources = "https://www.hrdive.com/topic/talent/\n" + 
+					"https://www.hrdive.com/topic/hr-management/\n" + 
+					"https://www.hrdive.com/topic/learning/\n" + 
+					"https://www.hrdive.com/topic/compensation-benefits/\n" + 
+					"https://www.hrdive.com/topic/hr-technology-analytics/";
+					linkm = "h3 a";
+					articlem = "div[class*=article-body]";
+					datem = "meta[name='date']";
+					datef = "yyyy-MM-dd";
+					datea = "content";
+					break;
+				case '':
+					sources = "";
+					linkm = "";
+					articlem = "";
+					datem = "";
+					datef = "";
+					datea = "";
+					break;
+				default:
+					sources = "";
+					linkm = "";
+					articlem = "";
+					datem = "";
+					datef = "";
+					datea = "";
+					break;
+				}
+				$("#sources").val(sources);
+				$("#linkm").val(linkm);
+				$("#articlem").val(articlem);
+				$("#datem").val(datem);
+				$("#datef").val(datef);
+				$("#datea").val(datea);
+			}
 			/*]]>*/
 			</script>
 		</form>

@@ -80,6 +80,9 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	@Column(name = "TYPE", nullable = true, length = 100)
 	private String type;
 	
+	@Column(name = "alternative", nullable = true, length = 1000)
+	private String alternative;
+	
 	//TODO see if you can fetch this lazily with hibernate
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "parent")
 	@Cascade({CascadeType.DETACH})
@@ -103,6 +106,7 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	public Skill(String name, String about) {
 		this.name = name;
 		this.about = about;
+		setMaxLevel(6);
 	}
 
 	public String getType() {
@@ -342,6 +346,14 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	@Override
 	public int compareTo(Skill o) {
 		return this.getPresentationName().toLowerCase().compareTo(o.getPresentationName().toLowerCase());
+	}
+
+	public String getAlternative() {
+		return alternative;
+	}
+
+	public void setAlternative(String alternative) {
+		this.alternative = alternative;
 	}
 	
 	

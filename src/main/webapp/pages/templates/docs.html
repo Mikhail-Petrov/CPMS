@@ -46,7 +46,10 @@
 						data : JSON.stringify(inputArgs),
 						headers: headers,
 						success: function (res) {
+							if (res.success)
 					         $("#curStatus").html('success');
+					        else
+					         ajaxGroup(requestUrl);
 						},
 						error: function (xhRequest, ErrorText, thrownError) {
 					         $("#curStatus").html('ERROR!!!');

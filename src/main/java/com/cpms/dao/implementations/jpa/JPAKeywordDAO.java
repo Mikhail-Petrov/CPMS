@@ -16,7 +16,6 @@ import com.cpms.dao.interfaces.AbstractDAO;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.data.entities.Keyword;
-import com.cpms.data.entities.Term;
 import com.cpms.exceptions.DataAccessException;
 
 /**

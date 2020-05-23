@@ -5,6 +5,7 @@ import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +15,6 @@ import java.util.Map.Entry;
 
 import javax.validation.Valid;
 
-import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.util.Version;
 import org.jsoup.Jsoup;
@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.tartarus.snowball.ext.PorterStemmer;
 
-import com.cpms.dao.implementations.jpa.JPADocumentDAO;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Keyword;
@@ -85,7 +84,7 @@ public class Statistic {
 	@SuppressWarnings("deprecation")
 	@RequestMapping(path = "/docs", method = RequestMethod.GET)
 	public String docs(Model model) {
-		model.addAttribute("_VIEW_TITLE", "users.management.title");
+		model.addAttribute("_VIEW_TITLE", "im.title.docs");
 		model.addAttribute("_FORCE_CSRF", true);
 
 		List<Article> all = docDAO.getAll();
@@ -136,15 +135,17 @@ public class Statistic {
 		return "docs";
 	}
 
+	private String err = "";
 	@RequestMapping(path = "/terms", method = RequestMethod.GET)
 	public String terms(Model model) {
-		model.addAttribute("_VIEW_TITLE", "users.management.title");
+		model.addAttribute("_VIEW_TITLE", "im.title.terms");
 		model.addAttribute("_FORCE_CSRF", true);
 
 		model.addAttribute("amount", termDAO.count());
 		model.addAttribute("maxid", 0);
-		model.addAttribute("repeats", 50);
+		model.addAttribute("repeats", allTerms == null ? 0 : allTerms.size());
 		
+		model.addAttribute("err", err);
 		List<Long> nokeys = new ArrayList<>();
 		nokeys.add(156L);
 		nokeys.add(146L);
@@ -155,7 +156,7 @@ public class Statistic {
 
 	@RequestMapping(path = "/keys", method = RequestMethod.GET)
 	public String keys(Model model) {
-		model.addAttribute("_VIEW_TITLE", "users.management.title");
+		model.addAttribute("_VIEW_TITLE", "im.title.keywords");
 		model.addAttribute("_FORCE_CSRF", true);
 
 		model.addAttribute("amount", keyDAO.count());
@@ -194,8 +195,28 @@ public class Statistic {
 		for (Article obj : docDAO.getAll())
 			if (obj.getWordcount() == 0)
 				nokeysDocs.add(obj.getId());
-		for (Long id : nokeysDocs)
-			extractTerms(docDAO.getOne(id));
+		//for (Long id : nokeysDocs)
+			//extractTerms(docDAO.getOne(id));
+		int ss = nokeysDocs.size();
+		if (nokeysDocs.isEmpty())
+			return new GroupAnswer(true);
+		extractTerms(docDAO.getOne(nokeysDocs.get(0)));
+		return new GroupAnswer();
+	}
+	@ResponseBody
+	@RequestMapping(value = "/getTerms",
+			method = RequestMethod.POST)
+	public IAjaxAnswer getAllTerms(
+			@RequestBody String json) {
+		if (allTerms == null)
+			allTerms = new ArrayList<>();
+		long from = allTerms.size();
+		if (from >= termDAO.count())
+			return new GroupAnswer(true);
+		List<Term> all = termDAO.getRange(from, from + 1000);
+		if (all.isEmpty())
+			return new GroupAnswer(true);
+		allTerms.addAll(all);
 		return new GroupAnswer();
 	}
 
@@ -228,11 +249,12 @@ public class Statistic {
 
 	@RequestMapping(path = { "/extract" })
 	public String extract(Model model) {
-		model.addAttribute("_VIEW_TITLE", "users.management.title");
+		model.addAttribute("_VIEW_TITLE", "im.title.extract");
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("linkm", "h2 a");
 		model.addAttribute("articlem", "div[class=entry-content]");
 		model.addAttribute("datem", "time");
+		model.addAttribute("datea", "datetime");
 		model.addAttribute("datef", "yyyy-MM-dd'T'hh:mm:ss");
 		return "extract";
 	}
@@ -251,12 +273,15 @@ public class Statistic {
 		String pages = values.size() > 5 ? (String) values.get(5) : "";
 		String mindate = values.size() > 6 ? (String) values.get(6) : "";
 		String maxdate = values.size() > 7 ? (String) values.get(7) : "";
-		extractDocs0(sources, linkm, articlem, datem, datef, pages, mindate, maxdate);
+		String datea = values.size() > 8 ? (String) values.get(8) : "";
+		extractDocs0(sources, linkm, articlem, datem, datef, pages, mindate, maxdate, datea);
 		return new GroupAnswer();
 	}
 
+	Date minDate = null, maxDate = null;
+	String articlem, datef, datem, datea;
 	private String extractDocs0(String sources, String linkm, String articlem, String datem,
-			String datef, String pages, String mindate, String maxdate) {
+			String datef, String pages, String mindate, String maxdate, String datea) {
 		String returnVal = "redirect:/stat/docs";
 		if (extraction) return returnVal;
 		if (sources.isEmpty() || linkm.isEmpty() || articlem.isEmpty() || datem.isEmpty() || datef.isEmpty())
@@ -276,7 +301,8 @@ public class Statistic {
 		}
 		
 		// check date filter
-		Date minDate = null, maxDate = null;
+		minDate = null;
+		maxDate = null;
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 		try {
 			if (!mindate.isEmpty())
@@ -286,10 +312,29 @@ public class Statistic {
 			if (!maxdate.isEmpty())
 				maxDate = df.parse(maxdate);
 		} catch (ParseException e) {}
+		this.articlem = articlem;
+		this.datef = datef;
+		this.datem = datem;
+		this.datea = datea;
+		// analize docs
+		//for (Article doc : inserted)
+			//extractTerms(doc);
+		extraction = false;
+		return returnVal;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/ajaxGetDocs",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxGetDocs(
+			@RequestBody String json) {
 		// extract docs that suit filter
+		if (urls.isEmpty())
+			return new GroupAnswer(true);
 		List<Article> docs = new ArrayList<>();
-		for (String url : urls) {
-			Article newDoc = getPosts2(url, articlem, datef, datem);
+		int size = urls.size();
+		for (int i = urls.size() - 1; i >= size - 50 && i >= 0; i--) {
+			Article newDoc = getPosts2(urls.get(i), articlem, datef, datem, datea);
 			if (newDoc != null) {
 				boolean suit = minDate == null && maxDate == null ||
 						newDoc.getCreationDate() != null &&
@@ -298,14 +343,11 @@ public class Statistic {
 				if (suit)
 					docs.add(newDoc);
 			}
+			urls.remove(i);
 		}
-		List<Article> inserted = docDAO.insertAll(docs);
+		docDAO.insertAll(docs);
 		
-		// analize docs
-		for (Article doc : inserted)
-			extractTerms(doc);
-		extraction = false;
-		return returnVal;
+		return new GroupAnswer();
 	}
 	private boolean extraction = false;
 	@RequestMapping(path = { "/extractDocs" }, method = RequestMethod.POST)
@@ -318,8 +360,9 @@ public class Statistic {
 			, @ModelAttribute("pages") @Valid String pages
 			, @ModelAttribute("mindate") @Valid String mindate
 			, @ModelAttribute("maxdate") @Valid String maxdate
+			, @ModelAttribute("datea") @Valid String datea
 			) {
-		return extractDocs0(sources, linkm, articlem, datem, datef, pages, mindate, maxdate);
+		return extractDocs0(sources, linkm, articlem, datem, datef, pages, mindate, maxdate, datea);
 	}
 	
 	private Map<String, String> getPosts(String url, String postMask, String pages) {
@@ -337,7 +380,7 @@ public class Statistic {
 				pageFormat = pages.substring(sepInd + 1);
 		}
 		for (int i = startPage; i <= endPage; i++) {
-			if (i > 0) url = initUrl + pageFormat + i + "/";
+			if (i > 0) url = initUrl + pageFormat + i;
 			
 		Document doc = getDoc(url);
 		if (doc == null) continue;
@@ -360,14 +403,19 @@ public class Statistic {
 		return defValue;
 	}
 	
-	private Article getPosts2(String url, String articleMask, String datef, String datem) {
+	private Article getPosts2(String url, String articleMask, String datef, String datem, String datea) {
 		Document curDoc = getDoc(url);
 		if (curDoc == null) return null;
 		
 		Article newDoc = new Article();
 		newDoc.setUrl(url);
 		newDoc.setTitle(sites.get(url));
-		String text = curDoc.select(articleMask).first().text();
+		String text="";
+		try {
+			text = curDoc.select(articleMask).first().text();
+		} catch (NullPointerException e) {
+			return null;
+		}
 		newDoc.setText(text);
 		
 		// get date
@@ -375,7 +423,7 @@ public class Statistic {
 		Date minDate = null;
 		SimpleDateFormat df = new SimpleDateFormat(datef, Locale.ENGLISH);
 		for (Element time : times) {
-			String attr = time.attr("datetime");
+			String attr = time.attr(datea);
 			try {
 				Date parse = df.parse(attr);
 				if (minDate == null) minDate = parse;
@@ -422,7 +470,8 @@ public class Statistic {
 		// get stemmed tokens
 		PorterStemmer stemmer = new PorterStemmer();
 		EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_36);
-		CharArraySet stopWords = (CharArraySet) analyzer.getStopwordSet();
+		//CharArraySet stopWords = (CharArraySet) analyzer.getStopwordSet();
+		List<String> stopWords = Arrays.asList(new String[]{"a", "about", "above", "after", "again", "against", "ain", "all", "am", "an", "and", "any", "are", "aren", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can", "couldn", "couldn't", "d", "did", "didn", "didn't", "do", "does", "doesn", "doesn't", "doing", "don", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn", "hadn't", "has", "hasn", "hasn't", "have", "haven", "haven't", "having", "he", "her", "here", "hers", "herself", "him", "himself", "his", "how", "i", "if", "in", "into", "is", "isn", "isn't", "it", "it's", "its", "itself", "just", "ll", "m", "ma", "me", "mightn", "mightn't", "more", "most", "mustn", "mustn't", "my", "myself", "needn", "needn't", "no", "nor", "not", "now", "o", "of", "off", "on", "once", "only", "or", "other", "our", "ours", "ourselves", "out", "over", "own", "re", "s", "same", "shan", "shan't", "she", "she's", "should", "should've", "shouldn", "shouldn't", "so", "some", "such", "t", "than", "that", "that'll", "the", "their", "theirs", "them", "themselves", "then", "there", "these", "they", "this", "those", "through", "to", "too", "under", "until", "up", "ve", "very", "was", "wasn", "wasn't", "we", "were", "weren", "weren't", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "won", "won't", "wouldn", "wouldn't", "y", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves", "could", "he'd", "he'll", "he's", "here's", "how's", "i'd", "i'll", "i'm", "i've", "let's", "ought", "she'd", "she'll", "that's", "there's", "they'd", "they'll", "they're", "they've", "we'd", "we'll", "we're", "we've", "what's", "when's", "where's", "who's", "why's", "would"});
 		List<Keyword> allKeys = new ArrayList<>();
 
 		String[] curWords = prepareToTokenize(doc.getText()).split(" ");
@@ -580,12 +629,21 @@ public class Statistic {
 	
 	private String prepareToTokenize(String corpus) {
 		// remove symbols and digits
-		String[] noizeSymbs = {",", ";", ".", "[", "]", "\"", "{", "}", "/", "\\", "!", "?", "#", "$", "‘", "’", "…",
+		/*String[] noizeSymbs = {",", ";", ".", "[", "]", "\"", "{", "}", "/", "\\", "!", "?", "#", "$", "‘", "’", "…",
 				"“", "”", "(", ")", "<", ">", "- ", " -", "+", "%", "*", ":", "--", "–", "—–", "&", "|", "~", "•"};
 		for (int i = 0; i < noizeSymbs.length; i++)
 			corpus = corpus.replace(noizeSymbs[i], " ");
 		for (int i = 0; i < 10; i++)
-			corpus = corpus.replace(i+"", "");
+			corpus = corpus.replace(i+"", "");*/
+		// remove all except letters
+		corpus = corpus.replaceAll("[^\\w]", " ");
+		// remove one letter words
+		boolean changes = true;
+		while (changes) {
+			String s = corpus.replaceAll(" \\w ", " ");
+			changes = s.length() != corpus.length();
+			corpus = s;
+		}
 		while (corpus.indexOf("  ") >= 0)
 			corpus = corpus.replace("  ", " ");
 		return corpus;//.toLowerCase();

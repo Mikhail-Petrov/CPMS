@@ -112,6 +112,6 @@ public interface IDAO<T extends AbstractDomainObject> {
 	 */
 	public void rebuildIndex();
 
-	public default int getInt(T instances) {return 0;};
+	public default int getInt(T instances) {return 0;}
 	
 }

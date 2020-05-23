@@ -11,6 +11,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -19,9 +22,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
@@ -58,6 +64,53 @@ public class Skills {
 	@Autowired
 	@Qualifier("draftableSkillDAO")
 	private IDraftableSkillDaoExtension skillDao;
+	
+	@RequestMapping(path = { "/extractSkills" }, method = RequestMethod.GET)
+	public String extractSkills(Model model) {
+		String url = "http://data.europa.eu/esco/skill/S";
+		Document doc = Statistic.getDoc(url);
+		List<Skill> skills = new ArrayList<>();
+		for (Element root : doc.select("a[class*=show-underline]")) {
+			List<Skill> newSkills = extractSkill(root.attr("href"), null);
+			if (newSkills != null)
+				skills.addAll(newSkills);
+		}
+		facade.getSkillDAO().insertAll(skills);
+		return "redirect:/skills";
+	}
+	
+	private List<Skill> extractSkill(String url, Skill parent) {
+		Document doc = Statistic.getDoc(url);
+		if (doc == null) return null;
+		// get name and description
+		String name, about;
+		name = doc.select("[class*=header-solid] h1").text();
+		if (name == null || name.isEmpty()) return null;
+		about = doc.select("pre").text();
+		// get content: alternative and links to children
+		Elements alternatives = doc.select("h2:contains(Alternative label) + ul li");
+		String alternative = "";
+		for (Element alt : alternatives)
+			alternative += (alternative.isEmpty() ? "" : "|") + alt.text();
+		Elements urls = null, ul = doc.select("h2:contains(Narrower skills/competences) + ul");
+		if (!ul.isEmpty())
+			urls = ul.first().select("li a");
+		// create skill
+		Skill newSkill = new Skill(name, about);
+		newSkill.setParent(parent);
+		if (!alternative.isEmpty())
+			newSkill.setAlternative(alternative);
+		List<Skill> ret = new ArrayList<>();
+		ret.add(newSkill);
+		// get children
+		if (urls != null)
+		for (Element child : urls) {
+			List<Skill> newSkills = extractSkill(child.attr("href"), newSkill);
+			if (newSkills != null)
+				ret.addAll(newSkills);
+		}
+		return ret;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public static List<Object> parseJsonObject(String json, MessageSource messageSource) {
