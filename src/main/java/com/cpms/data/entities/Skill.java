@@ -61,7 +61,7 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	@Analyzer(definition = "userSearchAnalyzerSkill")
 	private String name;
 	
-	@Column(name = "ABOUT", nullable = true, length = 1000)
+	@Column(name = "ABOUT", nullable = true, length = 10000)
 	private String about;
 	
 	@Column(name = "MAXLEVEL", nullable = false)

@@ -121,15 +121,16 @@ public class Viewer {
 	private void addSkillsListToModel(Model model, Principal principal, HttpServletRequest request) {
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			Users owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
-			List<Skill> skills = facade.getSkillDAO().getAll();
+			List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
 		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			List<Skill> skills = skillDao.getAllIncludingDrafts();
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(Skills.sortSkills(skills)));
+			//List<Skill> skills = skillDao.getAllIncludingDrafts();
+			List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
 		} else {
 			model.addAttribute("skillsList",
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
+					SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
 		}
 	}
 
@@ -155,17 +156,17 @@ public class Viewer {
 
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			Users owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
-			List<Skill> skills = facade.getSkillDAO().getAll();
-			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
+			List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
+			//skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
 			model.addAttribute("skills", SkillTree.produceTree(skills));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
 		} else {
-			if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
-				model.addAttribute("skills", SkillTree.produceTree(skillDao.getAllIncludingDrafts()));
-			else
-				model.addAttribute("skills", SkillTree.produceTree(facade.getSkillDAO().getAll()));
+			//if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
+				//model.addAttribute("skills", SkillTree.produceTree(skillDao.getAllIncludingDrafts()));
+			//else
+				model.addAttribute("skills", SkillTree.produceTree(Skills.getAllSkills(facade.getSkillDAO())));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
@@ -313,8 +314,9 @@ public class Viewer {
 		model.addAttribute("globalLevel5", gsl5);
 
 		model.addAttribute("skillsList",
-				SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
-		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
+				//SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
+				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(Skills.getAllSkills(facade.getSkillDAO())));
 
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			Long ownerId = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName())
@@ -325,7 +327,8 @@ public class Viewer {
 				model.addAttribute("isOwner", true);
 			}
 		}
-		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
+		//model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
+		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(Skills.getAllSkills(facade.getSkillDAO())));
 
 		model.addAttribute("objectType", "competency");
 		return "viewProfile";
@@ -340,8 +343,9 @@ public class Viewer {
 		model.addAttribute("requirements", new Requirements(id));
 		model.addAttribute("requirement", new TaskRequirement());
 		model.addAttribute("skillsList",
-				SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
-		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
+				//SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
+				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(Skills.getAllSkills(facade.getSkillDAO())));
 		Task task = facade.getTaskDAO().getOne(id);
 		model.addAttribute("backPath", returnUrl);
 		// add generated requirements
@@ -358,7 +362,8 @@ public class Viewer {
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", task.getPresentationName());
 		model.addAttribute("_FORCE_CSRF", true);
-		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
+		//model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
+		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(Skills.getAllSkills(facade.getSkillDAO())));
 		// Add performers and task manager
 		String managerName = "";
 		ArrayList<String> performerNames = new ArrayList<>();
@@ -428,7 +433,7 @@ public class Viewer {
 	public String generate(Model model, @RequestParam(value = "amount", required = true) Integer amount, @RequestParam(value = "perfMin", required = true) long perfMin,
 			@RequestParam(value = "perfMax", required = true) long perfMax) {
 		List<Users> allUsers = userDAO.getAll();
-		List<Skill> allSkills = facade.getSkillDAO().getAll();
+		List<Skill> allSkills = Skills.getAllSkills(facade.getSkillDAO());
 		// remember users' profiles and its changes
 		List<Profile> allProfiles = new ArrayList<>();
 		List<Boolean> profileChanges = new ArrayList<>();
@@ -625,7 +630,7 @@ public class Viewer {
 
 	private Set<Competency> getCompetenciesByInterests(String interests) {
 		Set<Competency> result = new HashSet<>();
-		List<Skill> skills = facade.getSkillDAO().getAll();
+		List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
 
 		Porter porter = new Porter();
 		// interests = getTaggedData(interests);

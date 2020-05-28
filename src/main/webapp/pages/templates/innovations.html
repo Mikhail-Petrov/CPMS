@@ -1,0 +1,187 @@
+	<!-- link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" /-->
+		<div class="row">
+		
+		<h3>Term search</h3>
+		<p><span th:text="'Term search'"></span></p>
+		<p><div class="two-buttons">
+			<input id="search" type="text" name="search" class="form-control"/>
+		</div><div class="two-buttons">
+			<span id="find" class="btn btn-primary" th:text="'Find'"></span>
+			<span id="clear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
+		</div></p>
+		<p id="curStatus"></p>
+		<div id="termsBlock" class="row">
+		<table id="termsTable" class="table table-responsive table-striped">
+		<thead>
+		<tr>
+			<th><span th:text="'Term'"></span></th>
+			<th><span th:text="'Is innovation'"></span></th>
+		</tr>
+		</thead>
+		<tbody>
+		</tbody>
+		</table>
+		<p><div class="two-buttons">
+			<div class="two-buttons">
+				<span class="btn btn-primary btn-block" th:text="'Prev'" onclick="showPage(curPage1 - 1, false);"></span>
+	        </div><div class="two-buttons">
+				<span class="btn btn-primary btn-block" th:text="'Next'" onclick="showPage(curPage1 + 1, false);"></span>
+	    	</div>
+		</div>
+	    <div class="two-buttons">
+			<span class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
+        </div></p>
+        </div>
+		<h3>Innovations</h3>
+		<div id="innsBlock" class="row">
+		<table id="innsTable" class="table table-responsive table-striped">
+		<thead>
+		<tr>
+			<th><span th:text="'Term'"></span></th>
+			<th><span th:text="'Is innovation'"></span></th>
+		</tr>
+		</thead>
+		<tbody>
+		</tbody>
+		</table>
+		<p><div class="two-buttons">
+			<div class="two-buttons">
+				<span class="btn btn-primary btn-block" th:text="'Prev'" onclick="showPage(curPage2 - 1, true);"></span>
+	        </div><div class="two-buttons">
+				<span class="btn btn-primary btn-block" th:text="'Next'" onclick="showPage(curPage2 + 1, true);"></span>
+	    	</div>
+		</div>
+	    <div class="two-buttons">
+			<span class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
+        </div></p>
+        </div>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+				function clear() {
+					$("#search").val('');
+					$("#termsBlock").hide();
+				}
+			clear();
+				function show(element) {
+						if (element.is(':hidden'))
+							element.show();
+						else element.hide();
+					}
+			
+				var curPage1 = 0, curPage2 = 0;
+				var terms, flags, variants, ids;
+				var terms1, flags1, variants1, ids1;
+				var terms2, flags2, variants2, ids2;
+				var tpp = 20; // terms per page
+				function showPage(page, isInn) {
+					if (isInn){
+						terms = terms2;
+						flags = flags2;
+						variants = variants2;
+						ids = ids2;
+						tableName = "innsTable";
+						curPage2 = page;
+					} else {
+						terms = terms1;
+						flags = flags1;
+						variants = variants1;
+						ids = ids1;
+						tableName = "termsTable";
+						curPage1 = page;
+					}
+					$("#" + tableName + " tbody").empty();
+					if (terms == null || flags == null) return;
+					
+					// define limits
+					if (page < 0) page = 0;
+					var max_value = terms.length;
+					if (flags.length < max_value) max_value = flags.length;
+					if (variants.length < max_value) max_value = variants.length;
+					if (ids.length < max_value) max_value = ids.length;
+					var max_page = Math.ceil(max_value / tpp) - 1;
+					if (page > max_page) page = max_page;
+					if (isInn)
+						curPage2 = page;
+					else
+						curPage1 = page;
+					
+					// build the table
+					for (i = page * tpp; i < (page + 1) * tpp && i < max_value; i++) {
+						var line = "<tr>";
+						line += "<td";
+						//if (variants[i].length > 1)
+							//line += " onclick=\"show($('#var" + ids[i] + "'));\"";
+						line += "><p>" + terms[i] + "</p>";
+						if (variants[i].length > 1) {
+							line += "<div id='var" + ids[i] + "'>";
+							for (j = 0; j < variants[i].length; j++)
+								line += "<p><input name='" + ids[i] + "' "+ (variants[i][j] == terms[i] ? "checked " : "") + 
+								"value='" + variants[i][j] + "' type='radio'>" + variants[i][j] + "</p>";
+							line += "</div>";
+						}
+						line += "</td>";
+						line += "<td><input type='checkbox'" + (flags[i] ? " checked" : "") + "></td>";
+						line += "</tr";
+						$("#" + tableName).append(line);
+					}
+				}
+
+				function ajaxSearch(requestUrl) {
+					
+					var inputArgs = [];
+					var i;
+					for (i = 1; i < arguments.length; i++) {
+						inputArgs.push(arguments[i]);
+					}
+					
+					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				     var csrfToken = $("meta[name='_csrf']").attr("content");
+				     var headers = {};
+				     headers[csrfHeader] = csrfToken;
+
+					var isInn = requestUrl == (rootPath + 'stat/ajaxGetInn');
+					if (!isInn)
+						inputArgs.push($("#search").val());
+
+					if (isInn)
+				         $("#curStatus").html('getting innovations...');
+					else
+		         		$("#curStatus").html('searching...');
+					$.ajax({
+						url : requestUrl,
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						data : JSON.stringify(inputArgs),
+						headers: headers,
+						success: function (res) {
+					        $("#curStatus").html('');
+					        if (isInn) {
+								terms2 = res.terms;
+								flags2 = res.flags;
+								variants2 = res.variants;
+								ids2 = res.ids;
+					        } else {
+								terms1 = res.terms;
+								flags1 = res.flags;
+								variants1 = res.variants;
+								ids1 = res.ids;
+								$("#termsBlock").show();
+						    }
+							showPage(0, isInn);
+						},
+						error: function (xhRequest, ErrorText, thrownError) {
+					         $("#curStatus").html('ERROR!!!');
+							console.log('xhRequest: ' + xhRequest + "\n");
+							console.log('ErrorText: ' + ErrorText + "\n");
+							console.log('thrownError: ' + thrownError + "\n");
+							console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+						}
+					});
+				}
+				$("#find").on("click", function() {ajaxSearch(rootPath + 'stat/ajaxSearch')});
+				$("#clear").on("click", function() {clear()});
+				ajaxSearch(rootPath + 'stat/ajaxGetInn');
+			/*]]>*/
+			</script>
+		</div>

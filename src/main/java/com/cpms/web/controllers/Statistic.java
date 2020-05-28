@@ -41,6 +41,7 @@ import com.cpms.data.entities.Term;
 import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.GroupAnswer;
 import com.cpms.web.ajax.IAjaxAnswer;
+import com.cpms.web.ajax.InnAnswer;
 
 /**
  * Handles user creating, login operations and user viewing.
@@ -81,6 +82,42 @@ public class Statistic {
 
 	List<Long> nokeysDocs = new ArrayList<>();
 
+
+	@RequestMapping(path = "/innovations", method = RequestMethod.GET)
+	public String innovations(Model model) {
+		model.addAttribute("_VIEW_TITLE", "im.title.innovations");
+		model.addAttribute("_FORCE_CSRF", true);
+
+		return "innovations";
+	}
+	@ResponseBody
+	@RequestMapping(value = "/ajaxGetInn",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxGetInn(
+			@RequestBody String json) {
+		// getting innovations
+		List<Term> res = termDAO.getRange(100, 250);
+		InnAnswer ans = new InnAnswer();
+		for (Term term : res)
+			ans.addTerm(term);
+		return ans;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/ajaxSearch",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxSearch(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		String query = values.size() > 0 ? (String) values.get(0) : "";
+		// search
+		List<Term> res = termDAO.getRange(0, 100);
+		InnAnswer ans = new InnAnswer();
+		for (Term term : res)
+			ans.addTerm(term);
+		return ans;
+	}
+	
 	@SuppressWarnings("deprecation")
 	@RequestMapping(path = "/docs", method = RequestMethod.GET)
 	public String docs(Model model) {
@@ -222,8 +259,8 @@ public class Statistic {
 
 	@RequestMapping(path = { "/clearTermsRep" }, method = RequestMethod.GET)
 	public String clearTermsRep(Model model) {
-		// TODO: keep terms repeat after /terms-get
-		return "redirect:/stat/terms";
+		allTerms.clear();
+		return terms(model);
 	}
 
 	@RequestMapping(path = { "/deleteBadTerms" }, method = RequestMethod.GET)

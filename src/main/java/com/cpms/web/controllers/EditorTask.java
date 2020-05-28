@@ -154,7 +154,7 @@ public class EditorTask {
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		Collections.sort(langs);
 		model.addAttribute("languages", langs);
-		List<Skill> skills = facade.getSkillDAO().getAll();
+		List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
 		Collections.sort(skills);
 		model.addAttribute("skills", skills);
 		List<Users> users = userDAO.getAll();

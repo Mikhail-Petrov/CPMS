@@ -67,7 +67,7 @@ public class SkillTree {
 			Users owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
-			List<Skill> skills = facade.getSkillDAO().getAll();
+			List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
 			model.addAttribute("skills", produceTree(skills));
 			Skill newSkill = new Skill();
@@ -75,12 +75,13 @@ public class SkillTree {
 			model.addAttribute("skill", newSkill);
 		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			model.addAttribute("skills", 
-					produceTree(skillDao.getAllIncludingDrafts()));
+					produceTree(Skills.getAllSkills(facade.getSkillDAO())));
+					//produceTree(skillDao.getAllIncludingDrafts()));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
 		} else {
-			model.addAttribute("skills", produceTree(facade.getSkillDAO().getAll()));
+			model.addAttribute("skills", produceTree(Skills.getAllSkills(facade.getSkillDAO())));
 		}
 		model.addAttribute("useSearch", true);
 		model.addAttribute("search", search);

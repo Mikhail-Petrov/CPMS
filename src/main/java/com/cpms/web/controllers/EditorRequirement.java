@@ -84,7 +84,7 @@ public class EditorRequirement {
 		model.addAttribute("requirementSkill", create ? 0 : requirement.getSkill().getId());
 		requirement.setSkill(null);
 		model.addAttribute("requirement", requirement);
-		List<Skill> allSkills = facade.getSkillDAO().getAll();
+		List<Skill> allSkills = Skills.getAllSkills(facade.getSkillDAO());
 		model.addAttribute("skillsList", 
 				SkillUtils.sortAndAddIndents(Skills.sortSkills(allSkills)));
 		model.addAttribute("create", create);
@@ -131,7 +131,7 @@ public class EditorRequirement {
 			model.addAttribute("_FORCE_CSRF", true);
 			model.addAttribute("taskId", taskId);
 			model.addAttribute("create", create);
-			model.addAttribute("skillsList", facade.getSkillDAO().getAll());
+			model.addAttribute("skillsList", Skills.getAllSkills(facade.getSkillDAO()));
 			return ("editRequirement");
 		}
 		TaskRequirement requirement;

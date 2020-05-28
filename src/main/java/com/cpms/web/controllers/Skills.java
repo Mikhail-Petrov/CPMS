@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cpms.dao.interfaces.IApplicationsService;
+import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Article;
@@ -67,15 +69,20 @@ public class Skills {
 	
 	@RequestMapping(path = { "/extractSkills" }, method = RequestMethod.GET)
 	public String extractSkills(Model model) {
-		String url = "http://data.europa.eu/esco/skill/S";
+		String url = "http://data.europa.eu/esco/skill/L";
 		Document doc = Statistic.getDoc(url);
 		List<Skill> skills = new ArrayList<>();
+		Skill main = new Skill("language skills and knowledge", "");
+		skills.add(main);
+		System.out.print(new Date(System.currentTimeMillis()) + "\n");
 		for (Element root : doc.select("a[class*=show-underline]")) {
-			List<Skill> newSkills = extractSkill(root.attr("href"), null);
+			List<Skill> newSkills = extractSkill(root.attr("href"), main);
 			if (newSkills != null)
 				skills.addAll(newSkills);
 		}
+		System.out.print(new Date(System.currentTimeMillis()) + "\n");
 		facade.getSkillDAO().insertAll(skills);
+		System.out.print(new Date(System.currentTimeMillis()) + "\n");
 		return "redirect:/skills";
 	}
 	
@@ -85,8 +92,12 @@ public class Skills {
 		// get name and description
 		String name, about;
 		name = doc.select("[class*=header-solid] h1").text();
+		if (name.length() > 100) 
+			name = name.substring(0, 100);
 		if (name == null || name.isEmpty()) return null;
 		about = doc.select("pre").text();
+		if (about.length() > 4000)
+			about = about.substring(0, 4000);
 		// get content: alternative and links to children
 		Elements alternatives = doc.select("h2:contains(Alternative label) + ul li");
 		String alternative = "";
@@ -98,6 +109,8 @@ public class Skills {
 		// create skill
 		Skill newSkill = new Skill(name, about);
 		newSkill.setParent(parent);
+		if (alternative.length() > 4000)
+			alternative = alternative.substring(0, 4000);
 		if (!alternative.isEmpty())
 			newSkill.setAlternative(alternative);
 		List<Skill> ret = new ArrayList<>();
@@ -123,6 +136,22 @@ public class Skills {
 		}
 		return values;
 	}
+	
+	private static List<Skill> allSkills;
+	public static List<Skill> getAllSkills(IDAO<Skill> skillDAO) {
+		if (allSkills == null || allSkills.size() != skillDAO.count()) {
+			allSkills = skillDAO.getAll();
+			Collections.sort(allSkills);
+		}
+		return new ArrayList<>(allSkills);
+	}
+	private List<Skill> getAllSkills() {
+		if (allSkills == null || allSkills.size() != facade.getSkillDAO().count()) {
+			allSkills = facade.getSkillDAO().getAll();
+			Collections.sort(allSkills);
+		}
+		return allSkills;
+	}
 
 	private List<Skill> addSkillsListToModel(Principal principal, HttpServletRequest request) {
 		List<Skill> skills;
@@ -130,12 +159,13 @@ public class Skills {
 			Users owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
-			skills = facade.getSkillDAO().getAll();
-			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
-			skills = skillDao.getAllIncludingDrafts();
+			//skills = facade.getSkillDAO().getAll();
+			skills = getAllSkills();
+			//skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
+		//} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
+			//skills = skillDao.getAllIncludingDrafts();
 		} else {
-			skills = facade.getSkillDAO().getAll();
+			skills = getAllSkills();
 		}
 		return skills;
 	}
@@ -161,17 +191,18 @@ public class Skills {
 			Users owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
-			List<Skill> skills = facade.getSkillDAO().getAll();
-			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
+			List<Skill> skills = getAllSkills(facade.getSkillDAO());
+			//skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
 			model.addAttribute("skills", SkillTree.produceTree(sortSkills(skills)));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);
 		} else {
 			if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
-				model.addAttribute("skills", SkillTree.produceTree(sortSkills(skillDao.getAllIncludingDrafts())));
+				//model.addAttribute("skills", SkillTree.produceTree(sortSkills(skillDao.getAllIncludingDrafts())));
+				model.addAttribute("skills", SkillTree.produceTree(getAllSkills()));
 			else
-				model.addAttribute("skills", SkillTree.produceTree(sortSkills(facade.getSkillDAO().getAll())));
+				model.addAttribute("skills", SkillTree.produceTree(getAllSkills()));
 			Skill newSkill = new Skill();
 			newSkill.setMaxLevel(1);
 			model.addAttribute("skill", newSkill);

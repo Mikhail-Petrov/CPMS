@@ -128,7 +128,7 @@ public class Term extends AbstractDomainObject {
 			this.getVariants();
 		}
 		if (!this.variants.stream().anyMatch(x -> x.getText() == variant.getText())) {
-			if (getPref().isEmpty())
+			if (getPref().isEmpty() || getPref().length() < variant.getText().length())
 				setPref(variant.getText());
 			this.variants.add(variant);
 			variant.setTerm(this);

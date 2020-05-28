@@ -101,8 +101,8 @@ public class EditorCompetency {
 		}
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
-			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(Skills.getAllSkills(facade.getSkillDAO()))));
+			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(Skills.getAllSkills(facade.getSkillDAO())));
 			model.addAttribute("profile", profile);
 			return ("fragments/editCompetencyModal :: competencyModalForm");
 		}
@@ -166,7 +166,7 @@ public class EditorCompetency {
 		competency.setSkill(null);
 		model.addAttribute("competency", competency);
 		model.addAttribute("create", create);
-		List<Skill> allSkills = facade.getSkillDAO().getAll();
+		List<Skill> allSkills = Skills.getAllSkills(facade.getSkillDAO());
 		model.addAttribute("skillsList", 
 				SkillUtils.sortAndAddIndents(Skills.sortSkills(allSkills)));
 		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(allSkills));
@@ -210,9 +210,9 @@ public class EditorCompetency {
 		boolean create = (recievedCompetency.getId() == 0);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("create", create);
-			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(facade.getSkillDAO().getAll()));
+			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(Skills.getAllSkills(facade.getSkillDAO())));
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(Skills.getAllSkills(facade.getSkillDAO()))));
 			model.addAttribute("postAddress", "/editor/" + profileId + "/competency");
 			model.addAttribute("_VIEW_TITLE", "title.edit.competency");
 			model.addAttribute("_FORCE_CSRF", true);
