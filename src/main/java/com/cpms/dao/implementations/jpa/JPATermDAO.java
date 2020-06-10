@@ -31,7 +31,7 @@ import com.cpms.exceptions.DataAccessException;
 @Transactional("transactionManager")
 public class JPATermDAO extends AbstractDAO<Term> implements ICleanable {
 	
-	private TermsRepository termRepo;
+	protected TermsRepository termRepo;
 	private EntityManager entityManager;
 	private TermVariantRepository variantRepo;
 	

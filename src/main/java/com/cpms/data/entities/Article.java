@@ -53,6 +53,9 @@ public class Article extends AbstractDomainObject {
 	
 	@Column(name = "title", nullable = true, length = 10000)
 	private String title;
+	
+	@Column(name = "mask", nullable = true, length = 1000)
+	private String mask;
 
 	@Column(name = "creationDate", nullable = true)
 	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
@@ -93,6 +96,7 @@ public class Article extends AbstractDomainObject {
 		Article returnValue = new Article();
 		returnValue.setId(getId());
 		returnValue.setText(getText());
+		returnValue.setMask(getMask());
 		returnValue.setUrl(getUrl());
 		returnValue.setParseDate(getParseDate());
 		returnValue.setWordcount(getWordcount());
@@ -151,6 +155,14 @@ public class Article extends AbstractDomainObject {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getMask() {
+		return mask;
+	}
+
+	public void setMask(String mask) {
+		this.mask = mask;
 	}
 	
 	

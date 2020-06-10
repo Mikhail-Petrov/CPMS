@@ -127,7 +127,10 @@ public class Term extends AbstractDomainObject {
 		if (this.variants == null) {
 			this.getVariants();
 		}
-		if (!this.variants.stream().anyMatch(x -> x.getText() == variant.getText())) {
+		if (!this.variants.stream().anyMatch(
+				x -> 
+				x.getText().equals(variant.getText()))
+				) {
 			if (getPref().isEmpty() || getPref().length() < variant.getText().length())
 				setPref(variant.getText());
 			this.variants.add(variant);

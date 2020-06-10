@@ -1,0 +1,97 @@
+		<div class="row">
+		
+		<div class="row">
+			<h3 th:text="${title}"></h3>
+			<table class="table table-responsive table-striped">
+			<tr>
+				<th>Period</th>
+				<th>Number of term occurrence</th>
+				<th>Number of documents with term</th>
+				<th>Relative number of documents</th>
+			</tr>
+			<tr>
+				<td>last 30 days</td>
+			    <td th:text="${stat[0][0]}">0</td>
+			    <td th:text="${stat[0][1]}">0</td>
+			    <td th:text="${stat[0][2]} + '%'">0</td>
+			</tr>
+			<tr>
+				<td>last 3 months</td>
+			    <td th:text="${stat[1][0]}">0</td>
+			    <td th:text="${stat[1][1]}">0</td>
+			    <td th:text="${stat[1][2]} + '%'">0</td>
+			</tr>
+			<tr>
+				<td>last year</td>
+			    <td th:text="${stat[2][0]}">0</td>
+			    <td th:text="${stat[2][1]}">0</td>
+			    <td th:text="${stat[2][2]} + '%'">0</td>
+			</tr>
+			</table>
+		</div>
+		<div id="graph0"  style="width:600px;height:300px;position:relative;"></div>
+		<div id="graph1"  style="width:600px;height:300px;position:relative;"></div>
+		<div id="graph2"  style="width:600px;height:300px;position:relative;"></div>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+				
+			function drawBars(sums, index, lab) {
+				var d1 = [], t = [];
+		    	
+    			var i = 0;
+    			for (let key of sums.keys()) {
+    				//var vert = "";
+    				//for (i = 0; i < key.length; i++)
+    				    //vert += key[i] + "\n";
+    				if (i % 4 == 0)
+    					t.push([i, key]);
+    				d1.push([i, sums.get(key)[index]]);
+    				i++;
+    			}
+
+    			$.plot("#graph" + index, [
+    				{ label: lab, data: d1 }
+    			], {
+    				series: {
+    					bars: { show: true }
+    				},
+    				xaxis: {
+    	                autoScale: "exact",
+    					ticks: t
+    				},
+    				grid: {
+    					backgroundColor: { colors: [ "#fff", "#eee" ] }
+    				}
+    			});
+			}
+		      $(document).ready(function() {
+				var obj = /*[[${sums}]]*/ [];
+				var sums = new Map(Object.entries(obj));
+				drawBars(sums, 0, "Number of term occurrence");
+				drawBars(sums, 1, "Number of documents with term");
+				drawBars(sums, 2, "Relative number of documents");
+		      });
+			/*]]>*/
+			</script>
+		<h3>Documents with term</h3>
+		<a th:href="@{/stat/term(id=${termid},order=${order}==0?1:0)}"
+			th:text="'sort by '+(${order}==0?'document date':'occurrance')">sort</a>
+		<table class="table table-responsive table-striped">
+		<tr>
+			<th>Title</th>
+			<th>Date</th>
+			<th>Occurrence</th>
+			<th>URL</th>
+			<th>Highlighted</th>
+		</tr>
+		<tr th:each="key : ${keys}">
+		    <td th:text="${key.doc.title}">title</td>
+		    <td th:text="${#dates.format(key.doc.creationDate, 'dd MMMM yyyy')}">creationDate</td>
+		    <td th:text="${key.count}">0</td>
+		    <td><a th:href="${key.doc.url}" th:text="${key.doc.url}" target="_blank">URL</a></td>
+		    <td><a th:href="@{/stat/doc(docid=${key.doc.id},termid=${termid})}" th:text="'view doc'" target="_blank">URL</a></td>
+		</tr>
+		</table>
+		</div>
+		
+		

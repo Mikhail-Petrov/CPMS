@@ -33,10 +33,12 @@ import com.cpms.dao.implementations.jpa.JPARewardsDAO;
 import com.cpms.dao.implementations.jpa.JPASkillDraftableDAO;
 import com.cpms.dao.implementations.jpa.JPATaskDAO;
 import com.cpms.dao.implementations.jpa.JPATermDAO;
+import com.cpms.dao.implementations.jpa.JPATermInnovationDAO;
 import com.cpms.dao.implementations.jpa.JPATopicDAO;
 import com.cpms.dao.implementations.jpa.JPAUserDAO;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
+import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Keyword;
@@ -246,8 +248,9 @@ public class PersistencyConfig {
     	return new JPATaskDAO();
     }
     
+    private JPATermInnovationDAO termDAO = new JPATermInnovationDAO();
     /**
-     * @return implementation of IDAO interface for Task entity
+     * @return implementation of IDAO interface for Term entity
      * @see IDAO
      * @see Task
      */
@@ -257,7 +260,17 @@ public class PersistencyConfig {
     }
     
     /**
-     * @return implementation of IDAO interface for Task entity
+     * @return implementation of IDAO interface for Term entity with innovations
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "innovationDAO")
+    public IInnovationTermDAO getInnovationDAO() {
+    	return termDAO;
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Document entity
      * @see IDAO
      * @see Task
      */
@@ -267,7 +280,7 @@ public class PersistencyConfig {
     }
     
     /**
-     * @return implementation of IDAO interface for Task entity
+     * @return implementation of IDAO interface for Keyword entity
      * @see IDAO
      * @see Task
      */

@@ -29,7 +29,7 @@
 	    	</div>
 		</div>
 	    <div class="two-buttons">
-			<span class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
+			<span id="saveTerm" class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
         </div></p>
         </div>
 		<h3>Innovations</h3>
@@ -39,6 +39,7 @@
 		<tr>
 			<th><span th:text="'Term'"></span></th>
 			<th><span th:text="'Is innovation'"></span></th>
+			<th><span th:text="'Analize'"></span></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -52,28 +53,51 @@
 	    	</div>
 		</div>
 	    <div class="two-buttons">
-			<span class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
+			<span id="saveInn" class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
         </div></p>
         </div>
 			<script th:inline="javascript">
 			/*<![CDATA[*/
+				// clear search field and hide results table
 				function clear() {
 					$("#search").val('');
 					$("#termsBlock").hide();
 				}
 			clear();
+			// hide or show element
 				function show(element) {
 						if (element.is(':hidden'))
 							element.show();
 						else element.hide();
 					}
 			
+			// parameters for keeping terms (1) and innovations (2)
 				var curPage1 = 0, curPage2 = 0;
 				var terms, flags, variants, ids;
 				var terms1, flags1, variants1, ids1;
 				var terms2, flags2, variants2, ids2;
+				
 				var tpp = 20; // terms per page
+				
+				//remember flag change
+				function changeFlag(index, chID, isInn) {
+					var val = $('#' + chID).is(':checked');
+					if (isInn)
+						flags2[index] = val;
+					else
+						flags1[index] = val;
+				}
+				//remember radio change (term variants)
+				function changeTerm(index, id, isInn) {
+					var val = $("[name=" + (isInn ? '1' : '2') + id + "]:checked").val();
+					if (isInn)
+						terms2[index] = val;
+					else
+						terms1[index] = val;
+				}
+				// display a page
 				function showPage(page, isInn) {
+					// define a table: terms or innovations
 					if (isInn){
 						terms = terms2;
 						flags = flags2;
@@ -115,17 +139,23 @@
 						if (variants[i].length > 1) {
 							line += "<div id='var" + ids[i] + "'>";
 							for (j = 0; j < variants[i].length; j++)
-								line += "<p><input name='" + ids[i] + "' "+ (variants[i][j] == terms[i] ? "checked " : "") + 
+								line += "<p><input name='" + (isInn ? '1' : '2') + ids[i] + "' "+
+								(variants[i][j] == terms[i] ? "checked " : "") + 
+								"onclick='changeTerm(" + i + ", " + ids[i] + ", " + isInn + ")'" +
 								"value='" + variants[i][j] + "' type='radio'>" + variants[i][j] + "</p>";
 							line += "</div>";
 						}
 						line += "</td>";
-						line += "<td><input type='checkbox'" + (flags[i] ? " checked" : "") + "></td>";
+						var chID = "ch" + (isInn ? '1' : '2') + ids[i];
+						line += "<td><input id='" + chID + "' type='checkbox' onclick='changeFlag(" + i +", \"" + chID +"\", " +
+							isInn + ");'" + (flags[i] ? " checked" : "") + "></td>";
+						line += "<td><a target='_blank' href='" + rootPath + "stat/term?id=" + ids[i] + "'>analize</td>";
 						line += "</tr";
 						$("#" + tableName).append(line);
 					}
 				}
 
+				// terms (by query) and innovations (by flag) search
 				function ajaxSearch(requestUrl) {
 					
 					var inputArgs = [];
@@ -139,10 +169,13 @@
 				     var headers = {};
 				     headers[csrfHeader] = csrfToken;
 
+				     // define table
 					var isInn = requestUrl == (rootPath + 'stat/ajaxGetInn');
 					if (!isInn)
 						inputArgs.push($("#search").val());
 
+					if (!isInn && $("#search").val() === "")
+						return;
 					if (isInn)
 				         $("#curStatus").html('getting innovations...');
 					else
@@ -155,19 +188,30 @@
 						data : JSON.stringify(inputArgs),
 						headers: headers,
 						success: function (res) {
-					        $("#curStatus").html('');
+							var results = 0;
+							if (res.terms.length > 0)
+								results = res.terms.length;
+					        // save results
 					        if (isInn) {
 								terms2 = res.terms;
 								flags2 = res.flags;
 								variants2 = res.variants;
 								ids2 = res.ids;
+						        $("#curStatus").html('');
 					        } else {
 								terms1 = res.terms;
 								flags1 = res.flags;
 								variants1 = res.variants;
 								ids1 = res.ids;
-								$("#termsBlock").show();
+								if (results > 0)
+									$("#termsBlock").show();
+								else
+									$("#termsBlock").hide();
+								if (results >= 100)
+									results += '+';
+						        $("#curStatus").html(results + ' results');
 						    }
+					        // display the first page
 							showPage(0, isInn);
 						},
 						error: function (xhRequest, ErrorText, thrownError) {
@@ -180,8 +224,56 @@
 					});
 				}
 				$("#find").on("click", function() {ajaxSearch(rootPath + 'stat/ajaxSearch')});
+				$("#search").keydown(function(e) {if(e.keyCode === 13) ajaxSearch(rootPath + 'stat/ajaxSearch');});
 				$("#clear").on("click", function() {clear()});
 				ajaxSearch(rootPath + 'stat/ajaxGetInn');
+
+				let flagMap = new Map();
+				let varMap = new Map();
+				function ajaxSave(requestUrl, isInn) {
+					
+					var inputArgs = [];
+					var i;
+					for (i = 1; i < arguments.length; i++) {
+						inputArgs.push(arguments[i]);
+					}
+					
+					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				     var csrfToken = $("meta[name='_csrf']").attr("content");
+				     var headers = {};
+				     headers[csrfHeader] = csrfToken;
+
+				     if (isInn) {
+							inputArgs.push(ids2);
+							inputArgs.push(flags2);
+							inputArgs.push(terms2);
+				     } else{
+							inputArgs.push(ids1);
+							inputArgs.push(flags1);
+							inputArgs.push(terms1);
+				     } 
+	         		$("#curStatus").html('searching...');
+					$.ajax({
+						url : requestUrl,
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						data : JSON.stringify(inputArgs),
+						headers: headers,
+						success: function (res) {
+					        $("#curStatus").html('');
+						},
+						error: function (xhRequest, ErrorText, thrownError) {
+					         $("#curStatus").html('ERROR!!!');
+							console.log('xhRequest: ' + xhRequest + "\n");
+							console.log('ErrorText: ' + ErrorText + "\n");
+							console.log('thrownError: ' + thrownError + "\n");
+							console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+						}
+					});
+				}
+				$("#saveInn").on("click", function() {ajaxSave(rootPath + 'stat/ajaxSave', true)});
+				$("#saveTerm").on("click", function() {ajaxSave(rootPath + 'stat/ajaxSave', false)});
 			/*]]>*/
 			</script>
 		</div>

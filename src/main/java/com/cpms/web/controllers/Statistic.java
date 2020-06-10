@@ -1,6 +1,7 @@
 package com.cpms.web.controllers;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,9 +37,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import com.cpms.dao.interfaces.IDAO;
+import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Term;
+import com.cpms.data.entities.TermVariant;
 import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.GroupAnswer;
 import com.cpms.web.ajax.IAjaxAnswer;
@@ -60,6 +64,10 @@ public class Statistic {
 	@Autowired
 	@Qualifier(value = "termDAO")
 	private IDAO<Term> termDAO;
+	
+	@Autowired
+	@Qualifier(value = "innovationDAO")
+	private IInnovationTermDAO innDAO;
 	
 	@Autowired
 	@Qualifier(value = "keywordDAO")
@@ -90,13 +98,43 @@ public class Statistic {
 
 		return "innovations";
 	}
+
+	@RequestMapping(path = "/doc", method = RequestMethod.GET)
+	public String doc(Model model
+			, @RequestParam(value = "docid", required = true) Long docid
+			, @RequestParam(value = "termid", required = true) Long termid) {
+		Term term = termDAO.getOne(termid);
+		Article doc = docDAO.getOne(docid);
+		if (term == null || doc == null)
+			return terms(model);
+		
+		model.addAttribute("_VIEW_TITLE", doc.getTitle());
+		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("_NAMED_TITLE", true);
+
+		String mask = doc.getMask();
+		Document document = getDoc(doc.getUrl());
+		String text = mask == null || mask.isEmpty() ? document.body().html() : document.select(mask).html();
+		String[] prefixes = {" ", "(", "\"", "[", ">", "-", ",", ".", "\n"},
+				postfixes = {" ", ",", ".", ";", "!", "?", "-", ":", "\"", "\n", ")", "]", "<"};
+		for (TermVariant var : term.getVariants())
+			for (String prefix : prefixes)
+				for (String postfix : postfixes)
+					text = text.replaceAll("(?i)\\" + prefix + var.getPresentationName() + "\\" + postfix,
+							prefix + "!@#" + var.getPresentationName() + "#@!" + postfix);
+		text = text.replace("!@#", "<span style=\"background-color: rgb(220,220,0);\">");
+		text = text.replace("#@!", "</span>");
+		model.addAttribute("text", text);
+		return "viewDoc";
+	}
+	
 	@ResponseBody
 	@RequestMapping(value = "/ajaxGetInn",
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxGetInn(
 			@RequestBody String json) {
 		// getting innovations
-		List<Term> res = termDAO.getRange(100, 250);
+		List<Term> res = innDAO.getInnovations();
 		InnAnswer ans = new InnAnswer();
 		for (Term term : res)
 			ans.addTerm(term);
@@ -110,11 +148,63 @@ public class Statistic {
 			@RequestBody String json) {
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		String query = values.size() > 0 ? (String) values.get(0) : "";
+		if (query.isEmpty())
+			return new InnAnswer();
+		String[] split = query.split(" ");
 		// search
-		List<Term> res = termDAO.getRange(0, 100);
+		List<Term> res = innDAO.find(buildQuery(split, split.length, 0));
+		if (res == null) res = new ArrayList<>();
+		// for complex queries: divide and find
+		for (int length = split.length - 1; length > 0 && res.isEmpty(); length--) {
+			res = new ArrayList<>();
+			for (int start = 0; start + length <= split.length; start++) {
+				List<Term> curRes = innDAO.find(buildQuery(split, length, start));
+				if (curRes != null)
+					res.addAll(curRes);
+			}
+		}
 		InnAnswer ans = new InnAnswer();
 		for (Term term : res)
 			ans.addTerm(term);
+		return ans;
+	}
+	private String buildQuery(String[] split, int length, int start) {
+		String query = "%";
+		// stem the query
+		PorterStemmer stemmer = new PorterStemmer();
+		for (int i = start; i < start + length; i++)
+			query += stemTerm(split[i], stemmer) + "%";
+		return query;
+	}
+
+	@SuppressWarnings("unchecked")
+	@ResponseBody
+	@RequestMapping(value = "/ajaxSave",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxSave(
+			@RequestBody String json) {
+		// get parameters
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		List<Integer> ids = values.size() > 1 ? (List<Integer>) values.get(1) : null;
+		List<Boolean> flags = values.size() > 2 ? (List<Boolean>) values.get(2) : null;
+		List<String> terms = values.size() > 3 ? (List<String>) values.get(3) : null;
+		if (ids == null || flags == null || terms == null) return null;
+		// save changes
+		for (int i = 0; i < ids.size() && i < flags.size() && i < terms.size(); i++) {
+			Term term = termDAO.getOne((long) ids.get(i));
+			boolean change = false;
+			if (term.isInn() != flags.get(i)) {
+				change = true;
+				term.setInn(flags.get(i));
+			}
+			if (!term.getPref().equals(terms.get(i))) {
+				change = true;
+				term.setPref(terms.get(i));
+			}
+			if (change)
+				termDAO.update(term);
+		}
+		InnAnswer ans = new InnAnswer();
 		return ans;
 	}
 	
@@ -170,6 +260,115 @@ public class Statistic {
 			years.add(new String[]{e.getKey() > 0 ? "" + (1900 + e.getKey()) : "other", "" + e.getValue()});
 		model.addAttribute("years", years);
 		return "docs";
+	}
+	
+	@SuppressWarnings("deprecation")
+	private Date getPlusMonth(Date startDate) {
+		Date curDate = (Date) startDate.clone();
+		int month = curDate.getMonth();
+		if (month == 11) {
+			curDate.setYear(curDate.getYear() + 1);
+			month = 0;
+		} else
+			month++;
+		curDate.setMonth(month);
+		return curDate;
+	}
+
+	@SuppressWarnings("deprecation")
+	private Date changeDate(Date date, int years, int months, int days) {
+		Date ret = (Date) date.clone();
+		int d = date.getDate() + days;
+		ret.setDate(d);
+		ret.setMonth(ret.getMonth() + months);
+		ret.setYear(ret.getYear() + years);
+		return ret;
+	}
+
+	long pt = -1;
+	private void time() {time("");}
+	private void time(String mes) {
+		long ct = System.currentTimeMillis();
+		if (mes.isEmpty())
+			pt = ct;
+		else {
+			System.out.print(String.format("\n%s: %d\n", mes, ct-pt));
+			pt = ct;
+		}
+	}
+	@SuppressWarnings("deprecation")
+	@RequestMapping(path = "/term", method = RequestMethod.GET)
+	public String term(Model model, @RequestParam(value = "id", required = true) Long id
+			, @RequestParam(value = "order", required = false) Integer order) {
+		time();
+		if (order == null) order = 0;
+		Term term = termDAO.getOne(id);
+		if (term == null)
+			return terms(model);
+		model.addAttribute("_VIEW_TITLE", term.getPref());
+		model.addAttribute("title", term.getPref());
+		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("_NAMED_TITLE", true);
+		time("block 1");
+
+		Map<String, List<Float>> sums = new LinkedHashMap<>();
+		Date today = new Date(System.currentTimeMillis());
+		// get statistics for last 30 days, 3 months, year
+		int tdc30 = innDAO.getTermDocCount(term, changeDate(today, 0, 0, -30), today),
+				tdc3 = innDAO.getTermDocCount(term, changeDate(today, 0, -3, 0), today),
+				tdc1 = innDAO.getTermDocCount(term, changeDate(today, -1, 0, 0), today),
+				dc30 = innDAO.getDocCount(changeDate(today, 0, 0, -30), today),
+				dc3 = innDAO.getDocCount(changeDate(today, 0, -3, 0), today),
+				dc1 = innDAO.getDocCount(changeDate(today, -1, 0, 0), today);
+		int[][] stat = {
+				{
+					innDAO.getTermSum(term, changeDate(today, 0, 0, -30), today),
+					tdc30,
+					dc30 == 0 ? 0 : (int)((float) tdc30 / (float) dc30 * 100.0)
+				}, {
+					innDAO.getTermSum(term, changeDate(today, 0, -3, 0), today),
+					tdc3,
+					dc3 == 0 ? 0 : (int)((float) tdc3 / (float) dc3 * 100.0)
+				}, {
+					innDAO.getTermSum(term, changeDate(today, -1, 0, 0), today),
+					tdc1,
+					dc1 == 0 ? 0 : (int)((float) tdc1 / (float) dc1 * 100.0)
+				}
+		};
+		model.addAttribute("stat", stat);
+		time("stat");
+		// get statistics for graphs
+		today.setDate(1);
+		int years = 5, todayYear = today.getYear(), todayMonth = today.getMonth();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy'\n'MMM", Locale.ENGLISH);
+		for (int curYear = todayYear - 5; curYear <= todayYear; curYear++) {
+			today.setYear(curYear);
+			for (int curMonth = 0; curMonth < 12; curMonth++) {
+				if (curYear == todayYear && curMonth > todayMonth)
+					break;
+				today.setMonth(curMonth);
+				List<Float> sum = new ArrayList<>();
+				sum.add((float) innDAO.getTermSum(term, today, getPlusMonth(today)));
+				float termDocCount = (float) innDAO.getTermDocCount(term, today, getPlusMonth(today));
+				sum.add(termDocCount);
+				float docCount = (float) innDAO.getDocCount(today, getPlusMonth(today));
+				sum.add(docCount == 0 ? 0 : (termDocCount / docCount));
+				sums.put(df.format(today), sum);
+			}
+		}
+		model.addAttribute("sums", sums);
+		time("sums");
+		
+		// get keywords list
+		List<Keyword> keys = new ArrayList<>();
+		for (BigInteger docID : innDAO.getTermDocsIDs(term, order))
+			keys.add(keyDAO.getOne(docID.longValue()));
+		model.addAttribute("keys", keys);
+		time("keys");
+		model.addAttribute("order", order);
+		
+		model.addAttribute("termid", id);
+		return "viewTerm";
 	}
 
 	private String err = "";
@@ -263,25 +462,19 @@ public class Statistic {
 		return terms(model);
 	}
 
-	@RequestMapping(path = { "/deleteBadTerms" }, method = RequestMethod.GET)
-	public String deleteBadTerms(Model model, @RequestParam(name = "id", required = false) Long id) {
-		// TODO: keep terms without keywords after /terms-get
-		
-		return "redirect:/stat/terms";
-	}
-
-	@RequestMapping(path = { "/removeBadKeys" }, method = RequestMethod.GET)
-	public String removeBadKeys(Model model, @RequestParam(name = "isTerm", required = true) boolean isTerm) {
-		// TODO: keep keys with bad links after /keys-get
-		
-		return "redirect:/stat/keys";
-	}
-
-	@RequestMapping(path = { "/reboundKeysRep" }, method = RequestMethod.GET)
-	public String reboundKeysRep(Model model, @RequestParam(name = "id", required = false) Long id) {
-		// TODO: keep keys repeat after /keys-get
-		
-		return "redirect:/stat/keys";
+	@RequestMapping(path = { "/updateVariants" }, method = RequestMethod.GET)
+	public String updateVariants(Model model) {
+		if (allTerms == null)
+			allTerms = termDAO.getAll();
+		for (Term term : allTerms) {
+			List<String> unstemmed = getUnstemmed(term.getStem());
+			if (unstemmed.size() > term.getVariants().size()) {
+				for (String var : unstemmed)
+					term.addVariant(var);
+				termDAO.update(term);
+			}
+		}
+		return terms(model);
 	}
 
 	@RequestMapping(path = { "/extract" })
@@ -372,6 +565,7 @@ public class Statistic {
 		int size = urls.size();
 		for (int i = urls.size() - 1; i >= size - 50 && i >= 0; i--) {
 			Article newDoc = getPosts2(urls.get(i), articlem, datef, datem, datea);
+			newDoc.setMask(articlem);
 			if (newDoc != null) {
 				boolean suit = minDate == null && maxDate == null ||
 						newDoc.getCreationDate() != null &&
@@ -607,8 +801,37 @@ public class Statistic {
 		docDAO.update(doc);
 		termExtraction = false;
 	}
-
+	
 	private List<String> getUnstemmed(String stemmed) {
+		List<String> toReturn = null;
+		if (wordsMap != null)
+			if (wordsMap.containsKey(stemmed)) {
+				toReturn = wordsMap.get(stemmed);
+			} else {
+				// make variants for terms with several words
+				String[] curWords = stemmed.split(" ");
+				for (int i = 0; i < curWords.length; i++) {
+					List<String> list = wordsMap.get(curWords[i]);
+					if (toReturn == null)
+						toReturn = new ArrayList<>(list);
+					else {
+						List<String> oldVars = new ArrayList<>(toReturn);
+						toReturn.clear();
+						for (String var : oldVars)
+							for (String add : list)
+								toReturn.add(var + " " + add);
+					}
+				}
+		}
+
+		if (toReturn == null)
+			toReturn = new ArrayList<>();
+		if (toReturn.isEmpty())
+			toReturn.add(stemmed);
+		return toReturn;
+	}
+
+	private List<String> getUnstemmedOld(String stemmed) {
 		List<String> toReturn = null;
 		if (wordsMap == null) {
 			toReturn = new ArrayList<>();
@@ -673,7 +896,7 @@ public class Statistic {
 		for (int i = 0; i < 10; i++)
 			corpus = corpus.replace(i+"", "");*/
 		// remove all except letters
-		corpus = corpus.replaceAll("[^\\w]", " ");
+		corpus = corpus.replaceAll("[^\\w]", "  ").replaceAll(" [0-9]+ ", " ");
 		// remove one letter words
 		boolean changes = true;
 		while (changes) {

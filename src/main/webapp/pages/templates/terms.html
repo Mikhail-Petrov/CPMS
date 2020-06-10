@@ -12,7 +12,7 @@
 		<p th:each="nokey : ${nokeys}"><span th:text="'id ' + ${nokey} + ' - '"></span>
 			<a th:href="@{/stat/deleteBadTerms(id=${nokey})}" th:text="'delete'"></a></p>
 		</div>
-		<p><a th:href="@{/stat/deleteBadTerms}" th:text="'delete all'"></a></p>
+		<p><a th:href="@{/stat/updateVariants}" th:text="'update term variants'"></a></p>
 		<p><a href="#" id="plusButton" th:text="'get all'"></a></p>
 		<p id="curStatus"></p>
 			<script th:inline="javascript">
