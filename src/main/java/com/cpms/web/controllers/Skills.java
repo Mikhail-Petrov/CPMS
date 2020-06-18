@@ -141,14 +141,14 @@ public class Skills {
 	public static List<Skill> getAllSkills(IDAO<Skill> skillDAO) {
 		if (allSkills == null || allSkills.size() != skillDAO.count()) {
 			allSkills = skillDAO.getAll();
-			Collections.sort(allSkills);
+			//Collections.sort(allSkills);
 		}
 		return new ArrayList<>(allSkills);
 	}
 	private List<Skill> getAllSkills() {
 		if (allSkills == null || allSkills.size() != facade.getSkillDAO().count()) {
 			allSkills = facade.getSkillDAO().getAll();
-			Collections.sort(allSkills);
+			//Collections.sort(allSkills);
 		}
 		return allSkills;
 	}

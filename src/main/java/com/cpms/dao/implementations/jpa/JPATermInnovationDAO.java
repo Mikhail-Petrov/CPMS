@@ -80,4 +80,9 @@ public class JPATermInnovationDAO extends JPATermDAO
 	public List<BigInteger> getTermDocsIDs(Term term, int order) {
 		return order > 0 ? termRepo.getTermKeysIDs(term.getId()) : termRepo.getTermDocsIDs(term.getId());
 	}
+
+	@Override
+	public Term getTermByStem(String stem) {
+		return termRepo.getTermByStem(stem);
+	}
 }

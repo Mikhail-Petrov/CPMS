@@ -44,6 +44,9 @@ public class Term extends AbstractDomainObject {
 	@Column(name = "stemtext", nullable = false, length = 1000)
 	private String stem;
 	
+	@Column(name = "category", nullable = true, length = 100)
+	private String category;
+	
 	@Column(name = "ISinnovation", nullable = false)
 	private boolean inn;
 
@@ -165,5 +168,16 @@ public class Term extends AbstractDomainObject {
 			throw new DataAccessException("Cannot insert, Hibernate will lose track",
 					null);
 		}
+	}
+
+
+	public String getCategory() {
+		if (category == null) return "";
+		return category;
+	}
+
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 }

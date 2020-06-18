@@ -43,6 +43,7 @@ import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
+import com.cpms.web.SkillUtils;
 import com.cpms.web.ajax.GroupAnswer;
 import com.cpms.web.ajax.IAjaxAnswer;
 
@@ -154,9 +155,9 @@ public class EditorTask {
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		Collections.sort(langs);
 		model.addAttribute("languages", langs);
-		List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
-		Collections.sort(skills);
-		model.addAttribute("skills", skills);
+		model.addAttribute("skillsList",
+				//SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
+				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
 		List<Users> users = userDAO.getAll();
 		Collections.sort(users);
 		model.addAttribute("users", users);

@@ -1,5 +1,12 @@
 	<!-- link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" /-->
 		<div class="row">
+                               <div class="row">
+		<form action="#" th:action="@{/stat/parseLinkedIn}" method="post">
+		<p><span>Name: </span><input id="name" type="text" name="name"/></p>
+		<p><span>Skills: </span><textarea id="skills" class="form-control" name="skills" th:text="''"></textarea></p>
+		<input type="submit" class="btn btn-primary btn-block" id="plusButton" th:value="'parse LinkedIn'" />
+                               	</form>
+                               </div>
 		
 		<h3>Term search</h3>
 		<p><span th:text="'Term search'"></span></p>
@@ -16,6 +23,7 @@
 		<tr>
 			<th><span th:text="'Term'"></span></th>
 			<th><span th:text="'Is innovation'"></span></th>
+			<th></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -39,6 +47,7 @@
 		<tr>
 			<th><span th:text="'Term'"></span></th>
 			<th><span th:text="'Is innovation'"></span></th>
+			<th></th>
 			<th><span th:text="'Analize'"></span></th>
 		</tr>
 		</thead>
@@ -82,6 +91,12 @@
 				//remember flag change
 				function changeFlag(index, chID, isInn) {
 					var val = $('#' + chID).is(':checked');
+					if (val)
+						$('#s' + chID).show();
+					else
+						$('#s' + chID).hide();
+					if (val)
+						val = $('#s' + chID).val();
 					if (isInn)
 						flags2[index] = val;
 					else
@@ -96,6 +111,7 @@
 						terms1[index] = val;
 				}
 				// display a page
+				var categories = /*[[${categories}]]*/ [];
 				function showPage(page, isInn) {
 					// define a table: terms or innovations
 					if (isInn){
@@ -148,7 +164,13 @@
 						line += "</td>";
 						var chID = "ch" + (isInn ? '1' : '2') + ids[i];
 						line += "<td><input id='" + chID + "' type='checkbox' onclick='changeFlag(" + i +", \"" + chID +"\", " +
-							isInn + ");'" + (flags[i] ? " checked" : "") + "></td>";
+							isInn + ");'" + (flags[i] === '' ? "" : " checked") + "></td>";
+						line += "<td><select id='s" + chID + "' onclick='changeFlag(" + i +", \"" + chID +"\", " +
+							isInn + ");'" + (flags[i] === '' ? " hidden='true'" : "") + ">";
+						for (j = 0; j < categories.length; j++)
+							line += "<option " + (flags[i] === categories[j] ? "selected='true' " : "") + 
+								"value='" + categories[j] + "'>" + categories[j] + "</option>";
+						line += "</select></td>";
 						line += "<td><a target='_blank' href='" + rootPath + "stat/term?id=" + ids[i] + "'>analize</td>";
 						line += "</tr";
 						$("#" + tableName).append(line);

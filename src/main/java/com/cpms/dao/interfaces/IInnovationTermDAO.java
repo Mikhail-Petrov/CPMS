@@ -23,4 +23,6 @@ public interface IInnovationTermDAO {
 	public int getDocCount(Date startDate, Date finishDate);
 	
 	public List<BigInteger> getTermDocsIDs(Term term, int order);
+	
+	public Term getTermByStem(String stem);
 }

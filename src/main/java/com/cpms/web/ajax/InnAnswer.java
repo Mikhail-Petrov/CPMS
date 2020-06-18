@@ -10,7 +10,7 @@ public class InnAnswer implements IAjaxAnswer {
 
 	private List<List<String>> variants;
 	private List<String> terms;
-	private List<Boolean> flags;
+	private List<String> flags;
 	private List<Long> ids;
 
 	public InnAnswer() {
@@ -22,7 +22,8 @@ public class InnAnswer implements IAjaxAnswer {
 	
 	public void addTerm(Term term) {
 		terms.add(term.getPref());
-		flags.add(term.isInn());
+		//flags.add(term.isInn());
+		flags.add(term.getCategory());
 		ids.add(term.getId());
 		List<String> vars = new ArrayList<>();
 		for (TermVariant var : term.getVariants())
@@ -43,11 +44,11 @@ public class InnAnswer implements IAjaxAnswer {
 		this.terms = terms;
 	}
 
-	public List<Boolean> getFlags() {
+	public List<String> getFlags() {
 		return flags;
 	}
 
-	public void setFlags(List<Boolean> flags) {
+	public void setFlags(List<String> flags) {
 		this.flags = flags;
 	}
 

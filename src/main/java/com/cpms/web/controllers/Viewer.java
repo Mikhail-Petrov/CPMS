@@ -248,9 +248,9 @@ public class Viewer {
 		model.addAttribute("competency", new Competency());
 		model.addAttribute("competencies", new Competencies(id));
 		
-		double gsl1 = 0, gsl2, gsl3, gsl4 = 0, gsl5 = 0;
+		double gsl1 = 0, gsl2 = 0, gsl3 = 0, gsl4 = 0, gsl5 = 0;
 		
-		Users user = userDAO.getByUsername(attrProfile.getName());
+		/*Users user = userDAO.getByUsername(attrProfile.getName());
 		if (user != null) {
 			Set<TaskCenter> tasks = user.getTasks();
 			for (TaskCenter task : tasks) {
@@ -303,7 +303,7 @@ public class Viewer {
 				if (motiv != null) gsl5 += motiv.getCost();
 			}
 		}
-		gsl5 = 1 - 1 / (0.3 * gsl5 + 1);
+		gsl5 = 1 - 1 / (0.3 * gsl5 + 1);*/
 
 		model.addAttribute("globalLevel", (gsl1+gsl2+gsl3+gsl4+gsl5)/5.0);
 		//model.addAttribute("globalLevel", gsl1*gsl2*gsl3*gsl4);
@@ -314,9 +314,11 @@ public class Viewer {
 		model.addAttribute("globalLevel5", gsl5);
 
 		model.addAttribute("skillsList",
+				//new ArrayList<Skill>());
 				//SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
 				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
-		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(Skills.getAllSkills(facade.getSkillDAO())));
+		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(new ArrayList<Skill>()));
+				//Skills.getAllSkills(facade.getSkillDAO())));
 
 		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
 			Long ownerId = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName())
@@ -328,7 +330,8 @@ public class Viewer {
 			}
 		}
 		//model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(skillDao.getAllIncludingDrafts()));
-		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(Skills.getAllSkills(facade.getSkillDAO())));
+		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(//new ArrayList<Skill>()));
+				Skills.getAllSkills(facade.getSkillDAO())));
 
 		model.addAttribute("objectType", "competency");
 		return "viewProfile";

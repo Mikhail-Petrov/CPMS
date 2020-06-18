@@ -7,22 +7,6 @@
                             <div class="x_content">
                             <div class="row"><div class="two-buttons">
                                 <p><span th:text="#{profile.position}"></span>: <span th:text="${profile.position}"></span></p>
-                                <p><span th:text="#{profile.proofs}"></span>: <span th:text="${presentationProofs}"></span></p>
-                                <p><span th:text="#{profile.prooflevel}"></span>: 
-  										<span th:if="${profile.prooflevel}=='0'" th:text="#{profile.prooflevel.empty}"></span>
-  										<span th:if="${profile.prooflevel}=='1'" th:text="#{profile.prooflevel.beginner}">Beginner</span>
-  										<span th:if="${profile.prooflevel}=='2'" th:text="#{profile.prooflevel.average}">Average</span>
-  										<span th:if="${profile.prooflevel}=='3'" th:text="#{profile.prooflevel.professional}">Professional</span></p>
-                                <p><span th:text="#{profile.level}"></span>: 
-  										<span th:if="${profile.level}=='1'" th:text="#{profile.level.low}">Low</span>
-  										<span th:if="${profile.level}=='2'" th:text="#{profile.level.average}">Average</span>
-  										<span th:if="${profile.level}=='3'" th:text="#{profile.level.high}">High</span></p>
-                                <p><span th:text="#{profile.availability}"></span>: 
-  										<span th:if="${profile.availability}=='1'" th:text="#{profile.availability.always}">Always</span>
-  										<span th:if="${profile.availability}=='2'" th:text="#{profile.availability.special}">Only for special language questions</span>
-  										<span th:if="${profile.availability}=='3'" th:text="#{profile.availability.good}">Good</span>
-  										<span th:if="${profile.availability}=='4'" th:text="#{profile.availability.uncertain}">Uncertain, due to work amount</span></p>
-                                <p><span th:text="#{profile.local}"></span>: <span th:text="${profile.local?.code}"></span></p>
                                 	<p><span th:text="#{profile.start}"></span>: <span th:text="${profile.startDate==null?'':#dates.format(profile.startDate)}"></span></p>
                                 </div><div class="two-buttons">
                                 <th:block th:if="${isAdmin}">
@@ -37,7 +21,7 @@
                                 </div></div>
                                 <br/>
                                 <div class="row">
-                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12" th:if="${isResident}">
+                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
                                         <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createCompetencyModal" th:text="#{profile.skills.add}"></button>
                                     </div>
                                     <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">

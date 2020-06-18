@@ -73,7 +73,7 @@
 													$("#errorfield").html(errorMsg);
 											}
 									}
-									$("#skillFilter").on("input", applyFilter);
+									$("#skillFilter").keydown(function(e) {if(e.keyCode === 13) applyFilter();});
 									document.getElementById('skillSelector').addEventListener("input", checkExist);
 									/*]]>*/
 									</script>

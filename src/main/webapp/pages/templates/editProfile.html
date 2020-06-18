@@ -50,66 +50,7 @@
 				<option th:text="#{profile.level.high}" value='3'>High</option>
 			</select>
 			</p>
-			<p th:text="#{profile.prooflevel}"></p>
-			<!-- p><input class="form-control" type="text" th:field="*{prooflevel}" placeholder="Expert proofreader level" th:placeholder="#{profile.prooflevel}"/>
-				<span th:if="${#fields.hasErrors('prooflevel')}" th:errors="*{prooflevel}">Name Error</span></p-->
-			<p class="row col-md-12">
-			<select th:field="*{prooflevel}" size="4">
-				<option value="0"></option>
-				<option th:text="#{profile.prooflevel.beginner}" value='1'>Beginner</option>
-				<option th:text="#{profile.prooflevel.average}" value='2'>Average</option>
-				<option th:text="#{profile.prooflevel.professional}" value='3'>Professional</option>
-			</select>
-			</p>
-			<p th:text="#{profile.local}"></p>
-			<p class="row col-md-12">
-			<select th:field="*{local}" size="4">
-				<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
-			</select>
-			</p>
-			<div class="row">
-				<div class="col-md-6">
-					<p><select id="langFromSelector" size="5">
-						<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
-					</select></p>
-				</div>
-				<div class="col-md-6">
-					<p><select id="langToSelector" size="5">
-						<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
-					</select></p>
-                </div>
-            </div>
-            <div class="row">
-            	<span class="btn btn-warning btn-block" th:text="#{editor.add}" onclick="addProof();">Add</span>
-            </div>
-            <div class="row">
-            <div class="col-md-12">
-            	<span class="warning" id="results"></span>
-            		<table class="table table-responsive table-striped" id="resTable">
-            		
-            		</table>
-            		<input type="hidden" th:field="*{about}" id="resText"/>
-            </div>
-            </div>
-			<script th:inline="javascript">
-			/*<![CDATA[*/
-			function addProof(){
-				err = "";
-				langFrom = $("#langFromSelector option:selected").text();
-				langTo = $("#langToSelector option:selected").text();
-				if (langFrom == "" || langTo == "") return;
-				buttonCode = /*[[#{editor.remove}]]*/ "";
-				buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
-				if (langFrom == langTo)
-					err = "same langs";
-				if (err == "") {
-					$(resTable).append("<tr><td>" + langFrom + ' -- ' + langTo + "</td><td>" + buttonCode + "</td></tr>");
-					$(results).html("");
-				} else
-					$(results).html(err);
-			}
-			/*]]>*/
-			</script>
+
 			<script th:inline="javascript">
 			/*<![CDATA[*/
 
@@ -134,22 +75,6 @@
             $("#name").on('input', function() {
             	checkInputs();
             });
-            
-			$("#profileEditForm").on("submit", function() {
-				$("#resText").val("");
-				$.each($("#resTable td:even"), function() {
-					$("#resText").val($("#resText").val() + $(this).html() + ';');
-				});
-			});
-			var about = $("#resText").val();
-			about = about.split(";");
-			for (var i = 0; i < about.length; i++) {
-				var ids = about[i].split(" -- ");
-				if (ids.length < 2) continue;
-				$("#langFromSelector option[value='" + ids[0] + "']").prop('selected', true);
-				$("#langToSelector option[value='" + ids[1] + "']").prop('selected', true);
-				addProof();
-			}
 			/*]]>*/
 			</script>
 			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" id="submitBut" /></p>

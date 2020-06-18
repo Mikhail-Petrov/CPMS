@@ -159,6 +159,30 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 		competencies.add(competency);
 		competency.setOwner(this);
 	}
+	
+	public void addCompetencySmart(Competency competency) {
+		if (competency == null || competency.getSkill() == null)
+			return;
+		if (competency.getLevel() > competency.getSkill().getMaxLevel())
+			competency.setLevel(competency.getSkill().getMaxLevel());
+		if (competencies == null)
+			getCompetencies();
+		
+		// check if such competency exists
+		for (Competency comp : competencies) {
+			if (comp.getSkill().equals(competency.getSkill())) {
+				// if exists, sum levels
+				int level = comp.getLevel() + competency.getLevel();
+				if (level > comp.getSkill().getMaxLevel())
+					level = comp.getSkill().getMaxLevel();
+				comp.setLevel(level);
+				return;
+			}
+		}
+		// if does not exists, add this competency
+		competencies.add(competency);
+		competency.setOwner(this);
+	}
 
 	public void setCompetencies(Set<Competency> competencies) {
 		if (this.competencies != null) {

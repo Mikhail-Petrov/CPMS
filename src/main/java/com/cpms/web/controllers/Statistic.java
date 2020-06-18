@@ -1,8 +1,12 @@
+
 package com.cpms.web.controllers;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,10 +19,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.validation.Valid;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.util.Version;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,9 +50,13 @@ import org.tartarus.snowball.ext.PorterStemmer;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.data.entities.Article;
+import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Keyword;
+import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
+import com.cpms.facade.ICPMSFacade;
 import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.GroupAnswer;
 import com.cpms.web.ajax.IAjaxAnswer;
@@ -76,25 +91,98 @@ public class Statistic {
 	@Autowired
 	@Qualifier(value = "userSessionData")
 	private UserSessionData sessionData;
+	
+	@Autowired
+	@Qualifier(value = "facade")
+	private ICPMSFacade facade;
 
     @Autowired
     private MessageSource messageSource;
 
 
 	Map<String, String> sites;
-	Map<String, Keyword> keys;
-	List<String> words = new ArrayList<>();
+	//Map<String, Keyword> keys;
+	//List<String> words = new ArrayList<>();
 
 	private HashMap<String, List<String>> wordsMap;
 	List<String> urls = new ArrayList<>(), oldUrls = new ArrayList<>();
 
 	List<Long> nokeysDocs = new ArrayList<>();
 
+	@RequestMapping(path = "/parseLinkedIn", method = RequestMethod.POST)
+	public String parseLinkedIn(Model model
+			, @ModelAttribute("name") @Valid String name
+			, @ModelAttribute("skills") @Valid String skills) {
 
+		// create profile
+		Profile profile;
+		profile = new Profile();
+		profile.setName(name);
+		//profile = facade.getProfileDAO().insert(profile);
+		
+		// extract skills
+		skills = skills.replace("\r\n", "\n");
+		String[] split = skills.split("\n");
+		List<Skill> allSkills = Skills.getAllSkills(facade.getSkillDAO());
+		for (int i = 0; i < split.length; i++) {
+			List<Competency> extracted = extractCompetency(split[i].toLowerCase().trim(), allSkills);
+			for (Competency comp : extracted)
+				profile.addCompetencySmart(comp);
+		}
+		//facade.getProfileDAO().update(profile);
+		profile = facade.getProfileDAO().insert(profile);
+		
+		
+		return "redirect:/viewer/profile?id=" + profile.getId();
+		//return "redirect:innovations";
+	}
+	
+	private List<Competency> extractCompetency(String skillData, List<Skill> skills) {
+		List<Competency> ret = new ArrayList<>();
+		if (skillData == null || skillData.isEmpty())
+			return ret;
+		List<String> names = new ArrayList<>();
+		for (Skill skill : skills) {
+			if (names.contains(skill.getName())) continue;
+			int level = 0;
+			// exact match
+			if (skill.getName().toLowerCase().equals(skillData))
+				level = 4;
+			// contains
+			if (skill.getName().toLowerCase().contains(skillData))
+				level = 3;
+			// check alternatives
+			if (skill.getAlternative() != null) {
+				String[] alts = skill.getAlternative().split("|");
+				for (int i = 0; i < alts.length; i++) {
+					// exact
+					if (alts[i].toLowerCase().equals(skillData)) {
+						level = 2;
+						break;
+					}
+					// contains
+					if (alts[i].toLowerCase().contains(skillData))
+						level = 1;
+				}
+			}
+			
+			// add competency
+			if (level > 0) {
+				Competency comp = new Competency(skill, level);
+				ret.add(comp);
+				names.add(skill.getName());
+			}
+		}
+		return ret;
+	}
+	
 	@RequestMapping(path = "/innovations", method = RequestMethod.GET)
 	public String innovations(Model model) {
 		model.addAttribute("_VIEW_TITLE", "im.title.innovations");
 		model.addAttribute("_FORCE_CSRF", true);
+		
+		String[] categories = {"Strategy and Planning", "--Culture Development", "Recruitment", "--Employer Branding and Communication", "--Recruitment", "--Onboarding", "Talent & Performance Management", "--Performance Management", "--Talent Management", "--Succession Management", "Learning & Training ", "--Competence Development", "--Learning Standards", "--Learning Management System ", "Total Rewards", "--Compensation", "--Benefits", "--Your Time", "Administration & Services", "--HR IT Systems", "--Employee Lifecycle Management", "--Expat Administration"};
+		model.addAttribute("categories", categories );
 
 		return "innovations";
 	}
@@ -186,16 +274,20 @@ public class Statistic {
 		// get parameters
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		List<Integer> ids = values.size() > 1 ? (List<Integer>) values.get(1) : null;
-		List<Boolean> flags = values.size() > 2 ? (List<Boolean>) values.get(2) : null;
+		List<String> flags = values.size() > 2 ? (List<String>) values.get(2) : null;
 		List<String> terms = values.size() > 3 ? (List<String>) values.get(3) : null;
 		if (ids == null || flags == null || terms == null) return null;
 		// save changes
 		for (int i = 0; i < ids.size() && i < flags.size() && i < terms.size(); i++) {
 			Term term = termDAO.getOne((long) ids.get(i));
 			boolean change = false;
-			if (term.isInn() != flags.get(i)) {
+			if (term.isInn() != !flags.get(i).isEmpty()) {
 				change = true;
-				term.setInn(flags.get(i));
+				term.setInn(!flags.get(i).isEmpty());
+			}
+			if (!term.getCategory().equals(flags.get(i))) {
+				change = true;
+				term.setCategory(flags.get(i));
 			}
 			if (!term.getPref().equals(terms.get(i))) {
 				change = true;
@@ -379,8 +471,8 @@ public class Statistic {
 
 		model.addAttribute("amount", termDAO.count());
 		model.addAttribute("maxid", 0);
-		model.addAttribute("repeats", allTerms == null ? 0 : allTerms.size());
-		
+		//model.addAttribute("repeats", allTerms == null ? 0 : allTerms.size());
+		model.addAttribute("repeats", 0);
 		model.addAttribute("err", err);
 		List<Long> nokeys = new ArrayList<>();
 		nokeys.add(156L);
@@ -444,7 +536,7 @@ public class Statistic {
 			method = RequestMethod.POST)
 	public IAjaxAnswer getAllTerms(
 			@RequestBody String json) {
-		if (allTerms == null)
+		/*if (allTerms == null)
 			allTerms = new ArrayList<>();
 		long from = allTerms.size();
 		if (from >= termDAO.count())
@@ -453,18 +545,19 @@ public class Statistic {
 		if (all.isEmpty())
 			return new GroupAnswer(true);
 		allTerms.addAll(all);
-		return new GroupAnswer();
+		return new GroupAnswer();*/
+		return new GroupAnswer(true);
 	}
 
 	@RequestMapping(path = { "/clearTermsRep" }, method = RequestMethod.GET)
 	public String clearTermsRep(Model model) {
-		allTerms.clear();
+		//allTerms.clear();
 		return terms(model);
 	}
 
 	@RequestMapping(path = { "/updateVariants" }, method = RequestMethod.GET)
 	public String updateVariants(Model model) {
-		if (allTerms == null)
+		/*if (allTerms == null)
 			allTerms = termDAO.getAll();
 		for (Term term : allTerms) {
 			List<String> unstemmed = getUnstemmed(term.getStem());
@@ -473,7 +566,7 @@ public class Statistic {
 					term.addVariant(var);
 				termDAO.update(term);
 			}
-		}
+		}*/
 		return terms(model);
 	}
 
@@ -669,13 +762,18 @@ public class Statistic {
 	}
 	
 	public static Document getDoc(String url) {
+		return getDoc(url, null, null);
+	}
+	
+	public static Document getDoc(String url, String login, String password) {
 		//WebDriver driver = new ChromeDrive(new ChromeP);
 	    //driver.get(url);
 	    //String html_content = driver.getPageSource();
 	    
 		Document doc = null;
 		try {
-			doc = Jsoup.connect(url).userAgent("Mozilla").get();
+			if (login == null || password == null)
+				doc = Jsoup.connect(url).userAgent("Mozilla").get();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -693,7 +791,7 @@ public class Statistic {
 	
 	private boolean termExtraction = false;
 
-	private List<Term> allTerms = null;
+	//private List<Term> allTerms = null;
 	private void extractTerms(Article doc) {
 		if (doc == null) return;
 		if (termExtraction) return;
@@ -734,7 +832,7 @@ public class Statistic {
 			}
 		}
 		analyzer.close();
-		// create a map for terms
+		/* create a map for terms
 		if (allTerms == null)
 			allTerms = termDAO.getAll();
 		if (keys == null) keys = new HashMap<>();
@@ -748,20 +846,21 @@ public class Statistic {
 				newKey.setTerm(term);
 				keys.put(stem, newKey);
 			}
-		}
+		}*/
 		// count terms in doc
 		List<Term> newTerms = new ArrayList<>();
+		Map<String, Keyword> keys= new HashMap<>();
 		for (String token : tokens) {
 			token = token.trim();
 			if (keys.containsKey(token)) {
 				keys.get(token).setCount(keys.get(token).getCount() + 1);
 			} else {
-				Term term = new Term();
-				List<String> unstemmed = getUnstemmed(token);
-				for (String var : unstemmed)
-					term.addVariant(var);
-				term.setStem(token);
-				newTerms.add(term);
+				Term term = innDAO.getTermByStem(token);
+				if (term == null) {
+					term = new Term();
+					term.setStem(token);
+					newTerms.add(term);
+				}
 				Keyword newKey = new Keyword();
 				newKey.setTerm(term);
 				newKey.setCount(1);
@@ -769,11 +868,27 @@ public class Statistic {
 			}
 		}
 		
-		// save not-zero values
+		// add variants in new terms
+		for (Term term : newTerms) {
+			List<String> unstemmed = getUnstemmed(term.getStem());
+			for (String var : unstemmed)
+				term.addVariant(var);
+		}
 		for (Entry<String, Keyword> e : keys.entrySet()) {
+			// save not-zero values
 			if (e.getValue().getCount() > 0) {
 				e.getValue().setDoc(doc);
 				allKeys.add(e.getValue());
+			}
+			// add variants in old terms
+			if (e.getValue().getTerm().getId() > 0) {
+				Term oldTerm = e.getValue().getTerm();
+				List<String> unstemmed = getUnstemmed(oldTerm.getStem());
+				int oldSize = oldTerm.getVariants().size();
+				for (String var : unstemmed)
+					oldTerm.addVariant(var);
+				if (oldTerm.getVariants().size() > oldSize)
+					termDAO.update(oldTerm);
 			}
 		}
 		for (Keyword key : allKeys)
@@ -782,7 +897,7 @@ public class Statistic {
 		// insert new terms and update references
 		if (!newTerms.isEmpty()) {
 			List<Term> inserted = termDAO.insertAll(newTerms);
-			allTerms.addAll(inserted);
+			//allTerms.addAll(inserted);
 			Map<String, Term> insMap = new HashMap<>();
 			for (Term ins : inserted)
 				insMap.put(ins.getStem(), ins);
@@ -799,6 +914,7 @@ public class Statistic {
 		// update wordcount
 		doc.setWordcount(tokens.size());
 		docDAO.update(doc);
+		wordsMap.clear();
 		termExtraction = false;
 	}
 	

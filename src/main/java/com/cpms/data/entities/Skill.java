@@ -356,5 +356,7 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 		this.alternative = alternative;
 	}
 	
-	
+	public boolean equals(Skill o) {
+		return this.getName().equals(o.getName());
+	}
 }
