@@ -106,6 +106,29 @@ public class Viewer {
 	
 	public static Random rand = new Random();
 
+	@RequestMapping(value = "/createProfile", method = RequestMethod.POST)
+	public String createProfile(Model model, @RequestParam(value = "data", required = true) String data) {
+		String badRet = "redirect:/viewer";
+		String[] split = data.split("\n");
+		if (split.length < 2) return badRet;
+
+		Profile profile;
+		profile = new Profile();
+		profile.setName(split[0]);
+		
+		// add competencies
+		String[] comps = split[1].split(" ");
+		for (int i = 0; i < comps.length; i++) {
+			String[] comp = comps[i].split(":");
+			if (comp.length < 2) continue;
+			Skill skill = facade.getSkillDAO().getOne(Long.parseLong(comp[0]));
+			int level = Integer.parseInt(comp[1]);
+			profile.addCompetencySmart(new Competency(skill, level));
+		}
+		
+		profile = facade.getProfileDAO().insert(profile);
+		return "redirect:/viewer/profile?id=" + profile.getId();
+	}
 	@SuppressWarnings("unchecked")
 	public static List<Object> parseJsonObject(String json, MessageSource messageSource) {
 		ObjectMapper mapper = new ObjectMapper();
@@ -123,14 +146,14 @@ public class Viewer {
 			Users owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
 			List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
 			skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills, skillDao));
 		} else if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER)) {
 			//List<Skill> skills = skillDao.getAllIncludingDrafts();
 			List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
-			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills));
+			model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(skills, skillDao));
 		} else {
 			model.addAttribute("skillsList",
-					SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
+					SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO()), skillDao));
 		}
 	}
 
@@ -154,24 +177,7 @@ public class Viewer {
 				{ "Advanced", "Продвинутый уровень" }, { "Highly specialised", "Высокоспециализированный уровень" } };
 		model.addAttribute("defaultLevels", defLevels);
 
-		if (CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT)) {
-			Users owner = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
-			List<Skill> skills = Skills.getAllSkills(facade.getSkillDAO());
-			//skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
-			model.addAttribute("skills", SkillTree.produceTree(skills));
-			Skill newSkill = new Skill();
-			newSkill.setMaxLevel(1);
-			model.addAttribute("skill", newSkill);
-		} else {
-			//if (CommonModelAttributes.userHasRole(request, RoleTypes.MANAGER))
-				//model.addAttribute("skills", SkillTree.produceTree(skillDao.getAllIncludingDrafts()));
-			//else
-				model.addAttribute("skills", SkillTree.produceTree(Skills.getAllSkills(facade.getSkillDAO())));
-			Skill newSkill = new Skill();
-			newSkill.setMaxLevel(1);
-			model.addAttribute("skill", newSkill);
-		}
-		addSkillsListToModel(model, principal, request);
+		//addSkillsListToModel(model, principal, request);
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		Collections.sort(langs);
 		model.addAttribute("languages", langs);
@@ -191,18 +197,6 @@ public class Viewer {
 		Collections.sort(tasks);
 		model.addAttribute("tasks", tasks);
 		return "tasks";
-	}
-
-	@RequestMapping(value = "/profiles", method = RequestMethod.GET)
-	public String profiles(Model model, HttpServletRequest request,
-			@RequestParam(value = "page", required = false) Integer page,
-			@RequestParam(value = "search", required = false) String search) {
-		model.addAttribute("_VIEW_TITLE", "title.profiles");
-		if (page == null) {
-			page = 1;
-		}
-		return PagingUtils.preparePageFromDao(page, facade.getProfileDAO(), Profile.class, "/viewer/profiles", model,
-				request, true, search, "/viewer/profile", "Profiles", "/editor/profile", messageSource);
 	}
 
 	@ResponseBody
@@ -313,10 +307,12 @@ public class Viewer {
 		model.addAttribute("globalLevel4", gsl4);
 		model.addAttribute("globalLevel5", gsl5);
 
+		//model.addAttribute("report", Statistic.report);
+		
 		model.addAttribute("skillsList",
-				//new ArrayList<Skill>());
+				new ArrayList<Skill>());
 				//SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
-				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
+				//SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO()), skillDao));
 		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(new ArrayList<Skill>()));
 				//Skills.getAllSkills(facade.getSkillDAO())));
 
@@ -347,7 +343,7 @@ public class Viewer {
 		model.addAttribute("requirement", new TaskRequirement());
 		model.addAttribute("skillsList",
 				//SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
-				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
+				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO()), skillDao));
 		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(Skills.getAllSkills(facade.getSkillDAO())));
 		Task task = facade.getTaskDAO().getOne(id);
 		model.addAttribute("backPath", returnUrl);

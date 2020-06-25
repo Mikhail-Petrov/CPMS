@@ -134,7 +134,7 @@ public class Term extends AbstractDomainObject {
 				x -> 
 				x.getText().equals(variant.getText()))
 				) {
-			if (getPref().isEmpty() || getPref().length() < variant.getText().length())
+			if (getPref().isEmpty() || getPref().length() > variant.getText().length())
 				setPref(variant.getText());
 			this.variants.add(variant);
 			variant.setTerm(this);

@@ -209,7 +209,7 @@ public class Skills {
 		}
 		List<Skill> allSkills = addSkillsListToModel(principal, request);
 		model.addAttribute("skillsList", SkillUtils.sortAndAddIndents(
-				Skills.sortSkills(allSkills)));
+				Skills.sortSkills(allSkills), skillDao));
 		model.addAttribute("skillsAndParents", getSkillsAndParents(allSkills));
 		return "skills";
 	}

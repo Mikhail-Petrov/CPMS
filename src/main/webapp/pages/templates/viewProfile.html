@@ -5,10 +5,14 @@
                                 <h3 th:text="${profile.presentationName}"></h3>
                             </div>
                             <div class="x_content">
-                            <div class="row"><div class="two-buttons">
+                            <div class="row">
+                            	<div class="two-buttons">
                                 <p><span th:text="#{profile.position}"></span>: <span th:text="${profile.position}"></span></p>
                                 	<p><span th:text="#{profile.start}"></span>: <span th:text="${profile.startDate==null?'':#dates.format(profile.startDate)}"></span></p>
-                                </div><div class="two-buttons">
+                                <br/>
+                                <!-- b><span th:utext="${report}"></span></b-->
+                                </div>
+                                <div class="two-buttons">
                                 <th:block th:if="${isAdmin}">
                                 	<h3 th:text="#{profile.gsl}"></h3>
                                 	<h3 style="margin-left: 60px" th:text="${#numbers.formatDecimal(globalLevel*100,1,1) + ' %'}"></h3>
@@ -38,7 +42,7 @@
                                 <br/>
                                 <p><b><span th:text="#{profile.skills}"></span></b></p>
                                 <form action="#" th:action="@{/editor/profile/saveChanges}" th:object="${competencies}" method="post">
-			<!-- p th:if="${isResident}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p-->
+			<p th:if="${isResident}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
 			<input type="hidden" th:field="*{data}" id="competenciesData"/>
 			<input type="hidden" th:field="*{profileId}" th:value="${profile.id}"/>
 			<script>
@@ -58,7 +62,7 @@
                                                 <a th:href="@{/editor/{profileId}/competency(id=${competency.id}, profileId=${profile.id})}">
                                                 	<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
                                                 </a>
-				<!-- input type="number" min="1" th:max="${competency.skill.maxLevel}" th:id="${competency.id}" th:value="${competency.level}" th:onchange="'changeData(' + ${competency.id} + ');'"/-->
+				<input type="number" min="1" th:max="${competency.skill.maxLevel}" th:id="${competency.id}" th:value="${competency.level}" th:onchange="'changeData(' + ${competency.id} + ');'"/>
                                             </div>
                                         </td>
                                     </tr>

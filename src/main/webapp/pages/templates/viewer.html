@@ -57,6 +57,13 @@
                 font-size: 15px;
             }
         </style>
+                               <div class="row">
+		<form action="#" th:action="@{/stat/createProfile}" method="get">
+		<p><span>Name: </span><input id="name" type="text" name="name"/></p>
+		<p><span>Skills: </span><textarea id="skills" class="form-control" name="skills" th:text="''"></textarea></p>
+		<input type="submit" class="btn btn-primary btn-block" id="plusButton" th:value="'Create profile'" />
+                               	</form>
+                               </div>
 
                 <div class="row">
                    <div class="">

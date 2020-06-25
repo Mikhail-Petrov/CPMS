@@ -29,4 +29,16 @@ public interface IDraftableSkillDaoExtension {
 	 */
 	public List<Skill> getDraftsOfUser(Long id);
 	
+	/**
+	 * Finds all children of a specific skill.
+	 * 
+	 * @param id id of parent
+	 * @return list containing all children skills
+	 */
+	public List<Skill> getChildren(Skill id);
+	
+	public List<Skill> findByName(String name);
+	
+	public List<Skill> findByAlternative(String alternative);
+	
 }

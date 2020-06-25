@@ -36,4 +36,19 @@ public class JPASkillDraftableDAO extends JPASkillDAO
 		return skillRepo.findByDraftAndOwner(id);
 	}
 
+	@Override
+	public List<Skill> getChildren(Skill parent) {
+		return skillRepo.getChildren(parent);
+	}
+
+	@Override
+	public List<Skill> findByName(String name) {
+		return skillRepo.findByName(name);
+	}
+
+	@Override
+	public List<Skill> findByAlternative(String alternative) {
+		return skillRepo.findByAlternative(alternative);
+	}
+
 }

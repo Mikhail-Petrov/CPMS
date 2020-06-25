@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
 import com.cpms.data.entities.Task;
@@ -44,6 +45,10 @@ public class EditorRequirement {
 
     @Autowired
     private MessageSource messageSource;
+
+	@Autowired
+	@Qualifier("draftableSkillDAO")
+	private IDraftableSkillDaoExtension skillDao;
 
 	@RequestMapping(path = "/{taskId}/requirement", 
 			method = RequestMethod.GET)
@@ -86,7 +91,7 @@ public class EditorRequirement {
 		model.addAttribute("requirement", requirement);
 		List<Skill> allSkills = Skills.getAllSkills(facade.getSkillDAO());
 		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(Skills.sortSkills(allSkills)));
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(allSkills), skillDao));
 		model.addAttribute("create", create);
 		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(allSkills));
 		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(allSkills));

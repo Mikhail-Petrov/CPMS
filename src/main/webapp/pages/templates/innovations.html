@@ -1,12 +1,5 @@
 	<!-- link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" /-->
 		<div class="row">
-                               <div class="row">
-		<form action="#" th:action="@{/stat/parseLinkedIn}" method="post">
-		<p><span>Name: </span><input id="name" type="text" name="name"/></p>
-		<p><span>Skills: </span><textarea id="skills" class="form-control" name="skills" th:text="''"></textarea></p>
-		<input type="submit" class="btn btn-primary btn-block" id="plusButton" th:value="'parse LinkedIn'" />
-                               	</form>
-                               </div>
 		
 		<h3>Term search</h3>
 		<p><span th:text="'Term search'"></span></p>
@@ -18,6 +11,9 @@
 		</div></p>
 		<p id="curStatus"></p>
 		<div id="termsBlock" class="row">
+	    <div class="">
+			<span id="saveTerm" class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
+        </div>
 		<table id="termsTable" class="table table-responsive table-striped">
 		<thead>
 		<tr>
@@ -35,10 +31,7 @@
 	        </div><div class="two-buttons">
 				<span class="btn btn-primary btn-block" th:text="'Next'" onclick="showPage(curPage1 + 1, false);"></span>
 	    	</div>
-		</div>
-	    <div class="two-buttons">
-			<span id="saveTerm" class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
-        </div></p>
+		</div></p>
         </div>
 		<h3>Innovations</h3>
 		<div id="innsBlock" class="row">

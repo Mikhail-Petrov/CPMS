@@ -3,6 +3,7 @@ package com.cpms.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.data.entities.Skill;
 import com.cpms.web.controllers.Skills;
 
@@ -24,11 +25,12 @@ public abstract class SkillUtils {
 	 * @param unsorted list of skills to be sorted
 	 * @return sorted list of skills with indents added to titles
 	 */
-	public static List<Skill> sortAndAddIndents(List<Skill> unsorted) {
+
+	public static List<Skill> sortAndAddIndents(List<Skill> unsorted, IDraftableSkillDaoExtension skillDao) {
 		List<Skill> sorted = new ArrayList<Skill>();
 		unsorted.forEach(x -> {
 			if (x.getParent() == null) {
-				dfs(x, sorted, unsorted, 0);
+				dfs(x, sorted, unsorted, 0, skillDao);
 			}
 		});
 		return sorted;
@@ -44,15 +46,15 @@ public abstract class SkillUtils {
 	 * @param depth depth of search (how many times to indent)
 	 */
 	private static void dfs(Skill parent, List<Skill> sorted, 
-				List<Skill> unsorted, long depth) {
+				List<Skill> unsorted, long depth, IDraftableSkillDaoExtension skillDao) {
 			if (unsorted.contains(parent)) {
 				Skill parentClone = new Skill();
 				parentClone.setId(parent.getId());
 				parentClone
 					.setName(getIndents(depth) + parent.getPresentationName());
 				sorted.add(parentClone);
-				parent.getChildrenSorted()
-					.forEach(x -> dfs(x, sorted, unsorted, depth + 1));
+				parent.getChildrenSorted(skillDao)
+					.forEach(x -> dfs(x, sorted, unsorted, depth + 1, skillDao));
 		}
 	}
 	

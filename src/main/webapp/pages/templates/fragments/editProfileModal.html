@@ -25,52 +25,8 @@
                                     </div>
                                 </div>
                                 <hr class="separator"/>
-   			<p th:text="#{editor.proof.title}"></p>
-                                <div class="row">
-                                    <div class="col-md-6">
-									<p><select id="langFromSelector" size="5">
-  										<option th:each="lang : ${languages}" 
-          									th:value="${lang.id}" 
-          									th:text="${lang.code}">EN</option>
-									</select></p>
-                                    </div>
-                                    <div class="col-md-6">
-									<p><select id="langToSelector" size="5">
-  										<option th:each="lang : ${languages}" 
-          									th:value="${lang.id}" 
-          									th:text="${lang.code}">EN</option>
-									</select></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                   	<span class="btn btn-warning btn-block" th:text="#{editor.add}" onclick="addProof();">Add</span>
-                                </div>
-                                <div class="row">
-                                   <div class="col-md-12">
-                                	<span class="warning" id="results"></span>
-                                	<table class="table table-responsive table-striped" id="resTable">
-                                	
-                                	</table>
-                            		<input type="hidden" th:field="*{about}" id="resText"/>
-                                </div>
-                                </div>
 								<script th:inline="javascript">
 								/*<![CDATA[*/
-								function addProof(){
-									err = "";
-									langFrom = $("#langFromSelector option:selected").text();
-									langTo = $("#langToSelector option:selected").text();
-									if (langFrom == "" || langTo == "") return;
-									buttonCode = /*[[#{editor.remove}]]*/ "";
-									buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
-									if (langFrom == langTo)
-										err = "same langs";
-									if (err == "") {
-										$("#resTable").append("<tr><td>" + langFrom + ' -- ' + langTo + "</td><td>" + buttonCode + "</td></tr>");
-										$("#results").html("");
-									} else
-										$("#results").html(err);
-								}
 
 					            $("#name").on('input', function() {
 					            	var name = $("#name").val();
@@ -102,15 +58,6 @@
                                 </div>
    			</div>
 			<div class="two-buttons">
-   			<p th:text="#{editor.local}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-										<select th:field="*{local}" size="4">
-											<option th:each="lang : ${languages}" th:value="${lang.id}" th:text="${lang.code}">EN</option>
-										</select>
-                                    </div>
-                                </div>
-   			</div>
                                 <div class="row">
                                     <div class="col-md-12">
    			<p th:text="#{editor.level}"></p>
@@ -122,6 +69,7 @@
 									</select>
 	                                    </div>
 	                                </div>
+	        </div>
    			<p th:text="#{editor.expert.password}"></p>
                                 <div class="row">
                                     <div class="col-md-12">

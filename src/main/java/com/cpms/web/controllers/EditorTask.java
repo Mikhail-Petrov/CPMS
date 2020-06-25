@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Language;
@@ -71,6 +72,10 @@ public class EditorTask {
 
     @Autowired
     private MessageSource messageSource;
+
+	@Autowired
+	@Qualifier("draftableSkillDAO")
+	private IDraftableSkillDaoExtension skillDao;
 
 	@RequestMapping(path = "/{taskId}/requirementAsyncNew", method = RequestMethod.POST)
 	public String competencyCreateAsyncNew(Model model, HttpServletRequest request, @PathVariable("taskId") Long taskId,
@@ -157,7 +162,7 @@ public class EditorTask {
 		model.addAttribute("languages", langs);
 		model.addAttribute("skillsList",
 				//SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
-				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO())));
+				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO()), skillDao));
 		List<Users> users = userDAO.getAll();
 		Collections.sort(users);
 		model.addAttribute("users", users);

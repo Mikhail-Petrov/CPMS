@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
@@ -44,6 +45,10 @@ public class EditorCompetency {
 
     @Autowired
     private MessageSource messageSource;
+
+	@Autowired
+	@Qualifier("draftableSkillDAO")
+	private IDraftableSkillDaoExtension skillDao;
 	
 	@RequestMapping(path = "/{profileId}/competencyAsyncNew",
 			method = RequestMethod.POST)
@@ -101,7 +106,7 @@ public class EditorCompetency {
 		}
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(Skills.getAllSkills(facade.getSkillDAO()))));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(Skills.getAllSkills(facade.getSkillDAO())), skillDao));
 			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(Skills.getAllSkills(facade.getSkillDAO())));
 			model.addAttribute("profile", profile);
 			return ("fragments/editCompetencyModal :: competencyModalForm");
@@ -168,7 +173,7 @@ public class EditorCompetency {
 		model.addAttribute("create", create);
 		List<Skill> allSkills = Skills.getAllSkills(facade.getSkillDAO());
 		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(Skills.sortSkills(allSkills)));
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(allSkills), skillDao));
 		model.addAttribute("skillLevels", SkillLevel.getSkillLevels(allSkills));
 		model.addAttribute("postAddress", "/editor/" + profileId + "/competency");
 		model.addAttribute("skillsAndParents", Skills.getSkillsAndParents(allSkills));
@@ -212,7 +217,7 @@ public class EditorCompetency {
 			model.addAttribute("create", create);
 			model.addAttribute("skillLevels", SkillLevel.getSkillLevels(Skills.getAllSkills(facade.getSkillDAO())));
 			model.addAttribute("skillsList", 
-					SkillUtils.sortAndAddIndents(Skills.sortSkills(Skills.getAllSkills(facade.getSkillDAO()))));
+					SkillUtils.sortAndAddIndents(Skills.sortSkills(Skills.getAllSkills(facade.getSkillDAO())), skillDao));
 			model.addAttribute("postAddress", "/editor/" + profileId + "/competency");
 			model.addAttribute("_VIEW_TITLE", "title.edit.competency");
 			model.addAttribute("_FORCE_CSRF", true);

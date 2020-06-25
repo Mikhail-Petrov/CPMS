@@ -30,6 +30,9 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
+
+import com.cpms.dao.implementations.jpa.repositories.system.SkillRepository;
+import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.web.controllers.Skills;
@@ -82,11 +85,6 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	
 	@Column(name = "alternative", nullable = true, length = 1000)
 	private String alternative;
-	
-	//TODO see if you can fetch this lazily with hibernate
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "parent")
-	@Cascade({CascadeType.DETACH})
-	private Set<Skill> children;
 	
 	@OneToMany(fetch = FetchType.EAGER,	mappedBy = "skill", orphanRemoval = true)
 	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
@@ -204,26 +202,40 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 		this.implementersTask = implementersTask;
 	}
 
-	public Set<Skill> getChildren() {
+	/*public Set<Skill> getChildren() {
 		if (children == null) {
 			children = new LinkedHashSet<Skill>() ;
 		}
 		return new LinkedHashSet<Skill>(children);
+	}*/
+	
+	public Set<Skill> getChildren(IDraftableSkillDaoExtension skillDao) {
+		Set<Skill> result = new LinkedHashSet<>();
+		List<Skill> skills = skillDao.getChildren(this);
+		if (skills != null)
+			for (Skill skill : skills)
+				result.add(skill);
+		return result;
+	}
+
+	public List<Skill> getChildrenSorted(IDraftableSkillDaoExtension skillDao) {
+		List<Skill> skills = skillDao.getChildren(this);
+		return Skills.sortSkills(skills);
 	}
 	
-	public List<Skill> getChildrenSorted() {
+	/*public List<Skill> getChildrenSorted() {
 		List<Skill> result = new ArrayList<Skill>();
 		for (Skill skill : getChildren())
 			result.add(skill);
 		return Skills.sortSkills(result);
-	}
+	}*/
 
 	public void setChildren(Set<Skill> children) {
-		if (this.children != null) {
+		/*if (this.children != null) {
 			throw new DataAccessException("Cannot insert, Hibernate will lose track",
 					null);
 		}
-		this.children = children;
+		this.children = children;*/
 	}
 
 	public void setId(long id) {
@@ -251,21 +263,13 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	}
 
 	public void setParent(Skill parent) {
-		if (this.parent != null && this.parent.children != null) {
-			this.parent.children.remove(this);
-		}
 		this.parent = parent;
-		if (this.parent != null && this.parent.getChildren() != null 
-				&& !this.parent.children.contains(this)) {
-			this.parent.children.add(this);
-		}
 	}
 	
-	public void detachChildren() {
-		if (children != null) {
-			getChildren().forEach(x -> x.setParent(null));
-			children.clear();
-		}
+	public void detachChildren(SkillRepository skillRepo) {
+		List<Skill> children = skillRepo.getChildren(this);
+		if (children != null)
+			children.forEach(x -> x.setParent(null));
 	}
 
 	@Override
@@ -334,7 +338,7 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 		Skill returnValue = new Skill();
 		returnValue.setName(getName());
 		returnValue.setId(getId());
-		returnValue.setChildren(getChildren());
+		//returnValue.setChildren(getChildren());
 		returnValue.setMaxLevel(getMaxLevel());
 		returnValue.setParent(getParent());
 		returnValue.setAbout(getAbout());

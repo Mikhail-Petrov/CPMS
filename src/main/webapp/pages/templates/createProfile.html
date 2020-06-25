@@ -1,0 +1,43 @@
+		<div>
+		<h3 th:text="'Name: ' + ${name}">name</h3>
+		<br/>
+		<form action="#" th:action="@{/viewer/createProfile}" method="post" id="form">
+		<button type="submit" class="btn btn-primary btn-block" th:text="'Save'"></button>
+		<div th:each="block, iStat : ${comps}">
+			<p><a href="#" th:text="${block.key}" th:id="'a' + ${iStat.index}"
+				onclick="doClick(this)"></a></p>
+			<div th:id="'b' + ${iStat.index}">
+				<p th:each="comp : ${block.value}">
+					<input type="checkbox" th:id="${comp.skill.id} + ':' + ${comp.level}"
+						th:checked="(${comp.level} == ${comp.skill.maxLevel})"/>
+					<span th:text="${comp.skill.name} + ' (' + ${comp.level} + '/' + ${comp.skill.maxLevel} + ')'"></span>
+				</p>
+			</div>
+		</div>
+		<input id="fdata" type="hidden" name="data"/>
+		</form>
+		</div>
+		
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			function hideOrShowElement(element) {
+				if (element.is(":visible")) element.hide();
+				else element.show();
+			}
+
+			function doClick(element) {
+				hideOrShowElement($("#" + element.id.replace('a', 'b')));
+			}
+			
+			$('form').submit(function() {
+                var name =  /*[[${name}]]*/ '';
+				var res = name + "\n";
+				var ch = $("input:checked")
+				for (var i = 0; i < ch.length; i++)
+					res += ch[i].id + " ";
+				$("#fdata").val(res);
+			});
+			/*]]>*/
+	</script>
+		

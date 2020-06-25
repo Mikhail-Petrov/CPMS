@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -48,6 +49,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import com.cpms.dao.interfaces.IDAO;
+import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Competency;
@@ -57,6 +59,7 @@ import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
 import com.cpms.facade.ICPMSFacade;
+import com.cpms.web.CompetencyMatching;
 import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.GroupAnswer;
 import com.cpms.web.ajax.IAjaxAnswer;
@@ -95,6 +98,10 @@ public class Statistic {
 	@Autowired
 	@Qualifier(value = "facade")
 	private ICPMSFacade facade;
+	
+	@Autowired
+	@Qualifier("draftableSkillDAO")
+	private IDraftableSkillDaoExtension skillDao;
 
     @Autowired
     private MessageSource messageSource;
@@ -109,71 +116,116 @@ public class Statistic {
 
 	List<Long> nokeysDocs = new ArrayList<>();
 
-	@RequestMapping(path = "/parseLinkedIn", method = RequestMethod.POST)
-	public String parseLinkedIn(Model model
+	@RequestMapping(path = "/createProfile", method = RequestMethod.GET)
+	public String createProfile(Model model
 			, @ModelAttribute("name") @Valid String name
 			, @ModelAttribute("skills") @Valid String skills) {
 
 		// create profile
-		Profile profile;
+		/*Profile profile;
 		profile = new Profile();
-		profile.setName(name);
+		profile.setName(name);*/
 		//profile = facade.getProfileDAO().insert(profile);
 		
 		// extract skills
 		skills = skills.replace("\r\n", "\n");
 		String[] split = skills.split("\n");
-		List<Skill> allSkills = Skills.getAllSkills(facade.getSkillDAO());
+		//List<Skill> allSkills = Skills.getAllSkills(facade.getSkillDAO());
+		PorterStemmer stemmer = new PorterStemmer();
+		Map<String, List<CompetencyMatching>> comps = new LinkedHashMap<>();
 		for (int i = 0; i < split.length; i++) {
-			List<Competency> extracted = extractCompetency(split[i].toLowerCase().trim(), allSkills);
-			for (Competency comp : extracted)
-				profile.addCompetencySmart(comp);
+			String skillData = split[i].toLowerCase().trim();
+			List<CompetencyMatching> extracted = extractCompetency(skillData, stemmer);
+			Collections.sort(extracted);
+			comps.put(skillData, extracted);
+			//for (Competency comp : extracted)
+				//profile.addCompetencySmart(comp);
 		}
+		if (!extraction)
+			wordsMap.clear();
 		//facade.getProfileDAO().update(profile);
-		profile = facade.getProfileDAO().insert(profile);
+		//profile = facade.getProfileDAO().insert(profile);
 		
 		
-		return "redirect:/viewer/profile?id=" + profile.getId();
+		//return "redirect:/viewer/profile?id=" + profile.getId();
+		
+		// add atributes
+		model.addAttribute("_VIEW_TITLE", name);
+		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("_NAMED_TITLE", true);
+
+		model.addAttribute("name", name);
+		model.addAttribute("comps", comps);
+		
+		return "createProfile";
 		//return "redirect:innovations";
 	}
 	
-	private List<Competency> extractCompetency(String skillData, List<Skill> skills) {
-		List<Competency> ret = new ArrayList<>();
+	private List<CompetencyMatching> extractCompetency(String skillData, PorterStemmer stemmer) {
+		skillData = prepareToTokenize(skillData);
+		List<CompetencyMatching> ret = new ArrayList<>();
 		if (skillData == null || skillData.isEmpty())
 			return ret;
 		List<String> names = new ArrayList<>();
-		for (Skill skill : skills) {
-			if (names.contains(skill.getName())) continue;
-			int level = 0;
-			// exact match
-			if (skill.getName().toLowerCase().equals(skillData))
-				level = 4;
-			// contains
-			if (skill.getName().toLowerCase().contains(skillData))
-				level = 3;
-			// check alternatives
-			if (skill.getAlternative() != null) {
-				String[] alts = skill.getAlternative().split("|");
-				for (int i = 0; i < alts.length; i++) {
-					// exact
-					if (alts[i].toLowerCase().equals(skillData)) {
-						level = 2;
-						break;
-					}
-					// contains
-					if (alts[i].toLowerCase().contains(skillData))
-						level = 1;
-				}
-			}
-			
-			// add competency
-			if (level > 0) {
-				Competency comp = new Competency(skill, level);
-				ret.add(comp);
+		// exact match
+		List<Skill> skills = skillDao.findByName(skillData);
+		for (Skill skill : skills)
+			if (!names.contains(skill.getName())) {
+				ret.add(new CompetencyMatching(skill, 6, 1.0));
 				names.add(skill.getName());
 			}
-		}
+		// check alternatives exact match
+		skills = skillDao.findByAlternative("%|" + skillData + "|%");
+		for (Skill skill : skills)
+			if (!names.contains(skill.getName())) {
+				ret.add(new CompetencyMatching(skill, 6, 1.0));
+				names.add(skill.getName());
+			}
+		// prepare contains-query (stemmed words and %)
+		String[] words = skillData.split(" ");
+		String query = "%";
+		for (int i = 0; i < words.length; i++)
+			query += stemTerm(words[i], stemmer) + "%";
+		// contains
+		skills = skillDao.findByName(query);
+		for (Skill skill : skills)
+			if (!names.contains(skill.getName())) {
+				double val = sorensen(skill.getName(), skillData);
+				int level = (int) ( ( (double) skill.getMaxLevel()) * val);
+				if (level <= 0) level = 1;
+				if (level > skill.getMaxLevel()) level = skill.getMaxLevel();
+				ret.add(new CompetencyMatching(skill, level, val));
+				names.add(skill.getName());
+			}
+		// check alternatives contains
+		skills = skillDao.findByAlternative(query);
+		for (Skill skill : skills)
+			if (!names.contains(skill.getName())) {
+				// find most appropriate alternative name
+				double best = 0;
+				String[] alts = skill.getAlternative().split("|");
+				for (int i = 0; i < alts.length; i++) {
+					double cur = sorensen(alts[i], skillData);
+					if (cur > best)
+						best = cur;
+				}
+				int level = (int) ( ( (double) skill.getMaxLevel()) * best);
+				if (level <= 0) level = 1;
+				if (level > skill.getMaxLevel()) level = skill.getMaxLevel();
+				ret.add(new CompetencyMatching(skill, level, best));
+				names.add(skill.getName());
+			}
+				
 		return ret;
+	}
+
+	private double sorensen(String A, String B) {
+		double Al = A.length() * (A.length() + 1.0) / 2.0, Bl = B.length() * (B.length() + 1.0) / 2.0, AB = 0;
+		for (int i = 0; i < B.length(); i++)
+			for (int j = i; j < B.length(); j++)
+			if (A.contains(B.substring(i, j+1)))
+				AB++;
+		return 2.0 * AB / (Al + Bl);
 	}
 	
 	@RequestMapping(path = "/innovations", method = RequestMethod.GET)

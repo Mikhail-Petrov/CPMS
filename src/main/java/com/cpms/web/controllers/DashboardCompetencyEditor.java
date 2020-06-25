@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.data.entities.Competency;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.exceptions.WrongIndexException;
@@ -41,6 +42,10 @@ public class DashboardCompetencyEditor {
 
     @Autowired
     private MessageSource messageSource;
+
+	@Autowired
+	@Qualifier("draftableSkillDAO")
+	private IDraftableSkillDaoExtension skillDao;
 	
 	@RequestMapping(path = "/add", 
 			method = RequestMethod.GET)
@@ -51,7 +56,7 @@ public class DashboardCompetencyEditor {
 		model.addAttribute("competency", competency);
 		model.addAttribute("create", true);
 		model.addAttribute("skillsList", 
-				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
+				SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll()), skillDao));
 		model.addAttribute("postAddress", "/dashboard/competency/add");
 		return "editCompetency";
 	}
@@ -81,7 +86,7 @@ public class DashboardCompetencyEditor {
 			if (bindingResult.hasErrors()) {
 				model.addAttribute("create", true);
 				model.addAttribute("skillsList", 
-						SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
+						SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll()), skillDao));
 				model.addAttribute("postAddress", "/dashboard/competency/add");
 				model.addAttribute("_VIEW_TITLE", "title.edit.competency");
 				model.addAttribute("_FORCE_CSRF", true);
@@ -116,7 +121,7 @@ public class DashboardCompetencyEditor {
 			}
 			if (bindingResult.hasErrors()) {
 				model.addAttribute("skillsList", 
-						SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll())));
+						SkillUtils.sortAndAddIndents(Skills.sortSkills(facade.getSkillDAO().getAll()), skillDao));
 				return ("fragments/editCompetencyModal :: competencyDashboardModalForm");
 			}
 			sessionData.addCompetency(recievedCompetency);

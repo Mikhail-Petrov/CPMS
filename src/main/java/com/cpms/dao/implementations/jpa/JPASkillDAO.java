@@ -64,7 +64,7 @@ public class JPASkillDAO extends AbstractDAO<Skill> implements ICleanable {
 			throw new DataAccessException("Attempt to update null.", null);
 		}
 		newSkill.getLevels();
-		newSkill.getChildren();
+		//newSkill.getChildren();
 		newSkill.getImplementers();
 		newSkill.getImplementersTask();
 		if (!skillRepo.exists(newSkill.getId())) {
@@ -110,11 +110,11 @@ public class JPASkillDAO extends AbstractDAO<Skill> implements ICleanable {
 			throw new DataAccessException("Cannot delete null.", null);
 		}
 		oldSkill = getOne(oldSkill.getId());
-		Set<Skill> children = oldSkill.getChildren();
-		oldSkill.detachChildren();
-		for(Skill child : children) {
-			update(child);
-		}
+		oldSkill.detachChildren(skillRepo);
+		List<Skill> skills = skillRepo.getChildren(oldSkill);
+		if (skills != null)
+			for(Skill child : skills)
+				update(child);
 		oldSkill.setParent(null);
 		update(oldSkill);
 		skillRepo.flush();
