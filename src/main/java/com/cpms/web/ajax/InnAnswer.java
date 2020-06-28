@@ -12,12 +12,15 @@ public class InnAnswer implements IAjaxAnswer {
 	private List<String> terms;
 	private List<String> flags;
 	private List<Long> ids;
+	
+	private long id;
 
 	public InnAnswer() {
 		setVariants(new ArrayList<>());
 		setTerms(new ArrayList<>());
 		setFlags(new ArrayList<>());
 		setIds(new ArrayList<>());
+		setId(0);
 	}
 	
 	public void addTerm(Term term) {
@@ -58,6 +61,14 @@ public class InnAnswer implements IAjaxAnswer {
 
 	public void setIds(List<Long> ids) {
 		this.ids = ids;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 	
 }

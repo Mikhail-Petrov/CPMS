@@ -38,13 +38,17 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 			nativeQuery = true)
 	public Integer getDocCount(@Param("start_date") String start_date, @Param("finish_date") String finish_date);
 
-	@Query(value = "select top 25 k.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid = :term " + 
-			"group by k.id order by sum(k.count) desc",
+	@Query(value = "select top 25 d.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid = :term " + 
+			"group by d.id order by sum(k.count) desc",
 			nativeQuery = true)
 	public List<BigInteger> getTermDocsIDs(@Param("term") long term);
 	
-	@Query(value = "select top 25 k.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid = :term " + 
-			"group by k.id order by max(d.creationDate) desc",
+	@Query(value = "select top 25 d.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid = :term " + 
+			"group by d.id order by max(d.creationDate) desc",
 			nativeQuery = true)
 	public List<BigInteger> getTermKeysIDs(@Param("term") long term);
+
+	@Query(value = "Select k.count from Keyword k where k.termid = :term and k.documentid = :doc",
+			nativeQuery = true)
+	public Integer getTermCount(@Param("term") long term, @Param("doc") long doc);
 }

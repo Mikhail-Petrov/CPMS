@@ -1,6 +1,7 @@
 package com.cpms.data.entities;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -79,6 +80,12 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	
 	@Column(name = "owner", nullable = true)
 	private Long owner;
+	
+	@Column(name = "delUser", nullable = true)
+	private Long delUser;
+	
+	@Column(name = "delDate", nullable = true)
+	private Date delDate;
 	
 	@Column(name = "TYPE", nullable = true, length = 100)
 	private String type;
@@ -362,5 +369,21 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 	
 	public boolean equals(Skill o) {
 		return this.getName().equals(o.getName());
+	}
+
+	public Date getDelDate() {
+		return delDate;
+	}
+
+	public void setDelDate(Date delDate) {
+		this.delDate = delDate;
+	}
+
+	public Long getDelUser() {
+		return delUser;
+	}
+
+	public void setDelUser(Long delUser) {
+		this.delUser = delUser;
 	}
 }

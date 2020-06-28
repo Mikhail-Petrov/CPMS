@@ -38,6 +38,8 @@ public class JPASkillDraftableDAO extends JPASkillDAO
 
 	@Override
 	public List<Skill> getChildren(Skill parent) {
+		if (parent == null)
+			return skillRepo.getRoots();
 		return skillRepo.getChildren(parent);
 	}
 

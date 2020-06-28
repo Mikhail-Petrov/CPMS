@@ -18,12 +18,15 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IDAO;
@@ -40,6 +43,9 @@ import com.cpms.security.entities.Users;
 import com.cpms.web.PagingUtils;
 import com.cpms.web.SkillUtils;
 //import com.fasterxml.jackson.databind.ObjectMapper;
+import com.cpms.web.ajax.IAjaxAnswer;
+import com.cpms.web.ajax.InnAnswer;
+import com.cpms.web.ajax.SkillAnswer;
 
 /**
  * Viewer for profile and task entities.
@@ -66,6 +72,39 @@ public class Skills {
 	@Autowired
 	@Qualifier("draftableSkillDAO")
 	private IDraftableSkillDaoExtension skillDao;
+
+    @Autowired
+    private MessageSource messageSource;
+
+	@ResponseBody
+	@RequestMapping(value = "/ajaxSkillChildren",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxSkillChildren(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
+			long id = Long.parseLong(values.get(0).toString());
+			InnAnswer answer = new InnAnswer();
+			answer.setId(id);
+			Skill skill = null;
+			if (id > 0)
+				skill = facade.getSkillDAO().getOne(id);
+			List<Skill> children = skillDao.getChildren(skill);
+			String flag = "";
+			while (skill != null) {
+				skill = skill.getParent();
+				flag += "--";
+			}
+			for (Skill child : children) {
+				answer.getIds().add(child.getId());
+				answer.getTerms().add(child.getName());
+				answer.getFlags().add(flag);
+			}
+			return answer;
+		} else {
+			return new InnAnswer();
+		}
+	}
 	
 	@RequestMapping(path = { "/extractSkills" }, method = RequestMethod.GET)
 	public String extractSkills(Model model) {
@@ -147,7 +186,8 @@ public class Skills {
 	}
 	private List<Skill> getAllSkills() {
 		if (allSkills == null || allSkills.size() != facade.getSkillDAO().count()) {
-			allSkills = facade.getSkillDAO().getAll();
+			//allSkills = facade.getSkillDAO().getAll();
+			allSkills = skillDao.getChildren(null);
 			//Collections.sort(allSkills);
 		}
 		return allSkills;
@@ -191,7 +231,7 @@ public class Skills {
 			Users owner = userDAO.getByUsername((
 					(UsernamePasswordAuthenticationToken)principal
 					).getName());
-			List<Skill> skills = getAllSkills(facade.getSkillDAO());
+			List<Skill> skills = getAllSkills();
 			//skills.addAll(skillDao.getDraftsOfUser(owner.getId()));
 			model.addAttribute("skills", SkillTree.produceTree(sortSkills(skills)));
 			Skill newSkill = new Skill();

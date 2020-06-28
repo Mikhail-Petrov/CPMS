@@ -506,13 +506,21 @@ public class Statistic {
 		// get keywords list
 		List<Keyword> keys = new ArrayList<>();
 		for (BigInteger docID : innDAO.getTermDocsIDs(term, order))
-			keys.add(keyDAO.getOne(docID.longValue()));
+			//keys.add(keyDAO.getOne(docID.longValue()));
+			keys.add(getKeyword(term.getId(), docID.longValue()));
 		model.addAttribute("keys", keys);
 		time("keys");
 		model.addAttribute("order", order);
 		
 		model.addAttribute("termid", id);
 		return "viewTerm";
+	}
+	
+	private Keyword getKeyword(long termid, long docid) {
+		Keyword res = new Keyword();
+		res.setCount(innDAO.getTermCount(termid, docid));
+		res.setDoc(docDAO.getOne(docid));
+		return res;
 	}
 
 	private String err = "";

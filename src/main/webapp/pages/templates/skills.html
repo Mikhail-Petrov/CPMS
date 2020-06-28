@@ -112,11 +112,11 @@
 							$("img[src$='minusbottom.gif']:visible,img[src$='minus.gif']:visible").click();
 					}
 					</script>
-                <div class="two-buttons">
+                <!-- div class="two-buttons">
 					<span class="btn btn-primary btn-block" th:text="#{skill.expand}" onclick='expandTree(true);'></span>
                 </div><div class="two-buttons">
 					<span class="btn btn-primary btn-block" th:text="#{skill.collapse}" onclick='expandTree(false);'></span>
-				</div>
+				</div-->
                     <div class="col-md-12">
                         <div class="x_panel">
                             <div class="x_title row">
@@ -125,12 +125,15 @@
                                        <button type="button" class="btn btn-success pull-left" data-toggle="modal" id="plusButton"><i class="fa fa-plus"></i></button>
                                 </div>
                             </div>
-                            <div class="x_content" th:include="fragments/skillTree :: skillTree"></div>
+                            <div class="x_content" th:include="fragments/skillTree2 :: skillTree"></div>
                         </div>
                     </div>
                 </div>
 	<script th:inline="javascript">
 			/*<![CDATA[*/
+	function clickSkill(id) {
+				ajaxSkillDialog('/viewer/ajaxSkill', id);
+			}
 	function applyFilter() {
 		var filterText = $("#skillFilter").val().toLowerCase();
 		var skillsAndParents = /*[[${skillsAndParents}]]*/ null;

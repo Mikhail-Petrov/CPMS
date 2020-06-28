@@ -1,6 +1,7 @@
 package com.cpms.web.controllers;
 
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,10 +79,33 @@ public class EditorSkill {
 			}
 		}
 	}
-	
+
+	private void deleteSkill(Skill skill, long delUser, Date delDate) {
+		skill.setDelDate(delDate);
+		skill.setDelUser(delUser);
+		for (Skill child : skill.getChildren(skillDao))
+			deleteSkill(child, delUser, delDate);
+		facade.getSkillDAO().update(skill);
+	}
 	@RequestMapping(path = {"/skill/delete"}, 
 			method = RequestMethod.GET)
 	public String skillDelete(Model model, Principal principal,
+			@RequestParam(name = "id", required = true) Long id) {
+		Skill skill = facade.getSkillDAO().getOne(id);
+		long delUser;
+		Users user = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
+		if (user == null)
+			delUser = 0;
+		else
+			delUser = user.getId();
+		Date delDate = new Date(System.currentTimeMillis());
+		deleteSkill(skill, delUser, delDate);
+		return "redirect:/skills";
+	}
+	
+	@RequestMapping(path = {"/skill/deleteOld"}, 
+			method = RequestMethod.GET)
+	public String skillDeleteOld(Model model, Principal principal,
 			HttpServletRequest request,
 			@RequestParam(name = "id", required = true) Long id) {
 		Skill skill = facade.getSkillDAO().getOne(id);

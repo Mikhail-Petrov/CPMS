@@ -85,4 +85,11 @@ public class JPATermInnovationDAO extends JPATermDAO
 	public Term getTermByStem(String stem) {
 		return termRepo.getTermByStem(stem);
 	}
+
+	@Override
+	public int getTermCount(Long termid, Long docid) {
+		Integer res = termRepo.getTermCount(termid, docid);
+		if (res == null) res = 0;
+		return res;
+	}
 }
