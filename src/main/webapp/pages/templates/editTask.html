@@ -28,9 +28,11 @@
   </script>
                                 <div class="row">
                                     <div class="col-md-12">
-									<select id="skillSelector" size="7">
+									<!-- select id="skillSelector" size="7">
 										<option th:each="skill : ${skillsList}" th:value="${skill.id}" th:text="${skill.name}">skill</option>
-									</select>
+									</select-->
+									<input type="hidden" name="skillIDs" id="skillSelector" />
+                            		<div class="x_content" th:include="fragments/skillTree2 :: skillTree"></div>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -52,16 +54,34 @@
                             </div>
 							<script th:inline="javascript">
 							/*<![CDATA[*/
+	function clickSkill(id) {
+				if ($("#ask" + id + " b").length > 0) {
+					// unselect
+					$("#ask" + id).html($("#ask" + id).html().replace("<b>", "").replace("</b>", ""));
+					$("#skillSelector").val($("#skillSelector").val().replace("," + $("#ask" + id).text() + " (" + id + ")", ""));
+				} else {
+					// select element
+					$("#ask" + id).html("<b>" + $("#ask" + id).html() + "</b>");
+					$("#skillSelector").val($("#skillSelector").val() + "," + $("#ask" + id).text() + " (" + id + ")");
+				}
+			}
 							function addSkill(){
 								level = $("#reqLvl").val();
 								if (level == "" || level < 1)
 									level = "1";
-								skill = $("#skillSelector option:selected").text();
-								if (skill == "") return;
-								skill = skill + " (" + $("#skillSelector option:selected").val() + "): " + level;
-								buttonCode = /*[[#{editor.remove}]]*/ "";
-								buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
-								$("#skillTable").append("<tr><td>" + skill + "</td><td>" + buttonCode + "</td></tr>");
+								//skill = $("#skillSelector option:selected").text();
+								skills = $("#skillSelector").val();
+								if (skills == "") return;
+								skills = skills.split(",");
+								for (var i = 0; i < skills.length; i++) {
+									var skill = skills[i];
+									if (skill === "") continue;
+									skill = skill + //" (" + $("#skillSelector option:selected").val() + ")
+										": " + level;
+									buttonCode = /*[[#{editor.remove}]]*/ "";
+									buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
+									$("#skillTable").append("<tr><td>" + skill + "</td><td>" + buttonCode + "</td></tr>");
+								}
 							}
 							/*]]>*/
 							</script>

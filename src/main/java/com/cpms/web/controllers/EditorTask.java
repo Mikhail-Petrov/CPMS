@@ -81,6 +81,8 @@ public class EditorTask {
 	public String competencyCreateAsyncNew(Model model, HttpServletRequest request, @PathVariable("taskId") Long taskId,
 			@ModelAttribute("requirement") @Valid TaskRequirement recievedRequirement, BindingResult bindingResult) {
 		String[] skillIDs = request.getParameterValues("skillIDs");
+		if (skillIDs != null && skillIDs.length > 0)
+			skillIDs = skillIDs[0].split(",");
 		if (recievedRequirement == null) {
 			throw new SessionExpiredException(null, messageSource);
 		}
@@ -160,9 +162,6 @@ public class EditorTask {
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		Collections.sort(langs);
 		model.addAttribute("languages", langs);
-		model.addAttribute("skillsList",
-				//SkillUtils.sortAndAddIndents(Skills.sortSkills(skillDao.getAllIncludingDrafts())));
-				SkillUtils.sortAndAddIndents(Skills.getAllSkills(facade.getSkillDAO()), skillDao));
 		List<Users> users = userDAO.getAll();
 		Collections.sort(users);
 		model.addAttribute("users", users);

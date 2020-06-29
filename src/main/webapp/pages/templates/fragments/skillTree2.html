@@ -27,14 +27,22 @@
 					headers: headers,
 					success: function (res) {
 						var html = "";
-						for (var i = 0; i < res.ids.length; i++) {
-							html += "<div id='sb" + res.ids[i] + "'>";
-							html += res.flags[i];
-							html += "<img src='" + rootPath + "resources/images/dtree/nolines_plus.gif' " +
-								"onclick='ajaxSkillChildren(\"" + rootPath + "skills/ajaxSkillChildren\", " + res.ids[i] + ");'>";
-							html += "<a href='#' onclick='clickSkill(" + res.ids[i] + ");'>" + res.terms[i] + "</a>";
-							html += "<div id='ch" + res.ids[i] + "'></div>";
-							html += "</div>";
+						elImg = $("#img" + res.id);
+						if (elImg.length > 0 && elImg.attr('src').indexOf("/resources/images/dtree/nolines_minus.gif") >= 0)
+							elImg.attr('src', rootPath + "resources/images/dtree/nolines_plus.gif");
+						else {
+							if (elImg.length > 0)
+								elImg.attr('src', rootPath + "resources/images/dtree/nolines_minus.gif");
+							for (var i = 0; i < res.ids.length; i++) {
+								html += "<div id='sb" + res.ids[i] + "'>";
+								html += res.flags[i];
+								html += "<img id='img" + res.ids[i] + "' src='" + rootPath + "resources/images/dtree/nolines_plus.gif' " +
+									"onclick='ajaxSkillChildren(\"" + rootPath + "skills/ajaxSkillChildren\", " + res.ids[i] + ");'>";
+								html += "<a id='ask" + res.ids[i] + "' href='#' onclick='clickSkill(" + res.ids[i] + ");'>"
+									+ res.terms[i] + "</a>";
+								html += "<div id='ch" + res.ids[i] + "'></div>";
+								html += "</div>";
+							}
 						}
 						$("#ch" + res.id).html(html);
 					},
