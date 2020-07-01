@@ -78,6 +78,24 @@ public class Skills {
     private MessageSource messageSource;
 
 	@ResponseBody
+	@RequestMapping(value = "/ajaxSearch",
+			method = RequestMethod.POST)
+	public List<Skill> ajaxSearch(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		String name = values.size() > 0 ? (String) values.get(0) : "";
+		if (name.isEmpty())
+			return new ArrayList<>();
+		name = "%" + name.replace(" ", "%") + "%";
+		
+		 List<Skill> res = new ArrayList<>();
+		 for (Skill skill : skillDao.findByName(name)) {
+			 res.add(new Skill(skill));
+		 }
+		 return res;
+	}
+	
+	@ResponseBody
 	@RequestMapping(value = "/ajaxSkillChildren",
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxSkillChildren(

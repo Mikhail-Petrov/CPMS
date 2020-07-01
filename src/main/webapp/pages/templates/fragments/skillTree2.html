@@ -1,10 +1,103 @@
 <div th:fragment="skillTree" th:remove="tag">
 
+                    <span th:text="#{editor.filter}" text="Filter"></span>
+					<p><input type="text" class="form-control" id="skillFilter"/></p>
+					<script>
+					function clearFilter(){
+						$("#skillFilter").val("");
+						$("#skillFilter").trigger("input");
+					}
+					</script>
+					<p><span id="sss"></span></p>
+					<p><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
+					
 	<div id="ch0"></div>
 
 	<script th:inline="javascript">
 	/*<![CDATA[*/
 
+		function addChild(id, flag, term, kids) {
+			var html = "";
+			html += "<div id='sb" + id + "'>";
+			html += flag;
+			if (kids > 0)
+				html += "<img id='img" + id + "' src='" + rootPath + "resources/images/dtree/nolines_plus.gif' " +
+					"onclick='ajaxSkillChildren(\"" + rootPath + "skills/ajaxSkillChildren\", " + id + ");'>";
+			html += "<a id='ask" + id + "' href='#' onclick='clickSkill(" + id + ");'>"
+				+ term + "</a>";
+			html += "<div id='ch" + id + "'></div>";
+			html += "</div>";
+			return html;
+	}
+		function showChild(child) {
+		// if it shown then break
+		if ($("#sb" + child.id).length > 0) return;
+		// if parent is not shown then show it
+		var parentId = "#ch";
+		if (child.parent !== null) {
+			if ($("#sb" + child.parent.id).length <= 0)
+				showChild(child.parent);
+			parentId += child.parent.id;
+		}
+		// add to the parent
+		$(parentId).html($(parentId).html() + addChild(child.id, child.alternative, child.name, 1));
+	}
+	function applyFilter() {
+		var inputArgs = [];
+		var filterText = $("#skillFilter").val().toLowerCase();
+		inputArgs.push(filterText);
+		var requestUrl = rootPath + "skills/ajaxSearch";
+
+		 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	     var csrfToken = $("meta[name='_csrf']").attr("content");
+	     var headers = {};
+	     headers[csrfHeader] = csrfToken;
+	     $("#sss").text("start searching");
+		$.ajax({
+			url : requestUrl,
+			type: 'POST',
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+			data : JSON.stringify(inputArgs),
+			headers: headers,
+			success: function (res) {
+				if (res !== null) {
+				     $("#sss").text("processing results");
+					// get ids to show
+					var toShow = ["sb0"];
+					for (var i = 0; i < res.length; i++) {
+						var skill = res[i];
+						toShow.push("sb" + skill.id);
+						var curSkill = skill.parent;
+						while (curSkill !== null) {
+							var toAdd = "sb" + curSkill.id;
+							if (toShow.indexOf(toAdd) >= 0)
+								break;
+							toShow.push(toAdd);
+							curSkill = curSkill.parent;
+						}
+						showChild(skill);
+					}
+					// hide all that not to show
+					var all = $("[id^=sb]");
+					for (var i = 0; i < all.length; i++)
+						if (toShow.length <= 1 || toShow.indexOf(all[i].id) >= 0)
+							$("#" + all[i].id).show();
+						else
+							$("#" + all[i].id).hide();
+				     $("#sss").text("");
+				}
+			},
+			error: function (xhRequest, ErrorText, thrownError) {
+				console.log('xhRequest: ' + xhRequest + "\n");
+				console.log('ErrorText: ' + ErrorText + "\n");
+				console.log('thrownError: ' + thrownError + "\n");
+				console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+			}
+		});
+	}
+	$("#skillFilter").keydown(function(e) {if(e.keyCode === 13) applyFilter()});
+	
 			function ajaxSkillChildren(requestUrl) {
 				
 				var inputArgs = [];
@@ -34,15 +127,7 @@
 							if (elImg.length > 0)
 								elImg.attr('src', rootPath + "resources/images/dtree/nolines_minus.gif");
 							for (var i = 0; i < res.ids.length; i++) {
-								html += "<div id='sb" + res.ids[i] + "'>";
-								html += res.flags[i];
-								if (res.kids[i] > 0)
-									html += "<img id='img" + res.ids[i] + "' src='" + rootPath + "resources/images/dtree/nolines_plus.gif' " +
-										"onclick='ajaxSkillChildren(\"" + rootPath + "skills/ajaxSkillChildren\", " + res.ids[i] + ");'>";
-								html += "<a id='ask" + res.ids[i] + "' href='#' onclick='clickSkill(" + res.ids[i] + ");'>"
-									+ res.terms[i] + "</a>";
-								html += "<div id='ch" + res.ids[i] + "'></div>";
-								html += "</div>";
+								html += addChild(res.ids[i], res.flags[i], res.terms[i], res.kids[i]);
 							}
 						}
 						$("#ch" + res.id).html(html);

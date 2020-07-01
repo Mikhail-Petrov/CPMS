@@ -94,15 +94,6 @@
                 </script>
 
                 <div class="row">
-                    <span th:text="#{editor.filter}" text="Filter"></span>
-					<p><input type="text" class="form-control" id="skillFilter"/></p>
-					<script>
-					function clearFilter(){
-						$("#skillFilter").val("");
-						$("#skillFilter").trigger("input");
-					}
-					</script>
-					<p><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
 					<script>
 					function expandTree(toExpand) {
 						if (toExpand == true)
@@ -134,29 +125,6 @@
 	function clickSkill(id) {
 				ajaxSkillDialog(rootPath + 'viewer/ajaxSkill', id);
 			}
-	function applyFilter() {
-		var filterText = $("#skillFilter").val().toLowerCase();
-		var skillsAndParents = /*[[${skillsAndParents}]]*/ null;
-		for (var skill in skillsAndParents) {
-			$('#dtn' + skill).prop('hidden', filterText!=="");
-		}
-		if (filterText == "")
-			return;
-		var toShow = [0];
-		for (var skill in skillsAndParents) {
-			var nodeId = $('#dtn' + skill).attr('nodeId');
-			if ($('#sd' + nodeId).html().toLowerCase().indexOf(filterText) > -1) {
-				for (var i = 0; i < skillsAndParents[skill].length && i < 1; i++){
-					toShow.push(skillsAndParents[skill][i]);
-				}
-			}
-		}
-		for (var i = 0; i < toShow.length; i++) {
-			if ($('#dtn' + toShow[i]) !== null)
-				$('#dtn' + toShow[i]).prop('hidden', false);
-		}
-	}
-	$("#skillFilter").keydown(function(e) {if(e.keyCode === 13) applyFilter()});
 	$("#plusButton").on("click", function() {ajaxSkillDialog(rootPath + 'viewer/ajaxSkill', '0')});
 	/*]]>*/
 	</script>

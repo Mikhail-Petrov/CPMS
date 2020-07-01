@@ -114,6 +114,20 @@ public class Skill extends AbstractDomainObject implements Comparable<Skill>{
 		setMaxLevel(6);
 	}
 
+	public Skill(Skill skill) {
+		setName(skill.getName());
+		setId(skill.getId());
+		if (skill.getParent() == null)
+			setParent(null);
+		else
+			setParent(new Skill(skill.getParent()));
+		setAlternative("");
+		Skill parent = skill.getParent();
+		while (parent != null) {
+			alternative += "--";
+			parent = parent.getParent();
+		}
+	}
 	public String getType() {
 		return type;
 	}
