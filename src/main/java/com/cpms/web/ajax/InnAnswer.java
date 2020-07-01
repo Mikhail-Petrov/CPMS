@@ -11,6 +11,7 @@ public class InnAnswer implements IAjaxAnswer {
 	private List<List<String>> variants;
 	private List<String> terms;
 	private List<String> flags;
+	private List<Integer> kids;
 	private List<Long> ids;
 	
 	private long id;
@@ -20,6 +21,7 @@ public class InnAnswer implements IAjaxAnswer {
 		setTerms(new ArrayList<>());
 		setFlags(new ArrayList<>());
 		setIds(new ArrayList<>());
+		setKids(new ArrayList<>());
 		setId(0);
 	}
 	
@@ -69,6 +71,14 @@ public class InnAnswer implements IAjaxAnswer {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public List<Integer> getKids() {
+		return kids;
+	}
+
+	public void setKids(List<Integer> kids) {
+		this.kids = kids;
 	}
 	
 }

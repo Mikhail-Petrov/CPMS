@@ -132,7 +132,8 @@ public class Users extends AbstractDomainObject implements Comparable<Users> {
 		List<Role> roles = new ArrayList<>();
 		if (this.roles != null) {
 			roles.add(this.roles.get(0));
-		}
+		} else
+			this.roles = roles;
 		return roles;
 	}
 	

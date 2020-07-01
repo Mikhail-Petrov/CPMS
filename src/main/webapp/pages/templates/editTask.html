@@ -11,6 +11,12 @@
                                         <input type="text" class="form-control" th:field="*{name}" placeholder="Task name" th:placeholder="#{editor.placeholder.name}"/>
                                     </div>
                                </div>
+   			<p th:text="'Description'"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea class="form-control" type="textarea" th:field="*{original}" placeholder="Description" th:placeholder="'Description'" rows="5"></textarea>
+                                    </div>
+                                </div>
    			<p th:text="#{editor.task.due}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -58,11 +64,11 @@
 				if ($("#ask" + id + " b").length > 0) {
 					// unselect
 					$("#ask" + id).html($("#ask" + id).html().replace("<b>", "").replace("</b>", ""));
-					$("#skillSelector").val($("#skillSelector").val().replace("," + $("#ask" + id).text() + " (" + id + ")", ""));
+					$("#skillSelector").val($("#skillSelector").val().replace("|" + $("#ask" + id).text() + " (" + id + ")", ""));
 				} else {
 					// select element
 					$("#ask" + id).html("<b>" + $("#ask" + id).html() + "</b>");
-					$("#skillSelector").val($("#skillSelector").val() + "," + $("#ask" + id).text() + " (" + id + ")");
+					$("#skillSelector").val($("#skillSelector").val() + "|" + $("#ask" + id).text() + " (" + id + ")");
 				}
 			}
 							function addSkill(){
@@ -72,7 +78,7 @@
 								//skill = $("#skillSelector option:selected").text();
 								skills = $("#skillSelector").val();
 								if (skills == "") return;
-								skills = skills.split(",");
+								skills = skills.split("|");
 								for (var i = 0; i < skills.length; i++) {
 									var skill = skills[i];
 									if (skill === "") continue;
@@ -87,6 +93,27 @@
 							</script>
                             </div>
                                 <hr class="separator"/>
+                               <button type="button" class="btn btn-primary btn-block" id="plusButton" th:text="#{task.group.create}"></button>
+                                <p id="curStatus"></p>
+		<div id="groupModal" hidden="true">
+		<table id="groupTable" class="table table-responsive table-striped">
+		<thead>
+			<tr>
+				<th data-field="group"><span th:text="#{motivations.group}"></span></th>
+				<th data-field="experts"><span th:text="#{navbar.experts}"></span></th>
+				<th data-field="gsl"><span th:text="#{profile.gsl}"></span></th>
+				<th data-field="availability"><span th:text="#{profile.availability}"></span></th>
+				<th data-field="tasks"><span th:text="#{profile.gsl.1}"></span></th>
+				<th data-field="button"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+			</tr>
+		</tbody>
+		</table>
+		</div>
+
    			<p th:text="#{editor.task.performers}"></p>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -106,69 +133,6 @@
 						$("#performers option[value='" + performers[i] + "']").attr("selected", "selected");
 			/*]]>*/
 			</script>
-                                <hr class="separator"/>
-   			<p th:text="#{editor.task.reference}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="Link" th:field="*{reference}" th:placeholder="#{task.type.link}"/>
-                                        <div id="fileBlock" class="two-buttons row">
-                                        <input type="file" class="form-control" name="file" id="fileInput"/>
-                                        </div>
-                                        <div class="two-buttons">
-                                        <button type="button" class="btn btn-danger btn-block" th:text="#{editor.clear}"
-                                        	onclick="document.getElementById('fileBlock').innerHTML=document.getElementById('fileBlock').innerHTML"></button>
-                                        </div>
-                                    </div>
-                                </div>
-   			<p th:text="#{editor.task.type}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-									<select th:field="*{type}">
-										<option th:text="#{task.type.text}" value='1'>Text</option>
-										<option th:text="#{task.type.acronis}" value='2'>Acronis ID</option>
-										<option th:text="#{task.type.link}" value='3'>Link</option>
-										<option th:text="#{task.type.file}" value='4'>XLS File</option>
-									</select>
-                                    </div>
-                                </div>
-            <div id="textAbout">
-   			<p th:text="#{task.type.original}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <textarea class="form-control" type="textarea" th:field="*{original}" placeholder="Original text" th:placeholder="#{task.type.original}" rows="5"></textarea>
-                                    </div>
-                                </div>
-   			<p th:text="#{task.type.translate}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <textarea class="form-control" type="textarea" th:field="*{about}" placeholder="Translated text" th:placeholder="#{task.type.translate}" rows="5"></textarea>
-                                    </div>
-                                </div>
-            </div>
-            <div id="acronisAbout" hidden="true">
-   			<p th:text="#{task.type.acronis}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="Acronis ID" id="acronisValue" th:placeholder="#{task.type.acronis}"/>
-                                    </div>
-                                </div>
-            </div>
-            <div id="linkAbout" hidden="true">
-   			<p th:text="#{task.type.link}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="Link" id="linkValue" th:placeholder="#{task.type.link}"/>
-                                    </div>
-                                </div>
-            </div>
-            <div id="fileAbout" hidden="true">
-   			<p th:text="#{task.type.filetext}"></p>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <input type="text" class="form-control" placeholder="Link" id="fileValue" th:placeholder="#{task.type.file}"/>
-                                    </div>
-                                </div>
-            </div>
 			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}" value="submit" id="submitBut" /></p>
 	<script th:inline="javascript">
 			/*<![CDATA[*/
@@ -199,12 +163,6 @@
         			disabled = true;
             	}
 
-            	if (document.getElementById("fileInput").files.length > 0)
-	            	if (document.getElementById("fileInput").files[0].size > 50*1024*1024) {
-	            		warning = warning + tooBigWarning + " ";
-	        			disabled = true;
-	            	}
-
             	if ($("#dueDate").val() == "") {
             		warning = warning + emptyDateWarning + " ";
         			disabled = true;
@@ -218,10 +176,6 @@
             	checkInputs();
             });
 
-            $("#fileInput").on('input', function() {
-            	checkInputs();
-            });
-
             $("#dueDate").on('input', function() {
             	checkInputs();
             });
@@ -231,28 +185,102 @@
             
             checkInputs();
 
-            $("#type").on('input', function() {
-            	hideOrShowElement($("#textAbout"), $("#type").val() == "1");
-            	hideOrShowElement($("#acronisAbout"), $("#type").val() == "2");
-            	hideOrShowElement($("#linkAbout"), $("#type").val() == "3");
-            	hideOrShowElement($("#fileAbout"), $("#type").val() == "4");
-            });
-
             $("#taskEditForm").on('submit', function() {
 				$("#skills").val("");
 				$.each($("#skillTable td:even"), function() {
 					$("#skills").val($("#skills").val() + $(this).html() + ';');
 				});
-				
-            	if ($("#type").val() == "2")
-            		$("#about").val($("#acronisValue").val());
-            	if ($("#type").val() == "3")
-            		$("#about").val($("#linkValue").val());
-            	if ($("#type").val() == "4")
-            		$("#about").val($("#fileValue").val());
             });
             $("#type").trigger('input');
             
+            
+
+			function ajaxGroup(requestUrl) {
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				
+				var skills = '';
+				$.each($("#skillTable td:even"), function() {
+					skills += $(this).html() + '|';
+				});
+				inputArgs.push(skills);
+				inputArgs.push("");
+				var targets = '';
+				inputArgs.push(targets);
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+
+	            var available1 = /*[[#{profile.availability.always}]]*/ "";
+	            var available2 = /*[[#{profile.availability.special}]]*/ "";
+	            var available3 = /*[[#{profile.availability.good}]]*/ "";
+	            var available4 = /*[[#{profile.availability.uncertain}]]*/ "";
+	            
+	            var average = /*[[#{profile.level.average}]]*/ "";
+	            
+	            var curStatus1 = /*[[#{task.group.status.1}]]*/ "";
+	            var curStatus2 = /*[[#{task.group.status.2}]]*/ "";
+	            
+	            $("#curStatus").html(curStatus1);
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+			            $("#curStatus").html(curStatus2);
+			            $("#groupTable tbody").empty();
+						for (var i = 0; i < res.solutions.length; i++) {
+							var names = '', gsl = '', avail = '', tasks = '', curAva = '', ids = '0';
+							var avgG = 0, avgA = 0, avgT = 0;
+							for (var j = 0; j < res.solutions[i].length; j++) {
+								names += '<p><a href="' + rootPath + 'viewer/profile?id=' + res.solutions[i][j].id + '" target="_blank">' + res.solutions[i][j].name + '</a></p>';
+								gsl += '<p>' + Math.floor(res.solutions[i][j].gsl[0]*100) + '%</p>';
+								avgG += res.solutions[i][j].gsl[0];
+								curAva = res.solutions[i][j].availability;
+								//avgA += Math.floor(curAva);
+								avail += '<p>' + (curAva == "1" ? available1 : curAva = "2" ? available2 : curAva = "3" ? available3 : available4) + '</p>';
+								tasks += '<p>' + res.solutions[i][j].tasks + '</p>';
+								avgT += res.solutions[i][j].tasks;
+								ids += ',' + res.solutions[i][j].userId;
+							}
+							if (res.solutions[i].length > 0) {
+								//avgA /= res.solutions[i].length;
+								avgG /= res.solutions[i].length;
+								avgT /= res.solutions[i].length;
+							}
+							$("#groupTable").append(
+									'<tr>' + 
+									'<td><p>' + (i + 1) + '. ' + res.groupNames[i] + '</p></td>' +
+									'<td>' + names + '<p><b>' + average + '</b></p></td>' +
+									'<td>' + gsl + '<p><b>' + Math.floor(avgG*100) + '%</b></p></td>' +
+									//'<td>' + avail + '<p>' + Math.floor(avgA) + '</p></td>' +
+									'<td>' + avail + '<p>-</p></td>' +
+									'<td>' + tasks + '<p><b>' + Math.floor(avgT*10)/10 + '</b></p></td>' +
+									'<td><button type="button" class="btn btn-primary btn-block" onclick="choseGroup(\'' + ids + '\')">Chose</button></td></tr>');
+						}
+						$('#groupModal').show();
+			            $("#curStatus").html('');
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			
+			$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'editor/ajaxGroup')});
+
 			/*]]>*/
 			</script>
 		</form>

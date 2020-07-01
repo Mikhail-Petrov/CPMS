@@ -73,7 +73,11 @@ public class EditorCompetency {
 					.getCompetencies()
 					.stream()
 					.anyMatch(x -> x.getSkill().equals(skill))) {
-				profile.addCompetency(new Competency(skill, skill.getMaxLevel()));
+				//int level = skill.getMaxLevel();
+				int level = recievedCompetency.getLevel();
+				if (level < 1) level = 1;
+				if (level > skill.getMaxLevel()) level = skill.getMaxLevel();
+				profile.addCompetency(new Competency(skill, level));
 			}
 		}
 		facade.getProfileDAO().update(profile);

@@ -132,7 +132,7 @@
 	<script th:inline="javascript">
 			/*<![CDATA[*/
 	function clickSkill(id) {
-				ajaxSkillDialog('/viewer/ajaxSkill', id);
+				ajaxSkillDialog(rootPath + 'viewer/ajaxSkill', id);
 			}
 	function applyFilter() {
 		var filterText = $("#skillFilter").val().toLowerCase();

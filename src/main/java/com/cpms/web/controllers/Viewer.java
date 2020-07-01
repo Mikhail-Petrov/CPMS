@@ -165,6 +165,9 @@ public class Viewer {
 		List<Language> langs = facade.getLanguageDAO().getAll();
 		Collections.sort(langs);
 		model.addAttribute("languages", langs);
+		
+		model.addAttribute("error", Statistic.matchErr);
+		Statistic.matchErr = "";
 		return "viewer";
 	}
 

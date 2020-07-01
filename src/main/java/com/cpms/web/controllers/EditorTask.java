@@ -267,6 +267,7 @@ public class EditorTask {
 			} catch (Exception e) {}
 		}
 		
+		task.getRecipients();
 		facade.getTaskDAO().update(task);
 		return "redirect:/viewer/task?id=" + task.getId();
 	}

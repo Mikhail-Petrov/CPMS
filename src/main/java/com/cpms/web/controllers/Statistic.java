@@ -116,11 +116,18 @@ public class Statistic {
 
 	List<Long> nokeysDocs = new ArrayList<>();
 
+	public static String matchErr = "";
 	@RequestMapping(path = "/createProfile", method = RequestMethod.GET)
 	public String createProfile(Model model
 			, @ModelAttribute("name") @Valid String name
 			, @ModelAttribute("skills") @Valid String skills) {
 
+		if (name.trim().isEmpty())
+			matchErr += "Field 'Name' is empty! ";
+		if (skills.trim().isEmpty())
+			matchErr += "Field 'Skills' is empty!";
+		if (!matchErr.isEmpty())
+			return "redirect:/viewer";
 		// create profile
 		/*Profile profile;
 		profile = new Profile();

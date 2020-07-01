@@ -59,9 +59,10 @@
         </style>
                                <div class="row">
 		<form action="#" th:action="@{/stat/createProfile}" method="get">
+		<p th:text="${error}"></p>
 		<p><span>Name: </span><input id="name" type="text" name="name"/></p>
 		<p><span>Skills: </span><textarea id="skills" class="form-control" name="skills" th:text="''"></textarea></p>
-		<input type="submit" class="btn btn-primary btn-block" id="plusButton" th:value="'Create profile'" />
+		<input type="submit" class="btn btn-primary btn-block" id="plusButton" th:value="'Skills matching'" />
                                	</form>
                                </div>
 

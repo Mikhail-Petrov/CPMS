@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -99,6 +100,8 @@ public class Skills {
 				answer.getIds().add(child.getId());
 				answer.getTerms().add(child.getName());
 				answer.getFlags().add(flag);
+				Set<Skill> kids = child.getChildren(skillDao);
+				answer.getKids().add(kids == null ? 0 : kids.size());
 			}
 			return answer;
 		} else {

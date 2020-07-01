@@ -51,9 +51,9 @@
 									</script>
 		<p id="skillDescription" text="1"></p>
                                 <hr class="separator" />
-                                <div class="row" hidden="true">
+                                <div class="row">
                                 	<p th:text="#{editor.level}"></p>
-									<p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p>
+									<!--p><span th:text="#{editor.maxlevel}"></span> <span id="maxLevel" th:text="#{editor.select_skill}"></span>.</p-->
 									<p><input type="number" th:field="*{level}" min="1" max="100" id="levelNumber"/></p>
                                 </div>
 		<p id="levelDescription" text="1" hidden="true"></p>
