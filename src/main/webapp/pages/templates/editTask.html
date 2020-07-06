@@ -31,6 +31,15 @@
     	  dateFormat: "yy-mm-dd"
     });
   } );
+  
+  $(document).ready(function() {
+      $("#taskEditForm").keydown(function(event){
+        if(event.keyCode == 13) {
+          event.preventDefault();
+          return false;
+      }
+   });
+});
   </script>
                                 <div class="row">
                                     <div class="col-md-12">

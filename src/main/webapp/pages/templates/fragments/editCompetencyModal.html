@@ -16,16 +16,7 @@
                             	</div>
                             	<input type="hidden" th:field="*{id}" />
                             		<h2 id="errorfield"></h2>
-                                  	<span th:text="#{editor.filter}" text="Filter"></span>
-									<p><div class="col-md-6"><input type="text" class="form-control" id="skillFilter"/></div>
-									<script>
-									function clearFilter(){
-										$("#skillFilter").val("");
-										$("#skillFilter").trigger("input");
-									}
-									</script>
-									<div class="col-md-6"><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></div></p>
-                                    <p th:text="#{editor.competency.skill}" class="no-indent"></p>
+                                  	<p th:text="#{editor.competency.skill}" class="no-indent"></p>
 									<p><!-- select th:field="*{skillIDs}" id="skillSelector" multiple="true" size="10">
   										<option th:each="skillInList : ${skillsList}" 
           									th:value="${skillInList.id}" 

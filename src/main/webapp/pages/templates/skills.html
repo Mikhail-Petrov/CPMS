@@ -63,34 +63,8 @@
                     <div th:replace="fragments/editSkillModal :: skillModalForm"></div>
                 </div>
                 <script>
-                	var submitSkillForm = function() {
-                	  	var $form = $('#skillCreate');
-                	    
-                	    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-                	    var csrfToken = $("meta[name='_csrf']").attr("content");
-                	    var headers = {};
-                	    headers[csrfHeader] = csrfToken;
-                	    
-                	    $.ajax({
-                	      url: $form.attr('action'),
-                	      type: 'post',
-                	      data: $form.serialize(),
-                	      headers: headers,
-                	      success: function(response) {
-                	        if (response.indexOf("Form successfully submitted") === -1) {
-                	        	$form.replaceWith(response);
-                	        } else {
-                	        	location.reload();
-                	        }
-                	      },
-                	      error: function (xhRequest, ErrorText, thrownError) {
-                				console.log('xhRequest: ' + xhRequest + "\n");
-                	            console.log('ErrorText: ' + ErrorText + "\n");
-                	            console.log('thrownError: ' + thrownError + "\n");
-                	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
-                	      }
-                	});
-                	}
+        			$('#skillCreate').on("submit", function() {$("#html0").val($("#ch0").html());});
+        			$('#delButton').on("click", function() {$("#del0").val($("#ch0").html());});
                 </script>
 
                 <div class="row">

@@ -12,16 +12,7 @@
                             	<input type="hidden" th:field="*{id}" />
                             		<h2 id="errorfield"></h2>
                                 <div class="row">
-                                  	<span th:text="#{editor.filter}" text="Filter"></span>
-									<p><input type="text" class="form-control" id="skillFilter"/>
-									<script>
-									function clearFilter(){
-										$("#skillFilter").val("");
-										$("#skillFilter").trigger("input");
-									}
-									</script>
-									<span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
-                                   <p th:text="#{editor.requirement.skill}"></p>
+                                  	<p th:text="#{editor.requirement.skill}"></p>
                             	<input type="hidden" th:field="*{skill}"/>
 									<p><!-- select name="skillIDs" id="skillSelector" multiple="true" size="10">
   										<option th:each="skillInList : ${skillsList}" 
@@ -44,20 +35,6 @@
 					$("#skillSelector").val($("#skillSelector").val() + "," + id);
 				}
 			}
-									function checkExist() {
-										//$('#skillSelector').attr("size", 1);
-										var taskRequirements = /*[[${taskRequirements}]]*/ null;
-										var errorMsg = /*[[#{editor.error.exists.requirement}]]*/ "error";
-										$("#errorfield").html("");
-										if (taskRequirements !== null)
-											for (var i = 0; i < taskRequirements.length; i++){
-												var requirement = taskRequirements[i];
-												if (requirement == selectedSkill)
-													$("#errorfield").html(errorMsg);
-											}
-									}
-									document.getElementById('skillSelector').addEventListener("input", checkExist);
-									$("#skill").val($("#skillSelector option")[0].value)
 									/*]]>*/
 									</script>
                                 </div>

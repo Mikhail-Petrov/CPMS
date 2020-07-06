@@ -37,6 +37,8 @@ public interface IDraftableSkillDaoExtension {
 	 */
 	public List<Skill> getChildren(Skill id);
 	
+	public int countChildren(Skill id);
+	
 	public List<Skill> findByName(String name);
 	
 	public List<Skill> findByAlternative(String alternative);

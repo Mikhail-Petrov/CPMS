@@ -118,8 +118,9 @@ public class Skills {
 				answer.getIds().add(child.getId());
 				answer.getTerms().add(child.getName());
 				answer.getFlags().add(flag);
-				Set<Skill> kids = child.getChildren(skillDao);
-				answer.getKids().add(kids == null ? 0 : kids.size());
+				//Set<Skill> kids = child.getChildren(skillDao);
+				//answer.getKids().add(kids == null ? 0 : kids.size());
+				answer.getKids().add(skillDao.countChildren(child));
 			}
 			return answer;
 		} else {
@@ -244,6 +245,9 @@ public class Skills {
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("company", new Profile());
 		model.addAttribute("task", new Task());
+		model.addAttribute("html0", EditorSkill.ch0);
+		model.addAttribute("parent0", EditorSkill.parent0);
+		EditorSkill.ch0 = "";
 		
 		String[] defLevels = {"Basic", "Intermediate", "Advanced", "4", "5", "6"};
 		model.addAttribute("defaultLevels", defLevels);

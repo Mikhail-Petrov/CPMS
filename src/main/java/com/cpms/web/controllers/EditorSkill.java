@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -61,6 +63,9 @@ public class EditorSkill {
 
     @Autowired
     private MessageSource messageSource;
+
+    public static String ch0 = "";
+    public static long parent0 = 0;
 	
 	private void checkBelongs(Principal principal, Skill recievedSkill,
 			HttpServletRequest request) {
@@ -88,10 +93,15 @@ public class EditorSkill {
 		facade.getSkillDAO().update(skill);
 	}
 	@RequestMapping(path = {"/skill/delete"}, 
-			method = RequestMethod.GET)
-	public String skillDelete(Model model, Principal principal,
-			@RequestParam(name = "id", required = true) Long id) {
+			method = RequestMethod.POST)
+	public String skillDelete(Model model, Principal principal, @RequestParam(value = "del0", required = false) String html0,
+			@RequestParam(value = "delId", required = true) Long id) {
+		ch0 = html0;
 		Skill skill = facade.getSkillDAO().getOne(id);
+		if (skill.getParent() == null)
+			parent0 = 0;
+		else
+			parent0 = skill.getParent().getId();
 		long delUser;
 		Users user = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
 		if (user == null)
@@ -232,10 +242,11 @@ public class EditorSkill {
 	
 	@RequestMapping(path = "/skill/alternativeAsync", 
 			method = RequestMethod.POST)
-	public String skillCreateAlternativeAsync(Model model,
+	public String skillCreateAlternativeAsync(Model model, @RequestParam(value = "html0", required = false) String html0,
 			@ModelAttribute SkillPostForm recievedSkill,
 			HttpServletRequest request,
 			Principal principal) {
+		ch0 = html0;
 		boolean longEnough = true;
 		for(SkillLevel level : recievedSkill.getLevels()) {
 			longEnough = longEnough 
@@ -272,6 +283,7 @@ public class EditorSkill {
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
+		parent0 = parentId;
 		Skill parent = facade.getSkillDAO().getOne(parentId);
 		newSkill.setParent(parent);
 		newSkill.setMaxLevel(recievedSkill.getMaxLevel());

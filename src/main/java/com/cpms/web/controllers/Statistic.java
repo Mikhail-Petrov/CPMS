@@ -436,9 +436,9 @@ public class Statistic {
 		return ret;
 	}
 
-	long pt = -1;
-	private void time() {time("");}
-	private void time(String mes) {
+	public static long pt = -1;
+	public static void time() {time("");}
+	public static void time(String mes) {
 		long ct = System.currentTimeMillis();
 		if (mes.isEmpty())
 			pt = ct;

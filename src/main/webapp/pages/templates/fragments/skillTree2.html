@@ -5,7 +5,8 @@
 					<script>
 					function clearFilter(){
 						$("#skillFilter").val("");
-						$("#skillFilter").trigger("input");
+						//$("#skillFilter").trigger("input");
+						applyFilter();
 					}
 					</script>
 					<p><span id="sss"></span></p>
@@ -140,7 +141,16 @@
 					}
 				});
 			}
-			ajaxSkillChildren(rootPath + "skills/ajaxSkillChildren", 0);
+			var html0 = /*[[${html0}]]*/ "";
+			var parent0 = /*[[${parent0}]]*/ 0;
+			if (html0 !== null && html0 !== "" && parent0 !== null)
+				$("#ch0").html(html0);
+			else
+				parent0 = 0;
+			elImg = $("#img" + parent0);
+			if (elImg.length > 0 && elImg.attr('src').indexOf("/resources/images/dtree/nolines_minus.gif") >= 0)
+				elImg.attr('src', rootPath + "resources/images/dtree/nolines_plus.gif");
+			ajaxSkillChildren(rootPath + "skills/ajaxSkillChildren", parent0);
 			
 			// some stuff for opening skills
 			var placeholderAboutEn = /*[[#{editor.placeholder.description_en}]]*/ 'About';
@@ -215,9 +225,11 @@
 						document.getElementById('skillAbout').innerHTML=res.about;
 						document.getElementById('skillLevels').innerHTML='1 - ' + res.maxLevel;
 						document.getElementById('levelsView').innerHTML=generateLevelTable(res.levels, true, res.id);
+						$("#idtext").text("id: " + res.id);
 						//document.getElementById('editLink').setAttribute('onclick','ajaxSkillDialog(\'' + rootPath + 'viewer/ajaxSkill\', -' + res.id + '); return false;');
 						if (res.id > 0) {
-							document.getElementById('deleteLink').setAttribute('href', './editor/skill/delete?id=' + res.id);
+							//document.getElementById('deleteLink').setAttribute('action', './editor/skill/delete?id=' + res.id);
+							$("#delId").val(res.id);
 							document.getElementById('createChildButton').setAttribute('onclick', 'ajaxSkillDialog(\'' + rootPath + 'viewer/ajaxSkill\', -' + res.id + '); return false;');
 							$("#deleteLink").show();
 							$("#createChildButton").show();
@@ -225,6 +237,8 @@
 							$("#deleteLink").hide();
 							$("#createChildButton").hide();
 						}
+						$("#del0").hide();
+						$("#html0").hide();
 						
 						if (res.parentId == null)
 							//$('#parentSelect option[value=""]').prop('selected', true);
@@ -258,6 +272,7 @@
 							$("#skill_name").val("");
 							$("#about").val("");
 							$("#levelsNum").val(6);
+							$("#parentId").val(res.id);
 							var totalLevels = [""];
 							var defLevels = /*[[${defaultLevels}]]*/ [""];
 					    	totalLevels[0] = new SkillLevel(defLevels[0]);
@@ -274,6 +289,7 @@
 							$("#newSkillForm").show();
 							$('#parentSelect option[value="' + res.id + '"]').prop('selected', true);
 							skillName = /*[[#{skillPopup.child}]]*/ 'Create a Child';
+							$("#idtext").text("id: 0");
 						} else {
 							$("#viewSkillBlock").hide();
 							$("#newSkillForm").show();

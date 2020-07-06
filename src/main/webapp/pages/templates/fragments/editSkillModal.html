@@ -35,11 +35,15 @@
 			<a id="createChildButton" href="#"><span class="input-group-btn two-buttons">
 				<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.child}">Create child</button>
 			</span></a>
-			<a id="deleteLink" href="#"><span class="input-group-btn two-buttons">
-				<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
-			</span></a>
+			<form action="#" th:action="@{/editor/skill/delete}" method="post" id="deleteLink">
+  		<textarea hidden="true" type="textarea" class="form-control" id="del0" name="del0"></textarea>
+  		<input type="hidden" id='delId' name='delId'/>
+			<span class="input-group-btn two-buttons">
+				<button id="delButton" class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
+			</span></form>
   		<form action="#" th:action="@{/editor/skill/alternativeAsync}" th:object="${skill}" method="post" id="skillCreate">
-  			<p><span th:text="'id: '"></span><input type="number" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/></p>
+  		<textarea type="textarea" hidden="true" class="form-control" id="html0" name="html0"></textarea>
+  			<p><span id="idtext" th:text="'id: 0'"></span><input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/></p>
 			<span th:text="#{editor.placeholder.skill_name_en}" text="Skill name"></span>:
 			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Skill name" th:placeholder="#{editor.placeholder.skill_name_en}" pattern=".{0,100}" title="Must be more than 3 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="skill_name" onblur="addCheck(this, 3, 100)"/></p>
 			<span th:text="#{editor.placeholder.description_en}" text="About"></span>:

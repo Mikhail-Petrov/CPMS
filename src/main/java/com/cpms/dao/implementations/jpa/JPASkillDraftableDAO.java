@@ -44,6 +44,16 @@ public class JPASkillDraftableDAO extends JPASkillDAO
 	}
 
 	@Override
+	public int countChildren(Skill parent) {
+		Integer res;
+		if (parent == null)
+			res = skillRepo.countRoots();
+		else
+			res = skillRepo.countChildren(parent);
+		return res == null ? 0 : res;
+	}
+
+	@Override
 	public List<Skill> findByName(String name) {
 		return skillRepo.findByName(name);
 	}

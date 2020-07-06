@@ -58,6 +58,7 @@ import com.cpms.exceptions.WrongJsonException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.operations.implementations.Porter;
 import com.cpms.security.RoleTypes;
+import com.cpms.security.entities.Role;
 import com.cpms.security.entities.Users;
 import com.cpms.web.PagingUtils;
 import com.cpms.web.ProfileActualization;
@@ -109,6 +110,7 @@ public class Viewer {
 	@RequestMapping(value = "/createProfile", method = RequestMethod.POST)
 	public String createProfile(Model model, @RequestParam(value = "data", required = true) String data) {
 		String badRet = "redirect:/viewer";
+		data += " ";	// for empty skills
 		String[] split = data.split("\n");
 		if (split.length < 2) return badRet;
 
@@ -127,6 +129,16 @@ public class Viewer {
 		}
 		
 		profile = facade.getProfileDAO().insert(profile);
+		Users user = new Users();
+		if (userDAO.getByUsername(profile.getName()) == null) {
+			user.setUsername(profile.getName());
+			user.setProfileId(profile.getId());
+			user.setPassword(profile.getName());
+			Role newRole = new Role();
+			newRole.setRolename(RoleTypes.EXPERT.toRoleName());
+			user.addRole(newRole);
+			userDAO.insertUser(user);
+		}
 		return "redirect:/viewer/profile?id=" + profile.getId();
 	}
 	@SuppressWarnings("unchecked")

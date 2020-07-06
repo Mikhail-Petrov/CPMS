@@ -57,14 +57,6 @@
                 font-size: 15px;
             }
         </style>
-                               <div class="row">
-		<form action="#" th:action="@{/stat/createProfile}" method="get">
-		<p th:text="${error}"></p>
-		<p><span>Name: </span><input id="name" type="text" name="name"/></p>
-		<p><span>Skills: </span><textarea id="skills" class="form-control" name="skills" th:text="''"></textarea></p>
-		<input type="submit" class="btn btn-primary btn-block" id="plusButton" th:value="'Skills matching'" />
-                               	</form>
-                               </div>
 
                 <div class="row">
                    <div class="">
@@ -109,6 +101,15 @@
                                        <button type="button" class="btn btn-success"
                                         onclick="$('#createProfileModal').modal('show')"><i class="fa fa-plus"></i></button>
                                    </div>
+                               </div>
+                               <div class="row">
+		<form action="#" th:action="@{/stat/createProfile}" method="get">
+		<p th:text="'You can use skill matching to create a profile and match a list of skills with the skill ontology automatically.'"></p>
+		<p th:text="${error}"></p>
+		<p><span>Name: </span><input id="name" type="text" name="name"/></p>
+		<p><span>Skills: </span><textarea id="skills" class="form-control" name="skills" th:text="''"></textarea></p>
+		<input type="submit" class="btn btn-primary btn-block" id="plusButton" th:value="'Skill matching'" />
+                               	</form>
                                </div>
                                <script th:inline="javascript">
                                /*<![CDATA[*/

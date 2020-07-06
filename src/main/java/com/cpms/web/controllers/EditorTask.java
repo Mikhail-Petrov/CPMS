@@ -163,6 +163,9 @@ public class EditorTask {
 		Collections.sort(langs);
 		model.addAttribute("languages", langs);
 		List<Users> users = userDAO.getAll();
+		for (int i = users.size() - 1; i >= 0; i--)
+			if (users.get(i).getProfileId() == null)
+				users.remove(i);
 		Collections.sort(users);
 		model.addAttribute("users", users);
 		List<String> names = new ArrayList<>();

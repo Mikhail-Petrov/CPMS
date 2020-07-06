@@ -21,8 +21,14 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 	@Query("Select skill from Skill skill where skill.parent = :parent and delDate is null")
 	public List<Skill> getChildren(@Param("parent") Skill parent);
 	
+	@Query("Select count(id) from Skill skill where skill.parent = :parent and delDate is null")
+	public Integer countChildren(@Param("parent") Skill parent);
+	
 	@Query("Select skill from Skill skill where skill.parent is null and delDate is null")
 	public List<Skill> getRoots();
+	
+	@Query("Select count(id) from Skill skill where skill.parent is null and delDate is null")
+	public Integer countRoots();
 	
 	@Query("Select skill from Skill skill where skill.name like :name and delDate is null")
 	public List<Skill> findByName(@Param("name") String name);
