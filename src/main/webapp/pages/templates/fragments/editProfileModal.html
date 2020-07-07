@@ -24,6 +24,12 @@
                                         <input type="text" class="form-control" placeholder="Name" th:field="*{position}" th:placeholder="#{editor.placeholder.position}"/>
                                     </div>
                                 </div>
+	   			<p th:text="#{profile.start}"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+	            	<input type="date" class="form-control" th:field="*{startDate}" min="1970-01-01" max="2100-01-01"/>
+	            					</div>
+                                </div>
                                 <hr class="separator"/>
 								<script th:inline="javascript">
 								/*<![CDATA[*/
@@ -43,6 +49,7 @@
 					            });
 								/*]]>*/
 								</script>
+			<div class="row">
 			<div class="two-buttons">
    			<p th:text="#{editor.availability}"></p>
                                 <div class="row">
@@ -69,6 +76,7 @@
 									</select>
 	                                    </div>
 	                                </div>
+	        </div>
 	        </div>
    			<p th:text="#{editor.expert.password}"></p>
                                 <div class="row">

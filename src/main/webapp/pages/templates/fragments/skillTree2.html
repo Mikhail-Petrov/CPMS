@@ -1,7 +1,11 @@
 <div th:fragment="skillTree" th:remove="tag">
 
                     <span th:text="#{editor.filter}" text="Filter"></span>
-					<p><input type="text" class="form-control" id="skillFilter"/></p>
+					<div class="row"><div class="two-buttons">
+						<input type="text" class="form-control" id="skillFilter"/>
+					</div><div class="two-buttons">
+						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applyFilter();"></span>
+					</div></div>
 					<script>
 					function clearFilter(){
 						$("#skillFilter").val("");
