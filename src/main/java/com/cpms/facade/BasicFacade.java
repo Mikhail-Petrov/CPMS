@@ -8,6 +8,7 @@ import org.springframework.util.Assert;
 
 import com.cpms.dao.interfaces.*;
 import com.cpms.data.entities.Article;
+import com.cpms.data.entities.Category;
 import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
@@ -69,6 +70,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	private IDAO<Topic> topicDAO;
 	
 	@Autowired
+	@Qualifier(value = "categoryDAO")
+	private IDAO<Category> categoryDAO;
+	
+	@Autowired
 	@Qualifier(value = "subprofiler")
 	private ISubprofiler subprofiler;
 	
@@ -114,6 +119,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 
 	public void setTaskDAO(IDAO<Task> taskDAO) {
 		this.taskDAO = taskDAO;
+	}
+
+	public void setCategoryDAO(IDAO<Category> categoryDAO) {
+		this.categoryDAO = categoryDAO;
 	}
 
 	public void setTermDAO(IDAO<Term> termDAO) {
@@ -175,6 +184,11 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Override
 	public IDAO<Term> getTermDAO() {
 		return termDAO;
+	}
+
+	@Override
+	public IDAO<Category> getCategoryDAO() {
+		return categoryDAO;
 	}
 
 	@Override

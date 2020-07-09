@@ -52,6 +52,7 @@ import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.data.entities.Article;
+import com.cpms.data.entities.Category;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Profile;
@@ -82,6 +83,10 @@ public class Statistic {
 	@Autowired
 	@Qualifier(value = "termDAO")
 	private IDAO<Term> termDAO;
+	
+	@Autowired
+	@Qualifier(value = "categoryDAO")
+	private IDAO<Category> categoryDAO;
 	
 	@Autowired
 	@Qualifier(value = "innovationDAO")
@@ -240,8 +245,14 @@ public class Statistic {
 		model.addAttribute("_VIEW_TITLE", "im.title.innovations");
 		model.addAttribute("_FORCE_CSRF", true);
 		
-		String[] categories = {"Strategy and Planning", "--Culture Development", "Recruitment", "--Employer Branding and Communication", "--Recruitment", "--Onboarding", "Talent & Performance Management", "--Performance Management", "--Talent Management", "--Succession Management", "Learning & Training ", "--Competence Development", "--Learning Standards", "--Learning Management System ", "Total Rewards", "--Compensation", "--Benefits", "--Your Time", "Administration & Services", "--HR IT Systems", "--Employee Lifecycle Management", "--Expat Administration"};
-		model.addAttribute("categories", categories );
+		List<Category> cats = categoryDAO.getAll();
+		List<String> categories = new ArrayList<>();
+		Collections.sort(cats);
+		for (Category cat : cats) {
+			categories.add(cat.getPresentationName());
+		}
+		//String[] categories = {"Strategy and Planning", "--Culture Development", "Recruitment", "--Employer Branding and Communication", "--Recruitment", "--Onboarding", "Talent & Performance Management", "--Performance Management", "--Talent Management", "--Succession Management", "Learning & Training ", "--Competence Development", "--Learning Standards", "--Learning Management System ", "Total Rewards", "--Compensation", "--Benefits", "--Your Time", "Administration & Services", "--HR IT Systems", "--Employee Lifecycle Management", "--Expat Administration"};
+		model.addAttribute("categories", categories);
 
 		return "innovations";
 	}

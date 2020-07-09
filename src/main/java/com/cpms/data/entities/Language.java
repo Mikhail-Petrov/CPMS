@@ -1,10 +1,7 @@
 package com.cpms.data.entities;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -13,24 +10,11 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.springframework.context.i18n.LocaleContextHolder;
-
 import com.cpms.data.AbstractDomainObject;
-import com.cpms.data.DomainObject;
-import com.cpms.data.validation.BilingualValidation;
-import com.cpms.exceptions.DataAccessException;
-import com.cpms.web.UserSessionData;
 
 /**
  * Entity class for skill level.

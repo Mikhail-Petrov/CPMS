@@ -1,0 +1,258 @@
+<div th:fragment="categoryTree" th:remove="tag">
+
+                    <span th:text="#{editor.filter}" text="Filter"></span>
+					<div class="row"><div class="two-buttons">
+						<input type="text" class="form-control" id="categoryFilter"/>
+					</div><div class="two-buttons">
+						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applyFilter();"></span>
+					</div></div>
+					<script>
+					function clearFilter(){
+						$("#categoryFilter").val("");
+						applyFilter();
+					}
+					</script>
+					<p><span id="catss"></span></p>
+					<p><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
+					
+	<div id="catch0"></div>
+
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+
+		function addChild(id, flag, term, kids) {
+			var html = "";
+			html += "<div id='catb" + id + "'>";
+			html += flag;
+			if (kids > 0)
+				html += "<img id='catimg" + id + "' src='" + rootPath + "resources/images/dtree/nolines_plus.gif' " +
+					"onclick='ajaxChildren(\"" + rootPath + "category/ajaxChildren\", " + id + ");'>";
+			html += "<a id='catask" + id + "' href='#' onclick='clickCategory(" + id + ");'>"
+				+ term + "</a>";
+			html += "<div id='catch" + id + "'></div>";
+			html += "</div>";
+			return html;
+	}
+		function showChild(child) {
+		// if it shown then break
+		if ($("#catb" + child.id).length > 0) return;
+		// if parent is not shown then show it
+		var parentId = "#catch";
+		if (child.parent !== null) {
+			if ($("#catb" + child.parent.id).length <= 0)
+				showChild(child.parent);
+			parentId += child.parent.id;
+		}
+		// add to the parent
+		$(parentId).html($(parentId).html() + addChild(child.id, child.alternative, child.name, 1));
+	}
+	function applyFilter() {
+		var inputArgs = [];
+		var filterText = $("#categoryFilter").val().toLowerCase();
+		inputArgs.push(filterText);
+		var requestUrl = rootPath + "category/ajaxSearch";
+
+		 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	     var csrfToken = $("meta[name='_csrf']").attr("content");
+	     var headers = {};
+	     headers[csrfHeader] = csrfToken;
+	     $("#catss").text("start searching");
+		$.ajax({
+			url : requestUrl,
+			type: 'POST',
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+			data : JSON.stringify(inputArgs),
+			headers: headers,
+			success: function (res) {
+				if (res !== null) {
+				     $("#catss").text("processing results");
+					// get ids to show
+					var toShow = ["catb0"];
+					for (var i = 0; i < res.length; i++) {
+						var category = res[i];
+						toShow.push("catb" + category.id);
+						var curCategory = category.parent;
+						while (curCategory !== null) {
+							var toAdd = "catb" + curCategory.id;
+							if (toShow.indexOf(toAdd) >= 0)
+								break;
+							toShow.push(toAdd);
+							curCategory = curCategory.parent;
+						}
+						showChild(category);
+					}
+					// hide all that not to show
+					var all = $("[id^=catb]");
+					for (var i = 0; i < all.length; i++)
+						if (toShow.length <= 1 || toShow.indexOf(all[i].id) >= 0)
+							$("#" + all[i].id).show();
+						else
+							$("#" + all[i].id).hide();
+				     $("#catss").text("");
+				}
+			},
+			error: function (xhRequest, ErrorText, thrownError) {
+				console.log('xhRequest: ' + xhRequest + "\n");
+				console.log('ErrorText: ' + ErrorText + "\n");
+				console.log('thrownError: ' + thrownError + "\n");
+				console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+			}
+		});
+	}
+	$("#categoryFilter").keydown(function(e) {if(e.keyCode === 13) applyFilter()});
+	
+			function ajaxChildren(requestUrl) {
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+				
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+						var html = "";
+						elImg = $("#catimg" + res.id);
+						if (elImg.length > 0 && elImg.attr('src').indexOf("/resources/images/dtree/nolines_minus.gif") >= 0)
+							elImg.attr('src', rootPath + "resources/images/dtree/nolines_plus.gif");
+						else {
+							if (elImg.length > 0)
+								elImg.attr('src', rootPath + "resources/images/dtree/nolines_minus.gif");
+							for (var i = 0; i < res.ids.length; i++) {
+								html += addChild(res.ids[i], res.flags[i], res.terms[i], res.kids[i]);
+							}
+						}
+						$("#catch" + res.id).html(html);
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			var html0 = /*[[${html0}]]*/ "";
+			var parent0 = /*[[${parent0}]]*/ 0;
+			if (html0 !== null && html0 !== "" && parent0 !== null)
+				$("#catch0").html(html0);
+			else
+				parent0 = 0;
+			elImg = $("#catimg" + parent0);
+			if (elImg.length > 0 && elImg.attr('src').indexOf("/resources/images/dtree/nolines_minus.gif") >= 0)
+				elImg.attr('src', rootPath + "resources/images/dtree/nolines_plus.gif");
+			ajaxChildren(rootPath + "category/ajaxChildren", parent0);
+			
+			// some stuff for opening categories
+			function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return right[Symbol.hasInstance](left); } else { return left instanceof right; } }
+
+			function _classCallCheck(instance, Constructor) { if (!_instanceof(instance, Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+			
+			function ajaxCategoryDialog(requestUrl) {
+				
+				var admin = /*[[${isAdmin}]]*/ false;
+				var resident = /*[[${isResident}]]*/ false;	
+				
+				admin = admin || resident;
+				
+				var isChild = false;
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					if (arguments[i] < 0) {
+						isChild = true;
+						arguments[i] = -arguments[i];
+					}
+					inputArgs.push(arguments[i]);
+				}
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+				
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+						document.getElementById('categoryName').innerHTML=res.name;
+						$("#idtext").text("id: " + res.id);
+						if (res.id > 0) {
+							$("#delId").val(res.id);
+							document.getElementById('createChildButton').setAttribute('onclick', 'ajaxCategoryDialog(\'' + rootPath + 'category/ajaxCategory\', -' + res.id + '); return false;');
+							$("#deleteLink").show();
+							$("#createChildButton").show();
+						} else {
+							$("#deleteLink").hide();
+							$("#createChildButton").hide();
+						}
+						$("#del0").hide();
+						$("#html0").hide();
+						
+						if (res.parentId == null)
+							$("#parentId").val(0);
+						else
+							$("#parentId").val(res.parentId);
+						if (res.id > 0 && !isChild) {
+							// Copy values from changed category
+							$("#category_name").val(res.name_en);
+						    // Remember id of the changed category
+						    $("#selfId").val(res.id);
+						}
+						else {
+							// Clear all values
+							$("#category_name").val("");
+							$("#parentId").val(res.id);
+						    // Forget category id
+						    $("#selfId").val(0);
+						}
+						    
+						var categoryName = "";
+						if (isChild) {
+							$("#viewCategoryBlock").show();
+							$("#newCategoryForm").show();
+							$('#parentSelect option[value="' + res.id + '"]').prop('selected', true);
+							categoryName = /*[[#{skillPopup.child}]]*/ 'Create a Child';
+							$("#idtext").text("id: 0");
+						} else {
+							$("#viewCategoryBlock").hide();
+							$("#newCategoryForm").show();
+							if (res.id == 0)
+								categoryName = /*[[#{skillPopup.new}]]*/ 'Create a Skill';
+							else
+								categoryName = res.name_en;
+						}
+						if (admin)
+						document.getElementById('categoryFormTitle').innerHTML=
+							"<span id=\"categoryName\">" + categoryName + "</span>";
+						$('#createCategoryModal').modal('show');
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+	/*]]>*/
+	</script>
+	
+</div>

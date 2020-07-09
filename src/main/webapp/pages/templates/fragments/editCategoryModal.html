@@ -1,0 +1,46 @@
+<div th:fragment="categoryModalForm" th:remove="tag">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+	<div class="modal-body">
+		<div id="viewCategoryBlock">
+		<div clss="modal-header">
+			<h3><span th:text="#{skill.parent}"></span><span id="categoryName">Name</span></h3>
+		</div>
+		<div hidden="true">
+  		<span id="createTypeLabel" th:text="#{page.create}" hidden="true"></span>
+  		<p hidden="true"><input type="submit" id="createChildButton2" class="btn btn-primary btn-block" th:value="#{skillPopup.child}" onclick="$('#newCategoryForm').show(); return false"/></p>
+  		</div>
+  		</div>
+  		<div class="collection-object force-width" id="newCategoryForm">
+  		<h3 id="categoryFormTitle"><span id="categoryName" th:text="#{skillPopup.child}"></span></h3>
+			<a id="createChildButton" href="#"><span class="input-group-btn two-buttons">
+				<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.child}">Create child</button>
+			</span></a>
+			<form action="#" th:action="@{/category/delete}" method="post" id="deleteLink">
+  		<textarea hidden="true" type="textarea" class="form-control" id="del0" name="del0"></textarea>
+  		<input type="hidden" id='delId' name='delId'/>
+			<span class="input-group-btn two-buttons">
+				<button id="delButton" class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
+			</span></form>
+  		<form action="#" th:action="@{/category/alternativeAsync}" th:object="${category}" method="post" id="categoryCreate">
+  		<textarea type="textarea" hidden="true" class="form-control" id="html0" name="html0"></textarea>
+  			<p><span id="idtext" th:text="'id: 0'"></span><input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/></p>
+			<span th:text="#{editor.placeholder.skill_name_en}" text="Name"></span>:
+			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Name" pattern=".{0,100}" title="Must be more than 3 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="category_name" onblur="addCheck(this, 3, 100)"/></p>
+		<p>
+			<span th:text="#{editor.parentskill}"></span>
+			<input type="number" id="parentId" th:field="*{parent}"/>
+		</p>
+			<p><input type="submit" id="categorySubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+  			<p hidden="true"><input type="submit" id="categorySubmitButton2" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+		</form>
+  		</div>
+  	</div>
+  	</div>
+	</div>
+	</div>
+	
+			
+<div th:fragment="profileCreationSuccess" th:remove="tag">
+  <p>Form successfully submitted</p>
+</div>

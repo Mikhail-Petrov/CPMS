@@ -23,6 +23,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.cpms.dao.implementations.jpa.JPACategoryDAO;
 import com.cpms.dao.implementations.jpa.JPADocumentDAO;
 import com.cpms.dao.implementations.jpa.JPAKeywordDAO;
 import com.cpms.dao.implementations.jpa.JPALanguagesDAO;
@@ -41,6 +42,7 @@ import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Article;
+import com.cpms.data.entities.Category;
 import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
@@ -317,6 +319,16 @@ public class PersistencyConfig {
     @Bean(name = "languageDAO")
     public IDAO<Language> getLanguageDAO() {
     	return new JPALanguagesDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Category entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "categoryDAO")
+    public IDAO<Category> getCategoryDAO() {
+    	return new JPACategoryDAO();
     }
     
     /**
