@@ -8,8 +8,9 @@
 		</div><div class="two-buttons">
 			<span id="find" class="btn btn-primary" th:text="'Find'"></span>
 			<span id="clear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
+			<span id="add" class="btn btn-primary" th:text="'Add as a term'"></span>
 		</div></p>
-		<p id="curStatus"></p>
+		<div class="row"><p id="curStatus"></p></div>
 		<div id="termsBlock" class="row">
 	    <div class="">
 			<span id="saveTerm" class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
@@ -20,6 +21,7 @@
 			<th><span th:text="'Term'"></span></th>
 			<th><span th:text="'Is innovation'"></span></th>
 			<th></th>
+			<th><span th:text="'Analize'"></span></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -39,8 +41,6 @@
 		<thead>
 		<tr>
 			<th><span th:text="'Term'"></span></th>
-			<th><span th:text="'Is innovation'"></span></th>
-			<th></th>
 			<th><span th:text="'Analize'"></span></th>
 		</tr>
 		</thead>
@@ -90,6 +90,8 @@
 						$('#s' + chID).hide();
 					if (val)
 						val = $('#s' + chID).val();
+					else
+						val = "";
 					if (isInn)
 						flags2[index] = val;
 					else
@@ -145,25 +147,29 @@
 						//if (variants[i].length > 1)
 							//line += " onclick=\"show($('#var" + ids[i] + "'));\"";
 						line += "><p>" + terms[i] + "</p>";
-						if (variants[i].length > 1) {
-							line += "<div id='var" + ids[i] + "'>";
+						if (variants[i].length > 1 && !isInn) {
+							line += "<div id='var" + i + "'>";
 							for (j = 0; j < variants[i].length; j++)
-								line += "<p><input name='" + (isInn ? '1' : '2') + ids[i] + "' "+
+								line += "<p><input name='" + (isInn ? '1' : '2') + i + "' "+
 								(variants[i][j] == terms[i] ? "checked " : "") + 
-								"onclick='changeTerm(" + i + ", " + ids[i] + ", " + isInn + ")'" +
+								"onclick='changeTerm(" + i + ", " + i + ", " + isInn + ")'" +
 								"value='" + variants[i][j] + "' type='radio'>" + variants[i][j] + "</p>";
 							line += "</div>";
 						}
 						line += "</td>";
-						var chID = "ch" + (isInn ? '1' : '2') + ids[i];
-						line += "<td><input id='" + chID + "' type='checkbox' onclick='changeFlag(" + i +", \"" + chID +"\", " +
-							isInn + ");'" + (flags[i] === '' ? "" : " checked") + "></td>";
-						line += "<td><select id='s" + chID + "' onclick='changeFlag(" + i +", \"" + chID +"\", " +
-							isInn + ");'" + (flags[i] === '' ? " hidden='true'" : "") + ">";
-						for (j = 0; j < categories.length; j++)
-							line += "<option " + (flags[i] === categories[j] ? "selected='true' " : "") + 
-								"value='" + categories[j] + "'>" + categories[j] + "</option>";
-						line += "</select></td>";
+						if (isInn) {
+							//line += "<td></td><td></td>";
+						} else {
+							var chID = "ch" + (isInn ? '1' : '2') + i;//ids[i];
+							line += "<td><input id='" + chID + "' type='checkbox' onclick='changeFlag(" + i +", \"" + chID +"\", " +
+								isInn + ");'" + (flags[i] === '' ? "" : " checked") + "></td>";
+							line += "<td><select id='s" + chID + "' onclick='changeFlag(" + i +", \"" + chID +"\", " +
+								isInn + ");'" + (flags[i] === '' ? " hidden='true'" : "") + ">";
+							for (j = 0; j < categories.length; j++)
+								line += "<option " + (flags[i] === categories[j] ? "selected='true' " : "") + 
+									"value='" + categories[j] + "'>" + categories[j] + "</option>";
+							line += "</select></td>";
+						}
 						line += "<td><a target='_blank' href='" + rootPath + "stat/term?id=" + ids[i] + "'>analize</td>";
 						line += "</tr";
 						$("#" + tableName).append(line);
@@ -267,7 +273,7 @@
 							inputArgs.push(flags1);
 							inputArgs.push(terms1);
 				     } 
-	         		$("#curStatus").html('searching...');
+	         		$("#curStatus").html('saving...');
 					$.ajax({
 						url : requestUrl,
 						type: 'POST',
@@ -289,6 +295,42 @@
 				}
 				$("#saveInn").on("click", function() {ajaxSave(rootPath + 'stat/ajaxSave', true)});
 				$("#saveTerm").on("click", function() {ajaxSave(rootPath + 'stat/ajaxSave', false)});
+
+				function ajaxAdd(requestUrl) {
+					
+					var inputArgs = [];
+					var i;
+					for (i = 1; i < arguments.length; i++) {
+						inputArgs.push(arguments[i]);
+					}
+					inputArgs.push($("#search").val());
+					
+					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				     var csrfToken = $("meta[name='_csrf']").attr("content");
+				     var headers = {};
+				     headers[csrfHeader] = csrfToken;
+
+	         		$("#curStatus").html('adding...');
+					$.ajax({
+						url : requestUrl,
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						data : JSON.stringify(inputArgs),
+						headers: headers,
+						success: function (res) {
+					        $("#curStatus").html('');
+						},
+						error: function (xhRequest, ErrorText, thrownError) {
+					         $("#curStatus").html('ERROR!!!');
+							console.log('xhRequest: ' + xhRequest + "\n");
+							console.log('ErrorText: ' + ErrorText + "\n");
+							console.log('thrownError: ' + thrownError + "\n");
+							console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+						}
+					});
+				}
+				$("#add").on("click", function() {ajaxAdd(rootPath + 'stat/ajaxAdd')});
 			/*]]>*/
 			</script>
 		</div>

@@ -61,6 +61,7 @@ import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.web.CompetencyMatching;
+import com.cpms.web.TermRes;
 import com.cpms.web.UserSessionData;
 import com.cpms.web.ajax.GroupAnswer;
 import com.cpms.web.ajax.IAjaxAnswer;
@@ -231,8 +232,9 @@ public class Statistic {
 		return ret;
 	}
 
-	private double sorensen(String A, String B) {
+	public static double sorensen(String A, String B) {
 		double Al = A.length() * (A.length() + 1.0) / 2.0, Bl = B.length() * (B.length() + 1.0) / 2.0, AB = 0;
+		if (Al + Bl == 0) return 0;
 		for (int i = 0; i < B.length(); i++)
 			for (int j = i; j < B.length(); j++)
 			if (A.contains(B.substring(i, j+1)))
@@ -300,6 +302,40 @@ public class Statistic {
 	}
 
 	@ResponseBody
+	@RequestMapping(value = "/ajaxAdd",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxAdd(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		String query = values.size() > 0 ? (String) values.get(0) : "";
+		if (query.isEmpty())
+			return new InnAnswer();
+		// stem each word in query
+		String stemtext = "";
+		String[] words = query.split(" ");
+		PorterStemmer stemmer = new PorterStemmer();
+		for (int i = 0; i < words.length; i++) {
+			String stem = stemTerm(words[i], stemmer);
+			stemtext += stem + " ";
+		}
+		stemtext = stemtext.trim();
+		// check if it in DB
+		Term term = innDAO.getTermByStem(stemtext);
+		if (term == null) {
+			// if not then add
+			term = new Term();
+			term.addVariant(query);
+			term.setStem(stemtext);
+			termDAO.insert(term);
+		} else {
+			// if exists then add as variant
+			term.addVariant(query);
+			termDAO.update(term);
+		}
+		return new InnAnswer();
+	}
+
+	@ResponseBody
 	@RequestMapping(value = "/ajaxSearch",
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxSearch(
@@ -308,6 +344,14 @@ public class Statistic {
 		String query = values.size() > 0 ? (String) values.get(0) : "";
 		if (query.isEmpty())
 			return new InnAnswer();
+		List<Term> res = termSearch(query, innDAO);
+		InnAnswer ans = new InnAnswer();
+		for (Term term : res)
+			ans.addTerm(term);
+		return ans;
+	}
+	
+	public static List<Term> termSearch(String query, IInnovationTermDAO innDAO) {
 		String[] split = query.split(" ");
 		// search
 		List<Term> res = innDAO.find(buildQuery(split, split.length, 0));
@@ -321,17 +365,32 @@ public class Statistic {
 					res.addAll(curRes);
 			}
 		}
-		InnAnswer ans = new InnAnswer();
+		// calculate sorenson for variants
+		List<TermRes> results = new ArrayList<>();
 		for (Term term : res)
-			ans.addTerm(term);
-		return ans;
+			for (TermVariant var : term.getVariants()) {
+				results.add(new TermRes(var, sorensen(query, var.getText())));
+			}
+		Collections.sort(results);
+		// form results
+		res = new ArrayList<>();
+		for (TermRes term : results) {
+			Term newTerm = new Term();
+			newTerm.setId(term.getTerm().getTerm().getId());
+			newTerm.setInn(term.getTerm().getTerm().isInn());
+			newTerm.setCategory(term.getTerm().getTerm().getCategory());
+			newTerm.setPref(term.getTerm().getText());
+			newTerm.setStem(term.getTerm().getTerm().getStem());
+			res.add(newTerm);
+		}
+		return res;
 	}
-	private String buildQuery(String[] split, int length, int start) {
+	private static String buildQuery(String[] split, int length, int start) {
 		String query = "%";
 		// stem the query
 		PorterStemmer stemmer = new PorterStemmer();
 		for (int i = start; i < start + length; i++)
-			query += stemTerm(split[i], stemmer) + "%";
+			query += stemTermSt(split[i], stemmer) + "%";
 		return query;
 	}
 
@@ -348,7 +407,9 @@ public class Statistic {
 		List<String> terms = values.size() > 3 ? (List<String>) values.get(3) : null;
 		if (ids == null || flags == null || terms == null) return null;
 		// save changes
+		List<Long> changed = new ArrayList<>();
 		for (int i = 0; i < ids.size() && i < flags.size() && i < terms.size(); i++) {
+			if (changed.contains((long) ids.get(i))) continue;
 			Term term = termDAO.getOne((long) ids.get(i));
 			boolean change = false;
 			if (term.isInn() != !flags.get(i).isEmpty()) {
@@ -359,12 +420,14 @@ public class Statistic {
 				change = true;
 				term.setCategory(flags.get(i));
 			}
-			if (!term.getPref().equals(terms.get(i))) {
+			if (change && !term.getPref().equals(terms.get(i))) {
 				change = true;
 				term.setPref(terms.get(i));
 			}
-			if (change)
+			if (change) {
 				termDAO.update(term);
+				changed.add(term.getId());
+			}
 		}
 		InnAnswer ans = new InnAnswer();
 		return ans;
@@ -1054,10 +1117,8 @@ public class Statistic {
 		return toReturn;
 	}
 	
-	private String stemTerm(String term, PorterStemmer stemmer) {
-		//if (!term.isEmpty()) return term;		// stemming is not using
+	private static String stemTermSt(String term, PorterStemmer stemmer) {
 		term = term.toLowerCase();
-		String value = term;
 		stemmer.setCurrent(term);
 		stemmer.stem();
 		String stemmed = stemmer.getCurrent().toLowerCase();
@@ -1067,6 +1128,12 @@ public class Statistic {
 			if (stemmed.endsWith("'"))
 				stemmed = stemmed.substring(0, stemmed.length() - 1);
 		}
+		return stemmed;
+	}
+	private String stemTerm(String term, PorterStemmer stemmer) {
+		//if (!term.isEmpty()) return term;		// stemming is not using
+		String value = term.toLowerCase();
+		String stemmed = stemTermSt(term, stemmer);
 		if (wordsMap == null)
 			wordsMap = new HashMap<>();
 		List<String> variants = new ArrayList<>();
