@@ -23,6 +23,7 @@
 				<button id="delButton" class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
 			</span></form>
   		<form action="#" th:action="@{/category/alternativeAsync}" th:object="${category}" method="post" id="categoryCreate">
+  		<select hidden="true" multiple="true" id="catSel" name="terms"></select>
   		<textarea type="textarea" hidden="true" class="form-control" id="html0" name="html0"></textarea>
   			<p><span id="idtext" th:text="'id: 0'"></span><input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/></p>
 			<span th:text="#{editor.placeholder.skill_name_en}" text="Name"></span>:
@@ -33,6 +34,14 @@
 		</p>
 			<p><input type="submit" id="categorySubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
   			<p hidden="true"><input type="submit" id="categorySubmitButton2" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+  			<p id="catTerms"></p>
+		<p><div class="two-buttons">
+			<input id="catTermSearch" type="text" name="search" class="form-control"/>
+		</div><div class="two-buttons">
+			<span id="catTermFind" class="btn btn-primary" th:text="'Find'"></span>
+			<span id="catTermClear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
+		</div></p>
+		<p id="catSearchTerms"></p>
 		</form>
   		</div>
   	</div>

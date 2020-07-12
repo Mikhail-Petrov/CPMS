@@ -42,6 +42,7 @@
 		<tr>
 			<th><span th:text="'Term'"></span></th>
 			<th><span th:text="'Analize'"></span></th>
+			<th><span th:text="'Remove'"></span></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -171,6 +172,10 @@
 							line += "</select></td>";
 						}
 						line += "<td><a target='_blank' href='" + rootPath + "stat/term?id=" + ids[i] + "'>analize</td>";
+						if (isInn) {
+							line += "<td><a href='" + rootPath + "stat/removeInn?id=" + ids[i] + "'>" +
+									"<span class='btn btn-danger'><i class='fa fa-remove'></i></span></a>";
+						}
 						line += "</tr";
 						$("#" + tableName).append(line);
 					}

@@ -344,14 +344,20 @@ public class Statistic {
 		String query = values.size() > 0 ? (String) values.get(0) : "";
 		if (query.isEmpty())
 			return new InnAnswer();
-		List<Term> res = termSearch(query, innDAO);
+		List<TermVariant> vars = termSearch(query, innDAO);
+		List<Term> res = new ArrayList<>();
+		for (TermVariant var : vars) {
+			Term newTerm = var.getTerm();
+			newTerm.setPref(var.getText());
+			res.add(newTerm);
+		}
 		InnAnswer ans = new InnAnswer();
 		for (Term term : res)
 			ans.addTerm(term);
 		return ans;
 	}
 	
-	public static List<Term> termSearch(String query, IInnovationTermDAO innDAO) {
+	public static List<TermVariant> termSearch(String query, IInnovationTermDAO innDAO) {
 		String[] split = query.split(" ");
 		// search
 		List<Term> res = innDAO.find(buildQuery(split, split.length, 0));
@@ -365,25 +371,20 @@ public class Statistic {
 					res.addAll(curRes);
 			}
 		}
+		List<TermVariant> ret = new ArrayList<>();
+		for (Term term : res)
+			for (TermVariant var : term.getVariants())
+				ret.add(var);
 		// calculate sorenson for variants
 		List<TermRes> results = new ArrayList<>();
-		for (Term term : res)
-			for (TermVariant var : term.getVariants()) {
-				results.add(new TermRes(var, sorensen(query, var.getText())));
-			}
+		for (TermVariant var : ret)
+			results.add(new TermRes(var, sorensen(query, var.getText())));
 		Collections.sort(results);
 		// form results
-		res = new ArrayList<>();
-		for (TermRes term : results) {
-			Term newTerm = new Term();
-			newTerm.setId(term.getTerm().getTerm().getId());
-			newTerm.setInn(term.getTerm().getTerm().isInn());
-			newTerm.setCategory(term.getTerm().getTerm().getCategory());
-			newTerm.setPref(term.getTerm().getText());
-			newTerm.setStem(term.getTerm().getTerm().getStem());
-			res.add(newTerm);
-		}
-		return res;
+		ret = new ArrayList<>();
+		for (TermRes tr : results)
+			ret.add(tr.getTerm());
+		return ret;
 	}
 	private static String buildQuery(String[] split, int length, int start) {
 		String query = "%";
@@ -508,6 +509,14 @@ public class Statistic {
 		ret.setMonth(ret.getMonth() + months);
 		ret.setYear(ret.getYear() + years);
 		return ret;
+	}
+
+	@RequestMapping(path = "/removeInn", method = RequestMethod.GET)
+	public String removeInn(Model model, @RequestParam(value = "id", required = true) Long id) {
+		Term term = termDAO.getOne(id);
+		term.setInn(false);
+		termDAO.update(term);
+		return "redirect:/stat/innovations";
 	}
 
 	public static long pt = -1;

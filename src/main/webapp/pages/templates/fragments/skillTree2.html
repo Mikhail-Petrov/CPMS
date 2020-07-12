@@ -115,7 +115,8 @@
 			     var csrfToken = $("meta[name='_csrf']").attr("content");
 			     var headers = {};
 			     headers[csrfHeader] = csrfToken;
-				
+
+			     $("#sss").text("getting skills");
 				$.ajax({
 					url : requestUrl,
 					type: 'POST',
@@ -136,6 +137,7 @@
 							}
 						}
 						$("#ch" + res.id).html(html);
+					     $("#sss").text("");
 					},
 					error: function (xhRequest, ErrorText, thrownError) {
 						console.log('xhRequest: ' + xhRequest + "\n");

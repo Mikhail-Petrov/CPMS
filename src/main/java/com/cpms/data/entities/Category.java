@@ -1,6 +1,7 @@
 package com.cpms.data.entities;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -13,11 +14,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.search.annotations.Field;
 import com.cpms.data.AbstractDomainObject;
+import com.cpms.exceptions.DataAccessException;
 
 /**
  * Entity class for categories.
@@ -40,6 +43,11 @@ public class Category extends AbstractDomainObject implements Comparable<Categor
 	@JoinColumn(name = "Parent", nullable = true)
 	@Cascade({CascadeType.DETACH})
 	private Category parent;
+
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "category", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
+	private Set<Category_Termvariant> variants;
 	
 	public Category() {}
 	
@@ -96,6 +104,7 @@ public class Category extends AbstractDomainObject implements Comparable<Categor
 		returnValue.setName(getName());
 		returnValue.setId(getId());
 		returnValue.setParent(getParent());
+		returnValue.setVariants(getVariants());
 		return returnValue;
 	}
 	
@@ -124,5 +133,57 @@ public class Category extends AbstractDomainObject implements Comparable<Categor
 			if (cat.getParent() != null && cat.getParent().getId() == getId())
 				res.add(cat);
 		return res;
+	}
+
+	public void addVariant(Category_Termvariant variant) {
+		if (variant == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.variants == null) {
+			this.getVariants();
+		}
+		if (!this.variants.stream().anyMatch(
+				x -> 
+				x.getId() == variant.getId())
+				) {
+			this.variants.add(variant);
+			variant.setCategory(this);
+		} 
+	}
+	
+	public void removeVariant(Category_Termvariant variant) {
+		if (variant == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.equals(variant.getCategory())) {
+			removeEntityFromManagedCollection(variant, variants);
+			variant.setCategory(null);
+		}
+	}
+	
+	public void clearVariants() {
+		if (this.variants == null) {
+			this.getVariants();
+		}
+		variants.clear();
+	}
+	
+	public Set<Category_Termvariant> getVariants() {
+		if (variants == null) {
+			variants = new LinkedHashSet<Category_Termvariant>() ;
+		}
+		return new LinkedHashSet<Category_Termvariant>(variants);
+	}
+
+	public void setVariants(Set<Category_Termvariant> variants) {
+		if (variants == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.variants == null) {
+			this.variants = variants;
+		} else {
+			throw new DataAccessException("Cannot insert, Hibernate will lose track",
+					null);
+		}
 	}
 }

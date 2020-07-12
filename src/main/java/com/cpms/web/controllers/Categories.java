@@ -25,8 +25,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cpms.dao.interfaces.IDAO;
+import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.data.entities.Category;
+import com.cpms.data.entities.Category_Termvariant;
 import com.cpms.data.entities.Skill;
+import com.cpms.data.entities.SkillLevel;
+import com.cpms.data.entities.Term;
+import com.cpms.data.entities.TermVariant;
 import com.cpms.exceptions.WrongJsonException;
 import com.cpms.web.SkillPostForm;
 //import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +52,14 @@ public class Categories {
 	@Autowired
 	@Qualifier("categoryDAO")
 	private IDAO<Category> categoryDAO;
+	
+	@Autowired
+	@Qualifier(value = "innovationDAO")
+	private IInnovationTermDAO innDAO;
+	
+	@Autowired
+	@Qualifier(value = "termDAO")
+	private IDAO<Term> termDAO;
 
     @Autowired
     private MessageSource messageSource;
@@ -54,6 +67,23 @@ public class Categories {
     public static String ch0 = "";
     public static long parent0 = 0;
 
+	@ResponseBody
+	@RequestMapping(value = "/ajaxCatTermSearch",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxCatTermSearch(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		String name = values.size() > 0 ? (String) values.get(0) : "";
+		if (name.isEmpty())
+			return new InnAnswer();
+		
+		 List<TermVariant> res = Statistic.termSearch(name, innDAO);
+		 InnAnswer ret = new InnAnswer();
+		 for (TermVariant var : res)
+			 ret.addVariant(var);
+		 return ret;
+	}
+	
 	@ResponseBody
 	@RequestMapping(value = "/ajaxSearch",
 			method = RequestMethod.POST)
@@ -126,7 +156,8 @@ public class Categories {
 	@RequestMapping(value = {"/", ""},
 			method = RequestMethod.GET)
 	public String skills(Model model, HttpServletRequest request, Principal principal) {
-		model.addAttribute("_VIEW_TITLE", "title.viewer");
+		model.addAttribute("_NAMED_TITLE", true);
+		model.addAttribute("_VIEW_TITLE", "Categories");
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("html0", ch0);
 		model.addAttribute("parent0", parent0);
@@ -148,15 +179,16 @@ public class Categories {
 			if (id > 0) {
 				Category category = categoryDAO.getOne(id)
 						.localize(LocaleContextHolder.getLocale());
-				Skill skill = new Skill(), parent = new Skill();
-				if (category.getParent() == null)
-					parent = null;
-				else
-					parent.setId(category.getParent().getId());
-				skill.setParent(parent);
-				skill.setName(category.getName());
-				skill.setId(category.getId());
-				return new SkillAnswer(skill, true);
+				SkillAnswer answer = new SkillAnswer();
+				answer.setName(category.getName());
+				answer.setParentId(category.getParent() == null ? null : "" + category.getParent().getId());
+				answer.setId(category.getId());
+				answer.setSuccessful(true);
+				answer.setMaxLevel(category.getVariants().size() + 1);
+				for (Category_Termvariant var : category.getVariants()) {
+					answer.addLevelFromVariant(var.getVariant());
+				}
+				return answer;
 			} else {
 				SkillAnswer answer = new SkillAnswer();
 				answer.setName("Category Tree Root");
@@ -174,7 +206,7 @@ public class Categories {
 	@RequestMapping(path = "/alternativeAsync", 
 			method = RequestMethod.POST)
 	public String categoryCreateAlternativeAsync(Model model, @RequestParam(value = "html0", required = false) String html0,
-			@ModelAttribute SkillPostForm recievedCategory,
+			@ModelAttribute SkillPostForm recievedCategory, @RequestParam(value = "terms", required = false) List<String> terms,
 			HttpServletRequest request,
 			Principal principal) {
 		ch0 = html0;
@@ -192,6 +224,34 @@ public class Categories {
 		Category parent = categoryDAO.getOne(parentId);
 		newCategory.setParent(parent);
 		newCategory.setName(recievedCategory.getName());
+		
+		// add terms
+		Set<Category_Termvariant> oldVars = newCategory.getVariants();
+		newCategory.clearVariants();
+		for (String sterm : terms) {
+			String[] split = sterm.split(":");
+			if (split.length < 2) continue;
+			long termid = 0, varid = 0;
+			try {
+				termid = Long.parseLong(split[0]);
+				varid = Long.parseLong(split[1]);
+			} catch (NumberFormatException e) {}
+			Term term = termDAO.getOne(termid);
+			if (term == null || varid <= 0) continue;
+			for (TermVariant var : term.getVariants())
+				if (var.getId() == varid) {
+					boolean isOld = false;
+					for (Category_Termvariant ct : oldVars)
+						if (ct.getVariant().getId() == var.getId()) {
+							newCategory.addVariant(ct);
+							isOld = true;
+							break;
+						}
+					if (!isOld)
+						newCategory.addVariant(new Category_Termvariant(newCategory, var));
+					break;
+				}
+		}
 		if (recievedCategory.getId() == 0)
 			categoryDAO.insert(newCategory);
 		else

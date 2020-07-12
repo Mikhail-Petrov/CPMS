@@ -114,7 +114,8 @@
 			     var csrfToken = $("meta[name='_csrf']").attr("content");
 			     var headers = {};
 			     headers[csrfHeader] = csrfToken;
-				
+
+			     $("#catss").text("getting categories");
 				$.ajax({
 					url : requestUrl,
 					type: 'POST',
@@ -135,6 +136,7 @@
 							}
 						}
 						$("#catch" + res.id).html(html);
+					     $("#catss").text("");
 					},
 					error: function (xhRequest, ErrorText, thrownError) {
 						console.log('xhRequest: ' + xhRequest + "\n");
@@ -155,6 +157,27 @@
 				elImg.attr('src', rootPath + "resources/images/dtree/nolines_plus.gif");
 			ajaxChildren(rootPath + "category/ajaxChildren", parent0);
 			
+			// editing terms in category
+			function addTerm(termid, id, name) {
+				if ($('#catSel').children('option[value="' + termid + ":" + id + '"]').length > 0) return;
+				var o = new Option(name, termid + ":" + id);
+				$(o).html(name);
+				$("#catSel").append(o);
+				$('#catSel').children('option[value="' + termid + ":" + id + '"]').prop('selected', true);
+		    	htmlTerms = $("#catTerms").html() +
+		    		"<span id='catTerm" + id + "' onclick='removeTerm(" + termid + "," + id + ")' class='btn-warning btn btn-primary'>" + name + "</span>";
+			    $("#catTerms").html(htmlTerms);
+			}
+			function removeTerm(termid, id) {
+				if ($('#catSel').children('option[value="' + termid + ":" + id + '"]').length == 0) return;
+				$('#catSel').children('option[value="' + termid + ":" + id + '"]').remove();
+				$("#catTerm" + id).remove();
+				
+			}
+			function clearTerms() {
+				$('#catSel').children('option').remove();
+			    $("#catTerms").html("");
+			}
 			// some stuff for opening categories
 			function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return right[Symbol.hasInstance](left); } else { return left instanceof right; } }
 
@@ -196,7 +219,8 @@
 						$("#idtext").text("id: " + res.id);
 						if (res.id > 0) {
 							$("#delId").val(res.id);
-							document.getElementById('createChildButton').setAttribute('onclick', 'ajaxCategoryDialog(\'' + rootPath + 'category/ajaxCategory\', -' + res.id + '); return false;');
+							document.getElementById('createChildButton').setAttribute(
+									'onclick', 'ajaxCategoryDialog(\'' + rootPath + 'category/ajaxCategory\', -' + res.id + '); return false;');
 							$("#deleteLink").show();
 							$("#createChildButton").show();
 						} else {
@@ -212,14 +236,21 @@
 							$("#parentId").val(res.parentId);
 						if (res.id > 0 && !isChild) {
 							// Copy values from changed category
-							$("#category_name").val(res.name_en);
+							$("#category_name").val(res.name);
 						    // Remember id of the changed category
 						    $("#selfId").val(res.id);
+						    // Get all terms
+						    clearTerms();
+						    var htmlTerms = "<h3>Terms</h3>";
+						    $("#catTerms").html(htmlTerms);
+						    for (var i = 0; i < res.levels.length; i++)
+						    	addTerm(res.levels[i].about_ru, res.levels[i].id, res.levels[i].about);
 						}
 						else {
 							// Clear all values
 							$("#category_name").val("");
 							$("#parentId").val(res.id);
+						    clearTerms();
 						    // Forget category id
 						    $("#selfId").val(0);
 						}
@@ -252,6 +283,78 @@
 					}
 				});
 			}
+			
+			//search staff
+			
+				// clear search field and hide results table
+				function clear() {
+					$("#catTermSearch").val('');
+					$("#catSearchTerms").hide();
+				}
+			clear();
+			
+			// add term result
+			function addSearchTerm(termid, id, name) {
+		    	htmlTerms = $("#catSearchTerms").html() +
+		    		"<span onclick='addTerm(" + termid + ", " + id + ", \"" + name + "\")' class='btn btn-primary btn-warning'>" + name + "</span>";
+			    $("#catSearchTerms").html(htmlTerms);
+			}
+			
+			// terms search
+			function ajaxCatTermSearch(requestUrl) {
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+
+				inputArgs.push($("#catTermSearch").val());
+
+				if ($("#search").val() === "")
+					return;
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+						if (res.ids.length > 0)
+							$("#catSearchTerms").show();
+						else
+							$("#catSearchTerms").hide();
+					    $("#catSearchTerms").html("");
+					    for (var i = 0; i < res.ids.length; i++)
+					    	addSearchTerm(res.terms[i], res.ids[i], res.flags[i]);
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+				         $("#curStatus").html('ERROR!!!');
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			$("#catTermFind").on("click", function() {ajaxCatTermSearch(rootPath + 'category/ajaxCatTermSearch')});
+			$("#catTermSearch").keydown(function(e) {if(e.keyCode === 13) ajaxCatTermSearch(rootPath + 'category/ajaxCatTermSearch');});
+			$("#catTermClear").on("click", function() {clear()});
+
+			  $(document).ready(function() {
+			      $("#categoryCreate").keydown(function(event){
+			        if(event.keyCode == 13) {
+			          event.preventDefault();
+			          return false;
+			      }
+			   });
+			  });
 	/*]]>*/
 	</script>
 	

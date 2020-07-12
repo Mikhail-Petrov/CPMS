@@ -25,6 +25,12 @@ public class InnAnswer implements IAjaxAnswer {
 		setId(0);
 	}
 	
+	public void addVariant(TermVariant var) {
+		ids.add(var.getId());
+		terms.add(var.getTerm().getId() + "");
+		flags.add(var.getText());
+	}
+	
 	public void addTerm(Term term) {
 		terms.add(term.getPref());
 		//flags.add(term.isInn());

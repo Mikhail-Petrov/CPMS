@@ -151,6 +151,13 @@ public class Term extends AbstractDomainObject {
 		}
 	}
 	
+	public void clearVariants() {
+		if (this.variants == null) {
+			this.getVariants();
+		}
+		variants.clear();
+	}
+	
 	public Set<TermVariant> getVariants() {
 		if (variants == null) {
 			variants = new LinkedHashSet<TermVariant>() ;

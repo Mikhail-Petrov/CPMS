@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.SkillLevel;
+import com.cpms.data.entities.TermVariant;
 import com.cpms.web.UserSessionData;
 
 /**
@@ -45,6 +46,15 @@ public class SkillAnswer implements IAjaxAnswer {
 			SkillLevelAnswer newLevel = new SkillLevelAnswer(level, true);
 			levels.add(newLevel);
 		}
+	}
+	
+	public void addLevelFromVariant(TermVariant var) {
+		SkillLevel level = new SkillLevel();
+		level.setId(var.getId());
+		level.setAbout(var.getText());
+		SkillLevelAnswer newLevel = new SkillLevelAnswer(level, true);
+		newLevel.setAbout_ru(var.getTerm().getId() + "");
+		levels.add(newLevel);
 	}
 	
 	public SkillAnswer() {
