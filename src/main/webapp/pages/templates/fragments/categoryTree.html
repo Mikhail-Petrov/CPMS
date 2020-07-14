@@ -164,8 +164,8 @@
 				$(o).html(name);
 				$("#catSel").append(o);
 				$('#catSel').children('option[value="' + termid + ":" + id + '"]').prop('selected', true);
-		    	htmlTerms = $("#catTerms").html() +
-		    		"<span id='catTerm" + id + "' onclick='removeTerm(" + termid + "," + id + ")' class='btn-warning btn btn-primary'>" + name + "</span>";
+		    	htmlTerms = $("#catTerms").html() + "<span class='btn-warning btn btn-primary' id='catTerm" + id + "'>" +
+		    		"<a href='#' onclick='removeTerm(" + termid + "," + id + ")' class='fa fa-remove'></a> " + name + "</span>";
 			    $("#catTerms").html(htmlTerms);
 			}
 			function removeTerm(termid, id) {
@@ -215,6 +215,7 @@
 					data : JSON.stringify(inputArgs),
 					headers: headers,
 					success: function (res) {
+					     $("#catSearchSS").text("");
 						document.getElementById('categoryName').innerHTML=res.name;
 						$("#idtext").text("id: " + res.id);
 						if (res.id > 0) {
@@ -265,10 +266,7 @@
 						} else {
 							$("#viewCategoryBlock").hide();
 							$("#newCategoryForm").show();
-							if (res.id == 0)
-								categoryName = /*[[#{skillPopup.new}]]*/ 'Create a Skill';
-							else
-								categoryName = res.name_en;
+							categoryName = res.name_en;
 						}
 						if (admin)
 						document.getElementById('categoryFormTitle').innerHTML=
@@ -318,6 +316,7 @@
 
 				if ($("#search").val() === "")
 					return;
+			     $("#catSearchSS").text("searching...");
 				$.ajax({
 					url : requestUrl,
 					type: 'POST',
@@ -326,12 +325,15 @@
 					data : JSON.stringify(inputArgs),
 					headers: headers,
 					success: function (res) {
-						if (res.ids.length > 0)
+						var results = res.ids.length;
+						if (results == null) results = 0;
+					     $("#catSearchSS").text(results + " results");
+						if (results > 0)
 							$("#catSearchTerms").show();
 						else
 							$("#catSearchTerms").hide();
 					    $("#catSearchTerms").html("");
-					    for (var i = 0; i < res.ids.length; i++)
+					    for (var i = 0; i < results; i++)
 					    	addSearchTerm(res.terms[i], res.ids[i], res.flags[i]);
 					},
 					error: function (xhRequest, ErrorText, thrownError) {

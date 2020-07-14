@@ -349,6 +349,7 @@ public class Statistic {
 		for (TermVariant var : vars) {
 			Term newTerm = var.getTerm();
 			newTerm.setPref(var.getText());
+			newTerm.clearVariants();
 			res.add(newTerm);
 		}
 		InnAnswer ans = new InnAnswer();
@@ -361,6 +362,7 @@ public class Statistic {
 		String[] split = query.split(" ");
 		// search
 		List<Term> res = innDAO.find(buildQuery(split, split.length, 0));
+		Statistic.time("find");
 		if (res == null) res = new ArrayList<>();
 		// for complex queries: divide and find
 		for (int length = split.length - 1; length > 0 && res.isEmpty(); length--) {
@@ -371,17 +373,18 @@ public class Statistic {
 					res.addAll(curRes);
 			}
 		}
-		List<TermVariant> ret = new ArrayList<>();
+		Statistic.time("divided");
+		
+		List<TermRes> results = new ArrayList<>();
+		// calculate sorenson for variants
 		for (Term term : res)
 			for (TermVariant var : term.getVariants())
-				ret.add(var);
-		// calculate sorenson for variants
-		List<TermRes> results = new ArrayList<>();
-		for (TermVariant var : ret)
-			results.add(new TermRes(var, sorensen(query, var.getText())));
+				results.add(new TermRes(var, sorensen(query, var.getText())));
+		Statistic.time("calculated");
 		Collections.sort(results);
+		Statistic.time("sorted");
 		// form results
-		ret = new ArrayList<>();
+		List<TermVariant> ret = new ArrayList<>();
 		for (TermRes tr : results)
 			ret.add(tr.getTerm());
 		return ret;

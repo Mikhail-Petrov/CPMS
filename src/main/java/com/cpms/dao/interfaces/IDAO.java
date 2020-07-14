@@ -36,6 +36,8 @@ public interface IDAO<T extends AbstractDomainObject> {
 	 */
 	public List<T> getAll();
 	
+	public default List<T> getChildren(T parent) {return null;};
+	
 	/**
 	 * Uses full text search and returns all matching entities.
 	 * 

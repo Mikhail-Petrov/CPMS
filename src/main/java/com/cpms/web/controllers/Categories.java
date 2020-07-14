@@ -72,12 +72,15 @@ public class Categories {
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxCatTermSearch(
 			@RequestBody String json) {
+		Statistic.time();
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		String name = values.size() > 0 ? (String) values.get(0) : "";
 		if (name.isEmpty())
 			return new InnAnswer();
+		Statistic.time("get name");
 		
 		 List<TermVariant> res = Statistic.termSearch(name, innDAO);
+			Statistic.time("found");
 		 InnAnswer ret = new InnAnswer();
 		 for (TermVariant var : res)
 			 ret.addVariant(var);
@@ -116,7 +119,7 @@ public class Categories {
 				category = categoryDAO.getOne(id);
 			Set<Category> children;
 			if (category != null)
-				children = category.getChildren(categoryDAO.getAll());
+				children = category.getChildren(categoryDAO);
 			else {
 				children = new HashSet<>();
 				for (Category cat : categoryDAO.getAll())
@@ -132,8 +135,9 @@ public class Categories {
 				answer.getIds().add(child.getId());
 				answer.getTerms().add(child.getName());
 				answer.getFlags().add(flag);
-				Set<Category> kids = child.getChildren(categoryDAO.getAll());
-				answer.getKids().add(kids == null ? 0 : kids.size());
+				//Set<Category> kids = child.getChildren(categoryDAO.getAll());
+				//answer.getKids().add(kids == null ? 0 : kids.size());
+				answer.getKids().add(categoryDAO.getInt(child));
 			}
 			return answer;
 		} else {
@@ -181,6 +185,8 @@ public class Categories {
 						.localize(LocaleContextHolder.getLocale());
 				SkillAnswer answer = new SkillAnswer();
 				answer.setName(category.getName());
+				answer.setName_en(category.getName());
+				answer.setName_ru(category.getName());
 				answer.setParentId(category.getParent() == null ? null : "" + category.getParent().getId());
 				answer.setId(category.getId());
 				answer.setSuccessful(true);
@@ -262,7 +268,7 @@ public class Categories {
 	private void deleteCategory(Category category, long delUser, Date delDate, List<Category> all) {
 		//category.setDelDate(delDate);
 		//category.setDelUser(delUser);
-		for (Category child : category.getChildren(all))
+		for (Category child : category.getChildren(categoryDAO))
 			deleteCategory(child, delUser, delDate, all);
 		//facade.getSkillDAO().update(skill);
 		categoryDAO.delete(category);

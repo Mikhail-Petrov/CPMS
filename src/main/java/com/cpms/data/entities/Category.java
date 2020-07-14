@@ -19,8 +19,11 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.search.annotations.Field;
+
+import com.cpms.dao.interfaces.IDAO;
 import com.cpms.data.AbstractDomainObject;
 import com.cpms.exceptions.DataAccessException;
+import com.cpms.web.controllers.Statistic;
 
 /**
  * Entity class for categories.
@@ -127,10 +130,10 @@ public class Category extends AbstractDomainObject implements Comparable<Categor
 		return this.getName().equals(o.getName());
 	}
 	
-	public Set<Category> getChildren(List<Category> all) {
+	public Set<Category> getChildren(IDAO<Category> dao) {
 		Set<Category> res = new HashSet<>();
-		for (Category cat : all)
-			if (cat.getParent() != null && cat.getParent().getId() == getId())
+		for (Category cat : dao.getChildren(this))
+			//if (cat.getParent() != null && cat.getParent().getId() == getId())
 				res.add(cat);
 		return res;
 	}

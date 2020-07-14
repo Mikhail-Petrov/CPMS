@@ -15,6 +15,7 @@ import com.cpms.dao.interfaces.AbstractDAO;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.data.entities.Category;
+import com.cpms.data.entities.Skill;
 import com.cpms.exceptions.DataAccessException;
 
 /**
@@ -97,6 +98,23 @@ public class JPACategoryDAO extends AbstractDAO<Category> implements ICleanable 
 	@Override
 	public List<Category> getAll() {
 		return categoryRepo.findAll();
+	}
+
+	@Override
+	public List<Category> getChildren(Category parent) {
+		if (parent == null)
+			return categoryRepo.getRoots();
+		return categoryRepo.getChildren(parent);
+	}
+
+	@Override
+	public int getInt(Category parent) {
+		Integer res;
+		if (parent == null)
+			res = categoryRepo.countRoots();
+		else
+			res = categoryRepo.countChildren(parent);
+		return res == null ? 0 : res;
 	}
 
 	@Override

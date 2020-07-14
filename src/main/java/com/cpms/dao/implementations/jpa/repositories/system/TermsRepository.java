@@ -19,7 +19,7 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 	@Query("Select term from Term term where stem = :stem")
 	public Term getTermByStem(@Param("stem") String stem);
 	
-	@Query(value = "Select top 100 * from Term term where stemtext like :query " +
+	@Query(value = "Select top 25 * from Term term where stemtext like :query " +
 			"order by ISinnovation desc, LEN(preferabletext), preferabletext", nativeQuery = true)
 	public List<Term> findBySearch(@Param("query") String query);
 	
