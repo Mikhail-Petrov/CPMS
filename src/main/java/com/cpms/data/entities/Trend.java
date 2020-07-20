@@ -45,7 +45,7 @@ public class Trend extends AbstractDomainObject implements Comparable<Trend>{
 	@Cascade({CascadeType.DETACH})
 	private Trend parent;
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "trend", orphanRemoval = true)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "trend", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<Trend_Termvariant> variants;

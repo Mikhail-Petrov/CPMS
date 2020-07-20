@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import com.cpms.dao.interfaces.AbstractDAO;
 import com.cpms.dao.interfaces.ICleanable;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.data.entities.Category;
-import com.cpms.data.entities.Skill;
 import com.cpms.exceptions.DataAccessException;
 
 /**
@@ -55,6 +55,7 @@ public class JPACategoryDAO extends AbstractDAO<Category> implements ICleanable 
 	@Override
 	public Category getOne(long id) {
 		Category target = categoryRepo.findOne(id);
+		Hibernate.initialize(target.getVariants());
 		return target;
 	}
 

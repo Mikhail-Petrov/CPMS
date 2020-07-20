@@ -16,6 +16,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.search.annotations.Field;
@@ -47,12 +49,29 @@ public class Category extends AbstractDomainObject implements Comparable<Categor
 	@Cascade({CascadeType.DETACH})
 	private Category parent;
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "category", orphanRemoval = true)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "category", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<Category_Termvariant> variants;
 	
 	public Category() {}
+	
+	public Category(Category cat) {
+		setName(cat.getName());
+		setId(cat.getId());
+		if (cat.getParent() == null)
+			setParent(null);
+		else {
+			Category parent = cat.getParent();
+			setParent(new Category(parent));
+			String alternative = "";
+			while (parent != null) {
+				alternative += "--";
+				parent = parent.getParent();
+			}
+			setName(alternative + "~!@" + getName());
+		}
+	}
 	
 	public Category(String name, Category parent) {
 		this.name = name;
