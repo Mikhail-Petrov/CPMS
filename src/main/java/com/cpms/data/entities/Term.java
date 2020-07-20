@@ -96,6 +96,7 @@ public class Term extends AbstractDomainObject {
 		returnValue.setStem(getStem());
 		returnValue.setPref(getPref());
 		returnValue.setInn(isInn());
+		returnValue.setCategory(getCategory());
 		return returnValue;
 	}
 
@@ -119,11 +120,11 @@ public class Term extends AbstractDomainObject {
 		this.stem = stem;
 	}
 	
-	public void addVariant(String text) {
-		addVariant(new TermVariant(text));
+	public TermVariant addVariant(String text) {
+		return addVariant(new TermVariant(text));
 	}
 
-	public void addVariant(TermVariant variant) {
+	public TermVariant addVariant(TermVariant variant) {
 		if (variant == null) {
 			throw new DataAccessException("Null value.", null);
 		}
@@ -139,6 +140,7 @@ public class Term extends AbstractDomainObject {
 			this.variants.add(variant);
 			variant.setTerm(this);
 		} 
+		return variant;
 	}
 	
 	public void removeVariant(TermVariant variant) {

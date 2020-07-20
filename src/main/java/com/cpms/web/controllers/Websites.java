@@ -26,8 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
-import com.cpms.data.entities.Category;
-import com.cpms.data.entities.Category_Termvariant;
+import com.cpms.data.entities.Website;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
 import com.cpms.exceptions.WrongJsonException;
@@ -44,12 +43,12 @@ import com.cpms.web.ajax.SkillAnswer;
  * @since 1.0
  */
 @Controller
-@RequestMapping(path = "/category")
-public class Categories {
+@RequestMapping(path = "/website")
+public class Websites {
 	
 	@Autowired
-	@Qualifier("categoryDAO")
-	private IDAO<Category> categoryDAO;
+	@Qualifier("websiteDAO")
+	private IDAO<Website> websiteDAO;
 	
 	@Autowired
 	@Qualifier(value = "innovationDAO")
@@ -66,11 +65,10 @@ public class Categories {
     public static long parent0 = 0;
 
 	@ResponseBody
-	@RequestMapping(value = "/ajaxCatTermSearch",
+	@RequestMapping(value = "/ajaxWebTermSearch",
 			method = RequestMethod.POST)
-	public IAjaxAnswer ajaxCatTermSearch(
+	public IAjaxAnswer ajaxWebTermSearch(
 			@RequestBody String json) {
-		Statistic.time();
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		String name = values.size() > 0 ? (String) values.get(0) : "";
 		if (name.isEmpty())
@@ -86,18 +84,18 @@ public class Categories {
 	@ResponseBody
 	@RequestMapping(value = "/ajaxSearch",
 			method = RequestMethod.POST)
-	public List<Category> ajaxSearch(
+	public List<Website> ajaxSearch(
 			@RequestBody String json) {
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		String name = values.size() > 0 ? (String) values.get(0) : "";
 		if (name.isEmpty())
 			return new ArrayList<>();
-		
+
 		name = name.toLowerCase();
-		 List<Category> res = new ArrayList<>();
-		 for (Category cat : categoryDAO.getAll())
-			 if (cat.getName().toLowerCase().contains(name))
-				 res.add(new Category(cat));
+		 List<Website> res = new ArrayList<>();
+		 for (Website web : websiteDAO.getAll())
+			 if (web.getName().toLowerCase().contains(name))
+				 res.add(new Website(web));
 		 return res;
 	}
 	
@@ -111,33 +109,30 @@ public class Categories {
 			long id = Long.parseLong(values.get(0).toString());
 			InnAnswer answer = new InnAnswer();
 			answer.setId(id);
-			Category category = null;
+			Website website = null;
 			if (id > 0)
-				category = categoryDAO.getOne(id);
-			List<Category> children;
-			Statistic.time();
-			if (category != null)
-				children = categoryDAO.getChildren(category);
+				website = websiteDAO.getOne(id);
+			Set<Website> children;
+			if (website != null)
+				children = website.getChildren(websiteDAO);
 			else {
-				/*children = new HashSet<>();
-				for (Category cat : categoryDAO.getAll())
-					if (cat.getParent() == null)
-						children.add(cat);*/
-				children = categoryDAO.getChildren(null);
+				children = new HashSet<>();
+				for (Website web : websiteDAO.getAll())
+					if (web.getParent() == null)
+						children.add(web);
 			}
-			Statistic.time("get children for " + (category == null ? "null" : category.getName()));
 			String flag = "";
-			while (category != null) {
-				category = category.getParent();
+			while (website != null) {
+				website = website.getParent();
 				flag += "--";
 			}
-			for (Category child : children) {
+			for (Website child : children) {
 				answer.getIds().add(child.getId());
 				answer.getTerms().add(child.getName());
 				answer.getFlags().add(flag);
-				//Set<Category> kids = child.getChildren(categoryDAO.getAll());
+				//Set<Website> kids = child.getChildren(websiteDAO.getAll());
 				//answer.getKids().add(kids == null ? 0 : kids.size());
-				answer.getKids().add(categoryDAO.getInt(child));
+				answer.getKids().add(websiteDAO.getInt(child));
 			}
 			return answer;
 		} else {
@@ -161,44 +156,42 @@ public class Categories {
 			method = RequestMethod.GET)
 	public String skills(Model model, HttpServletRequest request, Principal principal) {
 		model.addAttribute("_NAMED_TITLE", true);
-		model.addAttribute("_VIEW_TITLE", "Categories");
+		model.addAttribute("_VIEW_TITLE", "Websites");
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("html0", ch0);
 		model.addAttribute("parent0", parent0);
 		ch0 = "";
 		
-		Category newCategory = new Category();
-		model.addAttribute("category", newCategory);
-		return "categories";
+		Website newWebsite = new Website();
+		model.addAttribute("website", newWebsite);
+		return "websites";
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/ajaxCategory",
+	@RequestMapping(value = "/ajaxWebsite",
 			method = RequestMethod.POST)
-	public IAjaxAnswer ajaxCategory(
+	public IAjaxAnswer ajaxWebsite(
 			@RequestBody String json) {
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id > 0) {
-				Category category = categoryDAO.getOne(id)
+				Website website = websiteDAO.getOne(id)
 						.localize(LocaleContextHolder.getLocale());
 				SkillAnswer answer = new SkillAnswer();
-				answer.setName(category.getName());
-				answer.setName_en(category.getName());
-				answer.setName_ru(category.getName());
-				answer.setParentId(category.getParent() == null ? null : "" + category.getParent().getId());
-				answer.setId(category.getId());
+				answer.setName(website.getName());
+				answer.setAbout(website.getUrl());
+				answer.setName_en(website.getName());
+				answer.setName_ru(website.getName());
+				answer.setParentId(website.getParent() == null ? null : "" + website.getParent().getId());
+				answer.setId(website.getId());
 				answer.setSuccessful(true);
-				answer.setMaxLevel(category.getVariants().size() + 1);
-				for (Category_Termvariant var : category.getVariants()) {
-					answer.addLevelFromVariant(var.getVariant());
-				}
+				answer.setMaxLevel(1);
 				return answer;
 			} else {
 				SkillAnswer answer = new SkillAnswer();
-				answer.setName("Category Tree Root");
-				answer.setAbout("Category Tree Root");
+				answer.setName("Website Tree Root");
+				answer.setAbout("Website Tree Root");
 				answer.setId(0);
 				answer.setSuccessful(true);
 				answer.setMaxLevel(1);
@@ -211,79 +204,52 @@ public class Categories {
 	
 	@RequestMapping(path = "/alternativeAsync", 
 			method = RequestMethod.POST)
-	public String categoryCreateAlternativeAsync(Model model, @RequestParam(value = "html0", required = false) String html0,
-			@ModelAttribute SkillPostForm recievedCategory, @RequestParam(value = "terms", required = false) List<String> terms,
+	public String websiteCreateAlternativeAsync(Model model, @RequestParam(value = "html0", required = false) String html0,
+			@ModelAttribute SkillPostForm recievedWebsite, @RequestParam(value = "terms", required = false) List<String> terms,
 			HttpServletRequest request,
 			Principal principal) {
 		ch0 = html0;
-		Category newCategory = new Category();
-		if (recievedCategory.getId() > 0) 
-			newCategory = categoryDAO.getOne(recievedCategory.getId());
+		Website newWebsite = new Website();
+		if (recievedWebsite.getId() > 0) 
+			newWebsite = websiteDAO.getOne(recievedWebsite.getId());
 		Long parentId = 0L;
-		if (recievedCategory.getParent() != null && recievedCategory.getParent() != "")
+		if (recievedWebsite.getParent() != null && recievedWebsite.getParent() != "")
 			try {
-				parentId = Long.parseLong(recievedCategory.getParent());
+				parentId = Long.parseLong(recievedWebsite.getParent());
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
 		parent0 = parentId;
-		Category parent = categoryDAO.getOne(parentId);
-		newCategory.setParent(parent);
-		newCategory.setName(recievedCategory.getName());
+		Website parent = websiteDAO.getOne(parentId);
+		newWebsite.setParent(parent);
+		newWebsite.setName(recievedWebsite.getName());
+		newWebsite.setUrl(recievedWebsite.getAbout());
 		
-		// add terms
-		Set<Category_Termvariant> oldVars = newCategory.getVariants();
-		newCategory.clearVariants();
-		if (terms != null)
-		for (String sterm : terms) {
-			String[] split = sterm.split(":");
-			if (split.length < 2) continue;
-			long termid = 0, varid = 0;
-			try {
-				termid = Long.parseLong(split[0]);
-				varid = Long.parseLong(split[1]);
-			} catch (NumberFormatException e) {}
-			Term term = termDAO.getOne(termid);
-			if (term == null || varid <= 0) continue;
-			for (TermVariant var : term.getVariants())
-				if (var.getId() == varid) {
-					boolean isOld = false;
-					for (Category_Termvariant ct : oldVars)
-						if (ct.getVariant().getId() == var.getId()) {
-							newCategory.addVariant(ct);
-							isOld = true;
-							break;
-						}
-					if (!isOld)
-						newCategory.addVariant(new Category_Termvariant(newCategory, var));
-					break;
-				}
-		}
-		if (recievedCategory.getId() == 0)
-			categoryDAO.insert(newCategory);
+		if (recievedWebsite.getId() == 0)
+			websiteDAO.insert(newWebsite);
 		else
-			categoryDAO.update(newCategory);
-		return "redirect:/category";
+			websiteDAO.update(newWebsite);
+		return "redirect:/website";
 	}
 
-	private void deleteCategory(Category category, long delUser, Date delDate, List<Category> all) {
-		//category.setDelDate(delDate);
-		//category.setDelUser(delUser);
-		for (Category child : category.getChildren(categoryDAO))
-			deleteCategory(child, delUser, delDate, all);
+	private void deleteWebsite(Website website, long delUser, Date delDate, List<Website> all) {
+		//website.setDelDate(delDate);
+		//website.setDelUser(delUser);
+		for (Website child : website.getChildren(websiteDAO))
+			deleteWebsite(child, delUser, delDate, all);
 		//facade.getSkillDAO().update(skill);
-		categoryDAO.delete(category);
+		websiteDAO.delete(website);
 	}
 	@RequestMapping(path = {"/delete"}, 
 			method = RequestMethod.POST)
 	public String skillDelete(Model model, Principal principal, @RequestParam(value = "del0", required = false) String html0,
 			@RequestParam(value = "delId", required = true) Long id) {
 		ch0 = html0;
-		Category category = categoryDAO.getOne(id);
-		if (category.getParent() == null)
+		Website website = websiteDAO.getOne(id);
+		if (website.getParent() == null)
 			parent0 = 0;
 		else
-			parent0 = category.getParent().getId();
+			parent0 = website.getParent().getId();
 		long delUser = 0;
 		/*Users user = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
 		if (user == null)
@@ -291,8 +257,8 @@ public class Categories {
 		else
 			delUser = user.getId();*/
 		Date delDate = new Date(System.currentTimeMillis());
-		deleteCategory(category, delUser, delDate, categoryDAO.getAll());
-		return "redirect:/category";
+		deleteWebsite(website, delUser, delDate, websiteDAO.getAll());
+		return "redirect:/website";
 	}
 
 }

@@ -19,6 +19,8 @@ import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.Topic;
+import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.Website;
 import com.cpms.operations.interfaces.*;
 
 
@@ -74,6 +76,14 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	private IDAO<Category> categoryDAO;
 	
 	@Autowired
+	@Qualifier(value = "trendDAO")
+	private IDAO<Trend> trendDAO;
+	
+	@Autowired
+	@Qualifier(value = "websiteDAO")
+	private IDAO<Website> websiteDAO;
+	
+	@Autowired
 	@Qualifier(value = "subprofiler")
 	private ISubprofiler subprofiler;
 	
@@ -123,6 +133,14 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 
 	public void setCategoryDAO(IDAO<Category> categoryDAO) {
 		this.categoryDAO = categoryDAO;
+	}
+
+	public void setTrendDAO(IDAO<Trend> trendDAO) {
+		this.trendDAO = trendDAO;
+	}
+
+	public void setWebsiteDAO(IDAO<Website> websiteDAO) {
+		this.websiteDAO = websiteDAO;
 	}
 
 	public void setTermDAO(IDAO<Term> termDAO) {
@@ -189,6 +207,16 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Override
 	public IDAO<Category> getCategoryDAO() {
 		return categoryDAO;
+	}
+
+	@Override
+	public IDAO<Trend> getTrendDAO() {
+		return trendDAO;
+	}
+
+	@Override
+	public IDAO<Website> getWebsiteDAO() {
+		return websiteDAO;
 	}
 
 	@Override

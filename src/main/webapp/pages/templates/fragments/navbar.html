@@ -31,8 +31,11 @@
               <div class="menu_section">
                 <h3 th:text="#{navbar.navigation}"></h3>
                 <ul class="nav side-menu">
+                  <li><a th:href="@{/homepage}"><i class="fa fa-edit"></i> <span th:text="'Homepage'">Homepage</span></a></li>
                   <li><a th:href="@{/stat/innovations}"><i class="fa fa-edit"></i> <span th:text="#{im.title.innovations}">Innovations</span></a></li>
                   <li><a th:href="@{/category}"><i class="fa fa-edit"></i> <span th:text="'Categories'">Categories</span></a></li>
+                  <li><a th:href="@{/trend}"><i class="fa fa-edit"></i> <span th:text="'Trends'">Trends</span></a></li>
+                  <li><a th:href="@{/website}"><i class="fa fa-edit"></i> <span th:text="'Websites'">Websites</span></a></li>
                   <li><a th:href="@{/dashboard}"><i class="fa fa-edit"></i> <span th:text="#{navbar.statistics}">Statistics</span></a></li>
                   <li th:if="${isAdmin or isResident}"><a><i class="fa fa-info"></i><span th:text="#{navbar.block1}">Experts Network Creation</span> <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">

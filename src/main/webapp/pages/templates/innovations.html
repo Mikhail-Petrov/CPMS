@@ -1,8 +1,7 @@
 	<!-- link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" /-->
 		<div class="row">
 		
-		<h3>Term search</h3>
-		<p><span th:text="'Term search'"></span></p>
+		<h3>Innovation search</h3>
 		<p><div class="two-buttons">
 			<input id="search" type="text" name="search" class="form-control"/>
 		</div><div class="two-buttons">
@@ -10,9 +9,10 @@
 			<span id="clear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
 			<span id="add" class="btn btn-primary" th:text="'Add as a term'"></span>
 		</div></p>
-		<div class="row"><p id="curStatus"></p></div>
+		<div class="row"><p id="curStatus"></p><div id="statusLinks"></div></div>
 		<div id="termsBlock" class="row">
-	    <div class="">
+	    <div class="two-buttons">.</div>
+	    <div class="two-buttons">
 			<span id="saveTerm" class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
         </div>
 		<table id="termsTable" class="table table-responsive table-striped">
@@ -54,10 +54,7 @@
 	        </div><div class="two-buttons">
 				<span class="btn btn-primary btn-block" th:text="'Next'" onclick="showPage(curPage2 + 1, true);"></span>
 	    	</div>
-		</div>
-	    <div class="two-buttons">
-			<span id="saveInn" class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
-        </div></p>
+		</div></p>
         </div>
 			<script th:inline="javascript">
 			/*<![CDATA[*/
@@ -206,6 +203,8 @@
 				         $("#curStatus").html('getting innovations...');
 					else
 		         		$("#curStatus").html('searching...');
+			        $("#statusLink").html('');
+			        $("#statusLink").attr('href', '');
 					$.ajax({
 						url : requestUrl,
 						type: 'POST',
@@ -279,6 +278,7 @@
 							inputArgs.push(terms1);
 				     } 
 	         		$("#curStatus").html('saving...');
+			        $("#statusLinks").html('');
 					$.ajax({
 						url : requestUrl,
 						type: 'POST',
@@ -288,6 +288,12 @@
 						headers: headers,
 						success: function (res) {
 					        $("#curStatus").html('');
+					        var statHtml = '';
+					        for (var i = 0; i < res.ids.length; i++) {
+					        	var link = rootPath + 'viewer/task?id=' + res.ids[i];
+					        	statHtml += "<p><a href='" + link + "' target='_blank'>" + res.terms[i] + "</a></p>";
+					        }
+					        $("#statusLinks").html(statHtml);
 						},
 						error: function (xhRequest, ErrorText, thrownError) {
 					         $("#curStatus").html('ERROR!!!');
@@ -309,6 +315,7 @@
 						inputArgs.push(arguments[i]);
 					}
 					inputArgs.push($("#search").val());
+					inputArgs.push(true);
 					
 					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 				     var csrfToken = $("meta[name='_csrf']").attr("content");
@@ -316,6 +323,7 @@
 				     headers[csrfHeader] = csrfToken;
 
 	         		$("#curStatus").html('adding...');
+			        $("#statusLinks").html('');
 					$.ajax({
 						url : requestUrl,
 						type: 'POST',
@@ -324,7 +332,9 @@
 						data : JSON.stringify(inputArgs),
 						headers: headers,
 						success: function (res) {
-					        $("#curStatus").html('');
+					        $("#curStatus").html('term has been added: ');
+					        var link = rootPath + 'viewer/task?id=' + res.id;
+					        $("#statusLinks").html("<p><a href='" + link + "' target='_blank'>" + res.terms[0] + "</a></p>");
 						},
 						error: function (xhRequest, ErrorText, thrownError) {
 					         $("#curStatus").html('ERROR!!!');

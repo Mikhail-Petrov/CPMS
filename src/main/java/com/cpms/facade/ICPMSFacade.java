@@ -13,6 +13,8 @@ import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.Topic;
+import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.Website;
 import com.cpms.operations.interfaces.*;
 
 /**
@@ -46,6 +48,10 @@ public interface ICPMSFacade {
 	public IDAO<Reward> getRewardDAO();
 	
 	public IDAO<Category> getCategoryDAO();
+	
+	public IDAO<Trend> getTrendDAO();
+	
+	public IDAO<Website> getWebsiteDAO();
 	
 	public ISubprofiler getSubprofiler();
 	

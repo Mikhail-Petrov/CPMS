@@ -1,0 +1,58 @@
+<div th:fragment="websiteModalForm" th:remove="tag">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+	<div class="modal-body">
+		<div id="viewWebsiteBlock">
+		<div clss="modal-header">
+			<h3><span th:text="#{skill.parent}"></span><span id="websiteName">Name</span></h3>
+		</div>
+		<div hidden="true">
+  		<span id="createTypeLabel" th:text="#{page.create}" hidden="true"></span>
+  		<p hidden="true"><input type="submit" id="createChildButton2" class="btn btn-primary btn-block" th:value="#{skillPopup.child}" onclick="$('#newWebsiteForm').show(); return false"/></p>
+  		</div>
+  		</div>
+  		<div class="collection-object force-width" id="newWebsiteForm">
+  		<h3 id="websiteFormTitle"><span id="websiteName" th:text="#{skillPopup.child}"></span></h3>
+			<a id="createChildButton" href="#"><span class="input-group-btn two-buttons">
+				<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.child}">Create child</button>
+			</span></a>
+			<form action="#" th:action="@{/website/delete}" method="post" id="deleteLink">
+  		<textarea hidden="true" type="textarea" class="form-control" id="del0" name="del0"></textarea>
+  		<input type="hidden" id='delId' name='delId'/>
+			<span class="input-group-btn two-buttons">
+				<button id="delButton" class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
+			</span></form>
+  		<form action="#" th:action="@{/website/alternativeAsync}" th:object="${website}" method="post" id="websiteCreate">
+  		<select hidden="true" multiple="true" id="webSel" name="terms"></select>
+  		<textarea type="textarea" hidden="true" class="form-control" id="html0" name="html0"></textarea>
+  			<p><span id="idtext" th:text="'id: 0'"></span><input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/></p>
+			<span th:text="'Website name'" text="Name"></span>:
+			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Name" pattern=".{0,100}" title="Must be more than 3 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="website_name" onblur="addCheck(this, 3, 100)"/></p>
+			<span th:text="'Website URL'" text="URL"></span>:
+			<p><input type="text" class="form-control" name="about" placeholder="URL" th:title="'URL'" id="website_url"/></p>
+		<p>
+			<span th:text="'Parent Website id'"></span>
+			<input type="number" id="parentId" th:field="*{parent}"/>
+		</p>
+			<p><input type="submit" id="websiteSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+  			<p hidden="true"><input type="submit" id="websiteSubmitButton2" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
+  			<p id="webTerms"></p>
+		<p><div class="two-buttons">
+			<input id="webTermSearch" type="text" name="search" class="form-control"/>
+		</div><div class="two-buttons">
+			<span id="webTermFind" class="btn btn-primary" th:text="'Find'"></span>
+			<span id="webTermClear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
+		</div></p>
+		<p id="webSearchSS"></p>
+		<p id="webSearchTerms"></p>
+		</form>
+  		</div>
+  	</div>
+  	</div>
+	</div>
+	</div>
+	
+			
+<div th:fragment="profileCreationSuccess" th:remove="tag">
+  <p>Form successfully submitted</p>
+</div>

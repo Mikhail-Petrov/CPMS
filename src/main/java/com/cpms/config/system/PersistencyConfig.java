@@ -36,7 +36,9 @@ import com.cpms.dao.implementations.jpa.JPATaskDAO;
 import com.cpms.dao.implementations.jpa.JPATermDAO;
 import com.cpms.dao.implementations.jpa.JPATermInnovationDAO;
 import com.cpms.dao.implementations.jpa.JPATopicDAO;
+import com.cpms.dao.implementations.jpa.JPATrendDAO;
 import com.cpms.dao.implementations.jpa.JPAUserDAO;
+import com.cpms.dao.implementations.jpa.JPAWebsiteDAO;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
@@ -53,6 +55,8 @@ import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.Topic;
+import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.Website;
 import com.cpms.security.CustomUserDetailsService;
 import com.cpms.web.controllers.CommonModelAttributes;
 import com.zaxxer.hikari.HikariConfig;
@@ -329,6 +333,26 @@ public class PersistencyConfig {
     @Bean(name = "categoryDAO")
     public IDAO<Category> getCategoryDAO() {
     	return new JPACategoryDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Trend entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "trendDAO")
+    public IDAO<Trend> getTrendDAO() {
+    	return new JPATrendDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Website entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "websiteDAO")
+    public IDAO<Website> getWebsiteDAO() {
+    	return new JPAWebsiteDAO();
     }
     
     /**

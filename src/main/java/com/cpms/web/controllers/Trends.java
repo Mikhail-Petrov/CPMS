@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
-import com.cpms.data.entities.Category;
-import com.cpms.data.entities.Category_Termvariant;
+import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.Trend_Termvariant;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
 import com.cpms.exceptions.WrongJsonException;
@@ -44,12 +44,12 @@ import com.cpms.web.ajax.SkillAnswer;
  * @since 1.0
  */
 @Controller
-@RequestMapping(path = "/category")
-public class Categories {
+@RequestMapping(path = "/trend")
+public class Trends {
 	
 	@Autowired
-	@Qualifier("categoryDAO")
-	private IDAO<Category> categoryDAO;
+	@Qualifier("trendDAO")
+	private IDAO<Trend> trendDAO;
 	
 	@Autowired
 	@Qualifier(value = "innovationDAO")
@@ -66,11 +66,10 @@ public class Categories {
     public static long parent0 = 0;
 
 	@ResponseBody
-	@RequestMapping(value = "/ajaxCatTermSearch",
+	@RequestMapping(value = "/ajaxTrTermSearch",
 			method = RequestMethod.POST)
-	public IAjaxAnswer ajaxCatTermSearch(
+	public IAjaxAnswer ajaxTrTermSearch(
 			@RequestBody String json) {
-		Statistic.time();
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		String name = values.size() > 0 ? (String) values.get(0) : "";
 		if (name.isEmpty())
@@ -86,18 +85,18 @@ public class Categories {
 	@ResponseBody
 	@RequestMapping(value = "/ajaxSearch",
 			method = RequestMethod.POST)
-	public List<Category> ajaxSearch(
+	public List<Trend> ajaxSearch(
 			@RequestBody String json) {
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		String name = values.size() > 0 ? (String) values.get(0) : "";
 		if (name.isEmpty())
 			return new ArrayList<>();
-		
+
 		name = name.toLowerCase();
-		 List<Category> res = new ArrayList<>();
-		 for (Category cat : categoryDAO.getAll())
-			 if (cat.getName().toLowerCase().contains(name))
-				 res.add(new Category(cat));
+		 List<Trend> res = new ArrayList<>();
+		 for (Trend tr : trendDAO.getAll())
+			 if (tr.getName().toLowerCase().contains(name))
+				 res.add(new Trend(tr));
 		 return res;
 	}
 	
@@ -111,33 +110,30 @@ public class Categories {
 			long id = Long.parseLong(values.get(0).toString());
 			InnAnswer answer = new InnAnswer();
 			answer.setId(id);
-			Category category = null;
+			Trend trend = null;
 			if (id > 0)
-				category = categoryDAO.getOne(id);
-			List<Category> children;
-			Statistic.time();
-			if (category != null)
-				children = categoryDAO.getChildren(category);
+				trend = trendDAO.getOne(id);
+			Set<Trend> children;
+			if (trend != null)
+				children = trend.getChildren(trendDAO);
 			else {
-				/*children = new HashSet<>();
-				for (Category cat : categoryDAO.getAll())
-					if (cat.getParent() == null)
-						children.add(cat);*/
-				children = categoryDAO.getChildren(null);
+				children = new HashSet<>();
+				for (Trend tr : trendDAO.getAll())
+					if (tr.getParent() == null)
+						children.add(tr);
 			}
-			Statistic.time("get children for " + (category == null ? "null" : category.getName()));
 			String flag = "";
-			while (category != null) {
-				category = category.getParent();
+			while (trend != null) {
+				trend = trend.getParent();
 				flag += "--";
 			}
-			for (Category child : children) {
+			for (Trend child : children) {
 				answer.getIds().add(child.getId());
 				answer.getTerms().add(child.getName());
 				answer.getFlags().add(flag);
-				//Set<Category> kids = child.getChildren(categoryDAO.getAll());
+				//Set<Trend> kids = child.getChildren(trendDAO.getAll());
 				//answer.getKids().add(kids == null ? 0 : kids.size());
-				answer.getKids().add(categoryDAO.getInt(child));
+				answer.getKids().add(trendDAO.getInt(child));
 			}
 			return answer;
 		} else {
@@ -161,44 +157,44 @@ public class Categories {
 			method = RequestMethod.GET)
 	public String skills(Model model, HttpServletRequest request, Principal principal) {
 		model.addAttribute("_NAMED_TITLE", true);
-		model.addAttribute("_VIEW_TITLE", "Categories");
+		model.addAttribute("_VIEW_TITLE", "Trends");
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("html0", ch0);
 		model.addAttribute("parent0", parent0);
 		ch0 = "";
 		
-		Category newCategory = new Category();
-		model.addAttribute("category", newCategory);
-		return "categories";
+		Trend newTrend = new Trend();
+		model.addAttribute("trend", newTrend);
+		return "trends";
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/ajaxCategory",
+	@RequestMapping(value = "/ajaxTrend",
 			method = RequestMethod.POST)
-	public IAjaxAnswer ajaxCategory(
+	public IAjaxAnswer ajaxTrend(
 			@RequestBody String json) {
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		if (values.size() >= 1 && DashboardAjax.isInteger(values.get(0).toString(), 10)) {
 			long id = Long.parseLong(values.get(0).toString());
 			if (id > 0) {
-				Category category = categoryDAO.getOne(id)
+				Trend trend = trendDAO.getOne(id)
 						.localize(LocaleContextHolder.getLocale());
 				SkillAnswer answer = new SkillAnswer();
-				answer.setName(category.getName());
-				answer.setName_en(category.getName());
-				answer.setName_ru(category.getName());
-				answer.setParentId(category.getParent() == null ? null : "" + category.getParent().getId());
-				answer.setId(category.getId());
+				answer.setName(trend.getName());
+				answer.setName_en(trend.getName());
+				answer.setName_ru(trend.getName());
+				answer.setParentId(trend.getParent() == null ? null : "" + trend.getParent().getId());
+				answer.setId(trend.getId());
 				answer.setSuccessful(true);
-				answer.setMaxLevel(category.getVariants().size() + 1);
-				for (Category_Termvariant var : category.getVariants()) {
+				answer.setMaxLevel(trend.getVariants().size() + 1);
+				for (Trend_Termvariant var : trend.getVariants()) {
 					answer.addLevelFromVariant(var.getVariant());
 				}
 				return answer;
 			} else {
 				SkillAnswer answer = new SkillAnswer();
-				answer.setName("Category Tree Root");
-				answer.setAbout("Category Tree Root");
+				answer.setName("Trend Tree Root");
+				answer.setAbout("Trend Tree Root");
 				answer.setId(0);
 				answer.setSuccessful(true);
 				answer.setMaxLevel(1);
@@ -211,29 +207,29 @@ public class Categories {
 	
 	@RequestMapping(path = "/alternativeAsync", 
 			method = RequestMethod.POST)
-	public String categoryCreateAlternativeAsync(Model model, @RequestParam(value = "html0", required = false) String html0,
-			@ModelAttribute SkillPostForm recievedCategory, @RequestParam(value = "terms", required = false) List<String> terms,
+	public String trendCreateAlternativeAsync(Model model, @RequestParam(value = "html0", required = false) String html0,
+			@ModelAttribute SkillPostForm recievedTrend, @RequestParam(value = "terms", required = false) List<String> terms,
 			HttpServletRequest request,
 			Principal principal) {
 		ch0 = html0;
-		Category newCategory = new Category();
-		if (recievedCategory.getId() > 0) 
-			newCategory = categoryDAO.getOne(recievedCategory.getId());
+		Trend newTrend = new Trend();
+		if (recievedTrend.getId() > 0) 
+			newTrend = trendDAO.getOne(recievedTrend.getId());
 		Long parentId = 0L;
-		if (recievedCategory.getParent() != null && recievedCategory.getParent() != "")
+		if (recievedTrend.getParent() != null && recievedTrend.getParent() != "")
 			try {
-				parentId = Long.parseLong(recievedCategory.getParent());
+				parentId = Long.parseLong(recievedTrend.getParent());
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
 		parent0 = parentId;
-		Category parent = categoryDAO.getOne(parentId);
-		newCategory.setParent(parent);
-		newCategory.setName(recievedCategory.getName());
+		Trend parent = trendDAO.getOne(parentId);
+		newTrend.setParent(parent);
+		newTrend.setName(recievedTrend.getName());
 		
 		// add terms
-		Set<Category_Termvariant> oldVars = newCategory.getVariants();
-		newCategory.clearVariants();
+		Set<Trend_Termvariant> oldVars = newTrend.getVariants();
+		newTrend.clearVariants();
 		if (terms != null)
 		for (String sterm : terms) {
 			String[] split = sterm.split(":");
@@ -248,42 +244,42 @@ public class Categories {
 			for (TermVariant var : term.getVariants())
 				if (var.getId() == varid) {
 					boolean isOld = false;
-					for (Category_Termvariant ct : oldVars)
+					for (Trend_Termvariant ct : oldVars)
 						if (ct.getVariant().getId() == var.getId()) {
-							newCategory.addVariant(ct);
+							newTrend.addVariant(ct);
 							isOld = true;
 							break;
 						}
 					if (!isOld)
-						newCategory.addVariant(new Category_Termvariant(newCategory, var));
+						newTrend.addVariant(new Trend_Termvariant(newTrend, var));
 					break;
 				}
 		}
-		if (recievedCategory.getId() == 0)
-			categoryDAO.insert(newCategory);
+		if (recievedTrend.getId() == 0)
+			trendDAO.insert(newTrend);
 		else
-			categoryDAO.update(newCategory);
-		return "redirect:/category";
+			trendDAO.update(newTrend);
+		return "redirect:/trend";
 	}
 
-	private void deleteCategory(Category category, long delUser, Date delDate, List<Category> all) {
-		//category.setDelDate(delDate);
-		//category.setDelUser(delUser);
-		for (Category child : category.getChildren(categoryDAO))
-			deleteCategory(child, delUser, delDate, all);
+	private void deleteTrend(Trend trend, long delUser, Date delDate, List<Trend> all) {
+		//trend.setDelDate(delDate);
+		//trend.setDelUser(delUser);
+		for (Trend child : trend.getChildren(trendDAO))
+			deleteTrend(child, delUser, delDate, all);
 		//facade.getSkillDAO().update(skill);
-		categoryDAO.delete(category);
+		trendDAO.delete(trend);
 	}
 	@RequestMapping(path = {"/delete"}, 
 			method = RequestMethod.POST)
 	public String skillDelete(Model model, Principal principal, @RequestParam(value = "del0", required = false) String html0,
 			@RequestParam(value = "delId", required = true) Long id) {
 		ch0 = html0;
-		Category category = categoryDAO.getOne(id);
-		if (category.getParent() == null)
+		Trend trend = trendDAO.getOne(id);
+		if (trend.getParent() == null)
 			parent0 = 0;
 		else
-			parent0 = category.getParent().getId();
+			parent0 = trend.getParent().getId();
 		long delUser = 0;
 		/*Users user = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
 		if (user == null)
@@ -291,8 +287,8 @@ public class Categories {
 		else
 			delUser = user.getId();*/
 		Date delDate = new Date(System.currentTimeMillis());
-		deleteCategory(category, delUser, delDate, categoryDAO.getAll());
-		return "redirect:/category";
+		deleteTrend(trend, delUser, delDate, trendDAO.getAll());
+		return "redirect:/trend";
 	}
 
 }

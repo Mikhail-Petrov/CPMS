@@ -1,0 +1,99 @@
+	<script type="text/javascript" th:src="@{/resources/js/tableLoader.js}"></script>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" />
+	
+	<style>
+        a {
+            cursor: pointer;
+        }
+    </style>
+
+    <style>
+        .Container {
+            padding: 0;
+            margin: 0;
+        }
+
+        .Container li {
+            list-style-type: none;
+        }
+        }
+        .IsRoot {
+            margin-left: 0;
+        }
+        .Expand {
+            width: 18px;
+            height: 18px;
+            float: left;
+        }
+        .Content {
+            margin-left:18px;
+            min-height: 18px;
+        }
+        * html .Content {
+            height: 18px;
+        }
+        .ExpandOpen .Expand {
+            background-image: url(/resources/images/minus.gif);
+        }
+        .ExpandClosed .Expand {
+            background-image: url(/resources/images/plus.gif);
+        }
+        .IsLast {}
+
+        .ExpandLeaf .Expand {
+            cursor: auto;
+        }
+        .ExpandLoading   {
+            width: 18px;
+            height: 18px;
+            float: left;
+            background-image: url(/resources/images/expand_loading.gif);
+        }
+
+    </style>
+    
+    <style>
+            .right_col {
+                font-size: 15px;
+            }
+        </style>
+
+				<div class="modal fade" id="createTrendModal" tabindex="-1" role="dialog" aria-labelledby="createTrendModalLabel" aria-hidden="true">
+                    <div th:replace="fragments/editTrendModal :: trendModalForm"></div>
+                </div>
+                <script>
+        			$('#trendCreate').on("submit", function() {$("#html0").val($("#trch0").html());});
+        			$('#delButton').on("click", function() {$("#del0").val($("#trch0").html());});
+                </script>
+
+                <div class="row">
+					<script>
+					function expandTree(toExpand) {
+						if (toExpand == true)
+							while ($("img[src$='plusbottom.gif']:visible,img[src$='plus.gif']:visible").length > 0)
+								$("img[src$='plusbottom.gif']:visible,img[src$='plus.gif']:visible").click();
+						else
+							$("img[src$='minusbottom.gif']:visible,img[src$='minus.gif']:visible").click();
+					}
+					</script>
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title row">
+                                <h3 style="float: left;" th:text="'Trends'"></h3>
+                                <div th:if="${isAdmin or isResident}" style="float: right; margin-top: 5px;">
+                                       <button type="button" class="btn btn-success pull-left" data-toggle="modal" id="plusButton"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </div>
+                            <div class="x_content" th:include="fragments/trendTree :: trendTree"></div>
+                        </div>
+                    </div>
+                </div>
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+	function clickTrend(id) {
+				ajaxTrendDialog(rootPath + 'trend/ajaxTrend', id);
+			}
+	$("#plusButton").on("click", function() {ajaxTrendDialog(rootPath + 'trend/ajaxTrend', '0')});
+	/*]]>*/
+	</script>

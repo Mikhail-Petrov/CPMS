@@ -1,45 +1,45 @@
-<div th:fragment="categoryTree" th:remove="tag">
+<div th:fragment="websiteTree" th:remove="tag">
 
-                    <span th:text="'Type a category name'" text="Filter"></span>
+                    <span th:text="'Type a website name'" text="Filter"></span>
 					<div class="row"><div class="two-buttons">
-						<input type="text" class="form-control" id="categoryFilter"/>
+						<input type="text" class="form-control" id="websiteFilter"/>
 					</div><div class="two-buttons">
 						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applyFilter();"></span>
 					</div></div>
 					<script>
 					function clearFilter(){
-						$("#categoryFilter").val("");
+						$("#websiteFilter").val("");
 						applyFilter();
 					}
 					</script>
-					<p><span id="catss"></span></p>
+					<p><span id="webss"></span></p>
 					<p><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
 					
-	<div id="catch0"></div>
+	<div id="webch0"></div>
 
 	<script th:inline="javascript">
 	/*<![CDATA[*/
 
 		function addChild(id, flag, term, kids) {
 			var html = "";
-			html += "<div id='catb" + id + "'>";
+			html += "<div id='webb" + id + "'>";
 			html += flag;
 			if (kids > 0)
-				html += "<img id='catimg" + id + "' src='" + rootPath + "resources/images/dtree/nolines_plus.gif' " +
-					"onclick='ajaxChildren(\"" + rootPath + "category/ajaxChildren\", " + id + ");'>";
-			html += "<a id='catask" + id + "' href='#' onclick='clickCategory(" + id + ");'>"
+				html += "<img id='webimg" + id + "' src='" + rootPath + "resources/images/dtree/nolines_plus.gif' " +
+					"onclick='ajaxChildren(\"" + rootPath + "website/ajaxChildren\", " + id + ");'>";
+			html += "<a id='webask" + id + "' href='#' onclick='clickWebsite(" + id + ");'>"
 				+ term + "</a>";
-			html += "<div id='catch" + id + "'></div>";
+			html += "<div id='webch" + id + "'></div>";
 			html += "</div>";
 			return html;
 	}
 		function showChild(child) {
 		// if it shown then break
-		if ($("#catb" + child.id).length > 0) return;
+		if ($("#webb" + child.id).length > 0) return;
 		// if parent is not shown then show it
-		var parentId = "#catch";
+		var parentId = "#webch";
 		if (child.parent !== null) {
-			if ($("#catb" + child.parent.id).length <= 0)
+			if ($("#webb" + child.parent.id).length <= 0)
 				showChild(child.parent);
 			parentId += child.parent.id;
 		}
@@ -54,15 +54,15 @@
 	}
 	function applyFilter() {
 		var inputArgs = [];
-		var filterText = $("#categoryFilter").val().toLowerCase();
+		var filterText = $("#websiteFilter").val().toLowerCase();
 		inputArgs.push(filterText);
-		var requestUrl = rootPath + "category/ajaxSearch";
+		var requestUrl = rootPath + "website/ajaxSearch";
 
 		 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 	     var csrfToken = $("meta[name='_csrf']").attr("content");
 	     var headers = {};
 	     headers[csrfHeader] = csrfToken;
-	     $("#catss").text("start searching");
+	     $("#webss").text("start searching");
 		$.ajax({
 			url : requestUrl,
 			type: 'POST',
@@ -72,30 +72,30 @@
 			headers: headers,
 			success: function (res) {
 				if (res !== null) {
-				     $("#catss").text("processing results");
+				     $("#webss").text("processing results");
 					// get ids to show
-					var toShow = ["catb0"];
+					var toShow = ["webb0"];
 					for (var i = 0; i < res.length; i++) {
-						var category = res[i];
-						toShow.push("catb" + category.id);
-						var curCategory = category.parent;
-						while (curCategory !== null) {
-							var toAdd = "catb" + curCategory.id;
+						var website = res[i];
+						toShow.push("webb" + website.id);
+						var curWebsite = website.parent;
+						while (curWebsite !== null) {
+							var toAdd = "webb" + curWebsite.id;
 							if (toShow.indexOf(toAdd) >= 0)
 								break;
 							toShow.push(toAdd);
-							curCategory = curCategory.parent;
+							curWebsite = curWebsite.parent;
 						}
-						showChild(category);
+						showChild(website);
 					}
 					// hide all that not to show
-					var all = $("[id^=catb]");
+					var all = $("[id^=webb]");
 					for (var i = 0; i < all.length; i++)
 						if (toShow.length <= 1 || toShow.indexOf(all[i].id) >= 0)
 							$("#" + all[i].id).show();
 						else
 							$("#" + all[i].id).hide();
-				     $("#catss").text("");
+				     $("#webss").text("");
 				}
 			},
 			error: function (xhRequest, ErrorText, thrownError) {
@@ -106,7 +106,7 @@
 			}
 		});
 	}
-	$("#categoryFilter").keydown(function(e) {if(e.keyCode === 13) applyFilter()});
+	$("#websiteFilter").keydown(function(e) {if(e.keyCode === 13) applyFilter()});
 	
 			function ajaxChildren(requestUrl) {
 				
@@ -121,7 +121,7 @@
 			     var headers = {};
 			     headers[csrfHeader] = csrfToken;
 
-			     $("#catss").text("getting categories");
+			     $("#webss").text("getting websites");
 				$.ajax({
 					url : requestUrl,
 					type: 'POST',
@@ -131,7 +131,7 @@
 					headers: headers,
 					success: function (res) {
 						var html = "";
-						elImg = $("#catimg" + res.id);
+						elImg = $("#webimg" + res.id);
 						if (elImg.length > 0 && elImg.attr('src').indexOf("/resources/images/dtree/nolines_minus.gif") >= 0)
 							elImg.attr('src', rootPath + "resources/images/dtree/nolines_plus.gif");
 						else {
@@ -141,8 +141,8 @@
 								html += addChild(res.ids[i], res.flags[i], res.terms[i], res.kids[i]);
 							}
 						}
-						$("#catch" + res.id).html(html);
-					     $("#catss").text("");
+						$("#webch" + res.id).html(html);
+					     $("#webss").text("");
 					},
 					error: function (xhRequest, ErrorText, thrownError) {
 						console.log('xhRequest: ' + xhRequest + "\n");
@@ -155,41 +155,41 @@
 			var html0 = /*[[${html0}]]*/ "";
 			var parent0 = /*[[${parent0}]]*/ 0;
 			if (html0 !== null && html0 !== "" && parent0 !== null)
-				$("#catch0").html(html0);
+				$("#webch0").html(html0);
 			else
 				parent0 = 0;
-			elImg = $("#catimg" + parent0);
+			elImg = $("#webimg" + parent0);
 			if (elImg.length > 0 && elImg.attr('src').indexOf("/resources/images/dtree/nolines_minus.gif") >= 0)
 				elImg.attr('src', rootPath + "resources/images/dtree/nolines_plus.gif");
-			ajaxChildren(rootPath + "category/ajaxChildren", parent0);
+			ajaxChildren(rootPath + "website/ajaxChildren", parent0);
 			
-			// editing terms in category
+			// editing terms in website
 			function addTerm(termid, id, name) {
-				if ($('#catSel').children('option[value="' + termid + ":" + id + '"]').length > 0) return;
+				if ($('#webSel').children('option[value="' + termid + ":" + id + '"]').length > 0) return;
 				var o = new Option(name, termid + ":" + id);
 				$(o).html(name);
-				$("#catSel").append(o);
-				$('#catSel').children('option[value="' + termid + ":" + id + '"]').prop('selected', true);
-		    	htmlTerms = $("#catTerms").html() + "<span class='btn-warning btn btn-primary' id='catTerm" + id + "'>" +
+				$("#webSel").append(o);
+				$('#webSel').children('option[value="' + termid + ":" + id + '"]').prop('selected', true);
+		    	htmlTerms = $("#webTerms").html() + "<span class='btn-warning btn btn-primary' id='webTerm" + id + "'>" +
 		    		"<a href='#' onclick='removeTerm(" + termid + "," + id + ")' class='fa fa-remove'></a> " + name + "</span>";
-			    $("#catTerms").html(htmlTerms);
+			    $("#webTerms").html(htmlTerms);
 			}
 			function removeTerm(termid, id) {
-				if ($('#catSel').children('option[value="' + termid + ":" + id + '"]').length == 0) return;
-				$('#catSel').children('option[value="' + termid + ":" + id + '"]').remove();
-				$("#catTerm" + id).remove();
+				if ($('#webSel').children('option[value="' + termid + ":" + id + '"]').length == 0) return;
+				$('#webSel').children('option[value="' + termid + ":" + id + '"]').remove();
+				$("#webTerm" + id).remove();
 				
 			}
 			function clearTerms() {
-				$('#catSel').children('option').remove();
-			    $("#catTerms").html("");
+				$('#webSel').children('option').remove();
+			    $("#webTerms").html("");
 			}
-			// some stuff for opening categories
+			// some stuff for opening websites
 			function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return right[Symbol.hasInstance](left); } else { return left instanceof right; } }
 
 			function _classCallCheck(instance, Constructor) { if (!_instanceof(instance, Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 			
-			function ajaxCategoryDialog(requestUrl) {
+			function ajaxWebsiteDialog(requestUrl) {
 				
 				var admin = /*[[${isAdmin}]]*/ false;
 				var resident = /*[[${isResident}]]*/ false;	
@@ -221,13 +221,13 @@
 					data : JSON.stringify(inputArgs),
 					headers: headers,
 					success: function (res) {
-					     $("#catSearchSS").text("");
-						document.getElementById('categoryName').innerHTML=res.name;
+					     $("#webSearchSS").text("");
+						document.getElementById('websiteName').innerHTML=res.name;
 						$("#idtext").text("id: " + res.id);
 						if (res.id > 0) {
 							$("#delId").val(res.id);
 							document.getElementById('createChildButton').setAttribute(
-									'onclick', 'ajaxCategoryDialog(\'' + rootPath + 'category/ajaxCategory\', -' + res.id + '); return false;');
+									'onclick', 'ajaxWebsiteDialog(\'' + rootPath + 'website/ajaxWebsite\', -' + res.id + '); return false;');
 							$("#deleteLink").show();
 							$("#createChildButton").show();
 						} else {
@@ -242,42 +242,45 @@
 						else
 							$("#parentId").val(res.parentId);
 						if (res.id > 0 && !isChild) {
-							// Copy values from changed category
-							$("#category_name").val(res.name);
-						    // Remember id of the changed category
+							// Copy values from changed website
+							$("#website_name").val(res.name);
+							$("#website_url").val(res.about);
+						    // Remember id of the changed website
 						    $("#selfId").val(res.id);
 						    // Get all terms
 						    clearTerms();
 						    var htmlTerms = "<h3>Terms</h3>";
-						    $("#catTerms").html(htmlTerms);
+						    $("#webTerms").html(htmlTerms);
 						    for (var i = 0; i < res.levels.length; i++)
 						    	addTerm(res.levels[i].about_ru, res.levels[i].id, res.levels[i].about);
 						}
 						else {
 							// Clear all values
-							$("#category_name").val("");
+							$("#website_name").val("");
+							$("#website_url").val("");
 							$("#parentId").val(res.id);
 						    clearTerms();
-						    // Forget category id
+						    // Forget website id
 						    $("#selfId").val(0);
 						}
+					    $("#webTerms").hide();
 						    
-						var categoryName = "";
+						var websiteName = "";
 						if (isChild) {
-							$("#viewCategoryBlock").show();
-							$("#newCategoryForm").show();
+							$("#viewWebsiteBlock").show();
+							$("#newWebsiteForm").show();
 							$('#parentSelect option[value="' + res.id + '"]').prop('selected', true);
-							categoryName = /*[[#{skillPopup.child}]]*/ 'Create a Child';
+							websiteName = /*[[#{skillPopup.child}]]*/ 'Create a Child';
 							$("#idtext").text("id: 0");
 						} else {
-							$("#viewCategoryBlock").hide();
-							$("#newCategoryForm").show();
-							categoryName = res.name_en;
+							$("#viewWebsiteBlock").hide();
+							$("#newWebsiteForm").show();
+							websiteName = res.name_en;
 						}
 						if (admin)
-						document.getElementById('categoryFormTitle').innerHTML=
-							"<span id=\"categoryName\">" + categoryName + "</span>";
-						$('#createCategoryModal').modal('show');
+						document.getElementById('websiteFormTitle').innerHTML=
+							"<span id=\"websiteName\">" + websiteName + "</span>";
+						$('#createWebsiteModal').modal('show');
 					},
 					error: function (xhRequest, ErrorText, thrownError) {
 						console.log('xhRequest: ' + xhRequest + "\n");
@@ -292,24 +295,20 @@
 			
 				// clear search field and hide results table
 				function clear() {
-					$("#catTermSearch").val('');
-					$("#catSearchTerms").hide();
+					$("#webTermSearch").val('');
+					$("#webSearchTerms").hide();
 				}
 			clear();
 			
 			// add term result
 			function addSearchTerm(termid, id, name) {
-		    	htmlTerms = $("#catSearchTerms").html() +
+		    	htmlTerms = $("#webSearchTerms").html() +
 		    		"<span onclick='addTerm(" + termid + ", " + id + ", \"" + name + "\")' class='btn btn-primary btn-warning'>" + name + "</span>";
-			    $("#catSearchTerms").html(htmlTerms);
+			    $("#webSearchTerms").html(htmlTerms);
 			}
 			
 			// terms search
-			function ajaxCatTermSearch(requestUrl) {
-				if ($("#catTermSearch").val().length > 50) {
-				     $("#catSearchSS").text("The search query is too big.");
-					return;
-				}
+			function ajaxWebTermSearch(requestUrl) {
 				
 				var inputArgs = [];
 				var i;
@@ -322,11 +321,11 @@
 			     var headers = {};
 			     headers[csrfHeader] = csrfToken;
 
-				inputArgs.push($("#catTermSearch").val());
+				inputArgs.push($("#webTermSearch").val());
 
 				if ($("#search").val() === "")
 					return;
-			     $("#catSearchSS").text("searching...");
+			     $("#webSearchSS").text("searching...");
 				$.ajax({
 					url : requestUrl,
 					type: 'POST',
@@ -337,12 +336,12 @@
 					success: function (res) {
 						var results = res.ids.length;
 						if (results == null) results = 0;
-					     $("#catSearchSS").text(results + " results");
+					     $("#webSearchSS").text(results + " results");
 						if (results > 0)
-							$("#catSearchTerms").show();
+							$("#webSearchTerms").show();
 						else
-							$("#catSearchTerms").hide();
-					    $("#catSearchTerms").html("");
+							$("#webSearchTerms").hide();
+					    $("#webSearchTerms").html("");
 					    for (var i = 0; i < results; i++)
 					    	addSearchTerm(res.terms[i], res.ids[i], res.flags[i]);
 					},
@@ -355,49 +354,12 @@
 					}
 				});
 			}
-			$("#catTermFind").on("click", function() {ajaxCatTermSearch(rootPath + 'category/ajaxCatTermSearch')});
-			$("#catTermSearch").keydown(function(e) {if(e.keyCode === 13) ajaxCatTermSearch(rootPath + 'category/ajaxCatTermSearch');});
-			$("#catTermClear").on("click", function() {clear()});
-			
-			function ajaxCatTermAdd(requestUrl) {
-				
-				var inputArgs = [];
-				var i;
-				for (i = 1; i < arguments.length; i++) {
-					inputArgs.push(arguments[i]);
-				}
-				inputArgs.push($("#catTermSearch").val());
-				inputArgs.push(false);
-				
-				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-			     var csrfToken = $("meta[name='_csrf']").attr("content");
-			     var headers = {};
-			     headers[csrfHeader] = csrfToken;
-
-         		$("#catSearchSS").html('adding...');
-				$.ajax({
-					url : requestUrl,
-					type: 'POST',
-					dataType: 'json',
-					contentType: 'application/json; charset=utf-8',
-					data : JSON.stringify(inputArgs),
-					headers: headers,
-					success: function (res) {
-				        $("#catSearchSS").html('term has been added');
-					},
-					error: function (xhRequest, ErrorText, thrownError) {
-				         $("#curStatus").html('ERROR!!!');
-						console.log('xhRequest: ' + xhRequest + "\n");
-						console.log('ErrorText: ' + ErrorText + "\n");
-						console.log('thrownError: ' + thrownError + "\n");
-						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
-					}
-				});
-			}
-			$("#catTermAdd").on("click", function() {ajaxCatTermAdd(rootPath + 'stat/ajaxAdd')});
+			$("#webTermFind").on("click", function() {ajaxWebTermSearch(rootPath + 'website/ajaxWebTermSearch')});
+			$("#webTermSearch").keydown(function(e) {if(e.keyCode === 13) ajaxWebTermSearch(rootPath + 'website/ajaxWebTermSearch');});
+			$("#webTermClear").on("click", function() {clear()});
 
 			  $(document).ready(function() {
-			      $("#categoryCreate").keydown(function(event){
+			      $("#websiteCreate").keydown(function(event){
 			        if(event.keyCode == 13) {
 			          event.preventDefault();
 			          return false;

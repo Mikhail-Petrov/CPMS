@@ -145,6 +145,15 @@ public class Landing {
 	public String landing(Model model, HttpServletResponse response) {
 		return "redirect:/security/login";
 	}
+	
+	@RequestMapping(path = "/homepage", method = RequestMethod.GET)
+	public String homepage(Model model, HttpServletResponse response) {
+		model.addAttribute("_VIEW_TITLE", "Homepage");
+		model.addAttribute("title", "Homepage");
+		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("_NAMED_TITLE", true);
+		return "homepage";
+	}
 
 	private List<Long[]> datesList() {
 		final long millisInDay = 60 * 60 * 24 * 1000;

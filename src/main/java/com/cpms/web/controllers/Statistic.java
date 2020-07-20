@@ -51,15 +51,18 @@ import org.tartarus.snowball.ext.PorterStemmer;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
+import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Category;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
+import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
 import com.cpms.facade.ICPMSFacade;
+import com.cpms.security.entities.Users;
 import com.cpms.web.CompetencyMatching;
 import com.cpms.web.TermRes;
 import com.cpms.web.UserSessionData;
@@ -96,6 +99,10 @@ public class Statistic {
 	@Autowired
 	@Qualifier(value = "keywordDAO")
 	private IDAO<Keyword> keyDAO;
+
+	@Autowired
+	@Qualifier("userDAO")
+	private IUserDAO userDAO;
 
 	@Autowired
 	@Qualifier(value = "userSessionData")
@@ -300,16 +307,40 @@ public class Statistic {
 			ans.addTerm(term);
 		return ans;
 	}
+	
+	private Task createInnovation(TermVariant variant, Principal principal) {
+		// check if a task for this variant exists
+		List<Task> all = facade.getTaskDAO().getAll();
+		for (Task task : all)
+			if (task.getVariant() != null && task.getVariant().getId() == variant.getId())
+				return task;
+		// if not then create a task
+		Task task = new Task();
+		task.setName(variant.getText());
+		task.setVariant(variant);
+		task.setStatus("1");
+		task.setCost(0);
+		task.setProjectType(0);
+		Date dueDate = new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000);
+		task.setCreatedDate(new Date(System.currentTimeMillis()));
+		task.setDueDate(dueDate);
+		Users owner = Security.getUser(principal, userDAO);
+		if (owner == null)
+			owner = userDAO.getAll().get(0);
+		task.setUser(owner);
+		return facade.getTaskDAO().insert(task);
+	}
 
 	@ResponseBody
 	@RequestMapping(value = "/ajaxAdd",
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxAdd(
-			@RequestBody String json) {
+			@RequestBody String json, Principal principal) {
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		String query = values.size() > 0 ? (String) values.get(0) : "";
 		if (query.isEmpty())
 			return new InnAnswer();
+		boolean isInn = values.size() > 1 ? (boolean) values.get(1) : false;
 		// stem each word in query
 		String stemtext = "";
 		String[] words = query.split(" ");
@@ -321,18 +352,26 @@ public class Statistic {
 		stemtext = stemtext.trim();
 		// check if it in DB
 		Term term = innDAO.getTermByStem(stemtext);
+		TermVariant variant;
 		if (term == null) {
 			// if not then add
 			term = new Term();
-			term.addVariant(query);
+			variant = term.addVariant(query);
 			term.setStem(stemtext);
-			termDAO.insert(term);
+			term.setInn(isInn);
+			term = termDAO.insert(term);
 		} else {
 			// if exists then add as variant
-			term.addVariant(query);
-			termDAO.update(term);
+			variant = term.addVariant(query);
+			term.setInn(isInn);
+			term = termDAO.update(term);
 		}
-		return new InnAnswer();
+		// create innovation project
+		Task newTask = createInnovation(variant, principal);
+		InnAnswer answer = new InnAnswer();
+		answer.setId(newTask.getId());
+		answer.getTerms().add(variant.getText());
+		return answer;
 	}
 
 	@ResponseBody
@@ -347,9 +386,8 @@ public class Statistic {
 		List<TermVariant> vars = termSearch(query, innDAO);
 		List<Term> res = new ArrayList<>();
 		for (TermVariant var : vars) {
-			Term newTerm = var.getTerm();
+			Term newTerm = var.getTerm().localize(null);
 			newTerm.setPref(var.getText());
-			newTerm.clearVariants();
 			res.add(newTerm);
 		}
 		InnAnswer ans = new InnAnswer();
@@ -361,28 +399,30 @@ public class Statistic {
 	public static List<TermVariant> termSearch(String query, IInnovationTermDAO innDAO) {
 		String[] split = query.split(" ");
 		// search
-		List<Term> res = innDAO.find(buildQuery(split, split.length, 0));
-		Statistic.time("find");
+		Statistic.time();
+		String bQuery = buildQuery(split, split.length, 0);
+		List<Term> res = innDAO.find(bQuery);
+		Statistic.time("term search for " + bQuery);
 		if (res == null) res = new ArrayList<>();
 		// for complex queries: divide and find
 		for (int length = split.length - 1; length > 0 && res.isEmpty(); length--) {
 			res = new ArrayList<>();
 			for (int start = 0; start + length <= split.length; start++) {
-				List<Term> curRes = innDAO.find(buildQuery(split, length, start));
+				bQuery = buildQuery(split, length, start);
+				Statistic.time();
+				List<Term> curRes = innDAO.find(bQuery);
+				Statistic.time("term search for " + bQuery);
 				if (curRes != null)
 					res.addAll(curRes);
 			}
 		}
-		Statistic.time("divided");
 		
 		List<TermRes> results = new ArrayList<>();
 		// calculate sorenson for variants
 		for (Term term : res)
 			for (TermVariant var : term.getVariants())
 				results.add(new TermRes(var, sorensen(query, var.getText())));
-		Statistic.time("calculated");
 		Collections.sort(results);
-		Statistic.time("sorted");
 		// form results
 		List<TermVariant> ret = new ArrayList<>();
 		for (TermRes tr : results)
@@ -403,7 +443,7 @@ public class Statistic {
 	@RequestMapping(value = "/ajaxSave",
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxSave(
-			@RequestBody String json) {
+			@RequestBody String json, Principal principal) {
 		// get parameters
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
 		List<Integer> ids = values.size() > 1 ? (List<Integer>) values.get(1) : null;
@@ -411,6 +451,7 @@ public class Statistic {
 		List<String> terms = values.size() > 3 ? (List<String>) values.get(3) : null;
 		if (ids == null || flags == null || terms == null) return null;
 		// save changes
+		InnAnswer ans = new InnAnswer();
 		List<Long> changed = new ArrayList<>();
 		for (int i = 0; i < ids.size() && i < flags.size() && i < terms.size(); i++) {
 			if (changed.contains((long) ids.get(i))) continue;
@@ -429,11 +470,21 @@ public class Statistic {
 				term.setPref(terms.get(i));
 			}
 			if (change) {
-				termDAO.update(term);
+				term = termDAO.update(term);
 				changed.add(term.getId());
+				// create a project for innovation
+				if (term.isInn()) {
+					TermVariant variant = null;
+					for (TermVariant var : term.getVariants())
+						if (var.getText().equals(term.getPref()))
+							variant = var;
+					if (variant != null) {
+						ans.getIds().add(createInnovation(variant, principal).getId());
+						ans.getTerms().add(variant.getText());
+					}
+				}
 			}
 		}
-		InnAnswer ans = new InnAnswer();
 		return ans;
 	}
 	
@@ -518,6 +569,7 @@ public class Statistic {
 	public String removeInn(Model model, @RequestParam(value = "id", required = true) Long id) {
 		Term term = termDAO.getOne(id);
 		term.setInn(false);
+		term.setCategory("");
 		termDAO.update(term);
 		return "redirect:/stat/innovations";
 	}

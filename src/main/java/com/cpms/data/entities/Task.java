@@ -123,6 +123,14 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 	@Column(name = "Cost", nullable = true)
 	private int cost;
 	
+	@Column(name = "ProjectType", nullable = true)
+	private int projectType;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "TermVariantID", nullable = true)
+	@Cascade({CascadeType.DETACH})
+	private TermVariant variant;
+	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "task", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST})
@@ -404,5 +412,21 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 
 	public void setCost(int cost) {
 		this.cost = cost;
+	}
+
+	public TermVariant getVariant() {
+		return variant;
+	}
+
+	public void setVariant(TermVariant variant) {
+		this.variant = variant;
+	}
+
+	public int getProjectType() {
+		return projectType;
+	}
+
+	public void setProjectType(int projectType) {
+		this.projectType = projectType;
 	}
 }
