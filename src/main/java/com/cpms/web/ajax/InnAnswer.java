@@ -33,8 +33,8 @@ public class InnAnswer implements IAjaxAnswer {
 	
 	public void addTerm(Term term) {
 		terms.add(term.getPref());
-		//flags.add(term.isInn());
-		flags.add(term.getCategory());
+		flags.add(term.isInn() ? "+" : "");
+		//flags.add(term.getCategory());
 		ids.add(term.getId());
 		List<String> vars = new ArrayList<>();
 		for (TermVariant var : term.getVariants())

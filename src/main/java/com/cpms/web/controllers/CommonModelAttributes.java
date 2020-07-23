@@ -23,6 +23,7 @@ import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
+import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.security.RoleTypes;
@@ -50,6 +51,10 @@ public class CommonModelAttributes {
 	@Autowired
 	@Qualifier(value = "taskDAO")
 	private IDAO<Task> taskDAO;
+
+	@Autowired
+	@Qualifier(value = "profileDAO")
+	private IDAO<Profile> profileDAO;
 
     @Autowired
     private MessageSource messageSource;
@@ -120,6 +125,21 @@ public class CommonModelAttributes {
 		}
 		UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) principal;
 		return user.getName();
+	}
+	
+	@ModelAttribute("expertname")
+	public String expertname(Principal principal) {
+		if (!isAuthenticated(principal)) {
+			return UserSessionData.localizeText("user.name.anon", messageSource);
+		}
+		Users user = Security.getUser(principal, userDAO);
+		String profileName = username(principal);
+		if (user != null && user.getProfileId() != null) {
+			Profile pr = profileDAO.getOne(user.getProfileId());
+			if (pr != null)
+				profileName = pr.getName();
+		}
+		return profileName;
 	}
 	
 	@ModelAttribute("newTasks")

@@ -144,6 +144,11 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "task")
 	@Cascade({CascadeType.DETACH})
 	private Set<Message> messages;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "task", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
+	private Set<ProjectTermvariant> variants;
 	
 	public Task() {}
 	
@@ -428,5 +433,57 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 
 	public void setProjectType(int projectType) {
 		this.projectType = projectType;
+	}
+
+	public void addVariant(ProjectTermvariant variant) {
+		if (variant == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.variants == null) {
+			this.getVariants();
+		}
+		if (!this.variants.stream().anyMatch(
+				x -> 
+				x.getId() == variant.getId())
+				) {
+			this.variants.add(variant);
+			variant.setTask(this);
+		} 
+	}
+	
+	public void removeVariant(ProjectTermvariant variant) {
+		if (variant == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.equals(variant.getTask())) {
+			removeEntityFromManagedCollection(variant, variants);
+			variant.setTask(null);
+		}
+	}
+	
+	public void clearVariants() {
+		if (this.variants == null) {
+			this.getVariants();
+		}
+		variants.clear();
+	}
+	
+	public Set<ProjectTermvariant> getVariants() {
+		if (variants == null) {
+			variants = new LinkedHashSet<ProjectTermvariant>() ;
+		}
+		return new LinkedHashSet<ProjectTermvariant>(variants);
+	}
+
+	public void setVariants(Set<ProjectTermvariant> variants) {
+		if (variants == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.variants == null) {
+			this.variants = variants;
+		} else {
+			throw new DataAccessException("Cannot insert, Hibernate will lose track",
+					null);
+		}
 	}
 }

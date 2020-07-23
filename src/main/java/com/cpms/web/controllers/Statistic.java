@@ -57,6 +57,7 @@ import com.cpms.data.entities.Category;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.ProjectTermvariant;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
@@ -128,6 +129,19 @@ public class Statistic {
 	List<String> urls = new ArrayList<>(), oldUrls = new ArrayList<>();
 
 	List<Long> nokeysDocs = new ArrayList<>();
+	
+	@ResponseBody
+	@RequestMapping(value = "/ajaxGetTerms",
+			method = RequestMethod.POST)
+	public List<String> ajaxGetTerms(
+			@RequestBody String json) {
+		// getting terms
+		List<Term> terms = termDAO.getRange(0, 50);
+		List<String> res = new ArrayList<>();
+		for (Term term : terms)
+			res.add(term.getPref());
+		return res;
+	}
 
 	public static String matchErr = "";
 	@RequestMapping(path = "/createProfile", method = RequestMethod.GET)
@@ -318,6 +332,7 @@ public class Statistic {
 		Task task = new Task();
 		task.setName(variant.getText());
 		task.setVariant(variant);
+		task.addVariant(new ProjectTermvariant(task, variant));
 		task.setStatus("1");
 		task.setCost(0);
 		task.setProjectType(0);
@@ -426,7 +441,8 @@ public class Statistic {
 		// form results
 		List<TermVariant> ret = new ArrayList<>();
 		for (TermRes tr : results)
-			ret.add(tr.getTerm());
+			if (ret.size() < 50)
+				ret.add(tr.getTerm());
 		return ret;
 	}
 	private static String buildQuery(String[] split, int length, int start) {

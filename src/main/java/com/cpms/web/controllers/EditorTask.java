@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -28,18 +29,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
+import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.ProjectTermvariant;
 import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.data.entities.TaskRequirement;
+import com.cpms.data.entities.Term;
+import com.cpms.data.entities.TermVariant;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
@@ -47,6 +53,7 @@ import com.cpms.security.entities.Users;
 import com.cpms.web.SkillUtils;
 import com.cpms.web.ajax.GroupAnswer;
 import com.cpms.web.ajax.IAjaxAnswer;
+import com.cpms.web.ajax.InnAnswer;
 
 /**
  * Handles task CRUD web application requests.
@@ -69,6 +76,10 @@ public class EditorTask {
     @Autowired
 	@Qualifier(value = "mailSender")
     public JavaMailSender emailSender;
+    
+	@Autowired
+	@Qualifier(value = "termDAO")
+	private IDAO<Term> termDAO;
 
     @Autowired
     private MessageSource messageSource;
@@ -76,6 +87,28 @@ public class EditorTask {
 	@Autowired
 	@Qualifier("draftableSkillDAO")
 	private IDraftableSkillDaoExtension skillDao;
+	
+	@Autowired
+	@Qualifier(value = "innovationDAO")
+	private IInnovationTermDAO innDAO;
+
+	@ResponseBody
+	@RequestMapping(value = "/task/ajaxTaskTermSearch",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxTaskTermSearch(
+			@RequestBody String json) {
+		Statistic.time();
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		String name = values.size() > 0 ? (String) values.get(0) : "";
+		if (name.isEmpty())
+			return new InnAnswer();
+		
+		 List<TermVariant> res = Statistic.termSearch(name, innDAO);
+		 InnAnswer ret = new InnAnswer();
+		 for (TermVariant var : res)
+			 ret.addVariant(var);
+		 return ret;
+	}
 
 	@RequestMapping(path = "/{taskId}/requirementAsyncNew", method = RequestMethod.POST)
 	public String competencyCreateAsyncNew(Model model, HttpServletRequest request, @PathVariable("taskId") Long taskId,
@@ -142,7 +175,8 @@ public class EditorTask {
 	private Task existedTask = null;
 	
 	@RequestMapping(path = "/task", method = RequestMethod.GET)
-	public String task(Model model, Principal principal, @RequestParam(name = "id", required = false) Long id) {
+	public String task(Model model, Principal principal, @RequestParam(name = "id", required = false) Long id
+			, @RequestParam(name = "term", required = false) Long termid, @RequestParam(name = "var", required = false) String var) {
 		model.addAttribute("_VIEW_TITLE", "title.edit.task");
 		model.addAttribute("_FORCE_CSRF", true);
 		Task task;
@@ -157,6 +191,27 @@ public class EditorTask {
 			create = false;
 		}
 		existedTask = null;
+		// fill some fields for innovation
+		if (termid != null && var != null) {
+			Term term = termDAO.getOne(termid);
+			if (term != null)
+				for (TermVariant tv : term.getVariants())
+					if (tv.getText().equals(var)) {
+						task.setName(var);
+						task.addVariant(new ProjectTermvariant(task, tv));
+						Date dueDate = new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000);
+						task.setDueDate(dueDate);
+						task.setStatus("1");
+						task.setCost(0);
+						task.setProjectType(0);
+						task.setVariant(tv);
+						if (!term.isInn()) {
+							term.setInn(true);
+							termDAO.update(term);
+						}
+						break;
+					}
+		}
 		model.addAttribute("task", task);
 		model.addAttribute("create", create);
 		List<Language> langs = facade.getLanguageDAO().getAll();
@@ -181,12 +236,46 @@ public class EditorTask {
 			performers.add(-1L);
 		}
 		model.addAttribute("performers", performers);
+		List<String> terms = new ArrayList<>();
+		for (ProjectTermvariant tvar : task.getVariants())
+			terms.add(tvar.getVariant().getTerm().getId() + "~!@" + tvar.getVariant().getId() + "~!@" + tvar.getVariant().getText());
+		model.addAttribute("terms", terms);
 		return "editTask";
 	}
 	
+	private void updateVariants(Task task, List<String> terms) {
+		Set<ProjectTermvariant> oldVars = task.getVariants();
+		task.clearVariants();
+		if (terms != null)
+		for (String sterm : terms) {
+			String[] split = sterm.split(":");
+			if (split.length < 2) continue;
+			long termid = 0, varid = 0;
+			try {
+				termid = Long.parseLong(split[0]);
+				varid = Long.parseLong(split[1]);
+			} catch (NumberFormatException e) {}
+			Term term = termDAO.getOne(termid);
+			if (term == null || varid <= 0) continue;
+			for (TermVariant var : term.getVariants())
+				if (var.getId() == varid) {
+					boolean isOld = false;
+					for (ProjectTermvariant ct : oldVars)
+						if (ct.getVariant().getId() == var.getId()) {
+							task.addVariant(ct);
+							isOld = true;
+							break;
+						}
+					if (!isOld)
+						task.addVariant(new ProjectTermvariant(task, var));
+					break;
+				}
+		}
+	}
 	@RequestMapping(path = "/task", method = RequestMethod.POST)
 	public String taskCreate(Model model, HttpServletRequest request, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam(required=false, name="file") MultipartFile file,
-			BindingResult bindingResult, Principal principal, @RequestParam(required=false, name="skills") String skills) {
+			BindingResult bindingResult, Principal principal, @RequestParam(required=false, name="skills") String skills
+			, @RequestParam(required=false, name="terms") List<String> terms) {
 		if (recievedTask == null) {
 			throw new SessionExpiredException(null, messageSource);
 		}
@@ -208,6 +297,7 @@ public class EditorTask {
 				} catch (IOException e) {}
 				recievedTask.setImageType(file.getContentType());
 			}
+			updateVariants(recievedTask, terms);
 			task = facade.getTaskDAO().insert(recievedTask);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
@@ -220,6 +310,7 @@ public class EditorTask {
 				} catch (IOException e) {}
 				task.setImageType(file.getContentType());
 			}
+			updateVariants(task, terms);
 			task = facade.getTaskDAO().update(task);
 		}
 

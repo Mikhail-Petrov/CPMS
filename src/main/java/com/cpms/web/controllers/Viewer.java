@@ -46,6 +46,7 @@ import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.Motivation;
 import com.cpms.data.entities.Profile;
+import com.cpms.data.entities.ProjectTermvariant;
 import com.cpms.data.entities.Requirements;
 import com.cpms.data.entities.Resident;
 import com.cpms.data.entities.Reward;
@@ -361,6 +362,10 @@ public class Viewer {
 				break;
 			}
 		model.addAttribute("noFinal", noFinal);
+		String terms = "";
+		for (ProjectTermvariant tvar : task.getVariants())
+			terms += (terms.isEmpty() ? "" : ", ") + tvar.getVariant().getText();
+		model.addAttribute("terms", terms);
 		return "viewTask";
 	}
 

@@ -1,6 +1,8 @@
 	<!-- link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" /-->
 		<div class="row">
 		
+		<p><span id="getTerms" class="btn btn-primary" th:text="'Get terms'"></span></p>
+		<p id="hotTerms"></p>
 		<h3>Innovation search</h3>
 		<p><div class="two-buttons">
 			<input id="search" type="text" name="search" class="form-control"/>
@@ -11,10 +13,10 @@
 		</div></p>
 		<div class="row"><p id="curStatus"></p><div id="statusLinks"></div></div>
 		<div id="termsBlock" class="row">
-	    <div class="two-buttons">.</div>
+	    <!--div class="two-buttons">.</div>
 	    <div class="two-buttons">
 			<span id="saveTerm" class="btn btn-primary btn-block" th:text="'Save'" onclick=""></span>
-        </div>
+        </div-->
 		<table id="termsTable" class="table table-responsive table-striped">
 		<thead>
 		<tr>
@@ -159,10 +161,15 @@
 							//line += "<td></td><td></td>";
 						} else {
 							var chID = "ch" + (isInn ? '1' : '2') + i;//ids[i];
-							line += "<td><input id='" + chID + "' type='checkbox' onclick='changeFlag(" + i +", \"" + chID +"\", " +
-								isInn + ");'" + (flags[i] === '' ? "" : " checked") + "></td>";
-							line += "<td><select id='s" + chID + "' onclick='changeFlag(" + i +", \"" + chID +"\", " +
-								isInn + ");'" + (flags[i] === '' ? " hidden='true'" : "") + ">";
+							line += "<td><input id='" + chID + "' type='checkbox' disabled onclick='changeFlag(" + i +", \"" + chID +
+								"\", " +isInn + ");'" + (flags[i] === '' ? "" : " checked") + "></td>";
+							//line += "<td><select id='s" + chID + "' onclick='changeFlag(" + i +", \"" + chID +"\", " +
+								//isInn + ");'" + (flags[i] === '' ? " hidden='true'" : "") + ">";
+							if (flags[i] !== '')
+								line += "<td></td>";
+							else
+								line += "<td><a target='_blank' href='" + rootPath + "editor/task?term=" +
+									ids[i] + "&var=" + terms[i] + "'>create innovation</a></td>";
 							for (j = 0; j < categories.length; j++)
 								line += "<option " + (flags[i] === categories[j] ? "selected='true' " : "") + 
 									"value='" + categories[j] + "'>" + categories[j] + "</option>";
@@ -305,7 +312,7 @@
 					});
 				}
 				$("#saveInn").on("click", function() {ajaxSave(rootPath + 'stat/ajaxSave', true)});
-				$("#saveTerm").on("click", function() {ajaxSave(rootPath + 'stat/ajaxSave', false)});
+				//$("#saveTerm").on("click", function() {ajaxSave(rootPath + 'stat/ajaxSave', false)});
 
 				function ajaxAdd(requestUrl) {
 					
@@ -346,6 +353,52 @@
 					});
 				}
 				$("#add").on("click", function() {ajaxAdd(rootPath + 'stat/ajaxAdd')});
+
+				function findTerm(term) {
+					$("#search").val(term);
+					$("#find").trigger('click');
+				}
+				function ajaxGetTerms(requestUrl) {
+					
+					var inputArgs = [];
+					var i;
+					for (i = 1; i < arguments.length; i++) {
+						inputArgs.push(arguments[i]);
+					}
+					
+					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				     var csrfToken = $("meta[name='_csrf']").attr("content");
+				     var headers = {};
+				     headers[csrfHeader] = csrfToken;
+
+	         		$("#curStatus").html('getting terms...');
+			        $("#statusLinks").html('');
+					$.ajax({
+						url : requestUrl,
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						data : JSON.stringify(inputArgs),
+						headers: headers,
+						success: function (res) {
+					        $("#curStatus").html('');
+					        var hotTerms = '';
+					        for (var i = 0; i < res.length; i++)
+					        	hotTerms = hotTerms + "<span onclick='findTerm(\"" + res[i] +
+					        		"\")' class='btn btn-primary btn-warning'>" + res[i] + "</span>";
+					        $("#hotTerms").html(hotTerms);
+					    
+						},
+						error: function (xhRequest, ErrorText, thrownError) {
+					         $("#curStatus").html('ERROR!!!');
+							console.log('xhRequest: ' + xhRequest + "\n");
+							console.log('ErrorText: ' + ErrorText + "\n");
+							console.log('thrownError: ' + thrownError + "\n");
+							console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+						}
+					});
+				}
+				$("#getTerms").on("click", function() {ajaxGetTerms(rootPath + 'stat/ajaxGetTerms')});
 			/*]]>*/
 			</script>
 		</div>

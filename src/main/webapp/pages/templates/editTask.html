@@ -23,6 +23,22 @@
                                         <input type="date" class="form-control" th:field="*{dueDate}" min="1970-01-01" max="2100-01-01"/>
                                     </div>
                                 </div>
+                                <hr class="separator"/>
+                                <div class="row">
+   			<p th:text="'Associated terms'"></p>
+        <p id="taskTerms"></p>
+		<select hidden="true" multiple="true" id="taskSel" name="terms"></select>
+  		<p><div class="two-buttons">
+			<input id="taskTermSearch" type="text" name="search" class="form-control"/>
+		</div><div class="two-buttons">
+			<span id="taskTermFind" class="btn btn-primary" th:text="'Find'"></span>
+			<span id="taskTermClear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
+			<span id="taskTermAdd" class="btn btn-primary" th:text="'Add as a term'"></span>
+		</div></p>
+		<p id="taskSearchSS"></p>
+		<p id="taskSearchTerms"></p>
+		</div>
+                                <hr class="separator"/>
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script>
@@ -290,6 +306,141 @@
 			
 			$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'editor/ajaxGroup')});
 
+			// editing terms in project
+			function addTerm(termid, id, name) {
+				if ($('#taskSel').children('option[value="' + termid + ":" + id + '"]').length > 0) return;
+				var o = new Option(name, termid + ":" + id);
+				$(o).html(name);
+				$("#taskSel").append(o);
+				$('#taskSel').children('option[value="' + termid + ":" + id + '"]').prop('selected', true);
+		    	htmlTerms = $("#taskTerms").html() + "<span class='btn-warning btn btn-primary' id='taskTerm" + id + "'>" +
+		    		"<a href='#' onclick='removeTerm(" + termid + "," + id + ")' class='fa fa-remove'></a> " + name + "</span>";
+			    $("#taskTerms").html(htmlTerms);
+			}
+        	var terms = /*[[${terms}]]*/ [];
+        	for (var i = 0; i < terms.length; i++) {
+        		var term = terms[i].split("~!@");
+        		if (term.length < 3) continue;
+        		addTerm(term[0], term[1], term[2]);
+        	}
+			function removeTerm(termid, id) {
+				if ($('#taskSel').children('option[value="' + termid + ":" + id + '"]').length == 0) return;
+				$('#taskSel').children('option[value="' + termid + ":" + id + '"]').remove();
+				$("#taskTerm" + id).remove();
+				
+			}
+			function clearTerms() {
+				$('#taskSel').children('option').remove();
+			    $("#taskTerms").html("");
+			}
+			//search staff
+			
+				// clear search field and hide results table
+				function clear() {
+					$("#taskTermSearch").val('');
+					$("#taskSearchTerms").hide();
+				}
+			clear();
+			
+			// add term result
+			function addSearchTerm(termid, id, name) {
+		    	htmlTerms = $("#taskSearchTerms").html() +
+		    		"<span onclick='addTerm(" + termid + ", " + id + ", \"" + name + "\")' class='btn btn-primary btn-warning'>" + name + "</span>";
+			    $("#taskSearchTerms").html(htmlTerms);
+			}
+			
+			// terms search
+			function ajaxTaskTermSearch(requestUrl) {
+				if ($("#taskTermSearch").val().length > 50) {
+				     $("#taskSearchSS").text("The search query is too big.");
+					return;
+				}
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+
+				inputArgs.push($("#taskTermSearch").val());
+
+				if ($("#search").val() === "")
+					return;
+			     $("#taskSearchSS").text("searching...");
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+						var results = res.ids.length;
+						if (results == null) results = 0;
+					     $("#taskSearchSS").text(results + " results");
+						if (results > 0)
+							$("#taskSearchTerms").show();
+						else
+							$("#taskSearchTerms").hide();
+					    $("#taskSearchTerms").html("");
+					    for (var i = 0; i < results; i++)
+					    	addSearchTerm(res.terms[i], res.ids[i], res.flags[i]);
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+				         $("#curStatus").html('ERROR!!!');
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			$("#taskTermFind").on("click", function() {ajaxTaskTermSearch(rootPath + 'editor/task/ajaxTaskTermSearch')});
+			$("#taskTermSearch").keydown(function(e) {if(e.keyCode === 13) ajaxTaskTermSearch(rootPath + 'editor/task/ajaxTaskTermSearch');});
+			$("#taskTermClear").on("click", function() {clear()});
+			
+			function ajaxTaskTermAdd(requestUrl) {
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				inputArgs.push($("#taskTermSearch").val());
+				inputArgs.push(false);
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+
+         		$("#taskSearchSS").html('adding...');
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+				        $("#taskSearchSS").html('term has been added');
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+				         $("#curStatus").html('ERROR!!!');
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			$("#taskTermAdd").on("click", function() {ajaxTaskTermAdd(rootPath + 'stat/ajaxAdd')});
+			
 			/*]]>*/
 			</script>
 		</form>
