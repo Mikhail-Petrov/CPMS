@@ -2,6 +2,7 @@ package com.cpms.dao.implementations.jpa;
 
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.data.entities.Term;
+import com.cpms.data.entities.TermAnswer;
 
 /**
  * Extension of {@link JPASkillDAO} that allows working with skill drafts.
@@ -41,6 +43,19 @@ public class JPATermInnovationDAO extends JPATermDAO
 
 	private String getDate(Date startDate) {
 		return df.format(startDate);
+	}
+	
+	@Override
+	public List<TermAnswer> getTermAnswers(Date startDate, Date endDate, Date oldStartDate) {
+		String start_date, end_date, old_start_date;
+		start_date = getDate(startDate);
+		end_date = getDate(endDate);
+		old_start_date = getDate(oldStartDate);
+		List<Object[]> ret = termRepo.getTermAnswers(start_date, end_date, old_start_date);
+		List<TermAnswer> res = new ArrayList<>();
+		for (Object[] o : ret)
+			res.add(new TermAnswer(o));
+		return res;
 	}
 	
 	@Override

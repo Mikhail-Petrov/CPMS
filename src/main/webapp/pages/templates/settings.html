@@ -1,0 +1,61 @@
+		<div class="row">
+		
+		<form action="#" th:action="@{/stat/settings}" method="post">
+		
+		<p><a href="#" th:text="'Josh Bersin'" onclick="fill('josh')"></a></p>
+		<p><a href="#" th:text="'HR Morning'" onclick="fill('HRMorning')"></a></p>
+		<p><a href="#" th:text="'HR Dive'" onclick="fill('HRDive')"></a></p>
+		
+		<p><span>Sensitivity: </span><input id="sensitivity" type="text" name="sensitivity" th:value="${sensitivity}"/></p>
+		<p><span>Term search results limit: </span><input id="tlimit" type="text" name="tlimit" th:value="${tlimit}"/></p>
+		<p><span>Start date delay (months): </span><input id="stdate" type="number" name="stdate" th:value="${stdate}"/></p>
+		<p><span>Old start date (years): </span><input id="olddate" type="number" name="olddate" th:value="${olddate}"/></p>
+		
+		<button type="button" class="btn btn-primary btn-block" id="plusButton" th:text="'Save'"></button>
+		<p id="curStatus"></p>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			function ajaxGroup(requestUrl) {
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				inputArgs.push($("#sensitivity").val());
+				inputArgs.push($("#tlimit").val());
+				inputArgs.push($("#stdate").val());
+				inputArgs.push($("#olddate").val());
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+
+		         $("#curStatus").html('saving...');
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+				         $("#curStatus").html('success');
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+				         $("#curStatus").html('ERROR!!!');
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'stat/ajaxSettings')});
+			
+			/*]]>*/
+			</script>
+		</form>
+		</div>

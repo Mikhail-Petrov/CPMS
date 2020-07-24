@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.cpms.data.entities.Term;
+import com.cpms.data.entities.TermAnswer;
 
 /**
  * Extension for Term entity {@link IDAO} which allows for innovations.
@@ -27,4 +28,6 @@ public interface IInnovationTermDAO {
 	public Term getTermByStem(String stem);
 	
 	public int getTermCount(Long termid, Long docid);
+
+	public List<TermAnswer> getTermAnswers(Date startDate, Date endDate, Date oldStartDate);
 }

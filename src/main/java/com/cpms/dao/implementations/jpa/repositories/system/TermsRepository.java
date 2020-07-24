@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.cpms.data.entities.Term;
+import com.cpms.data.entities.TermAnswer;
 
 @Repository(value = "Term")
 public interface TermsRepository  extends JpaRepository<Term, Long> {
@@ -51,4 +52,20 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 	@Query(value = "Select k.count from Keyword k where k.termid = :term and k.documentid = :doc",
 			nativeQuery = true)
 	public Integer getTermCount(@Param("term") long term, @Param("doc") long doc);
+
+	@Query(value = "select * from " + 
+			"(select t.preferabletext as preferabletext, count(d.id) as N_new, count(dold.id) as N_old, t.id as term_id " +
+			"from Keyword k inner join Term t on k.termid = t.id inner join Document dfilter on (k.documentid = dfilter.id and " +
+			"dfilter.creationdate > convert(datetime, :old_start_date, 20) and  " +
+			"dfilter.creationdate <= convert(datetime, :end_date, 20)) " +
+			"left join Document d on (k.documentid = d.id and " +
+			"d.creationdate > convert(datetime, :start_date, 20) and " +
+			"d.creationdate <= convert(datetime, :end_date, 20)) " + 
+			"left join Document dold on (k.documentid = dold.id and " + 
+			"dold.creationdate > convert(datetime, :old_start_date, 20) and  " + 
+			"dold.creationdate <= convert(datetime, :start_date, 20)) " + 
+			"group by t.id, t.preferabletext) as newselect  where newselect.N_new > 0",
+			nativeQuery = true)
+	public List<Object[]> getTermAnswers(@Param("start_date") String start_date, 
+			@Param("end_date") String end_date, @Param("old_start_date") String old_start_date);
 }

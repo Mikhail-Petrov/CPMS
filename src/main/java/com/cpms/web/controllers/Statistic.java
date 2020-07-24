@@ -3,10 +3,7 @@ package com.cpms.web.controllers;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,17 +17,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.validation.Valid;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.util.Version;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -54,13 +44,12 @@ import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Category;
-import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Keyword;
-import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.ProjectTermvariant;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
+import com.cpms.data.entities.TermAnswer;
 import com.cpms.data.entities.TermVariant;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
@@ -130,16 +119,57 @@ public class Statistic {
 
 	List<Long> nokeysDocs = new ArrayList<>();
 	
+	public static double sensitivity = 0.01;
+	public static int tlimit = 50, sdDelay = 3, osdDelay = 5;
+	@ResponseBody
+	@RequestMapping(value = "/ajaxSettings",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxSettings(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		String sens = values.size() > 0 ? (String) values.get(0) : "";
+		String termLimit = values.size() > 1 ? (String) values.get(1) : "";
+		String stDate = values.size() > 2 ? (String) values.get(2) : "";
+		String oldDate = values.size() > 3 ? (String) values.get(3) : "";
+		sensitivity = Double.parseDouble(sens);
+		tlimit = Integer.parseInt(termLimit);
+		sdDelay = Integer.parseInt(stDate);
+		osdDelay = Integer.parseInt(oldDate);
+		return new GroupAnswer();
+	}
+
+	@RequestMapping(path = "/settings", method = RequestMethod.GET)
+	public String settings(Model model) {
+		model.addAttribute("_VIEW_TITLE", "Settings");
+		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("_NAMED_TITLE", true);
+		model.addAttribute("sensitivity", sensitivity);
+		model.addAttribute("tlimit", tlimit);
+		model.addAttribute("stdate", sdDelay);
+		model.addAttribute("olddate", osdDelay);
+
+		return "settings";
+	}
+	
 	@ResponseBody
 	@RequestMapping(value = "/ajaxGetTerms",
 			method = RequestMethod.POST)
 	public List<String> ajaxGetTerms(
 			@RequestBody String json) {
 		// getting terms
-		List<Term> terms = termDAO.getRange(0, 50);
+		Date end_date = new Date(System.currentTimeMillis()),
+			start_date = changeDate(end_date, 0, -sdDelay, 0),
+			old_start_date = changeDate(end_date, -osdDelay, 0, 0);
+		int new_docs = innDAO.getDocCount(start_date, end_date),
+			old_docs = innDAO.getDocCount(old_start_date, start_date);
+		List<TermAnswer> termAnswers = innDAO.getTermAnswers(start_date, end_date, old_start_date);
+		termAnswers.forEach(x -> x.calcVal(old_docs, new_docs, sensitivity));
+		Collections.sort(termAnswers);
+		
 		List<String> res = new ArrayList<>();
-		for (Term term : terms)
-			res.add(term.getPref());
+		for (TermAnswer term : termAnswers)
+			if (res.size() < tlimit)
+				res.add(term.getPreferabletext());
 		return res;
 	}
 
@@ -441,7 +471,7 @@ public class Statistic {
 		// form results
 		List<TermVariant> ret = new ArrayList<>();
 		for (TermRes tr : results)
-			if (ret.size() < 50)
+			if (ret.size() < tlimit)
 				ret.add(tr.getTerm());
 		return ret;
 	}
@@ -879,8 +909,8 @@ public class Statistic {
 		int size = urls.size();
 		for (int i = urls.size() - 1; i >= size - 50 && i >= 0; i--) {
 			Article newDoc = getPosts2(urls.get(i), articlem, datef, datem, datea);
-			newDoc.setMask(articlem);
 			if (newDoc != null) {
+			newDoc.setMask(articlem);
 				boolean suit = minDate == null && maxDate == null ||
 						newDoc.getCreationDate() != null &&
 						(minDate == null || newDoc.getCreationDate().after(minDate)) &&

@@ -64,6 +64,7 @@
                       <li th:if="${isAdmin}"><a th:href="@{/stat/docs}"><span th:text="#{im.title.docs}">Docs</span></a></li>
                       <li th:if="${isAdmin}"><a th:href="@{/stat/terms}"><span th:text="#{im.title.terms}">Terms</span></a></li>
                       <li th:if="${isAdmin}"><a th:href="@{/stat/keys}"><span th:text="#{im.title.keywords}">Keywords</span></a></li>
+                      <li th:if="${isAdmin}"><a th:href="@{/stat/settings}"><span th:text="'Settings'">Settings</span></a></li>
                     </ul>
                   </li>
                   <li th:if="${isHR}"><a th:href="@{/messages}"><i class="fa fa-edit"></i> <span th:text="#{navbar.messages}" id="mesLink">Messaging center</span></a></li>
