@@ -5,6 +5,7 @@
 						<input type="text" class="form-control" id="websiteFilter"/>
 					</div><div class="two-buttons">
 						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applyFilter();"></span>
+					<span onclick='clearFilter();' class="btn btn-danger"><i class="fa fa-remove"></i></span>
 					</div></div>
 					<script>
 					function clearFilter(){
@@ -13,7 +14,6 @@
 					}
 					</script>
 					<p><span id="webss"></span></p>
-					<p><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
 					
 	<div id="webch0"></div>
 
@@ -245,6 +245,12 @@
 							// Copy values from changed website
 							$("#website_name").val(res.name);
 							$("#website_url").val(res.about);
+							$("#website_lmask").val(res.name_ru);
+							$("#website_amask").val(res.name_en);
+							$("#website_dmask").val(res.about_ru);
+							$("#website_dformat").val(res.about_en);
+							$("#website_dattr").val(res.dattr);
+							$("#website_pformat").val(res.pages);
 						    // Remember id of the changed website
 						    $("#selfId").val(res.id);
 						    // Get all terms
@@ -258,6 +264,12 @@
 							// Clear all values
 							$("#website_name").val("");
 							$("#website_url").val("");
+							$("#website_lmask").val("");
+							$("#website_amask").val("");
+							$("#website_dmask").val("");
+							$("#website_dformat").val("");
+							$("#website_dattr").val("");
+							$("#website_pformat").val("");
 							$("#parentId").val(res.id);
 						    clearTerms();
 						    // Forget website id
@@ -275,7 +287,7 @@
 						} else {
 							$("#viewWebsiteBlock").hide();
 							$("#newWebsiteForm").show();
-							websiteName = res.name_en;
+							websiteName = res.name;
 						}
 						if (admin)
 						document.getElementById('websiteFormTitle').innerHTML=

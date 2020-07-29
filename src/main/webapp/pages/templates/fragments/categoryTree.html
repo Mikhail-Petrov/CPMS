@@ -5,6 +5,7 @@
 						<input type="text" class="form-control" id="categoryFilter"/>
 					</div><div class="two-buttons">
 						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applyFilter();"></span>
+					<span onclick='clearFilter();' class="btn btn-danger"><i class="fa fa-remove"></i></span>
 					</div></div>
 					<script>
 					function clearFilter(){
@@ -13,7 +14,6 @@
 					}
 					</script>
 					<p><span id="catss"></span></p>
-					<p><span class="btn btn-warning btn-block" th:text="#{editor.clear}" onclick='clearFilter();'></span></p>
 					
 	<div id="catch0"></div>
 

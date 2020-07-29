@@ -1,0 +1,35 @@
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="x_panel">
+			<div class="x_content">
+				<table class="table table-responsive table-striped">
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Date</th>
+							<th>Categories</th>
+							<th>Trends</th>
+							<th>URL</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="doc : ${docsList}">
+							<td th:text="${doc.title}"></td>
+							<td th:text="${#dates.format(doc.creationDate, 'dd MMMM yyyy')}"></td>
+							<td><p th:each="cat : ${doc.cats}">
+								<span th:text="${cat.category.name}"></span>
+							</p></td>
+							<td><p th:each="tr : ${doc.trends}">
+								<span th:text="${tr.trend.name}"></span>
+							</p></td>
+							<td><a th:href="${doc.url}" th:text="${doc.url}"></a></td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+
+		</div>
+	</div>
+</div>

@@ -123,6 +123,9 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 	@Column(name = "Cost", nullable = true)
 	private int cost;
 	
+	@Column(name = "impact", nullable = true)
+	private Integer impact;
+	
 	@Column(name = "ProjectType", nullable = true)
 	private int projectType;
 	
@@ -360,6 +363,7 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 		setSource(task.getSource());
 		setType(task.getType());
 		setReference(task.getReference());
+		setImpact(task.getImpact());
 	}
 
 	public void setMessages(Set<Message> messages) {
@@ -485,5 +489,13 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 			throw new DataAccessException("Cannot insert, Hibernate will lose track",
 					null);
 		}
+	}
+
+	public Integer getImpact() {
+		return impact;
+	}
+
+	public void setImpact(Integer impact) {
+		this.impact = impact;
 	}
 }

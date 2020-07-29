@@ -1,7 +1,9 @@
 	<!-- link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" /-->
 		<div class="row">
 		
-		<p><span id="getTerms" class="btn btn-primary" th:text="'Get terms'"></span></p>
+		<p><span id="getTerms" class="btn btn-primary" th:text="'All'"></span>
+		<span th:each="categ : ${categs}" th:id="'getTerms' + ${categ.id}" class="btn btn-primary" th:text="${categ.name}"></span></p>
+		<h3 id='htTitle' hidden='true'>Suggested hot terms</h3>
 		<p id="hotTerms"></p>
 		<h3>Innovation search</h3>
 		<p><div class="two-buttons">
@@ -9,7 +11,7 @@
 		</div><div class="two-buttons">
 			<span id="find" class="btn btn-primary" th:text="'Find'"></span>
 			<span id="clear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
-			<span id="add" class="btn btn-primary" th:text="'Add as a term'"></span>
+			<span id="add" class="btn btn-primary" th:text="'Add'"></span>
 		</div></p>
 		<div class="row"><p id="curStatus"></p><div id="statusLinks"></div></div>
 		<div id="termsBlock" class="row">
@@ -146,7 +148,11 @@
 						line += "<td";
 						//if (variants[i].length > 1)
 							//line += " onclick=\"show($('#var" + ids[i] + "'));\"";
-						line += "><p>" + terms[i] + "</p>";
+						if (isInn)
+							line += "><p><a href='" + rootPath + "viewer/task?id=" + flags[i] + "' target='_blank'>"
+									+ terms[i] + "</a></p>";
+						else
+							line += "><p>" + terms[i] + "</p>";
 						if (variants[i].length > 1 && !isInn) {
 							line += "<div id='var" + i + "'>";
 							for (j = 0; j < variants[i].length; j++)
@@ -358,18 +364,27 @@
 					$("#search").val(term);
 					$("#find").trigger('click');
 				}
-				function ajaxGetTerms(requestUrl) {
+				function ajaxGetTerms(requestUrl, el) {
 					
 					var inputArgs = [];
-					var i;
-					for (i = 1; i < arguments.length; i++) {
-						inputArgs.push(arguments[i]);
+					if (el !== null) {
+						var id = el.id.split('getTerms');
+						requestUrl += id[id.length - 1];
 					}
 					
 					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 				     var csrfToken = $("meta[name='_csrf']").attr("content");
 				     var headers = {};
 				     headers[csrfHeader] = csrfToken;
+				     
+				     // mark the current category
+				     var buts = $("[id^=getTerms]");
+				     for (var i = 0; i < buts.length; i++)
+				    	 if (buts[i].classList.contains("btn-success"))
+				    		 buts[i].classList.remove("btn-success")
+				    if (el == null) el = $("#getTerms")[0];
+				    el.classList.add("btn-success");
+				    $("#htTitle").show();
 
 	         		$("#curStatus").html('getting terms...');
 			        $("#statusLinks").html('');
@@ -398,7 +413,10 @@
 						}
 					});
 				}
-				$("#getTerms").on("click", function() {ajaxGetTerms(rootPath + 'stat/ajaxGetTerms')});
+				$("#getTerms").on("click", function() {ajaxGetTerms(rootPath + 'stat/ajaxGetTerms?catId=0', null)});
+				var ids = /*[[${catIDs}]]*/ [];
+				for (var i = 0; i < ids.length; i++)
+					$("#getTerms" + ids[i]).on("click", function() {ajaxGetTerms(rootPath + 'stat/ajaxGetTerms?catId=', this)});
 			/*]]>*/
 			</script>
 		</div>

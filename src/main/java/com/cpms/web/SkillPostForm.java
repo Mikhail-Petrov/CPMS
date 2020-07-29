@@ -15,15 +15,15 @@ public class SkillPostForm {
 
 	private long id;
 	
-	private String name;
+	private String name, name_ru, name_en;
 	
-	private String about;
+	private String about, about_ru, about_en;
 	
 	private int maxLevel;
 	
 	private String parent;
 	
-	private String type;
+	private String type, pages, dattr;
 
 	private List<SkillLevel> levels;
 	
@@ -85,6 +85,54 @@ public class SkillPostForm {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getPages() {
+		return pages;
+	}
+
+	public void setPages(String pages) {
+		this.pages = pages;
+	}
+
+	public String getAbout_ru() {
+		return about_ru;
+	}
+
+	public void setAbout_ru(String about_ru) {
+		this.about_ru = about_ru;
+	}
+
+	public String getAbout_en() {
+		return about_en;
+	}
+
+	public void setAbout_en(String about_en) {
+		this.about_en = about_en;
+	}
+
+	public String getName_en() {
+		return name_en;
+	}
+
+	public void setName_en(String name_en) {
+		this.name_en = name_en;
+	}
+
+	public String getName_ru() {
+		return name_ru;
+	}
+
+	public void setName_ru(String name_ru) {
+		this.name_ru = name_ru;
+	}
+
+	public String getDattr() {
+		return dattr;
+	}
+
+	public void setDattr(String dattr) {
+		this.dattr = dattr;
 	}
 	
 }

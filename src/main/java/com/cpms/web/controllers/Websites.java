@@ -181,8 +181,12 @@ public class Websites {
 				SkillAnswer answer = new SkillAnswer();
 				answer.setName(website.getName());
 				answer.setAbout(website.getUrl());
-				answer.setName_en(website.getName());
-				answer.setName_ru(website.getName());
+				answer.setName_en(website.getArticleMask());
+				answer.setName_ru(website.getLinkMask());
+				answer.setAbout_ru(website.getDateMask());
+				answer.setAbout_en(website.getDateFormat());
+				answer.setDattr(website.getDateAttribute());
+				answer.setPages(website.getPageFormat());
 				answer.setParentId(website.getParent() == null ? null : "" + website.getParent().getId());
 				answer.setId(website.getId());
 				answer.setSuccessful(true);
@@ -224,6 +228,13 @@ public class Websites {
 		newWebsite.setParent(parent);
 		newWebsite.setName(recievedWebsite.getName());
 		newWebsite.setUrl(recievedWebsite.getAbout());
+		newWebsite.setArticleMask(recievedWebsite.getName_en());
+		newWebsite.setLinkMask(recievedWebsite.getName_ru());
+		newWebsite.setDateMask(recievedWebsite.getAbout_ru());
+		newWebsite.setDateFormat(recievedWebsite.getAbout_en());
+		newWebsite.setDateAttribute(recievedWebsite.getDattr());
+		newWebsite.setPageFormat(recievedWebsite.getPages());
+		newWebsite.getMissingFields();
 		
 		if (recievedWebsite.getId() == 0)
 			websiteDAO.insert(newWebsite);

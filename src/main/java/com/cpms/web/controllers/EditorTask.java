@@ -203,6 +203,7 @@ public class EditorTask {
 						task.setDueDate(dueDate);
 						task.setStatus("1");
 						task.setCost(0);
+						task.setImpact(0);
 						task.setProjectType(0);
 						task.setVariant(tv);
 						if (!term.isInn()) {
@@ -284,6 +285,7 @@ public class EditorTask {
 		if (create) {
 			recievedTask.setStatus("1");
 			recievedTask.setCost(0);
+			recievedTask.setImpact(0);
 			if (recievedTask.getDueDate() == null)
 				return "redirect:/viewer/task";
 			recievedTask.setCreatedDate(new Date(System.currentTimeMillis()));
@@ -493,9 +495,7 @@ public class EditorTask {
 		return returnVal;
 	}
 
-	@RequestMapping(path = "/task/delete", method = RequestMethod.GET)
-	public String taskDelete(Model model, @RequestParam(name = "id", required = true) Long id) {
-		Task task = facade.getTaskDAO().getOne(id);
+	public static void deleteTask(Task task, ICPMSFacade facade) {
 		for (Message mes : task.getMessages()) {
 			mes.setTask(null);
 			facade.getMessageDAO().update(mes);
@@ -503,6 +503,10 @@ public class EditorTask {
 		for (TaskCenter center : task.getRecipients())
 			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
 		facade.getTaskDAO().delete(task);
+	}
+	@RequestMapping(path = "/task/delete", method = RequestMethod.GET)
+	public String taskDelete(Model model, @RequestParam(name = "id", required = true) Long id) {
+		deleteTask(facade.getTaskDAO().getOne(id), facade);
 		return "redirect:/viewer/tasks";
 	}
 

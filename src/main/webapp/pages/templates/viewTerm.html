@@ -74,22 +74,22 @@
 			/*]]>*/
 			</script>
 		<h3>Documents with term</h3>
-		<a th:href="@{/stat/term(id=${termid},order=${order}==0?1:0)}"
-			th:text="'sort by '+(${order}==0?'document date':'occurrance')">sort</a>
+		<a th:href="@{/stat/term(id=${termid},order=1)}" class="two-buttons" th:text="'sort by document date'">sort</a>
+		<a th:href="@{/stat/term(id=${termid},order=0)}" class="two-buttons" th:text="'sort by occurrance'">sort</a>
 		<table class="table table-responsive table-striped">
 		<tr>
 			<th>Title</th>
 			<th>Date</th>
 			<th>Occurrence</th>
-			<th>URL</th>
 			<th>Highlighted</th>
+			<th>URL</th>
 		</tr>
 		<tr th:each="key : ${keys}">
 		    <td th:text="${key.doc.title}">title</td>
 		    <td th:text="${#dates.format(key.doc.creationDate, 'dd MMMM yyyy')}">creationDate</td>
 		    <td th:text="${key.count}">0</td>
-		    <td><a th:href="${key.doc.url}" th:text="${key.doc.url}" target="_blank">URL</a></td>
 		    <td><a th:href="@{/stat/doc(docid=${key.doc.id},termid=${termid})}" th:text="'view doc'" target="_blank">URL</a></td>
+		    <td><a th:href="${key.doc.url}" th:text="${key.doc.url}" target="_blank">URL</a></td>
 		</tr>
 		</table>
 		</div>

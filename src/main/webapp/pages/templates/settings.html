@@ -2,10 +2,6 @@
 		
 		<form action="#" th:action="@{/stat/settings}" method="post">
 		
-		<p><a href="#" th:text="'Josh Bersin'" onclick="fill('josh')"></a></p>
-		<p><a href="#" th:text="'HR Morning'" onclick="fill('HRMorning')"></a></p>
-		<p><a href="#" th:text="'HR Dive'" onclick="fill('HRDive')"></a></p>
-		
 		<p><span>Sensitivity: </span><input id="sensitivity" type="text" name="sensitivity" th:value="${sensitivity}"/></p>
 		<p><span>Term search results limit: </span><input id="tlimit" type="text" name="tlimit" th:value="${tlimit}"/></p>
 		<p><span>Start date delay (months): </span><input id="stdate" type="number" name="stdate" th:value="${stdate}"/></p>

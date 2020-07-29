@@ -55,7 +55,8 @@ public class JPACategoryDAO extends AbstractDAO<Category> implements ICleanable 
 	@Override
 	public Category getOne(long id) {
 		Category target = categoryRepo.findOne(id);
-		Hibernate.initialize(target.getVariants());
+		if (target != null)
+			Hibernate.initialize(target.getVariants());
 		return target;
 	}
 

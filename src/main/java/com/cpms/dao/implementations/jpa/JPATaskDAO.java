@@ -98,7 +98,8 @@ public class JPATaskDAO extends AbstractDAO<Task> implements ICleanable {
 	@Override
 	public Task getOne(long id) {
 		Task target = taskRepo.findOne(id);
-		Hibernate.initialize(target.getVariants());
+		if (target != null)
+			Hibernate.initialize(target.getVariants());
 		return target;
 	}
 

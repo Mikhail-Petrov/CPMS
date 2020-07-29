@@ -30,6 +30,18 @@
 			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Name" pattern=".{0,100}" title="Must be more than 3 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="website_name" onblur="addCheck(this, 3, 100)"/></p>
 			<span th:text="'Website URL'" text="URL"></span>:
 			<p><input type="text" class="form-control" name="about" placeholder="URL" th:title="'URL'" id="website_url"/></p>
+			<span th:text="'Link mask'" text="Link mask"></span>:
+			<p><input type="text" class="form-control" name="name_ru" placeholder="h2 a" th:title="'object in HTML that contains link to the article'" id="website_lmask"/></p>
+			<span th:text="'Article mask'" text="Article mask"></span>:
+			<p><input type="text" class="form-control" name="name_en" placeholder="div[class=entry-content]" th:title="'object in HTML that contains the article'" id="website_amask"/></p>
+			<span th:text="'Date mask'" text="Date mask"></span>:
+			<p><input type="text" class="form-control" name="about_ru" placeholder="time" th:title="'object in HTML that contains the date'" id="website_dmask"/></p>
+			<span th:text="'Date format'" text="Date format"></span>:
+			<p><input type="text" class="form-control" name="about_en" placeholder="yyyy-MM-dd'T'hh:mm:ss" th:title="'Date format'" id="website_dformat"/></p>
+			<span th:text="'Date attribute'" text="Date attribute"></span>:
+			<p><input type="text" class="form-control" name="dattr" placeholder="datetime" th:title="'attribute in object that contains the date'" id="website_dattr"/></p>
+			<span th:text="'Pages format'" text="Pages format"></span>:
+			<p><input type="text" class="form-control" name="pages" placeholder="page/" th:title="'how pages switch'" id="website_pformat"/></p>
 		<p>
 			<span th:text="'Parent Website id'"></span>
 			<input type="number" id="parentId" th:field="*{parent}"/>

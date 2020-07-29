@@ -1,7 +1,6 @@
 package com.cpms.data.entities;
 
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -66,6 +65,16 @@ public class Article extends AbstractDomainObject {
 	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date parseDate;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "document", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
+	private Set<DocumentCategory> cats;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "document", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
+	private Set<DocumentTrend> trends;
 	
 	public Article() {
 		setParseDate(new Date(System.currentTimeMillis()));
@@ -163,6 +172,22 @@ public class Article extends AbstractDomainObject {
 
 	public void setMask(String mask) {
 		this.mask = mask;
+	}
+
+	public Set<DocumentCategory> getCats() {
+		return cats;
+	}
+
+	public void setCats(Set<DocumentCategory> cats) {
+		this.cats = cats;
+	}
+
+	public Set<DocumentTrend> getTrends() {
+		return trends;
+	}
+
+	public void setTrends(Set<DocumentTrend> trends) {
+		this.trends = trends;
 	}
 	
 	

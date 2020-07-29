@@ -1,27 +1,13 @@
 		<div class="row">
 		
 		<p><span th:text="${err}"></span></p>
-		<p><span th:text="'amount' + ': ' + ${amount}"></span></p>
-		<p><span th:text="'max id' + ': ' + ${maxid}"></span></p>
-		<p><span th:text="'terms' + ': ' + ${repeats}"></span>
-			<a th:if="${repeats} > 0" th:href="@{/stat/clearTermsRep}" th:text="' (' + 'clear' + ')'"></a></p>
 		
-		<p><span th:text="'0 keywords' + ': ' + ${nokeyssize}"></span>
-			<a href="#" th:text="' (' + 'show/hide' + ')'" onclick="show()"></a></p>
-		<div id="keys" hidden="true">
-		<p th:each="nokey : ${nokeys}"><span th:text="'id ' + ${nokey} + ' - '"></span>
-			<a th:href="@{/stat/deleteBadTerms(id=${nokey})}" th:text="'delete'"></a></p>
-		</div>
-		<p><a th:href="@{/stat/updateVariants}" th:text="'update term variants'"></a></p>
-		<p><a href="#" id="plusButton" th:text="'get all'"></a></p>
+		<p><a href="#" id="updDC" th:text="'Update document categories'"></a></p>
+		<p><a href="#" id="updDT" th:text="'Update document trends'"></a></p>
+		<p><a href="#" id="loadDocs" th:text="'Upload new articles'"></a></p>
 		<p id="curStatus"></p>
 			<script th:inline="javascript">
 			/*<![CDATA[*/
-				function show() {
-					if ($("#keys").is(':hidden'))
-						$("#keys").show();
-					else $("#keys").hide();
-				}
 
 				function ajaxTerms(requestUrl) {
 					
@@ -36,7 +22,7 @@
 				     var headers = {};
 				     headers[csrfHeader] = csrfToken;
 
-			         $("#curStatus").html('getting...');
+			         $("#curStatus").html('executing...');
 					$.ajax({
 						url : requestUrl,
 						type: 'POST',
@@ -59,7 +45,9 @@
 						}
 					});
 				}
-				$("#plusButton").on("click", function() {ajaxTerms(rootPath + 'stat/getTerms')});
+				$("#updDC").on("click", function() {ajaxTerms(rootPath + 'stat/insertDC?cat=true')});
+				$("#updDT").on("click", function() {ajaxTerms(rootPath + 'stat/insertDC?cat=false')});
+				$("#loadDocs").on("click", function() {ajaxTerms(rootPath + 'stat/loadDocs')});
 			/*]]>*/
 			</script>
 		</div>

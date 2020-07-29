@@ -2,6 +2,7 @@ package com.cpms.web.ajax;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
@@ -31,9 +32,12 @@ public class InnAnswer implements IAjaxAnswer {
 		flags.add(var.getText());
 	}
 	
-	public void addTerm(Term term) {
+	public void addTerm(Term term, Map<Long, Long> tasks) {
 		terms.add(term.getPref());
-		flags.add(term.isInn() ? "+" : "");
+		String flag = "";
+		if (tasks.containsKey(term.getId()))
+			flag = tasks.get(term.getId()) + "";
+		flags.add(flag);
 		//flags.add(term.getCategory());
 		ids.add(term.getId());
 		List<String> vars = new ArrayList<>();

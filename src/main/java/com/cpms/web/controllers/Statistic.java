@@ -51,6 +51,8 @@ import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermAnswer;
 import com.cpms.data.entities.TermVariant;
+import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.Website;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
 import com.cpms.web.CompetencyMatching;
@@ -151,18 +153,50 @@ public class Statistic {
 		return "settings";
 	}
 	
+	List<Long> allCats = new ArrayList<>(), allTrends = new ArrayList<>();
+	private void getCatsTrends() {
+		if (allCats.isEmpty()) {
+			// fill allCats for the first time
+			List<Category> allCat = facade.getCategoryDAO().getAll();
+			for (Category cat : allCat)
+				allCats.add(cat.getId());
+		}
+		if (allTrends.isEmpty()) {
+			// fill allTrends for the first time
+			List<Trend> allTr = facade.getTrendDAO().getAll();
+			for (Trend tr : allTr)
+				allTrends.add(tr.getId());
+		}
+	}
 	@ResponseBody
 	@RequestMapping(value = "/ajaxGetTerms",
 			method = RequestMethod.POST)
 	public List<String> ajaxGetTerms(
-			@RequestBody String json) {
+			@RequestBody String json
+			, @RequestParam(value = "catId", required = false) Integer catId
+			, @RequestParam(value = "trId", required = false) Integer trId) {
+//		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+//		int catId = values.size() > 0 ? (int) values.get(0) : 0, trId = 0;
+		List<Long> cats = new ArrayList<>(), trends = new ArrayList<>();
+		getCatsTrends();
+		if (catId == null) catId = 0;
+		if (trId == null) trId = 0;
+		if (catId > 0)
+			cats.add((long) catId);
+		else
+			cats = allCats;
+		if (trId > 0)
+			trends.add((long) trId);
+		else
+			trends = allTrends;
 		// getting terms
 		Date end_date = new Date(System.currentTimeMillis()),
 			start_date = changeDate(end_date, 0, -sdDelay, 0),
 			old_start_date = changeDate(end_date, -osdDelay, 0, 0);
-		int new_docs = innDAO.getDocCount(start_date, end_date),
-			old_docs = innDAO.getDocCount(old_start_date, start_date);
-		List<TermAnswer> termAnswers = innDAO.getTermAnswers(start_date, end_date, old_start_date);
+		int new_docs = innDAO.getDocCount(start_date, end_date, cats, trends),
+			old_docs = innDAO.getDocCount(old_start_date, start_date, cats, trends);
+		
+		List<TermAnswer> termAnswers = innDAO.getTermAnswers(start_date, end_date, old_start_date, cats, trends);
 		termAnswers.forEach(x -> x.calcVal(old_docs, new_docs, sensitivity));
 		Collections.sort(termAnswers);
 		
@@ -299,15 +333,31 @@ public class Statistic {
 		model.addAttribute("_FORCE_CSRF", true);
 		
 		List<Category> cats = categoryDAO.getAll();
-		List<String> categories = new ArrayList<>();
+		List<String> categories = new ArrayList<>(), catIDs = new ArrayList<>();
 		Collections.sort(cats);
 		for (Category cat : cats) {
 			categories.add(cat.getPresentationName());
+			catIDs.add(cat.getId() + "");
 		}
 		//String[] categories = {"Strategy and Planning", "--Culture Development", "Recruitment", "--Employer Branding and Communication", "--Recruitment", "--Onboarding", "Talent & Performance Management", "--Performance Management", "--Talent Management", "--Succession Management", "Learning & Training ", "--Competence Development", "--Learning Standards", "--Learning Management System ", "Total Rewards", "--Compensation", "--Benefits", "--Your Time", "Administration & Services", "--HR IT Systems", "--Employee Lifecycle Management", "--Expat Administration"};
 		model.addAttribute("categories", categories);
-
+		model.addAttribute("categs", cats);
+		model.addAttribute("catIDs", catIDs);
+		
 		return "innovations";
+	}
+
+	@RequestMapping(path = "/documents", method = RequestMethod.GET)
+	public String documents(Model model) {
+		model.addAttribute("_VIEW_TITLE", "Last documents");
+		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("_NAMED_TITLE", true);
+		
+		List<Article> docsList = new ArrayList<>();
+		for (BigInteger id : innDAO.getLastDocs(changeDate(new Date(System.currentTimeMillis()), 0, -1, 0)))
+			docsList.add(docDAO.getOne(id.longValue()));
+		model.addAttribute("docsList", docsList);
+		return "documents";
 	}
 
 	@RequestMapping(path = "/doc", method = RequestMethod.GET)
@@ -347,8 +397,13 @@ public class Statistic {
 		// getting innovations
 		List<Term> res = innDAO.getInnovations();
 		InnAnswer ans = new InnAnswer();
+		Map<Long, Long> tasks = new HashMap<>();
+		List<Task> all = facade.getTaskDAO().getAll();
+		for (Task task : all)
+			if (task.getVariant() != null)
+				tasks.put(task.getVariant().getTerm().getId(), task.getId());
 		for (Term term : res)
-			ans.addTerm(term);
+			ans.addTerm(term, tasks);
 		return ans;
 	}
 	
@@ -366,6 +421,7 @@ public class Statistic {
 		task.setStatus("1");
 		task.setCost(0);
 		task.setProjectType(0);
+		task.setImpact(0);
 		Date dueDate = new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000);
 		task.setCreatedDate(new Date(System.currentTimeMillis()));
 		task.setDueDate(dueDate);
@@ -436,8 +492,13 @@ public class Statistic {
 			res.add(newTerm);
 		}
 		InnAnswer ans = new InnAnswer();
+		Map<Long, Long> tasks = new HashMap<>();
+		List<Task> all = facade.getTaskDAO().getAll();
+		for (Task task : all)
+			if (task.getVariant() != null)
+				tasks.put(task.getVariant().getTerm().getId(), task.getId());
 		for (Term term : res)
-			ans.addTerm(term);
+			ans.addTerm(term, tasks);
 		return ans;
 	}
 	
@@ -616,6 +677,16 @@ public class Statistic {
 		Term term = termDAO.getOne(id);
 		term.setInn(false);
 		term.setCategory("");
+		// find a task with this term
+		List<Task> tasks = facade.getTaskDAO().getAll();
+		for (Task task : tasks) {
+			if (task.getVariant() != null)
+				for (TermVariant var : term.getVariants())
+					if (task.getVariant().getTerm().getId() == var.getTerm().getId()) {
+						EditorTask.deleteTask(task, facade);
+						break;
+					}
+		}
 		termDAO.update(term);
 		return "redirect:/stat/innovations";
 	}
@@ -649,12 +720,14 @@ public class Statistic {
 		Map<String, List<Float>> sums = new LinkedHashMap<>();
 		Date today = new Date(System.currentTimeMillis());
 		// get statistics for last 30 days, 3 months, year
+		getCatsTrends();
+		List<Long> cats = allCats, trends = allTrends;
 		int tdc30 = innDAO.getTermDocCount(term, changeDate(today, 0, 0, -30), today),
 				tdc3 = innDAO.getTermDocCount(term, changeDate(today, 0, -3, 0), today),
 				tdc1 = innDAO.getTermDocCount(term, changeDate(today, -1, 0, 0), today),
-				dc30 = innDAO.getDocCount(changeDate(today, 0, 0, -30), today),
-				dc3 = innDAO.getDocCount(changeDate(today, 0, -3, 0), today),
-				dc1 = innDAO.getDocCount(changeDate(today, -1, 0, 0), today);
+				dc30 = innDAO.getDocCount(changeDate(today, 0, 0, -30), today, cats, trends),
+				dc3 = innDAO.getDocCount(changeDate(today, 0, -3, 0), today, cats, trends),
+				dc1 = innDAO.getDocCount(changeDate(today, -1, 0, 0), today, cats, trends);
 		int[][] stat = {
 				{
 					innDAO.getTermSum(term, changeDate(today, 0, 0, -30), today),
@@ -676,7 +749,7 @@ public class Statistic {
 		today.setDate(1);
 		int years = 5, todayYear = today.getYear(), todayMonth = today.getMonth();
 		SimpleDateFormat df = new SimpleDateFormat("yyyy'\n'MMM", Locale.ENGLISH);
-		for (int curYear = todayYear - 5; curYear <= todayYear; curYear++) {
+		for (int curYear = todayYear - years; curYear <= todayYear; curYear++) {
 			today.setYear(curYear);
 			for (int curMonth = 0; curMonth < 12; curMonth++) {
 				if (curYear == todayYear && curMonth > todayMonth)
@@ -686,7 +759,7 @@ public class Statistic {
 				sum.add((float) innDAO.getTermSum(term, today, getPlusMonth(today)));
 				float termDocCount = (float) innDAO.getTermDocCount(term, today, getPlusMonth(today));
 				sum.add(termDocCount);
-				float docCount = (float) innDAO.getDocCount(today, getPlusMonth(today));
+				float docCount = (float) innDAO.getDocCount(today, getPlusMonth(today), cats, trends);
 				sum.add(docCount == 0 ? 0 : (termDocCount / docCount));
 				sums.put(df.format(today), sum);
 			}
@@ -719,17 +792,6 @@ public class Statistic {
 	public String terms(Model model) {
 		model.addAttribute("_VIEW_TITLE", "im.title.terms");
 		model.addAttribute("_FORCE_CSRF", true);
-
-		model.addAttribute("amount", termDAO.count());
-		model.addAttribute("maxid", 0);
-		//model.addAttribute("repeats", allTerms == null ? 0 : allTerms.size());
-		model.addAttribute("repeats", 0);
-		model.addAttribute("err", err);
-		List<Long> nokeys = new ArrayList<>();
-		nokeys.add(156L);
-		nokeys.add(146L);
-		model.addAttribute("nokeys", nokeys);
-		model.addAttribute("nokeyssize", 110);
 		return "terms";
 	}
 
@@ -776,28 +838,21 @@ public class Statistic {
 				nokeysDocs.add(obj.getId());
 		//for (Long id : nokeysDocs)
 			//extractTerms(docDAO.getOne(id));
-		int ss = nokeysDocs.size();
 		if (nokeysDocs.isEmpty())
 			return new GroupAnswer(true);
 		extractTerms(docDAO.getOne(nokeysDocs.get(0)));
 		return new GroupAnswer();
 	}
 	@ResponseBody
-	@RequestMapping(value = "/getTerms",
+	@RequestMapping(value = "/insertDC",
 			method = RequestMethod.POST)
-	public IAjaxAnswer getAllTerms(
-			@RequestBody String json) {
-		/*if (allTerms == null)
-			allTerms = new ArrayList<>();
-		long from = allTerms.size();
-		if (from >= termDAO.count())
-			return new GroupAnswer(true);
-		List<Term> all = termDAO.getRange(from, from + 1000);
-		if (all.isEmpty())
-			return new GroupAnswer(true);
-		allTerms.addAll(all);
-		return new GroupAnswer();*/
+	public IAjaxAnswer getAllTerms(@RequestBody String json
+			, @RequestParam(value = "cat", required = false) boolean cat) {
+		innDAO.insertDC(cat);
 		return new GroupAnswer(true);
+		/*if (all.isEmpty())
+			return new GroupAnswer(true);
+		return new GroupAnswer();*/
 	}
 
 	@RequestMapping(path = { "/clearTermsRep" }, method = RequestMethod.GET)
@@ -805,20 +860,23 @@ public class Statistic {
 		//allTerms.clear();
 		return terms(model);
 	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/loadDocs",
+			method = RequestMethod.POST)
+	public IAjaxAnswer loadDocs(@RequestBody String json) {
+		extractDocsDB();
+		//return new GroupAnswer(true);
+		curSite++;
+		if (curSite >= facade.getWebsiteDAO().getAll().size())
+			return new GroupAnswer(true);
+		return new GroupAnswer();
+	}
 
-	@RequestMapping(path = { "/updateVariants" }, method = RequestMethod.GET)
-	public String updateVariants(Model model) {
-		/*if (allTerms == null)
-			allTerms = termDAO.getAll();
-		for (Term term : allTerms) {
-			List<String> unstemmed = getUnstemmed(term.getStem());
-			if (unstemmed.size() > term.getVariants().size()) {
-				for (String var : unstemmed)
-					term.addVariant(var);
-				termDAO.update(term);
-			}
-		}*/
-		return terms(model);
+	@RequestMapping(path = { "/script" }, method = RequestMethod.GET)
+	public String script(Model model) {
+		extractDocsDB();
+		return "redirect:/stat/docs";
 	}
 
 	@RequestMapping(path = { "/extract" })
@@ -852,10 +910,29 @@ public class Statistic {
 		return new GroupAnswer();
 	}
 
+	private int extracted, curSite = 0;
+	private void extractDocsDB() {
+		List<Website> all = facade.getWebsiteDAO().getAll();
+		//for (Website site : all) {
+			Website site = all.get(curSite);
+			System.out.print(site.getName() + "\n");
+			String sources = site.getUrl();
+			String linkm = site.getLinkMask();
+			String articlem = site.getArticleMask();
+			String datem = site.getDateMask();
+			String datef = site.getDateFormat();
+			String pages = site.getPageFormat();
+			String datea = site.getDateAttribute();
+			extracted = site.getExtract();
+			for (int i = 0; extracted > 0; i++)
+				extractDocs0(sources, linkm, articlem, datem, datef, i + " " + pages, "2015-01-01", "", datea);
+		//}
+	}
 	Date minDate = null, maxDate = null;
 	String articlem, datef, datem, datea;
 	private String extractDocs0(String sources, String linkm, String articlem, String datem,
 			String datef, String pages, String mindate, String maxdate, String datea) {
+		extracted = 0;
 		String returnVal = "redirect:/stat/docs";
 		if (extraction) return returnVal;
 		if (sources.isEmpty() || linkm.isEmpty() || articlem.isEmpty() || datem.isEmpty() || datef.isEmpty())
@@ -873,6 +950,7 @@ public class Statistic {
 		for (int i = 0; i < allSources.length; i++) {
 			getPosts(allSources[i], linkm, pages);
 		}
+		extracted = urls.size();
 		
 		// check date filter
 		minDate = null;

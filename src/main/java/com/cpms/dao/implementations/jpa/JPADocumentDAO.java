@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,10 @@ public class JPADocumentDAO extends AbstractDAO<Article> implements ICleanable {
 	@Override
 	public Article getOne(long id) {
 		Article target = docsRepo.findOne(id);
+		if (target != null) {
+			Hibernate.initialize(target.getTrends());
+			Hibernate.initialize(target.getCats());
+		}
 		return target;
 	}
 

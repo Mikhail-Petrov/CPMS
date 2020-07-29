@@ -19,7 +19,7 @@ public class SkillAnswer implements IAjaxAnswer {
 	private long id;
 	private String parentId;
 	private int maxLevel;
-	private String name, about, name_ru, name_en, about_ru, about_en, type;
+	private String name, about, name_ru, name_en, about_ru, about_en, type, pages, dattr;
 	private boolean successful = false;
 	private List<SkillLevelAnswer> levels;
 	private boolean draft = false;
@@ -214,6 +214,22 @@ public class SkillAnswer implements IAjaxAnswer {
 		for (int i = 1; i < types.length; i++)
 			if (types[i].equals(type))
 				this.type = UserSessionData.localizeText(types_ru[i], types_en[i]);
+	}
+
+	public String getPages() {
+		return pages;
+	}
+
+	public void setPages(String pages) {
+		this.pages = pages;
+	}
+
+	public String getDattr() {
+		return dattr;
+	}
+
+	public void setDattr(String dattr) {
+		this.dattr = dattr;
 	}
 	
 }

@@ -23,6 +23,16 @@
                                         <input type="date" class="form-control" th:field="*{dueDate}" min="1970-01-01" max="2100-01-01"/>
                                     </div>
                                 </div>
+   			<p th:text="'Impact'"></p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <select th:field="*{impact}">
+                                        	<option value='0'>Low</option>
+                                        	<option value='1'>Medium</option>
+                                        	<option value='2'>High</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <hr class="separator"/>
                                 <div class="row">
    			<p th:text="'Associated terms'"></p>
@@ -33,7 +43,7 @@
 		</div><div class="two-buttons">
 			<span id="taskTermFind" class="btn btn-primary" th:text="'Find'"></span>
 			<span id="taskTermClear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
-			<span id="taskTermAdd" class="btn btn-primary" th:text="'Add as a term'"></span>
+			<span id="taskTermAdd" class="btn btn-primary" th:text="'Add'"></span>
 		</div></p>
 		<p id="taskSearchSS"></p>
 		<p id="taskSearchTerms"></p>
@@ -67,14 +77,14 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                	<div class="two-buttons">
+                                	<div>
                                 		<span th:text="#{editor.skilllevel} + ': '"> </span><input type="number" min="1" max="6" id="reqLvl" th:value="1"/>
                                 	</div>
-                                	<div class="two-buttons">
+                                	<div>
                                 		<span class="btn btn-warning btn-block" th:text="#{editor.add}" onclick="addSkill();">Add</span>
                                 	</div>
                                 </div>
-                            <div class="two-buttons">
+                            <div class="">
                             <div class="row">
                             	<div class="col-md-12">
                                 <table class="table table-responsive table-striped" id="skillTable">

@@ -48,6 +48,11 @@
                                 <p><span th:text="#{task.type.file}"></span>: <a th:href="${task.about}" th:text="${task.about}" target="_blank"></a></p>
                         </th:block>
                                 <p><span th:text="#{editor.task.due}"></span>: <u><span th:text="${task.dueDate==null?'':#dates.format(task.dueDate, 'dd MMMM yyyy')}"></span></u></p>
+                                <p><span th:switch="${task.impact}">
+                                	<span th:case="'0'" th:text="'Impact: low'"></span>
+                                	<span th:case="'1'" th:text="'Impact: medium'"></span>
+                                	<span th:case="'2'" th:text="'Impact: high'"></span>
+                            	</span></p>
                                 <p><span th:text="'Terms'"></span>: <span th:text="${terms}"></span></p>
                                 <p th:if="${task.image}"><u><b><a th:href="@{/viewer/viewRef(id=${task.id})}" th:text="#{viewer.task.reference}" target="_blank"></a></b></u></p>
                                 <p th:if="${task.image}"><img th:if="${task.imageType == 'image/jpeg' or task.imageType == 'image/png' or task.imageType == 'image/gif' or task.imageType == 'image/bmp'}"

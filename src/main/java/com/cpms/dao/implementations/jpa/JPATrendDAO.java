@@ -58,7 +58,8 @@ public class JPATrendDAO extends AbstractDAO<Trend> implements ICleanable {
 	@Override
 	public Trend getOne(long id) {
 		Trend target = trendRepo.findOne(id);
-		Hibernate.initialize(target.getVariants());
+		if (target != null)
+			Hibernate.initialize(target.getVariants());
 		return target;
 	}
 

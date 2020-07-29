@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
+import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermAnswer;
 
@@ -46,12 +47,12 @@ public class JPATermInnovationDAO extends JPATermDAO
 	}
 	
 	@Override
-	public List<TermAnswer> getTermAnswers(Date startDate, Date endDate, Date oldStartDate) {
+	public List<TermAnswer> getTermAnswers(Date startDate, Date endDate, Date oldStartDate, List<Long> cats, List<Long> trends) {
 		String start_date, end_date, old_start_date;
 		start_date = getDate(startDate);
 		end_date = getDate(endDate);
 		old_start_date = getDate(oldStartDate);
-		List<Object[]> ret = termRepo.getTermAnswers(start_date, end_date, old_start_date);
+		List<Object[]> ret = termRepo.getTermAnswers(start_date, end_date, old_start_date, cats, trends);
 		List<TermAnswer> res = new ArrayList<>();
 		for (Object[] o : ret)
 			res.add(new TermAnswer(o));
@@ -81,11 +82,11 @@ public class JPATermInnovationDAO extends JPATermDAO
 	}
 
 	@Override
-	public int getDocCount(Date startDate, Date finishDate) {
+	public int getDocCount(Date startDate, Date finishDate, List<Long> cats, List<Long> trends) {
 		String start_date, finish_date;
 		start_date = getDate(startDate);
 		finish_date = getDate(finishDate);
-		Integer ret = termRepo.getDocCount(start_date, finish_date);
+		Integer ret = termRepo.getDocCount(start_date, finish_date, cats, trends);
 		if (ret == null)
 			ret = 0;
 		return ret;
@@ -106,5 +107,18 @@ public class JPATermInnovationDAO extends JPATermDAO
 		Integer res = termRepo.getTermCount(termid, docid);
 		if (res == null) res = 0;
 		return res;
+	}
+
+	@Override
+	public void insertDC(boolean cat) {
+		if (cat)
+			termRepo.insertDC();
+		else
+			termRepo.insertDT();
+	}
+
+	@Override
+	public List<BigInteger> getLastDocs(Date startDate) {
+		return termRepo.getLastDocs(getDate(startDate));
 	}
 }

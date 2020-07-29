@@ -41,6 +41,38 @@ public class Website extends AbstractDomainObject implements Comparable<Website>
 	@Field
 	private String url;
 	
+	@Column(name = "linkMask", nullable = true, length = 100)
+	@Field
+	private String linkMask;
+	
+	@Column(name = "articleMask", nullable = true, length = 100)
+	@Field
+	private String articleMask;
+	
+	@Column(name = "dateMask", nullable = true, length = 50)
+	@Field
+	private String dateMask;
+	
+	@Column(name = "dateFormat", nullable = true, length = 50)
+	@Field
+	private String dateFormat;
+	
+	@Column(name = "dateAttribute", nullable = true, length = 50)
+	@Field
+	private String dateAttribute;
+	
+	@Column(name = "pageFormat", nullable = true, length = 50)
+	@Field
+	private String pageFormat;
+	
+	@Column(name = "show", nullable = true)
+	@Field
+	private Integer show;
+	
+	@Column(name = "extract", nullable = true)
+	@Field
+	private Integer extract;
+	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "Parent", nullable = true)
 	@Cascade({CascadeType.DETACH})
@@ -48,13 +80,28 @@ public class Website extends AbstractDomainObject implements Comparable<Website>
 	
 	public Website() {}
 	
-	public Website(Website cat) {
-		setName(cat.getName());
-		setId(cat.getId());
-		if (cat.getParent() == null)
+	public void getMissingFields() {
+		if (getParent() == null) return;
+		if (getLinkMask() == null || getLinkMask().isEmpty())
+			setLinkMask(parent.getLinkMask());
+		if (getArticleMask() == null || getArticleMask().isEmpty())
+			setArticleMask(parent.getArticleMask());
+		if (getDateMask() == null || getDateMask().isEmpty())
+			setDateMask(parent.getDateMask());
+		if (getDateFormat() == null || getDateFormat().isEmpty())
+			setDateFormat(parent.getDateFormat());
+		if (getDateAttribute() == null || getDateAttribute().isEmpty())
+			setDateAttribute(parent.getDateAttribute());
+		if (getPageFormat() == null || getPageFormat().isEmpty())
+			setPageFormat(parent.getPageFormat());
+	}
+	public Website(Website site) {
+		setName(site.getName());
+		setId(site.getId());
+		if (site.getParent() == null)
 			setParent(null);
 		else {
-			Website parent = cat.getParent();
+			Website parent = site.getParent();
 			setParent(new Website(parent));
 			String alternative = "";
 			while (parent != null) {
@@ -119,6 +166,12 @@ public class Website extends AbstractDomainObject implements Comparable<Website>
 		returnValue.setUrl(getUrl());
 		returnValue.setId(getId());
 		returnValue.setParent(getParent());
+		returnValue.setArticleMask(getArticleMask());
+		returnValue.setLinkMask(getLinkMask());
+		returnValue.setDateAttribute(getDateAttribute());
+		returnValue.setDateFormat(getDateFormat());
+		returnValue.setDateMask(getDateMask());
+		returnValue.setPageFormat(getPageFormat());
 		return returnValue;
 	}
 	
@@ -155,5 +208,71 @@ public class Website extends AbstractDomainObject implements Comparable<Website>
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getPageFormat() {
+		return pageFormat;
+	}
+
+	public void setPageFormat(String pageFormat) {
+		this.pageFormat = pageFormat;
+	}
+
+	public String getDateAttribute() {
+		return dateAttribute;
+	}
+
+	public void setDateAttribute(String dateAttribute) {
+		this.dateAttribute = dateAttribute;
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	public String getDateMask() {
+		return dateMask;
+	}
+
+	public void setDateMask(String dateMask) {
+		this.dateMask = dateMask;
+	}
+
+	public String getArticleMask() {
+		return articleMask;
+	}
+
+	public void setArticleMask(String articleMask) {
+		this.articleMask = articleMask;
+	}
+
+	public String getLinkMask() {
+		return linkMask;
+	}
+
+	public void setLinkMask(String linkMask) {
+		this.linkMask = linkMask;
+	}
+
+	public Integer getShow() {
+		if (show == null) return 0;
+		return show;
+	}
+
+	public void setShow(Integer show) {
+		this.show = show;
+	}
+
+	public Integer getExtract() {
+		if (extract == null) return 0;
+		return extract;
+	}
+
+	public void setExtract(Integer extract) {
+		this.extract = extract;
 	}
 }
