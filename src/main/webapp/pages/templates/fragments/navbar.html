@@ -32,23 +32,15 @@
                 <h3 th:text="#{navbar.navigation}"></h3>
                 <ul class="nav side-menu">
                   <li><a th:href="@{/homepage}"><i class="fa fa-edit"></i> <span th:text="'Homepage'">Homepage</span></a></li>
+                  <li><a th:href="@{/stat/documents}"><i class="fa fa-edit"></i> <span th:text="'News channel'">News channel</span></a></li>
                   <li><a th:href="@{/stat/innovations}"><i class="fa fa-edit"></i> <span th:text="#{im.title.innovations}">Innovations</span></a></li>
-                  <li><a th:href="@{/category}"><i class="fa fa-edit"></i> <span th:text="'Categories'">Categories</span></a></li>
-                  <li><a th:href="@{/trend}"><i class="fa fa-edit"></i> <span th:text="'Trends'">Trends</span></a></li>
-                  <li><a th:href="@{/website}"><i class="fa fa-edit"></i> <span th:text="'Websites'">Websites</span></a></li>
-                  <li><a th:href="@{/dashboard}"><i class="fa fa-edit"></i> <span th:text="#{navbar.statistics}">Statistics</span></a></li>
-                  <li th:if="${isAdmin or isResident}"><a><i class="fa fa-info"></i><span th:text="#{navbar.block1}">Experts Network Creation</span> <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li th:if="${isAdmin}"><a th:href="@{/viewer}"><span th:text="#{navbar.experts}">Experts</span></a></li>
-                      <li th:if="${isResident}"><a th:href="@{/viewer/profile(id=${companyId})}" th:text="#{navbar.new.company}" th:disabled="${!(companyId > 0)}">Expert Profile</a></li>
-                      <li><a th:href="@{/skills}"><span th:text="#{navbar.skills}">Skills</span></a></li>
-                    </ul>
-                  </li>
-                  <li th:if="${isHR or username=='admin'}"><a th:href="@{/motivations}"><i class="fa fa-edit"></i> <span th:text="#{navbar.motivations}">Motivations</span></a></li>
-                  <li th:if="${isAdmin or isResident or isBoss}"><a><i class="fa fa-info"></i><span th:text="#{navbar.block2}">Business process</span> <span class="fa fa-chevron-down"></span></a>
+                  <li><a th:href="@{/viewer}"><i class="fa fa-edit"></i> <span th:text="#{navbar.experts}">Experts</span></a></li>
+                  <li><a th:href="@{/skills}"><i class="fa fa-edit"></i> <span th:text="#{navbar.block1}">Skills</span></a></li>
+                  <li><a><i class="fa fa-info"></i><span th:text="#{navbar.block2}">Business process</span> <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       <li th:if="${isAdmin or isResident}"><a th:href="@{/viewer/tasks}"><span th:text="#{navbar.task}">Task definition</span></a></li>
                       <li><a th:href="@{/messages}"><span th:text="#{navbar.messages}" id="mesLink">Messaging center</span></a></li>
+                      <li><a th:href="@{/motivations}"><span th:text="#{navbar.motivations}">Motivations</span></a></li>
                       <li th:if="${isBoss or username=='admin'}"><a th:href="@{/rewards}"><span th:text="#{navbar.reward}">Reward</span></a></li>
                     </ul>
                   </li>
@@ -58,13 +50,15 @@
                       <li th:if="${isAdmin}"><a th:href="@{/security/users}"><span th:text="#{navbar.user.management}">Users management</span></a></li>
                     </ul>
                   </li>
-                  <li th:if="${isAdmin}"><a><i class="fa fa-info"></i><span th:text="'IM'">IM</span> <span class="fa fa-chevron-down"></span></a>
+                  <li><a><i class="fa fa-info"></i><span th:text="'Maintenance'">Maintenance</span> <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li th:if="${isAdmin}"><a th:href="@{/stat/extract}"><span th:text="#{im.title.extract}">Extract articles</span></a></li>
-                      <li th:if="${isAdmin}"><a th:href="@{/stat/docs}"><span th:text="#{im.title.docs}">Docs</span></a></li>
-                      <li th:if="${isAdmin}"><a th:href="@{/stat/terms}"><span th:text="#{im.title.terms}">Terms</span></a></li>
-                      <li th:if="${isAdmin}"><a th:href="@{/stat/keys}"><span th:text="#{im.title.keywords}">Keywords</span></a></li>
-                      <li th:if="${isAdmin}"><a th:href="@{/stat/settings}"><span th:text="'Settings'">Settings</span></a></li>
+                      <li><a th:href="@{/category}"><span th:text="'Categories'">Categories</span></a></li>
+                      <li><a th:href="@{/trend}"><span th:text="'Trends'">Trends</span></a></li>
+                      <li><a th:href="@{/website}"><span th:text="'Websites'">Websites</span></a></li>
+                      <li><a th:href="@{/stat/extract}"><span th:text="#{im.title.extract}">Extract articles</span></a></li>
+                      <li><a th:href="@{/stat/docs}"><span th:text="#{im.title.docs}">Document Analysis</span></a></li>
+                      <li><a th:href="@{/stat/terms}"><span th:text="#{im.title.terms}">Terms</span></a></li>
+                      <li><a th:href="@{/stat/settings}"><span th:text="'Settings'">Settings</span></a></li>
                     </ul>
                   </li>
                   <li th:if="${isHR}"><a th:href="@{/messages}"><i class="fa fa-edit"></i> <span th:text="#{navbar.messages}" id="mesLink">Messaging center</span></a></li>
