@@ -7,9 +7,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cpms.dao.implementations.jpa.repositories.system.DocumentCategoryRepository;
+import com.cpms.dao.implementations.jpa.repositories.system.DocumentTrendRepository;
+import com.cpms.dao.implementations.jpa.repositories.system.TermsRepository;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.data.entities.Article;
@@ -28,7 +33,21 @@ import com.cpms.data.entities.TermAnswer;
 @Transactional("transactionManager")
 public class JPATermInnovationDAO extends JPATermDAO 
 					implements IInnovationTermDAO {
-	
+
+	protected DocumentCategoryRepository dcRepo;
+	protected DocumentTrendRepository dtRepo;
+
+	@Autowired
+	@Qualifier(value = "DocumentCategory")
+	public void setDCRepo(DocumentCategoryRepository dcRepo) {
+		this.dcRepo = dcRepo;
+	}
+
+	@Autowired
+	@Qualifier(value = "DocumentTrend")
+	public void setDTRepo(DocumentTrendRepository dtRepo) {
+		this.dtRepo = dtRepo;
+	}
 	
 	@Override
 	public List<Term> getInnovations() {
@@ -111,14 +130,17 @@ public class JPATermInnovationDAO extends JPATermDAO
 
 	@Override
 	public void insertDC(boolean cat) {
-		if (cat)
+		if (cat) {
+			dcRepo.deleteAll();
 			termRepo.insertDC();
-		else
+		} else {
+			dtRepo.deleteAll();
 			termRepo.insertDT();
+		}
 	}
 
 	@Override
-	public List<BigInteger> getLastDocs(Date startDate) {
-		return termRepo.getLastDocs(getDate(startDate));
+	public List<BigInteger> getLastDocs(Date startDate, List<Long> cats, List<Long> trends) {
+		return termRepo.getLastDocs(getDate(startDate), cats, trends);
 	}
 }

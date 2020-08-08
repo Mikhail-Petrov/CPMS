@@ -129,6 +129,12 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 	@Column(name = "ProjectType", nullable = true)
 	private int projectType;
 	
+	@Column(name = "delUser", nullable = true)
+	private Long delUser;
+	
+	@Column(name = "delDate", nullable = true)
+	private Date delDate;
+	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "TermVariantID", nullable = true)
 	@Cascade({CascadeType.DETACH})
@@ -497,5 +503,21 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 
 	public void setImpact(Integer impact) {
 		this.impact = impact;
+	}
+
+	public Date getDelDate() {
+		return delDate;
+	}
+
+	public void setDelDate(Date delDate) {
+		this.delDate = delDate;
+	}
+
+	public Long getDelUser() {
+		return delUser;
+	}
+
+	public void setDelUser(Long delUser) {
+		this.delUser = delUser;
 	}
 }

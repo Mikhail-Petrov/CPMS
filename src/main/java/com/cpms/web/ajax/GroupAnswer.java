@@ -28,9 +28,14 @@ public class GroupAnswer implements IAjaxAnswer {
 	private List<List<Proofreader>> solutions;
 	private List<String> groupNames;
 	private boolean success;
+	private String res;
 
 	public GroupAnswer() {
 		this(false);
+	}
+	public GroupAnswer(String res) {
+		setRes(res);
+		setSuccess(false);
 	}
 	public GroupAnswer(boolean success) {
 		solutions = new ArrayList<>();
@@ -245,6 +250,12 @@ public class GroupAnswer implements IAjaxAnswer {
 	}
 	public void setSuccess(boolean success) {
 		this.success = success;
+	}
+	public String getRes() {
+		return res;
+	}
+	public void setRes(String res) {
+		this.res = res;
 	}
 	
 }

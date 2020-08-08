@@ -15,6 +15,10 @@
 			<a th:href="@{/stat/analizeDoc(id=${nokey})}" th:text="'analize'"></a></p>
 		</div>
 		<a href="#" id="plusButton" th:text="'analize all'"></a>
+		
+		<p><a href="#" id="updDC" th:text="'Update document categories'"></a></p>
+		<p><a href="#" id="updDT" th:text="'Update document trends'"></a></p>
+		<p><a href="#" id="loadDocs" th:text="'Upload new articles'"></a></p>
 		<p id="curStatus"></p>
 			<script th:inline="javascript">
 			/*<![CDATA[*/
@@ -37,7 +41,8 @@
 				     var headers = {};
 				     headers[csrfHeader] = csrfToken;
 
-			         $("#curStatus").html('extracting...');
+			        if ($("#curStatus").html() === '' || $("#curStatus").html() === 'success')
+				    	$("#curStatus").html('executing...');
 					$.ajax({
 						url : requestUrl,
 						type: 'POST',
@@ -48,8 +53,10 @@
 						success: function (res) {
 							if (res.success)
 					         $("#curStatus").html('success');
-					        else
-					         ajaxGroup(requestUrl);
+					        else {
+						        $("#curStatus").html(res.res);
+					         	ajaxGroup(requestUrl);
+					        }
 						},
 						error: function (xhRequest, ErrorText, thrownError) {
 					         $("#curStatus").html('ERROR!!!');
@@ -61,6 +68,9 @@
 					});
 				}
 				$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'stat/analizeAllDoc')});
+				$("#updDC").on("click", function() {ajaxGroup(rootPath + 'stat/insertDC?cat=true')});
+				$("#updDT").on("click", function() {ajaxGroup(rootPath + 'stat/insertDC?cat=false')});
+				$("#loadDocs").on("click", function() {ajaxGroup(rootPath + 'stat/loadDocs')});
 			/*]]>*/
 			</script>
 		</div>

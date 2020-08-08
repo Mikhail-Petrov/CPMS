@@ -16,7 +16,7 @@ import com.cpms.data.entities.Term;
 public interface TermsRepository  extends JpaRepository<Term, Long> {
 
 	@Query(value = "Select * from Term term where id in (select termid from Termvariant where id in " +
-			"(select TermVariantID from TASK))", nativeQuery = true)
+			"(select TermVariantID from TASK where delDate is null))", nativeQuery = true)
 	public List<Term> getInnovations();
 	
 	@Query("Select term from Term term where stem = :stem")
@@ -38,7 +38,7 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 
 	@Query(value = "select count(d.id) from Document d " + 
 			"inner join DocumentCategory dc on (d.id = dc.documentid and dc.categoryid in (:cats))\n" + 
-			"left join DocumentTrend dt on (d.id = dt.documentid and dt.trendid in (:trends))\n" + 
+			"inner join DocumentTrend dt on (d.id = dt.documentid and dt.trendid in (:trends))\n" + 
 			"where d.creationDate >= convert(datetime, :start_date, 20) and d.creationDate < convert(datetime, :finish_date, 20)",
 			nativeQuery = true)
 	public Integer getDocCount(@Param("start_date") String start_date, @Param("finish_date") String finish_date,
@@ -63,8 +63,8 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 			"from Keyword k inner join Term t on k.termid = t.id inner join Document dfilter on (k.documentid = dfilter.id and " +
 			"dfilter.creationdate > convert(datetime, :old_start_date, 20) and  " +
 			"dfilter.creationdate <= convert(datetime, :end_date, 20)) " +
-			"inner join DocumentCategory dc on (dfilter.id = dc.documentid and dc.categoryid in (:cats))\n" + 
-			"left join DocumentTrend dt on (dfilter.id = dt.documentid and dt.trendid in (:trends))\n" + 
+			"inner join DocumentCategory dc on (dfilter.id = dc.documentid and dc.categoryid in (:cats)) " + 
+			"inner join DocumentTrend dt on (dfilter.id = dt.documentid and dt.trendid in (:trends)) " + 
 			"left join Document d on (k.documentid = d.id and " +
 			"d.creationdate > convert(datetime, :start_date, 20) and " +
 			"d.creationdate <= convert(datetime, :end_date, 20)) " + 
@@ -99,7 +99,11 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 			nativeQuery = true)
 	public void insertDT();
 
-	@Query(value = "select id from Document d where d.creationDate >= convert(datetime, :start_date, 20) order by d.creationDate desc",
+	@Query(value = "select d.id from Document d " +
+			"inner join DocumentCategory dc on (d.id = dc.documentid and dc.categoryid in (:cats)) " + 
+			"inner join DocumentTrend dt on (d.id = dt.documentid and dt.trendid in (:trends)) " + 
+			"where d.creationDate >= convert(datetime, :start_date, 20) order by d.creationDate desc",
 			nativeQuery = true)
-	public List<BigInteger> getLastDocs(@Param("start_date") String start_date);
+	public List<BigInteger> getLastDocs(@Param("start_date") String start_date,
+			@Param("cats") List<Long> cats, @Param("trends") List<Long> trends);
 }

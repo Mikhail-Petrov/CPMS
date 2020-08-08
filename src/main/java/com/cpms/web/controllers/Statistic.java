@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -122,21 +123,24 @@ public class Statistic {
 	List<Long> nokeysDocs = new ArrayList<>();
 	
 	public static double sensitivity = 0.01;
-	public static int tlimit = 50, sdDelay = 3, osdDelay = 5;
+	public static int tlimit = 50, sdDelay = 3, osdDelay = 5, ldDays = 30;
 	@ResponseBody
 	@RequestMapping(value = "/ajaxSettings",
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxSettings(
 			@RequestBody String json) {
 		List<Object> values = DashboardAjax.parseJson(json, messageSource);
-		String sens = values.size() > 0 ? (String) values.get(0) : "";
-		String termLimit = values.size() > 1 ? (String) values.get(1) : "";
-		String stDate = values.size() > 2 ? (String) values.get(2) : "";
-		String oldDate = values.size() > 3 ? (String) values.get(3) : "";
+		int i = 0;
+		String sens = values.size() > i ? (String) values.get(i++) : "";
+		String termLimit = values.size() > i ? (String) values.get(i++) : "";
+		String stDate = values.size() > i ? (String) values.get(i++) : "";
+		String oldDate = values.size() > i ? (String) values.get(i++) : "";
+		String lastdDays = values.size() > i ? (String) values.get(i++) : "";
 		sensitivity = Double.parseDouble(sens);
 		tlimit = Integer.parseInt(termLimit);
 		sdDelay = Integer.parseInt(stDate);
 		osdDelay = Integer.parseInt(oldDate);
+		ldDays = Integer.parseInt(lastdDays);
 		return new GroupAnswer();
 	}
 
@@ -148,7 +152,8 @@ public class Statistic {
 		model.addAttribute("sensitivity", sensitivity);
 		model.addAttribute("tlimit", tlimit);
 		model.addAttribute("stdate", sdDelay);
-		model.addAttribute("olddate", osdDelay);
+		model.addAttribute("olddate", osdDelay); 
+		model.addAttribute("ldDays", ldDays); 
 
 		return "settings";
 	}
@@ -182,7 +187,8 @@ public class Statistic {
 		if (catId == null) catId = 0;
 		if (trId == null) trId = 0;
 		if (catId > 0)
-			cats.add((long) catId);
+			//cats.add((long) catId);
+			cats = getCatChildIDs(categoryDAO.getOne(catId));
 		else
 			cats = allCats;
 		if (trId > 0)
@@ -332,32 +338,57 @@ public class Statistic {
 		model.addAttribute("_VIEW_TITLE", "im.title.innovations");
 		model.addAttribute("_FORCE_CSRF", true);
 		
-		List<Category> cats = categoryDAO.getAll();
+		List<Category> cats = categoryDAO.getAll(), categs = new ArrayList<>();
 		List<String> categories = new ArrayList<>(), catIDs = new ArrayList<>();
 		Collections.sort(cats);
 		for (Category cat : cats) {
 			categories.add(cat.getPresentationName());
 			catIDs.add(cat.getId() + "");
+			if (cat.getParent() == null)
+				categs.add(cat);
 		}
 		//String[] categories = {"Strategy and Planning", "--Culture Development", "Recruitment", "--Employer Branding and Communication", "--Recruitment", "--Onboarding", "Talent & Performance Management", "--Performance Management", "--Talent Management", "--Succession Management", "Learning & Training ", "--Competence Development", "--Learning Standards", "--Learning Management System ", "Total Rewards", "--Compensation", "--Benefits", "--Your Time", "Administration & Services", "--HR IT Systems", "--Employee Lifecycle Management", "--Expat Administration"};
 		model.addAttribute("categories", categories);
-		model.addAttribute("categs", cats);
+		model.addAttribute("categs", categs);
 		model.addAttribute("catIDs", catIDs);
 		
 		return "innovations";
 	}
 
 	@RequestMapping(path = "/documents", method = RequestMethod.GET)
-	public String documents(Model model) {
+	public String documents(Model model, @RequestParam(value = "catid", required = false) Long catid) {
 		model.addAttribute("_VIEW_TITLE", "Last documents");
 		model.addAttribute("_FORCE_CSRF", true);
 		model.addAttribute("_NAMED_TITLE", true);
 		
 		List<Article> docsList = new ArrayList<>();
-		for (BigInteger id : innDAO.getLastDocs(changeDate(new Date(System.currentTimeMillis()), 0, -1, 0)))
+		getCatsTrends();
+		List<Long> cats = allCats, trends = allTrends;
+		if (catid != null) {
+			cats = getCatChildIDs(categoryDAO.getOne(catid));
+		}
+		for (BigInteger id : innDAO.getLastDocs(changeDate(new Date(System.currentTimeMillis()), 0, 0, -ldDays), cats, trends))
 			docsList.add(docDAO.getOne(id.longValue()));
 		model.addAttribute("docsList", docsList);
+		List<Category> categories = categoryDAO.getAll(), categs = new ArrayList<>();
+		Collections.sort(categories);
+		for (Category cat : categories)
+			if (cat.getParent() == null)
+				categs.add(cat);
+		model.addAttribute("categs", categs);
+		model.addAttribute("catid", catid);
 		return "documents";
+	}
+	
+	private List<Long> getCatChildIDs(Category root) {
+		List<Long> cats = new ArrayList<>();
+		cats.add(root.getId());
+		Set<Category> children = root.getChildren(categoryDAO);
+		for (Category cat : children) {
+			cats.add(cat.getId());
+			cats.addAll(getCatChildIDs(cat));
+		}
+		return cats;
 	}
 
 	@RequestMapping(path = "/doc", method = RequestMethod.GET)
@@ -673,7 +704,7 @@ public class Statistic {
 	}
 
 	@RequestMapping(path = "/removeInn", method = RequestMethod.GET)
-	public String removeInn(Model model, @RequestParam(value = "id", required = true) Long id) {
+	public String removeInn(Model model, Principal principal, @RequestParam(value = "id", required = true) Long id) {
 		Term term = termDAO.getOne(id);
 		term.setInn(false);
 		term.setCategory("");
@@ -683,7 +714,7 @@ public class Statistic {
 			if (task.getVariant() != null)
 				for (TermVariant var : term.getVariants())
 					if (task.getVariant().getTerm().getId() == var.getTerm().getId()) {
-						EditorTask.deleteTask(task, facade);
+						EditorTask.deleteTask(task, facade, principal, userDAO);
 						break;
 					}
 		}
@@ -861,22 +892,102 @@ public class Statistic {
 		return terms(model);
 	}
 	
+	private String checkError = "";
+	@ResponseBody
+	@RequestMapping(value = "/checkWebsite",
+			method = RequestMethod.POST)
+	public Article checkWebsite(@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		int i = 0;
+		String url = values.size() > i ? ((String) values.get(i++)).trim() : "";
+		String linkm = values.size() > i ? ((String) values.get(i++)).trim() : "";
+		String articlem = values.size() > i ? ((String) values.get(i++)).trim() : "";
+		String datem = values.size() > i ? ((String) values.get(i++)).trim() : "";
+		String datef = values.size() > i ? ((String) values.get(i++)).trim() : "";
+		String pages = values.size() > i ? ((String) values.get(i++)).trim() : "";
+		String datea = values.size() > i ? ((String) values.get(i++)).trim() : "";
+
+		sites = new HashMap<>();
+		urls = new ArrayList<>();
+		Article res = null;
+		try {
+			getPosts(url, linkm, (pages.isEmpty() ? "" : "2 ") + pages);
+			//if (sites.isEmpty())
+				//getPosts(url, linkm, "");
+			if (sites.isEmpty()) throw new Exception();
+				res = getArticle(urls.get(0), articlem, datef, datem, datea);
+		} catch (Exception e) {
+		}
+		if (res == null) {
+			res = new Article();
+			res.setTitle(checkError);
+			res.setUrl("");
+		}
+		if (res.getText() != null && res.getText().length() > 100)
+			res.setText(res.getText().substring(0, 100) + "");
+		return res;
+	}
+
+
+	private int extracted, curSite = 0;
+	private List<Website> curWebsites = null;
+	private Date compareDate;
 	@ResponseBody
 	@RequestMapping(value = "/loadDocs",
 			method = RequestMethod.POST)
 	public IAjaxAnswer loadDocs(@RequestBody String json) {
-		extractDocsDB();
-		//return new GroupAnswer(true);
-		curSite++;
-		if (curSite >= facade.getWebsiteDAO().getAll().size())
-			return new GroupAnswer(true);
-		return new GroupAnswer();
-	}
-
-	@RequestMapping(path = { "/script" }, method = RequestMethod.GET)
-	public String script(Model model) {
-		extractDocsDB();
-		return "redirect:/stat/docs";
+		if (curWebsites == null) {
+			// initialization
+			curWebsites = facade.getWebsiteDAO().getAll();
+			curSite = 1;
+			sites = new HashMap<>();
+			urls = new ArrayList<>();
+			compareDate = new Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000);
+			oldUrls = new ArrayList<>();
+			for (Article doc : docDAO.getAll())
+				oldUrls.add(doc.getUrl());
+		}
+		if (curWebsites.isEmpty()) {
+			curWebsites = null;
+			GroupAnswer ans = new GroupAnswer();
+			ans.setSuccess(true);
+			return ans;
+		}
+		Website curWeb = curWebsites.get(0);
+		if (!sites.isEmpty()) {
+			// article extraction
+			String curUrl = urls.get(0);
+			/*for (Entry<String, String> e : sites.entrySet()) {
+				curUrl = e.getKey();
+				break;
+			}*/
+			Article article = getArticle(
+					curUrl, curWeb.getArticleMask(), curWeb.getDateFormat(), curWeb.getDateMask(), curWeb.getDateAttribute());
+			if (article.getCreationDate().before(compareDate)) {
+				// too old articles
+				sites.clear();
+				urls.clear();
+				curWebsites.remove(0);
+				curSite = 1;
+				return new GroupAnswer("");
+			}
+			// save and continue
+			article.setWebsite(curWeb);
+			facade.getDocumentDAO().insert(article);
+			sites.remove(curUrl);
+			urls.remove(0);
+			return new GroupAnswer("Article extraction from " + curWeb.getName());
+		}
+		// analyze current page for current website
+		getPosts(curWeb.getUrl(), curWeb.getLinkMask(), curSite++ + " " + curWeb.getPageFormat());
+		if (sites.isEmpty()) {
+			// no articles
+			urls.clear();
+			curWebsites.remove(0);
+			curSite = 1;
+			return new GroupAnswer("");
+		}
+		return new GroupAnswer("Article extraction from " + curWeb.getName());
 	}
 
 	@RequestMapping(path = { "/extract" })
@@ -908,25 +1019,6 @@ public class Statistic {
 		String datea = values.size() > 8 ? (String) values.get(8) : "";
 		extractDocs0(sources, linkm, articlem, datem, datef, pages, mindate, maxdate, datea);
 		return new GroupAnswer();
-	}
-
-	private int extracted, curSite = 0;
-	private void extractDocsDB() {
-		List<Website> all = facade.getWebsiteDAO().getAll();
-		//for (Website site : all) {
-			Website site = all.get(curSite);
-			System.out.print(site.getName() + "\n");
-			String sources = site.getUrl();
-			String linkm = site.getLinkMask();
-			String articlem = site.getArticleMask();
-			String datem = site.getDateMask();
-			String datef = site.getDateFormat();
-			String pages = site.getPageFormat();
-			String datea = site.getDateAttribute();
-			extracted = site.getExtract();
-			for (int i = 0; extracted > 0; i++)
-				extractDocs0(sources, linkm, articlem, datem, datef, i + " " + pages, "2015-01-01", "", datea);
-		//}
 	}
 	Date minDate = null, maxDate = null;
 	String articlem, datef, datem, datea;
@@ -986,7 +1078,7 @@ public class Statistic {
 		List<Article> docs = new ArrayList<>();
 		int size = urls.size();
 		for (int i = urls.size() - 1; i >= size - 50 && i >= 0; i--) {
-			Article newDoc = getPosts2(urls.get(i), articlem, datef, datem, datea);
+			Article newDoc = getArticle(urls.get(i), articlem, datef, datem, datea);
 			if (newDoc != null) {
 			newDoc.setMask(articlem);
 				boolean suit = minDate == null && maxDate == null ||
@@ -1035,9 +1127,11 @@ public class Statistic {
 		for (int i = startPage; i <= endPage; i++) {
 			if (i > 0) url = initUrl + pageFormat + i;
 			
+		checkError = "Wrong URL or page format";
 		Document doc = getDoc(url);
 		if (doc == null) continue;
 		// find posts
+		checkError = "Wrong link mask";
 		Elements newsHeadlines = doc.select(postMask);
 		for (Element headline : newsHeadlines) {
 			String curUrl = headline.absUrl("href");
@@ -1056,7 +1150,8 @@ public class Statistic {
 		return defValue;
 	}
 	
-	private Article getPosts2(String url, String articleMask, String datef, String datem, String datea) {
+	private Article getArticle(String url, String articleMask, String datef, String datem, String datea) {
+		checkError = "Wrong article link";
 		Document curDoc = getDoc(url);
 		if (curDoc == null) return null;
 		
@@ -1065,6 +1160,7 @@ public class Statistic {
 		newDoc.setTitle(sites.get(url));
 		String text="";
 		try {
+			checkError = "Wrong article mask";
 			text = curDoc.select(articleMask).first().text();
 		} catch (NullPointerException e) {
 			return null;
@@ -1072,10 +1168,13 @@ public class Statistic {
 		newDoc.setText(text);
 		
 		// get date
+		checkError = "Wrong date mask";
 		Elements times = curDoc.select(datem);
 		Date minDate = null;
+		checkError = "Wrong date format";
 		SimpleDateFormat df = new SimpleDateFormat(datef, Locale.ENGLISH);
 		for (Element time : times) {
+			checkError = "Wrong date attribute";
 			String attr = time.attr(datea);
 			try {
 				Date parse = df.parse(attr);

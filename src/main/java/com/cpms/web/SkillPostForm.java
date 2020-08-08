@@ -27,6 +27,7 @@ public class SkillPostForm {
 
 	private List<SkillLevel> levels;
 	
+	private boolean draft;
 	public SkillPostForm() {
 		levels = new ArrayList<SkillLevel>();
 	}
@@ -133,6 +134,14 @@ public class SkillPostForm {
 
 	public void setDattr(String dattr) {
 		this.dattr = dattr;
+	}
+
+	public boolean isDraft() {
+		return draft;
+	}
+
+	public void setDraft(boolean draft) {
+		this.draft = draft;
 	}
 	
 }

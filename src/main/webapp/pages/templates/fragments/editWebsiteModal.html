@@ -26,26 +26,36 @@
   		<select hidden="true" multiple="true" id="webSel" name="terms"></select>
   		<textarea type="textarea" hidden="true" class="form-control" id="html0" name="html0"></textarea>
   			<p><span id="idtext" th:text="'id: 0'"></span><input type="hidden" id='selfId' th:field="*{id}" class="input-wide" th:value="0"/></p>
+  			<p hidden='true'><input type='checkbox' name="draft" id="website_show" th:title="'Show in News Channel'"/>
+			<span th:text="'Show in News Channel'" text="Show in News Channel"></span></p>
 			<span th:text="'Website name'" text="Name"></span>:
 			<p><input type="text" class="form-control" th:field="*{name}" placeholder="Name" pattern=".{0,100}" title="Must be more than 3 but less than 100 symbols" th:title="#{editor.title.skill_name_en}" id="website_name" onblur="addCheck(this, 3, 100)"/></p>
 			<span th:text="'Website URL'" text="URL"></span>:
 			<p><input type="text" class="form-control" name="about" placeholder="URL" th:title="'URL'" id="website_url"/></p>
 			<span th:text="'Link mask'" text="Link mask"></span>:
-			<p><input type="text" class="form-control" name="name_ru" placeholder="h2 a" th:title="'object in HTML that contains link to the article'" id="website_lmask"/></p>
-			<span th:text="'Article mask'" text="Article mask"></span>:
-			<p><input type="text" class="form-control" name="name_en" placeholder="div[class=entry-content]" th:title="'object in HTML that contains the article'" id="website_amask"/></p>
-			<span th:text="'Date mask'" text="Date mask"></span>:
-			<p><input type="text" class="form-control" name="about_ru" placeholder="time" th:title="'object in HTML that contains the date'" id="website_dmask"/></p>
-			<span th:text="'Date format'" text="Date format"></span>:
-			<p><input type="text" class="form-control" name="about_en" placeholder="yyyy-MM-dd'T'hh:mm:ss" th:title="'Date format'" id="website_dformat"/></p>
-			<span th:text="'Date attribute'" text="Date attribute"></span>:
-			<p><input type="text" class="form-control" name="dattr" placeholder="datetime" th:title="'attribute in object that contains the date'" id="website_dattr"/></p>
+			<p><input type="text" class="form-control" name="name_ru" placeholder="h2 a"
+				th:title="'object in HTML that contains link to the article'" id="website_lmask"/></p>
 			<span th:text="'Pages format'" text="Pages format"></span>:
-			<p><input type="text" class="form-control" name="pages" placeholder="page/" th:title="'how pages switch'" id="website_pformat"/></p>
+			<p><input type="text" class="form-control" name="pages" placeholder="page/"
+				th:title="'how pages switch'" id="website_pformat"/></p>
+			<span th:text="'Article mask'" text="Article mask"></span>:
+			<p><input type="text" class="form-control" name="name_en" placeholder="div[class=entry-content]"
+				th:title="'object in HTML that contains the article'" id="website_amask"/></p>
+			<span th:text="'Article date mask'" text="Article date mask"></span>:
+			<p><input type="text" class="form-control" name="about_ru" placeholder="time"
+				th:title="'object in HTML that contains the date'" id="website_dmask"/></p>
+			<span th:text="'Article date format'" text="Article date format"></span>:
+			<p><input type="text" class="form-control" name="about_en" placeholder="yyyy-MM-dd'T'hh:mm:ss"
+				th:title="'Date format'" id="website_dformat"/></p>
+			<span th:text="'Article date attribute'" text="Article date attribute"></span>:
+			<p><input type="text" class="form-control" name="dattr" placeholder="datetime"
+				th:title="'attribute in object that contains the date'" id="website_dattr"/></p>
 		<p>
 			<span th:text="'Parent Website id'"></span>
 			<input type="number" id="parentId" th:field="*{parent}"/>
 		</p>
+			<p><a href="#" id="checkWebsite" class="btn btn-primary btn-block" th:text="'Check'"></a></p>
+			<p id="checkResults"></p>
 			<p><input type="submit" id="websiteSubmitButton" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
   			<p hidden="true"><input type="submit" id="websiteSubmitButton2" class="btn btn-primary btn-block" value="Create" th:value="#{editor.create}"/></p>
   			<p id="webTerms"></p>
@@ -57,6 +67,63 @@
 		</div></p>
 		<p id="webSearchSS"></p>
 		<p id="webSearchTerms"></p>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+				function ajaxCheckWebsite(requestUrl) {
+					
+					var inputArgs = [];
+					var i;
+					for (i = 1; i < arguments.length; i++) {
+						inputArgs.push(arguments[i]);
+					}
+					
+					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				     var csrfToken = $("meta[name='_csrf']").attr("content");
+				     var headers = {};
+				     headers[csrfHeader] = csrfToken;
+				     
+					inputArgs.push($("#website_url").val());
+					inputArgs.push($("#website_lmask").val());
+					inputArgs.push($("#website_amask").val());
+					inputArgs.push($("#website_dmask").val());
+					inputArgs.push($("#website_dformat").val());
+					inputArgs.push($("#website_pformat").val());
+					inputArgs.push($("#website_dattr").val());
+
+				    $("#checkResults").html('checking...');
+					$.ajax({
+						url : requestUrl,
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json; charset=utf-8',
+						data : JSON.stringify(inputArgs),
+						headers: headers,
+						success: function (res) {
+							var html = "";
+							if (res === null)
+								html = "Could not extract links to the articles";
+							else
+								if (res.url === '')
+									html = res.title;
+								else {
+									html = "<table><tr><th>Title</th><th>URL</th><th>Date</th><th>Text</th></tr>";
+									html += "<tr><td>" + res.title + "</td><td><a target='_blank' href='" + res.url + "'>" + res.url +
+										"</a></td><td>" + new Date(res.creationDate) + "</td><td>" + res.text + "</td></tr></table>";
+							}
+						    $("#checkResults").html(html);
+						},
+						error: function (xhRequest, ErrorText, thrownError) {
+					         $("#checkResults").html('ERROR!!!');
+							console.log('xhRequest: ' + xhRequest + "\n");
+							console.log('ErrorText: ' + ErrorText + "\n");
+							console.log('thrownError: ' + thrownError + "\n");
+							console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+						}
+					});
+				}
+				$("#checkWebsite").on("click", function() {ajaxCheckWebsite(rootPath + 'stat/checkWebsite')});
+			/*]]>*/
+			</script>
 		</form>
   		</div>
   	</div>

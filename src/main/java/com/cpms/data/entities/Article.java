@@ -10,6 +10,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -75,6 +77,11 @@ public class Article extends AbstractDomainObject {
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<DocumentTrend> trends;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "websiteid", nullable = true)
+	@Cascade({CascadeType.DETACH})
+	private Website website;
 	
 	public Article() {
 		setParseDate(new Date(System.currentTimeMillis()));
@@ -188,6 +195,14 @@ public class Article extends AbstractDomainObject {
 
 	public void setTrends(Set<DocumentTrend> trends) {
 		this.trends = trends;
+	}
+
+	public Website getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(Website website) {
+		this.website = website;
 	}
 	
 	

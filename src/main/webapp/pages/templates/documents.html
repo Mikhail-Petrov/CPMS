@@ -3,6 +3,10 @@
 	<div class="col-md-12">
 		<div class="x_panel">
 			<div class="x_content">
+				<p><a th:href="@{/stat/documents}" id="getTerms"
+					th:class="'btn btn-' + (${catid}==null?'success':'primary')" th:text="'All'"></a>
+				<a th:each="categ : ${categs}" th:id="'getTerms' + ${categ.id}" th:href="@{/stat/documents(catid=${categ.id})}"
+					th:text="${categ.name}" th:class="'btn btn-' + (${catid==categ.id}?'success':'primary')"></a></p>
 				<table class="table table-responsive table-striped">
 					<thead>
 						<tr>

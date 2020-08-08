@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -495,18 +496,28 @@ public class EditorTask {
 		return returnVal;
 	}
 
-	public static void deleteTask(Task task, ICPMSFacade facade) {
+	public static void deleteTask(Task task, ICPMSFacade facade, Principal principal, IUserDAO userDAO) {
 		for (Message mes : task.getMessages()) {
 			mes.setTask(null);
 			facade.getMessageDAO().update(mes);
 		}
 		for (TaskCenter center : task.getRecipients())
 			CommonModelAttributes.newTask.put(center.getUser().getId(), -1);
-		facade.getTaskDAO().delete(task);
+		//facade.getTaskDAO().delete(task);
+		long delUser;
+		Users user = userDAO.getByUsername(((UsernamePasswordAuthenticationToken) principal).getName());
+		if (user == null)
+			delUser = 0;
+		else
+			delUser = user.getId();
+		Date delDate = new Date(System.currentTimeMillis());
+		task.setDelDate(delDate);
+		task.setDelUser(delUser);
+		facade.getTaskDAO().update(task);
 	}
 	@RequestMapping(path = "/task/delete", method = RequestMethod.GET)
-	public String taskDelete(Model model, @RequestParam(name = "id", required = true) Long id) {
-		deleteTask(facade.getTaskDAO().getOne(id), facade);
+	public String taskDelete(Model model, Principal principal, @RequestParam(name = "id", required = true) Long id) {
+		deleteTask(facade.getTaskDAO().getOne(id), facade, principal, userDAO);
 		return "redirect:/viewer/tasks";
 	}
 

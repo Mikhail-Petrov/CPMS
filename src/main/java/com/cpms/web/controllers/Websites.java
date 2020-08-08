@@ -187,6 +187,7 @@ public class Websites {
 				answer.setAbout_en(website.getDateFormat());
 				answer.setDattr(website.getDateAttribute());
 				answer.setPages(website.getPageFormat());
+				answer.setDraft(website.getShow() > 0);
 				answer.setParentId(website.getParent() == null ? null : "" + website.getParent().getId());
 				answer.setId(website.getId());
 				answer.setSuccessful(true);
@@ -234,6 +235,7 @@ public class Websites {
 		newWebsite.setDateFormat(recievedWebsite.getAbout_en());
 		newWebsite.setDateAttribute(recievedWebsite.getDattr());
 		newWebsite.setPageFormat(recievedWebsite.getPages());
+		newWebsite.setShow(recievedWebsite.isDraft() ? 1 : 0);
 		newWebsite.getMissingFields();
 		
 		if (recievedWebsite.getId() == 0)

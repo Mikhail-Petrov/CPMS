@@ -34,5 +34,5 @@ public interface IInnovationTermDAO {
 	
 	public void insertDC(boolean cat);
 	
-	public List<BigInteger> getLastDocs(Date startDate);
+	public List<BigInteger> getLastDocs(Date startDate, List<Long> cats, List<Long> trends);
 }

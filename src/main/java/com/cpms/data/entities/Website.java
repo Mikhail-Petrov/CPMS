@@ -172,6 +172,7 @@ public class Website extends AbstractDomainObject implements Comparable<Website>
 		returnValue.setDateFormat(getDateFormat());
 		returnValue.setDateMask(getDateMask());
 		returnValue.setPageFormat(getPageFormat());
+		returnValue.setShow(getShow());
 		return returnValue;
 	}
 	

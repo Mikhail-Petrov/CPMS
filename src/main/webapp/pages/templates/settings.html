@@ -6,6 +6,7 @@
 		<p><span>Term search results limit: </span><input id="tlimit" type="text" name="tlimit" th:value="${tlimit}"/></p>
 		<p><span>Start date delay (months): </span><input id="stdate" type="number" name="stdate" th:value="${stdate}"/></p>
 		<p><span>Old start date (years): </span><input id="olddate" type="number" name="olddate" th:value="${olddate}"/></p>
+		<p><span>News Channel delay (days): </span><input id="ldDays" type="number" name="ldDays" th:value="${ldDays}"/></p>
 		
 		<button type="button" class="btn btn-primary btn-block" id="plusButton" th:text="'Save'"></button>
 		<p id="curStatus"></p>
@@ -23,6 +24,7 @@
 				inputArgs.push($("#tlimit").val());
 				inputArgs.push($("#stdate").val());
 				inputArgs.push($("#olddate").val());
+				inputArgs.push($("#ldDays").val());
 				
 				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 			     var csrfToken = $("meta[name='_csrf']").attr("content");

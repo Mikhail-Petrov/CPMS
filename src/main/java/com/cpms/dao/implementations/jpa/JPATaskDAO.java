@@ -54,7 +54,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements ICleanable {
 
 	@Override
 	public List<Task> getAll() {
-		return taskRepo.findAll();
+		return taskRepo.getAll();
 	}
 
 	@Override

@@ -241,6 +241,7 @@
 							$("#parentId").val(0);
 						else
 							$("#parentId").val(res.parentId);
+					    $("#checkResults").html('');
 						if (res.id > 0 && !isChild) {
 							// Copy values from changed website
 							$("#website_name").val(res.name);
@@ -251,6 +252,7 @@
 							$("#website_dformat").val(res.about_en);
 							$("#website_dattr").val(res.dattr);
 							$("#website_pformat").val(res.pages);
+							$("#website_show").prop('checked', res.draft);
 						    // Remember id of the changed website
 						    $("#selfId").val(res.id);
 						    // Get all terms
@@ -271,6 +273,7 @@
 							$("#website_dattr").val("");
 							$("#website_pformat").val("");
 							$("#parentId").val(res.id);
+							$("#website_show").prop('checked', true);
 						    clearTerms();
 						    // Forget website id
 						    $("#selfId").val(0);
