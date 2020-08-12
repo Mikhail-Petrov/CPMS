@@ -151,14 +151,14 @@ public class CommonModelAttributes {
 		int result = newTask.containsKey(userId) ? newTask.get(userId) : -1;
 		if (result >= 0) return result;
 		result = 0;
-		final String assignedStatus = "1";
+		/*final String assignedStatus = "1";
 		if (user == null) {
 			for (Task task : taskDAO.getAll())
 				if (task.getStatus().equals(assignedStatus))
 					result++;
 		} else for (TaskCenter center : user.getTasks())
 			if (center.getTask().getStatus().equals(assignedStatus))
-				result++;
+				result++;*/
 		newTask.put(userId, result);
 		return result;
 	}
@@ -174,7 +174,7 @@ public class CommonModelAttributes {
 		Users user = Security.getUser(principal, userDAO);
 		long userId = user == null ? 0 : user.getId();
 		int result = newMes.containsKey(userId) ? newMes.get(userId) : -1;
-		if (result >= 0) return result;
+		if (result >= 0) return result;/*
 		Set<MessageCenter> centers = null;
 		if (user == null) {
 			List<Message> messages = messageDAO.getAll();
@@ -190,7 +190,7 @@ public class CommonModelAttributes {
 		}
 		result = centers.size();
 		for (MessageCenter center : centers)
-			if (center.isRed()) result--;
+			if (center.isRed()) result--;*/
 		newMes.put(userId, result);
 		return result;
 	}

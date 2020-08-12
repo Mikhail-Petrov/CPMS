@@ -49,6 +49,24 @@
 		<p id="taskSearchTerms"></p>
 		</div>
                                 <hr class="separator"/>
+                                <div class="row">
+                                    <div class="col-md-12">
+									<!-- select id="skillSelector" size="7">
+										<option th:each="skill : ${skillsList}" th:value="${skill.id}" th:text="${skill.name}">skill</option>
+									</select-->
+									<input type="hidden" name="trendIDs" id="trendSelector" />
+                            		<div class="x_content" th:include="fragments/trendTree :: trendTree"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+									<!-- select id="skillSelector" size="7">
+										<option th:each="skill : ${skillsList}" th:value="${skill.id}" th:text="${skill.name}">skill</option>
+									</select-->
+									<input type="hidden" name="categoryIDs" id="categorySelector" />
+                            		<div class="x_content" th:include="fragments/categoryTree :: categoryTree"></div>
+                                    </div>
+                                </div>
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script>
@@ -106,6 +124,28 @@
 					$("#skillSelector").val($("#skillSelector").val() + "|" + $("#ask" + id).text() + " (" + id + ")");
 				}
 			}
+	function clickTrend(id) {
+		if ($("#trask" + id + " b").length > 0) {
+			// unselect
+			$("#trask" + id).html($("#trask" + id).html().replace("<b>", "").replace("</b>", ""));
+			$("#trendSelector").val($("#trendSelector").val().replace("|" + id + "|", ""));
+		} else {
+			// select element
+			$("#trask" + id).html("<b>" + $("#trask" + id).html() + "</b>");
+			$("#trendSelector").val($("#trendSelector").val() + "|" + id + "|");
+		}
+	}
+	function clickCategory(id) {
+		if ($("#catask" + id + " b").length > 0) {
+			// unselect
+			$("#catask" + id).html($("#catask" + id).html().replace("<b>", "").replace("</b>", ""));
+			$("#categorySelector").val($("#categorySelector").val().replace("|" + id + "|", ""));
+		} else {
+			// select element
+			$("#catask" + id).html("<b>" + $("#catask" + id).html() + "</b>");
+			$("#categorySelector").val($("#categorySelector").val() + "|" + id + "|");
+		}
+	}
 							function addSkill(){
 								level = $("#reqLvl").val();
 								if (level == "" || level < 1)

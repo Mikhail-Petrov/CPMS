@@ -16,8 +16,11 @@ import com.cpms.data.entities.Term;
 public interface TermsRepository  extends JpaRepository<Term, Long> {
 
 	@Query(value = "Select * from Term term where id in (select termid from Termvariant where id in " +
-			"(select TermVariantID from TASK where delDate is null))", nativeQuery = true)
-	public List<Term> getInnovations();
+			"(select TermVariantID from TASK d " +
+			"inner join Task_Category dc on (d.id = dc.task_id and dc.category_id in (:cats))" + 
+			"left join Task_Trend dt on (d.id = dt.task_id and dt.trend_id in (:trends))" +
+			"where delDate is null))", nativeQuery = true)
+	public List<Term> getInnovations(@Param("cats") List<Long> cats, @Param("trends") List<Long> trends);
 	
 	@Query("Select term from Term term where stem = :stem")
 	public Term getTermByStem(@Param("stem") String stem);
@@ -102,8 +105,15 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 	@Query(value = "select d.id from Document d " +
 			"inner join DocumentCategory dc on (d.id = dc.documentid and dc.categoryid in (:cats)) " + 
 			"inner join DocumentTrend dt on (d.id = dt.documentid and dt.trendid in (:trends)) " + 
-			"where d.creationDate >= convert(datetime, :start_date, 20) order by d.creationDate desc",
+			"where d.creationDate >= convert(datetime, :start_date, 20) group by d.id, d.creationDate order by d.creationDate desc",
 			nativeQuery = true)
 	public List<BigInteger> getLastDocs(@Param("start_date") String start_date,
 			@Param("cats") List<Long> cats, @Param("trends") List<Long> trends);
+	
+	@Query(value = "select dc.categoryid, 'cat' from Keyword k, Document d, DocumentCategory dc\n" + 
+			"where k.termid = :term and k.documentid = d.id and dc.documentid = d.ID\n" + 
+			"union\n" + 
+			"select dt.trendid, 'trend' from Keyword k, Document d, DocumentTrend dt\n" + 
+			"where k.termid = :term and k.documentid = d.id and dt.documentid = d.ID", nativeQuery = true)
+	public List<Object[]> getCatTrendForTerm(@Param("term") long term);
 }

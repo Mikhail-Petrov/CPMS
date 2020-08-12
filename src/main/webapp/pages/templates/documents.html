@@ -10,6 +10,7 @@
 				<table class="table table-responsive table-striped">
 					<thead>
 						<tr>
+							<th>No</th>
 							<th>Title</th>
 							<th>Date</th>
 							<th>Categories</th>
@@ -18,7 +19,8 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:each="doc : ${docsList}">
+						<tr th:each="doc, iStat : ${docsList}">
+							<td th:text="${iStat.count}"></td>
 							<td th:text="${doc.title}"></td>
 							<td th:text="${#dates.format(doc.creationDate, 'dd MMMM yyyy')}"></td>
 							<td><p th:each="cat : ${doc.cats}">

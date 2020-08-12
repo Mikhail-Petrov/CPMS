@@ -1,6 +1,7 @@
 package com.cpms.web.controllers;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.dao.interfaces.IUserDAO;
+import com.cpms.data.entities.Category;
 import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
@@ -45,8 +47,11 @@ import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.data.entities.TaskRequirement;
+import com.cpms.data.entities.Task_Category;
+import com.cpms.data.entities.Task_Trend;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
+import com.cpms.data.entities.Trend;
 import com.cpms.exceptions.DependentEntityNotFoundException;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.facade.ICPMSFacade;
@@ -117,6 +122,12 @@ public class EditorTask {
 		String[] skillIDs = request.getParameterValues("skillIDs");
 		if (skillIDs != null && skillIDs.length > 0)
 			skillIDs = skillIDs[0].split(",");
+		String[] trendIDs = request.getParameterValues("trendIDs");
+		if (trendIDs != null && trendIDs.length > 0)
+			trendIDs = trendIDs[0].split(",");
+		String[] categoryIDs = request.getParameterValues("categoryIDs");
+		if (categoryIDs != null && categoryIDs.length > 0)
+			categoryIDs = categoryIDs[0].split(",");
 		if (recievedRequirement == null) {
 			throw new SessionExpiredException(null, messageSource);
 		}
@@ -133,6 +144,34 @@ public class EditorTask {
 				continue;
 			if (!task.getRequirements().stream().anyMatch(x -> x.getSkill().equals(skill))) {
 				task.addRequirement(new TaskRequirement(skill, skill.getMaxLevel()));
+			}
+		}
+		for (String trID : trendIDs) {
+			long trendID = 0;
+			try {
+				trendID = Long.parseLong(trID);
+			} catch (NumberFormatException e) {
+				continue;
+			}
+			Trend trend = facade.getTrendDAO().getOne(trendID);
+			if (trend == null)
+				continue;
+			if (!task.getTrends().stream().anyMatch(x -> x.getTrend().equals(trend))) {
+				task.addTrend(new Task_Trend(trend, task));
+			}
+		}
+		for (String catID : categoryIDs) {
+			long categID = 0;
+			try {
+				categID = Long.parseLong(catID);
+			} catch (NumberFormatException e) {
+				continue;
+			}
+			Category category = facade.getCategoryDAO().getOne(categID);
+			if (category == null)
+				continue;
+			if (!task.getCategories().stream().anyMatch(x -> x.getCategory().equals(category))) {
+				task.addCategory(new Task_Category(category, task));
 			}
 		}
 		facade.getTaskDAO().update(task);
@@ -195,7 +234,7 @@ public class EditorTask {
 		// fill some fields for innovation
 		if (termid != null && var != null) {
 			Term term = termDAO.getOne(termid);
-			if (term != null)
+			if (term != null) {
 				for (TermVariant tv : term.getVariants())
 					if (tv.getText().equals(var)) {
 						task.setName(var);
@@ -213,6 +252,21 @@ public class EditorTask {
 						}
 						break;
 					}
+				// get categories and trends for the task
+				/*List<Object[]> catTrends = innDAO.getCatTrendForTerm(term);
+				for (Object[] ct : catTrends) {
+					if (ct.length < 2) continue;
+					if (ct[1].equals("cat")) {
+						Category category = facade.getCategoryDAO().getOne(((BigInteger) ct[0]).longValue());
+						if (category != null)
+							task.addCategory(new Task_Category(category, task));
+					} else if (ct[1].equals("trend")) {
+						Trend trend = facade.getTrendDAO().getOne(((BigInteger) ct[0]).longValue());
+						if (trend != null)
+							task.addTrend(new Task_Trend(trend, task));
+					}
+				}*/
+			}
 		}
 		model.addAttribute("task", task);
 		model.addAttribute("create", create);
@@ -275,9 +329,16 @@ public class EditorTask {
 		}
 	}
 	@RequestMapping(path = "/task", method = RequestMethod.POST)
-	public String taskCreate(Model model, HttpServletRequest request, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam(required=false, name="file") MultipartFile file,
+	public String taskCreate(Model model, HttpServletRequest request
+			, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam(required=false, name="file") MultipartFile file,
 			BindingResult bindingResult, Principal principal, @RequestParam(required=false, name="skills") String skills
+			, @RequestParam(required=false, name="trendIDs") String[] trendIDs
+			, @RequestParam(required=false, name="categoryIDs") String[] categoryIDs
 			, @RequestParam(required=false, name="terms") List<String> terms) {
+		if (trendIDs != null && trendIDs.length > 0)
+			trendIDs = trendIDs[0].split("[|]");
+		if (categoryIDs != null && categoryIDs.length > 0)
+			categoryIDs = categoryIDs[0].split("[|]");
 		if (recievedTask == null) {
 			throw new SessionExpiredException(null, messageSource);
 		}
@@ -362,6 +423,37 @@ public class EditorTask {
 				Skill skill = facade.getSkillDAO().getOne(skillID);
 				task.addRequirement(new TaskRequirement(skill, level));
 			} catch (Exception e) {}
+		}
+		// add trends and categories
+		task.getTrends();
+		for (String trID : trendIDs) {
+			long trendID = 0;
+			try {
+				trendID = Long.parseLong(trID.replace("|", ""));
+			} catch (NumberFormatException e) {
+				continue;
+			}
+			Trend trend = facade.getTrendDAO().getOne(trendID);
+			if (trend == null)
+				continue;
+			if (!task.getTrends().stream().anyMatch(x -> x.getTrend().equals(trend))) {
+				task.addTrend(new Task_Trend(trend, task));
+			}
+		}
+		task.getCategories();
+		for (String catID : categoryIDs) {
+			long categID = 0;
+			try {
+				categID = Long.parseLong(catID.replace("|", ""));
+			} catch (NumberFormatException e) {
+				continue;
+			}
+			Category category = facade.getCategoryDAO().getOne(categID);
+			if (category == null)
+				continue;
+			if (!task.getCategories().stream().anyMatch(x -> x.getCategory().equals(category))) {
+				task.addCategory(new Task_Category(category, task));
+			}
 		}
 		
 		task.getRecipients();

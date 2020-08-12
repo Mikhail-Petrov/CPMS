@@ -4,13 +4,13 @@
 					<div class="row"><div class="two-buttons">
 						<input type="text" class="form-control" id="categoryFilter"/>
 					</div><div class="two-buttons">
-						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applyFilter();"></span>
-					<span onclick='clearFilter();' class="btn btn-danger"><i class="fa fa-remove"></i></span>
+						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applyCatFilter();"></span>
+					<span onclick='clearCatFilter();' class="btn btn-danger"><i class="fa fa-remove"></i></span>
 					</div></div>
 					<script>
-					function clearFilter(){
+					function clearCatFilter(){
 						$("#categoryFilter").val("");
-						applyFilter();
+						applyCatFilter();
 					}
 					</script>
 					<p><span id="catss"></span></p>
@@ -20,27 +20,27 @@
 	<script th:inline="javascript">
 	/*<![CDATA[*/
 
-		function addChild(id, flag, term, kids) {
+		function addCatChild(id, flag, term, kids) {
 			var html = "";
 			html += "<div id='catb" + id + "'>";
 			html += flag;
 			if (kids > 0)
 				html += "<img id='catimg" + id + "' src='" + rootPath + "resources/images/dtree/nolines_plus.gif' " +
-					"onclick='ajaxChildren(\"" + rootPath + "category/ajaxChildren\", " + id + ");'>";
+					"onclick='ajaxCatChildren(\"" + rootPath + "category/ajaxChildren\", " + id + ");'>";
 			html += "<a id='catask" + id + "' href='#' onclick='clickCategory(" + id + ");'>"
 				+ term + "</a>";
 			html += "<div id='catch" + id + "'></div>";
 			html += "</div>";
 			return html;
 	}
-		function showChild(child) {
+		function showCatChild(child) {
 		// if it shown then break
 		if ($("#catb" + child.id).length > 0) return;
 		// if parent is not shown then show it
 		var parentId = "#catch";
 		if (child.parent !== null) {
 			if ($("#catb" + child.parent.id).length <= 0)
-				showChild(child.parent);
+				showCatChild(child.parent);
 			parentId += child.parent.id;
 		}
 		// add to the parent
@@ -50,9 +50,9 @@
 			alternative = spl[0];
 			name = spl[1];
 		}
-		$(parentId).html($(parentId).html() + addChild(child.id, alternative, name, 1));
+		$(parentId).html($(parentId).html() + addCatChild(child.id, alternative, name, 1));
 	}
-	function applyFilter() {
+	function applyCatFilter() {
 		var inputArgs = [];
 		var filterText = $("#categoryFilter").val().toLowerCase();
 		inputArgs.push(filterText);
@@ -86,7 +86,7 @@
 							toShow.push(toAdd);
 							curCategory = curCategory.parent;
 						}
-						showChild(category);
+						showCatChild(category);
 					}
 					// hide all that not to show
 					var all = $("[id^=catb]");
@@ -106,9 +106,9 @@
 			}
 		});
 	}
-	$("#categoryFilter").keydown(function(e) {if(e.keyCode === 13) applyFilter()});
+	$("#categoryFilter").keydown(function(e) {if(e.keyCode === 13) applyCatFilter()});
 	
-			function ajaxChildren(requestUrl) {
+			function ajaxCatChildren(requestUrl) {
 				
 				var inputArgs = [];
 				var i;
@@ -138,7 +138,7 @@
 							if (elImg.length > 0)
 								elImg.attr('src', rootPath + "resources/images/dtree/nolines_minus.gif");
 							for (var i = 0; i < res.ids.length; i++) {
-								html += addChild(res.ids[i], res.flags[i], res.terms[i], res.kids[i]);
+								html += addCatChild(res.ids[i], res.flags[i], res.terms[i], res.kids[i]);
 							}
 						}
 						$("#catch" + res.id).html(html);
@@ -161,7 +161,7 @@
 			elImg = $("#catimg" + parent0);
 			if (elImg.length > 0 && elImg.attr('src').indexOf("/resources/images/dtree/nolines_minus.gif") >= 0)
 				elImg.attr('src', rootPath + "resources/images/dtree/nolines_plus.gif");
-			ajaxChildren(rootPath + "category/ajaxChildren", parent0);
+			ajaxCatChildren(rootPath + "category/ajaxChildren", parent0);
 			
 			// editing terms in category
 			function addTerm(termid, id, name) {

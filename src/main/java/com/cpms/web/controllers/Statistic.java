@@ -49,6 +49,8 @@ import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.ProjectTermvariant;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
+import com.cpms.data.entities.Task_Category;
+import com.cpms.data.entities.Task_Trend;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermAnswer;
 import com.cpms.data.entities.TermVariant;
@@ -350,6 +352,18 @@ public class Statistic {
 		//String[] categories = {"Strategy and Planning", "--Culture Development", "Recruitment", "--Employer Branding and Communication", "--Recruitment", "--Onboarding", "Talent & Performance Management", "--Performance Management", "--Talent Management", "--Succession Management", "Learning & Training ", "--Competence Development", "--Learning Standards", "--Learning Management System ", "Total Rewards", "--Compensation", "--Benefits", "--Your Time", "Administration & Services", "--HR IT Systems", "--Employee Lifecycle Management", "--Expat Administration"};
 		model.addAttribute("categories", categories);
 		model.addAttribute("categs", categs);
+		// get categories and kids
+		Map<Long, List<Category>> cak = new HashMap<>();
+		for (Category cat : cats) {
+			Set<Category> children = cat.getChildren(categoryDAO);
+			if (children.size() > 0 || cat.getParent() == null) {
+				List<Category> kids = new ArrayList<>();
+				for (Category child : children)
+					kids.add(child);
+				cak.put(cat.getId(), kids);
+			}
+		}
+		model.addAttribute("catKids", cak);
 		model.addAttribute("catIDs", catIDs);
 		
 		return "innovations";
@@ -426,13 +440,27 @@ public class Statistic {
 	public IAjaxAnswer ajaxGetInn(
 			@RequestBody String json) {
 		// getting innovations
-		List<Term> res = innDAO.getInnovations();
+		List<Long> cats = new ArrayList<>(), trends = new ArrayList<>();
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		String catIDs = values.size() > 0 ? (String) values.get(0) : "0";
+		long catID = 0;
+		try {
+			catID = Long.parseLong(catIDs);
+		} catch (NumberFormatException e) {}
+		if (catID <= 0)
+			for (Category cat : facade.getCategoryDAO().getAll())
+				cats.add(cat.getId());
+		else
+			cats = getCatChildIDs(facade.getCategoryDAO().getOne(catID));
+		
+		trends.add(0L);
+		List<Term> res = innDAO.getInnovations(cats, trends);
 		InnAnswer ans = new InnAnswer();
-		Map<Long, Long> tasks = new HashMap<>();
+		Map<Long, Task> tasks = new HashMap<>();
 		List<Task> all = facade.getTaskDAO().getAll();
 		for (Task task : all)
 			if (task.getVariant() != null)
-				tasks.put(task.getVariant().getTerm().getId(), task.getId());
+				tasks.put(task.getVariant().getTerm().getId(), facade.getTaskDAO().getOne(task.getId()));
 		for (Term term : res)
 			ans.addTerm(term, tasks);
 		return ans;
@@ -460,6 +488,20 @@ public class Statistic {
 		if (owner == null)
 			owner = userDAO.getAll().get(0);
 		task.setUser(owner);
+		// get categories and trends for the task
+		List<Object[]> catTrends = innDAO.getCatTrendForTerm(variant.getTerm());
+		for (Object[] ct : catTrends) {
+			if (ct.length < 2) continue;
+			if (ct[1].equals("cat")) {
+				Category category = facade.getCategoryDAO().getOne(((BigInteger) ct[0]).longValue());
+				if (category != null)
+					task.addCategory(new Task_Category(category, task));
+			} else if (ct[1].equals("trend")) {
+				Trend trend = facade.getTrendDAO().getOne(((BigInteger) ct[0]).longValue());
+				if (trend != null)
+					task.addTrend(new Task_Trend(trend, task));
+			}
+		}
 		return facade.getTaskDAO().insert(task);
 	}
 
@@ -475,7 +517,7 @@ public class Statistic {
 		boolean isInn = values.size() > 1 ? (boolean) values.get(1) : false;
 		// stem each word in query
 		String stemtext = "";
-		String[] words = query.split(" ");
+		String[] words = prepareToTokenize(query).split(" ");
 		PorterStemmer stemmer = new PorterStemmer();
 		for (int i = 0; i < words.length; i++) {
 			String stem = stemTerm(words[i], stemmer);
@@ -495,13 +537,17 @@ public class Statistic {
 		} else {
 			// if exists then add as variant
 			variant = term.addVariant(query);
+			if (variant.getTerm() == null)
+				variant.setTerm(term);
 			term.setInn(isInn);
 			term = termDAO.update(term);
 		}
-		// create innovation project
-		Task newTask = createInnovation(variant, principal);
 		InnAnswer answer = new InnAnswer();
-		answer.setId(newTask.getId());
+		// create innovation project
+		if (isInn) {
+			Task newTask = createInnovation(variant, principal);
+			answer.setId(newTask.getId());
+		}
 		answer.getTerms().add(variant.getText());
 		return answer;
 	}
@@ -523,11 +569,11 @@ public class Statistic {
 			res.add(newTerm);
 		}
 		InnAnswer ans = new InnAnswer();
-		Map<Long, Long> tasks = new HashMap<>();
+		Map<Long, Task> tasks = new HashMap<>();
 		List<Task> all = facade.getTaskDAO().getAll();
 		for (Task task : all)
 			if (task.getVariant() != null)
-				tasks.put(task.getVariant().getTerm().getId(), task.getId());
+				tasks.put(task.getVariant().getTerm().getId(), facade.getTaskDAO().getOne(task.getId()));
 		for (Term term : res)
 			ans.addTerm(term, tasks);
 		return ans;
@@ -1444,16 +1490,17 @@ public class Statistic {
 		for (int i = 0; i < 10; i++)
 			corpus = corpus.replace(i+"", "");*/
 		// remove all except letters
+		corpus = " " + corpus + " ";
 		corpus = corpus.replaceAll("[^\\w]", "  ").replaceAll(" [0-9]+ ", " ");
 		// remove one letter words
 		boolean changes = true;
 		while (changes) {
-			String s = corpus.replaceAll(" \\w ", " ");
+			String s = corpus.replaceAll(" \\w ", " ").replaceAll(" [0-9] ", " ");
 			changes = s.length() != corpus.length();
 			corpus = s;
 		}
 		while (corpus.indexOf("  ") >= 0)
 			corpus = corpus.replace("  ", " ");
-		return corpus;//.toLowerCase();
+		return corpus.trim();//.toLowerCase();
 	}
 }

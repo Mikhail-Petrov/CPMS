@@ -14,7 +14,7 @@ import com.cpms.data.entities.TermAnswer;
  */
 public interface IInnovationTermDAO {
 
-	public List<Term> getInnovations();
+	public List<Term> getInnovations(List<Long> cats, List<Long> trends);
 
 	public List<Term> find(String query);
 	
@@ -35,4 +35,6 @@ public interface IInnovationTermDAO {
 	public void insertDC(boolean cat);
 	
 	public List<BigInteger> getLastDocs(Date startDate, List<Long> cats, List<Long> trends);
+	
+	public List<Object[]> getCatTrendForTerm(Term term);
 }

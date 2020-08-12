@@ -50,8 +50,8 @@ public class JPATermInnovationDAO extends JPATermDAO
 	}
 	
 	@Override
-	public List<Term> getInnovations() {
-		return termRepo.getInnovations();
+	public List<Term> getInnovations(List<Long> cats, List<Long> trends) {
+		return termRepo.getInnovations(cats, trends);
 	}
 
 	@Override
@@ -142,5 +142,10 @@ public class JPATermInnovationDAO extends JPATermDAO
 	@Override
 	public List<BigInteger> getLastDocs(Date startDate, List<Long> cats, List<Long> trends) {
 		return termRepo.getLastDocs(getDate(startDate), cats, trends);
+	}
+
+	@Override
+	public List<Object[]> getCatTrendForTerm(Term term) {
+		return termRepo.getCatTrendForTerm(term.getId());
 	}
 }

@@ -158,6 +158,16 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<ProjectTermvariant> variants;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "task", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
+	private Set<Task_Trend> trends;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "task", orphanRemoval = true)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
+        CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
+	private Set<Task_Category> categories;
 	
 	public Task() {}
 	
@@ -519,5 +529,109 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 
 	public void setDelUser(Long delUser) {
 		this.delUser = delUser;
+	}
+
+	public void addTrend(Task_Trend trend) {
+		if (trend == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.trends == null) {
+			this.getTrends();
+		}
+		if (!this.trends.stream().anyMatch(
+				x -> 
+				x.getTrend().getId() == trend.getTrend().getId())
+				) {
+			this.trends.add(trend);
+			trend.setTask(this);
+		} 
+	}
+	
+	public void removeTrend(Task_Trend trend) {
+		if (trend == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.equals(trend.getTask())) {
+			removeEntityFromManagedCollection(trend, trends);
+			trend.setTask(null);
+		}
+	}
+	
+	public void clearTrends() {
+		if (this.trends == null) {
+			this.getTrends();
+		}
+		trends.clear();
+	}
+	
+	public Set<Task_Trend> getTrends() {
+		if (trends == null) {
+			trends = new LinkedHashSet<Task_Trend>() ;
+		}
+		return new LinkedHashSet<Task_Trend>(trends);
+	}
+
+	public void setTrends(Set<Task_Trend> trends) {
+		if (trends == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.trends == null) {
+			this.trends = trends;
+		} else {
+			throw new DataAccessException("Cannot insert, Hibernate will lose track",
+					null);
+		}
+	}
+
+	public void addCategory(Task_Category category) {
+		if (category == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.categories == null) {
+			this.getCategories();
+		}
+		if (!this.categories.stream().anyMatch(
+				x -> 
+				x.getCategory().getId() == category.getCategory().getId())
+				) {
+			this.categories.add(category);
+			category.setTask(this);
+		} 
+	}
+	
+	public void removeCategory(Task_Category category) {
+		if (category == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.equals(category.getTask())) {
+			removeEntityFromManagedCollection(category, categories);
+			category.setTask(null);
+		}
+	}
+	
+	public void clearCategories() {
+		if (this.categories == null) {
+			this.getCategories();
+		}
+		categories.clear();
+	}
+	
+	public Set<Task_Category> getCategories() {
+		if (categories == null) {
+			categories = new LinkedHashSet<Task_Category>() ;
+		}
+		return new LinkedHashSet<Task_Category>(categories);
+	}
+
+	public void setCategories(Set<Task_Category> categories) {
+		if (categories == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.categories == null) {
+			this.categories = categories;
+		} else {
+			throw new DataAccessException("Cannot insert, Hibernate will lose track",
+					null);
+		}
 	}
 }

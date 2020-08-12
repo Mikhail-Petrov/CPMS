@@ -1,8 +1,15 @@
 	<!-- link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" /-->
 		<div class="row">
 		
-		<p><span id="getTerms" class="btn btn-primary" th:text="'All'"></span>
+		<p><h2>Categories</h2>
+		<span id="getTerms" class="btn btn-primary" th:text="'All'"></span>
 		<span th:each="categ : ${categs}" th:id="'getTerms' + ${categ.id}" class="btn btn-primary" th:text="${categ.name}"></span></p>
+		<div hidden='true' th:each="cak : ${catKids}" th:id="'cak' + ${cak.key}">
+			<h2 th:id="'cakName' + ${cak.key}">Subcategories</h2>
+			<span th:id="'getTerms' + ${cak.key}" class="btn btn-primary" th:text="'All'"></span>
+			<span th:each="categ : ${cak.value}" th:id="'getTerms' + ${categ.id}"
+				class="btn btn-primary" th:text="${categ.name}"></span>
+		</div>
 		<h3 id='htTitle' hidden='true'>Suggested hot terms</h3>
 		<p id="hotTerms"></p>
 		<h3>Innovation search</h3>
@@ -45,6 +52,10 @@
 		<thead>
 		<tr>
 			<th><span th:text="'Term'"></span></th>
+			<th><span th:text="'Description'"></span></th>
+			<th><span th:text="'Trends'"></span></th>
+			<th><span th:text="'Categories'"></span></th>
+			<th><span th:text="'Impact'"></span></th>
 			<th><span th:text="'Analize'"></span></th>
 			<th><span th:text="'Remove'"></span></th>
 		</tr>
@@ -77,7 +88,7 @@
 			
 			// parameters for keeping terms (1) and innovations (2)
 				var curPage1 = 0, curPage2 = 0;
-				var terms, flags, variants, ids;
+				var terms, flags, variants, ids, tasks;
 				var terms1, flags1, variants1, ids1;
 				var terms2, flags2, variants2, ids2;
 				
@@ -181,10 +192,31 @@
 									"value='" + categories[j] + "'>" + categories[j] + "</option>";
 							line += "</select></td>";
 						}
+						if (isInn) {
+							// description
+							line += "<td><p>" + tasks[i].original + "</p></td>";
+							// trends and categories
+							var trends = '';
+							for (var j = 0; j < tasks[i].trends.length; j++)
+								trends += "<p>" + tasks[i].trends[j].trend.name + "</p>";
+							line += "<td>" + trends + "</td>";
+							var cats = '';
+							for (var j = 0; j < tasks[i].categories.length; j++)
+								cats += "<p>" + tasks[i].categories[j].category.name + "</p>";
+							line += "<td>" + cats + "</td>";
+							// impact
+							var impact = "";
+							switch (tasks[i].impact) {
+							case 0: impact = "Low"; break;
+							case 1: impact = "Medium"; break;
+							case 2: impact = "High"; break;
+							}
+							line += "<td><p>" + impact + "</p></td>";
+						}
 						line += "<td><a target='_blank' href='" + rootPath + "stat/term?id=" + ids[i] + "'>analize</td>";
 						if (isInn) {
 							line += "<td><a href='" + rootPath + "stat/removeInn?id=" + ids[i] + "'>" +
-									"<span class='btn btn-danger'><i class='fa fa-remove'></i></span></a>";
+									"<span class='btn btn-danger'><i class='fa fa-remove'></i></span></a></td>";
 						}
 						line += "</tr";
 						$("#" + tableName).append(line);
@@ -192,6 +224,7 @@
 				}
 
 				// terms (by query) and innovations (by flag) search
+				var curCatID;
 				function ajaxSearch(requestUrl) {
 					
 					var inputArgs = [];
@@ -209,6 +242,8 @@
 					var isInn = requestUrl == (rootPath + 'stat/ajaxGetInn');
 					if (!isInn)
 						inputArgs.push($("#search").val());
+					else
+						inputArgs.push(curCatID);
 
 					if (!isInn && $("#search").val() === "")
 						return;
@@ -230,6 +265,7 @@
 							if (res.terms.length > 0)
 								results = res.terms.length;
 					        // save results
+					        tasks = res.tasks;
 					        if (isInn) {
 								terms2 = res.terms;
 								flags2 = res.flags;
@@ -264,6 +300,7 @@
 				$("#find").on("click", function() {ajaxSearch(rootPath + 'stat/ajaxSearch')});
 				$("#search").keydown(function(e) {if(e.keyCode === 13) ajaxSearch(rootPath + 'stat/ajaxSearch');});
 				$("#clear").on("click", function() {clear()});
+				curCatID = "0";
 				ajaxSearch(rootPath + 'stat/ajaxGetInn');
 
 				let flagMap = new Map();
@@ -364,13 +401,19 @@
 					$("#search").val(term);
 					$("#find").trigger('click');
 				}
+				var curCatParent = "";
 				function ajaxGetTerms(requestUrl, el) {
 					
 					var inputArgs = [];
+					var id = "";
 					if (el !== null) {
-						var id = el.id.split('getTerms');
+						id = el.id.split('getTerms');
 						requestUrl += id[id.length - 1];
+						id = id[id.length - 1];
 					}
+					if (id === "") id = "0";
+				    if (el == null) el = $("#getTerms")[0];
+				    curCatID = id;
 					
 					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 				     var csrfToken = $("meta[name='_csrf']").attr("content");
@@ -378,12 +421,25 @@
 				     headers[csrfHeader] = csrfToken;
 				     
 				     // mark the current category
+				     var isSub = el.parentNode.id.indexOf('cak') >= 0;
 				     var buts = $("[id^=getTerms]");
 				     for (var i = 0; i < buts.length; i++)
-				    	 if (buts[i].classList.contains("btn-success"))
+				    	 if (buts[i].classList.contains("btn-success") && (!isSub || buts[i].parentNode.id.indexOf('cak') >= 0))
 				    		 buts[i].classList.remove("btn-success")
-				    if (el == null) el = $("#getTerms")[0];
 				    el.classList.add("btn-success");
+				    // show subcategories
+				    catParent = '#cak' + id;
+				    if (id === "0") {
+				    	$(curCatParent).hide();
+				    	curCatParent = '';
+				    }
+				    if ($(catParent).length > 0 && curCatParent !== catParent) {
+				    	//if (el !== null)
+				    		//$("#cakName" + id).text($("#"+el.id).text());
+				    	$(curCatParent).hide();
+				    	$(catParent).show();
+				    	curCatParent = catParent;
+				    }
 				    $("#htTitle").show();
 
 	         		$("#curStatus").html('getting terms...');
@@ -402,6 +458,7 @@
 					        	hotTerms = hotTerms + "<span onclick='findTerm(\"" + res[i] +
 					        		"\")' class='btn btn-primary btn-warning'>" + res[i] + "</span>";
 					        $("#hotTerms").html(hotTerms);
+							ajaxSearch(rootPath + 'stat/ajaxGetInn');
 					    
 						},
 						error: function (xhRequest, ErrorText, thrownError) {
@@ -416,7 +473,8 @@
 				$("#getTerms").on("click", function() {ajaxGetTerms(rootPath + 'stat/ajaxGetTerms?catId=0', null)});
 				var ids = /*[[${catIDs}]]*/ [];
 				for (var i = 0; i < ids.length; i++)
-					$("#getTerms" + ids[i]).on("click", function() {ajaxGetTerms(rootPath + 'stat/ajaxGetTerms?catId=', this)});
+					$("[id=getTerms" + ids[i] + "]").on("click", function() {
+						ajaxGetTerms(rootPath + 'stat/ajaxGetTerms?catId=', this)});
 			/*]]>*/
 			</script>
 		</div>

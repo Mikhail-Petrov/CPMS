@@ -4,8 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.cpms.data.entities.Category;
+import com.cpms.data.entities.Task;
+import com.cpms.data.entities.Task_Category;
+import com.cpms.data.entities.Task_Trend;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermVariant;
+import com.cpms.data.entities.Trend;
 
 public class InnAnswer implements IAjaxAnswer {
 
@@ -15,6 +20,8 @@ public class InnAnswer implements IAjaxAnswer {
 	private List<Integer> kids;
 	private List<Long> ids;
 	
+	private List<Task> tasks;
+	
 	private long id;
 
 	public InnAnswer() {
@@ -23,6 +30,7 @@ public class InnAnswer implements IAjaxAnswer {
 		setFlags(new ArrayList<>());
 		setIds(new ArrayList<>());
 		setKids(new ArrayList<>());
+		setTasks(new ArrayList<>());
 		setId(0);
 	}
 	
@@ -32,11 +40,36 @@ public class InnAnswer implements IAjaxAnswer {
 		flags.add(var.getText());
 	}
 	
-	public void addTerm(Term term, Map<Long, Long> tasks) {
+	public void addTerm(Term term, Map<Long, Task> tasks) {
 		terms.add(term.getPref());
 		String flag = "";
-		if (tasks.containsKey(term.getId()))
-			flag = tasks.get(term.getId()) + "";
+		Task task = new Task();
+		if (tasks.containsKey(term.getId())) {
+			Task innTask = tasks.get(term.getId());
+			flag = innTask.getId() + "";
+			task.setOriginal(innTask.getOriginal());
+			task.setName(task.getName());
+			task.setId(innTask.getId());
+			task.setImpact(innTask.getImpact());
+			// add trends and categories
+			for (Task_Category tc : innTask.getCategories()) {
+				Category cat = new Category();
+				cat.setId(tc.getCategory().getId());
+				cat.setName(tc.getCategory().getName());
+				task.addCategory(new Task_Category(cat, null));
+			}
+			for (Task_Category tc : task.getCategories())
+				tc.setTask(null);
+			for (Task_Trend tt : innTask.getTrends()) {
+				Trend tr = new Trend();
+				tr.setId(tt.getTrend().getId());
+				tr.setName(tt.getTrend().getName());
+				task.addTrend(new Task_Trend(tr, null));
+			}
+			for (Task_Trend tt : task.getTrends())
+				tt.setTask(null);
+		}
+		this.getTasks().add(task);
 		flags.add(flag);
 		//flags.add(term.getCategory());
 		ids.add(term.getId());
@@ -89,6 +122,14 @@ public class InnAnswer implements IAjaxAnswer {
 
 	public void setKids(List<Integer> kids) {
 		this.kids = kids;
+	}
+
+	public List<Task> getTasks() {
+		return tasks;
+	}
+
+	public void setTasks(List<Task> tasks) {
+		this.tasks = tasks;
 	}
 	
 }

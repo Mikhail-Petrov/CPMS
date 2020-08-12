@@ -2,17 +2,17 @@
 
                     <span th:text="#{editor.filter}" text="Filter"></span>
 					<script>
-					function clearFilter(){
+					function clearSkFilter(){
 						$("#skillFilter").val("");
 						//$("#skillFilter").trigger("input");
-						applyFilter();
+						applySkFilter();
 					}
 					</script>
 					<div class="row"><div class="two-buttons">
 						<input type="text" class="form-control" id="skillFilter"/>
 					</div><div class="two-buttons">
-						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applyFilter();"></span>
-					<span onclick='clearFilter();' class="btn btn-danger"><i class="fa fa-remove"></i></span>
+						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applySkFilter();"></span>
+					<span onclick='clearSkFilter();' class="btn btn-danger"><i class="fa fa-remove"></i></span>
 					</div></div>
 					<p><span id="sss"></span></p>
 					
@@ -21,7 +21,7 @@
 	<script th:inline="javascript">
 	/*<![CDATA[*/
 
-		function addChild(id, flag, term, kids) {
+		function addSkChild(id, flag, term, kids) {
 			var html = "";
 			html += "<div id='sb" + id + "'>";
 			html += flag;
@@ -34,20 +34,20 @@
 			html += "</div>";
 			return html;
 	}
-		function showChild(child) {
+		function showSkChild(child) {
 		// if it shown then break
 		if ($("#sb" + child.id).length > 0) return;
 		// if parent is not shown then show it
 		var parentId = "#ch";
 		if (child.parent !== null) {
 			if ($("#sb" + child.parent.id).length <= 0)
-				showChild(child.parent);
+				showSkChild(child.parent);
 			parentId += child.parent.id;
 		}
 		// add to the parent
-		$(parentId).html($(parentId).html() + addChild(child.id, child.alternative, child.name, 1));
+		$(parentId).html($(parentId).html() + addSkChild(child.id, child.alternative, child.name, 1));
 	}
-	function applyFilter() {
+	function applySkFilter() {
 		var inputArgs = [];
 		var filterText = $("#skillFilter").val().toLowerCase();
 		inputArgs.push(filterText);
@@ -81,7 +81,7 @@
 							toShow.push(toAdd);
 							curSkill = curSkill.parent;
 						}
-						showChild(skill);
+						showSkChild(skill);
 					}
 					// hide all that not to show
 					var all = $("[id^=sb]");
@@ -101,7 +101,7 @@
 			}
 		});
 	}
-	$("#skillFilter").keydown(function(e) {if(e.keyCode === 13) applyFilter()});
+	$("#skillFilter").keydown(function(e) {if(e.keyCode === 13) applySkFilter()});
 	
 			function ajaxSkillChildren(requestUrl) {
 				
@@ -133,7 +133,7 @@
 							if (elImg.length > 0)
 								elImg.attr('src', rootPath + "resources/images/dtree/nolines_minus.gif");
 							for (var i = 0; i < res.ids.length; i++) {
-								html += addChild(res.ids[i], res.flags[i], res.terms[i], res.kids[i]);
+								html += addSkChild(res.ids[i], res.flags[i], res.terms[i], res.kids[i]);
 							}
 						}
 						$("#ch" + res.id).html(html);

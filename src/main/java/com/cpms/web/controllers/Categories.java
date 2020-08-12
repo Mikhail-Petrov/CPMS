@@ -125,7 +125,7 @@ public class Categories {
 						children.add(cat);*/
 				children = categoryDAO.getChildren(null);
 			}
-			Statistic.time("get children for " + (category == null ? "null" : category.getName()));
+			//Statistic.time("get children for " + (category == null ? "null" : category.getName()));
 			String flag = "";
 			while (category != null) {
 				category = category.getParent();

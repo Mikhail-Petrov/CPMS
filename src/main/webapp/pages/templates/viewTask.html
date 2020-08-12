@@ -95,7 +95,7 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
                             </div>
                             </div>
 	                                <div class="row" th:if="${isAdmin}">
-	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    <div hidden='true' class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
 	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createRequirementModal" th:text="#{task.requirement.add}"></button>
 	                                    </div>
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
