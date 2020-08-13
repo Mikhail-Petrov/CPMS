@@ -17,7 +17,7 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 
 	@Query(value = "Select * from Term term where id in (select termid from Termvariant where id in " +
 			"(select TermVariantID from TASK d " +
-			"inner join Task_Category dc on (d.id = dc.task_id and dc.category_id in (:cats))" + 
+			"left join Task_Category dc on (d.id = dc.task_id and dc.category_id in (:cats))" + 
 			"left join Task_Trend dt on (d.id = dt.task_id and dt.trend_id in (:trends))" +
 			"where delDate is null))", nativeQuery = true)
 	public List<Term> getInnovations(@Param("cats") List<Long> cats, @Param("trends") List<Long> trends);

@@ -17,7 +17,7 @@ public class InnAnswer implements IAjaxAnswer {
 	private List<List<String>> variants;
 	private List<String> terms;
 	private List<String> flags;
-	private List<Integer> kids;
+	private List<Long> kids;
 	private List<Long> ids;
 	
 	private List<Task> tasks;
@@ -43,21 +43,31 @@ public class InnAnswer implements IAjaxAnswer {
 	public void addTerm(Term term, Map<Long, Task> tasks) {
 		terms.add(term.getPref());
 		String flag = "";
+		Long kids = 0L;
 		Task task = new Task();
 		if (tasks.containsKey(term.getId())) {
 			Task innTask = tasks.get(term.getId());
-			flag = innTask.getId() + "";
+			kids = innTask.getId();
 			task.setOriginal(innTask.getOriginal());
 			task.setName(task.getName());
 			task.setId(innTask.getId());
 			task.setImpact(innTask.getImpact());
 			// add trends and categories
+			List<Long> categs = new ArrayList<>();
+			flag = "tr";
 			for (Task_Category tc : innTask.getCategories()) {
 				Category cat = new Category();
 				cat.setId(tc.getCategory().getId());
 				cat.setName(tc.getCategory().getName());
 				task.addCategory(new Task_Category(cat, null));
+				if (!categs.contains(cat.getId())) {
+					categs.add(cat.getId());
+					if (tc.getCategory().getParent() != null)
+						categs.add(tc.getCategory().getParent().getId());
+				}
 			}
+			for (Long catId : categs)
+				flag += "id" + catId + "id";
 			for (Task_Category tc : task.getCategories())
 				tc.setTask(null);
 			for (Task_Trend tt : innTask.getTrends()) {
@@ -71,6 +81,7 @@ public class InnAnswer implements IAjaxAnswer {
 		}
 		this.getTasks().add(task);
 		flags.add(flag);
+		this.kids.add(kids);
 		//flags.add(term.getCategory());
 		ids.add(term.getId());
 		List<String> vars = new ArrayList<>();
@@ -116,11 +127,11 @@ public class InnAnswer implements IAjaxAnswer {
 		this.id = id;
 	}
 
-	public List<Integer> getKids() {
+	public List<Long> getKids() {
 		return kids;
 	}
 
-	public void setKids(List<Integer> kids) {
+	public void setKids(List<Long> kids) {
 		this.kids = kids;
 	}
 

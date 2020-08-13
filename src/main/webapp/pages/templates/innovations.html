@@ -88,7 +88,7 @@
 			
 			// parameters for keeping terms (1) and innovations (2)
 				var curPage1 = 0, curPage2 = 0;
-				var terms, flags, variants, ids, tasks;
+				var terms, flags, variants, ids, tasks, kids;
 				var terms1, flags1, variants1, ids1;
 				var terms2, flags2, variants2, ids2;
 				
@@ -155,12 +155,12 @@
 					
 					// build the table
 					for (i = page * tpp; i < (page + 1) * tpp && i < max_value; i++) {
-						var line = "<tr>";
+						var line = "<tr id='" + flags[i] + "'>";
 						line += "<td";
 						//if (variants[i].length > 1)
 							//line += " onclick=\"show($('#var" + ids[i] + "'));\"";
 						if (isInn)
-							line += "><p><a href='" + rootPath + "viewer/task?id=" + flags[i] + "' target='_blank'>"
+							line += "><p><a href='" + rootPath + "viewer/task?id=" + kids[i] + "' target='_blank'>"
 									+ terms[i] + "</a></p>";
 						else
 							line += "><p>" + terms[i] + "</p>";
@@ -179,16 +179,16 @@
 						} else {
 							var chID = "ch" + (isInn ? '1' : '2') + i;//ids[i];
 							line += "<td><input id='" + chID + "' type='checkbox' disabled onclick='changeFlag(" + i +", \"" + chID +
-								"\", " +isInn + ");'" + (flags[i] === '' ? "" : " checked") + "></td>";
+								"\", " +isInn + ");'" + (kids[i] === '' ? "" : " checked") + "></td>";
 							//line += "<td><select id='s" + chID + "' onclick='changeFlag(" + i +", \"" + chID +"\", " +
 								//isInn + ");'" + (flags[i] === '' ? " hidden='true'" : "") + ">";
-							if (flags[i] !== '')
+							if (kids[i] !== '')
 								line += "<td></td>";
 							else
 								line += "<td><a target='_blank' href='" + rootPath + "editor/task?term=" +
 									ids[i] + "&var=" + terms[i] + "'>create innovation</a></td>";
 							for (j = 0; j < categories.length; j++)
-								line += "<option " + (flags[i] === categories[j] ? "selected='true' " : "") + 
+								line += "<option " + (kids[i] === categories[j] ? "selected='true' " : "") + 
 									"value='" + categories[j] + "'>" + categories[j] + "</option>";
 							line += "</select></td>";
 						}
@@ -266,6 +266,7 @@
 								results = res.terms.length;
 					        // save results
 					        tasks = res.tasks;
+					        kids = res.kids;
 					        if (isInn) {
 								terms2 = res.terms;
 								flags2 = res.flags;
@@ -397,6 +398,11 @@
 				}
 				$("#add").on("click", function() {ajaxAdd(rootPath + 'stat/ajaxAdd')});
 
+				function filterInn(id) {
+					$("tr[id^=tr]").show();
+					if (id > 0)
+						$("tr[id^=tr]:not(tr[id*=id" + id + "id])").hide();
+				}
 				function findTerm(term) {
 					$("#search").val(term);
 					$("#find").trigger('click');
@@ -414,6 +420,7 @@
 					if (id === "") id = "0";
 				    if (el == null) el = $("#getTerms")[0];
 				    curCatID = id;
+					filterInn(id);
 					
 					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 				     var csrfToken = $("meta[name='_csrf']").attr("content");
@@ -458,7 +465,7 @@
 					        	hotTerms = hotTerms + "<span onclick='findTerm(\"" + res[i] +
 					        		"\")' class='btn btn-primary btn-warning'>" + res[i] + "</span>";
 					        $("#hotTerms").html(hotTerms);
-							ajaxSearch(rootPath + 'stat/ajaxGetInn');
+							//ajaxSearch(rootPath + 'stat/ajaxGetInn');
 					    
 						},
 						error: function (xhRequest, ErrorText, thrownError) {
@@ -475,6 +482,7 @@
 				for (var i = 0; i < ids.length; i++)
 					$("[id=getTerms" + ids[i] + "]").on("click", function() {
 						ajaxGetTerms(rootPath + 'stat/ajaxGetTerms?catId=', this)});
+				$("#getTerms").trigger("click");
 			/*]]>*/
 			</script>
 		</div>
