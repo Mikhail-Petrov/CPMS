@@ -1,6 +1,7 @@
 package com.cpms.data.entities;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -24,6 +25,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.cpms.data.AbstractDomainObject;
+import com.cpms.exceptions.DataAccessException;
 
 /**
  * Entity class for skill.
@@ -68,12 +70,12 @@ public class Article extends AbstractDomainObject {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date parseDate;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "document", orphanRemoval = true)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "document", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<DocumentCategory> cats;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "document", orphanRemoval = true)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "document", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<DocumentTrend> trends;
@@ -181,20 +183,108 @@ public class Article extends AbstractDomainObject {
 		this.mask = mask;
 	}
 
+	public void addCat(DocumentCategory cat) {
+		if (cat == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.cats == null) {
+			this.getCats();
+		}
+		if (!this.cats.stream().anyMatch(
+				x -> 
+				x.getId() == cat.getId())
+				) {
+			this.cats.add(cat);
+			cat.setDocument(this);
+		} 
+	}
+	
+	public void removeCat(DocumentCategory cat) {
+		if (cat == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.equals(cat.getDocument())) {
+			removeEntityFromManagedCollection(cat, cats);
+			cat.setDocument(null);
+		}
+	}
+	
+	public void clearCats() {
+		if (this.cats == null) {
+			this.getCats();
+		}
+		cats.clear();
+	}
+	
 	public Set<DocumentCategory> getCats() {
-		return cats;
+		if (cats == null) {
+			cats = new LinkedHashSet<>() ;
+		}
+		return new LinkedHashSet<>(cats);
 	}
 
 	public void setCats(Set<DocumentCategory> cats) {
-		this.cats = cats;
+		if (cats == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.cats == null) {
+			this.cats = cats;
+		} else {
+			throw new DataAccessException("Cannot insert, Hibernate will lose track",
+					null);
+		}
 	}
 
+	public void addTrend(DocumentTrend trend) {
+		if (trend == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.trends == null) {
+			this.getTrends();
+		}
+		if (!this.trends.stream().anyMatch(
+				x -> 
+				x.getId() == trend.getId())
+				) {
+			this.trends.add(trend);
+			trend.setDocument(this);
+		} 
+	}
+	
+	public void removeTrend(DocumentTrend trend) {
+		if (trend == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.equals(trend.getDocument())) {
+			removeEntityFromManagedCollection(trend, trends);
+			trend.setDocument(null);
+		}
+	}
+	
+	public void clearTrends() {
+		if (this.trends == null) {
+			this.getTrends();
+		}
+		trends.clear();
+	}
+	
 	public Set<DocumentTrend> getTrends() {
-		return trends;
+		if (trends == null) {
+			trends = new LinkedHashSet<>() ;
+		}
+		return new LinkedHashSet<>(trends);
 	}
 
 	public void setTrends(Set<DocumentTrend> trends) {
-		this.trends = trends;
+		if (trends == null) {
+			throw new DataAccessException("Null value.", null);
+		}
+		if (this.trends == null) {
+			this.trends = trends;
+		} else {
+			throw new DataAccessException("Cannot insert, Hibernate will lose track",
+					null);
+		}
 	}
 
 	public Website getWebsite() {

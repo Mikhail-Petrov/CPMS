@@ -132,7 +132,7 @@ public class Websites {
 				answer.getFlags().add(flag);
 				//Set<Website> kids = child.getChildren(websiteDAO.getAll());
 				//answer.getKids().add(kids == null ? 0 : kids.size());
-				answer.getKids().add(websiteDAO.getInt(child));
+				answer.getKids().add((long) websiteDAO.getInt(child));
 			}
 			return answer;
 		} else {

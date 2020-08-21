@@ -130,11 +130,11 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
 										<td>
 											<span th:text="${requirement.skill.presentationName} + ' - ' + ${requirement.level} + ' / ' + ${requirement.skill.maxLevel}"></span>
 											<div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isAdmin}">
-												<a th:href="@{/editor/requirement/delete(id=${requirement.id}, taskId=${task.id})}">
-													<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
-												</a>
 												<a th:href="@{/editor/{taskId}/requirement(id=${requirement.id}, taskId=${task.id})}">
 													<button type="button" class="btn btn-warning"><i class="fa fa-edit"></i></button>
+												</a>
+												<a th:href="@{/editor/requirement/delete(id=${requirement.id}, taskId=${task.id})}">
+													<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
 												</a>
 				<!-- input type="number" min="1" th:max="${requirement.skill.maxLevel}" th:id="${requirement.id}" th:value="${requirement.level}" th:onchange="'changeData(' + ${requirement.id} + ');'"/-->
 											</div>

@@ -1,76 +1,79 @@
 		<div class="row">
+		<h2>Categories</h2>
+				<p><a href="#a" id="getTerms" th:onclick="'changeCat(0)'"
+					th:class="'btn btn-' + (${catid}==0?'success':'primary')" th:text="'All'"></a>
+				<a th:each="categ : ${categs}" th:id="'getTerms' + ${categ.id}" th:onclick="'changeCat('+${categ.id}+')'"
+					th:text="${categ.name}" th:class="'btn btn-' + (${catid==categ.id}?'success':'primary')" href="#a"></a></p>
 		
-		<p><span th:text="'amount' + ': ' + ${amount}"></span></p>
-		<p><span th:text="'max id' + ': ' + ${maxid}"></span></p>
-		<p><span th:text="'last parsed' + ': ' + ${parsed}"></span></p>
-		<p><span th:text="'max wordcount' + ': ' + ${maxcount}"></span></p>
-		<p><span th:text="'bad wordcount' + ': ' + ${mincount}"></span></p>
-		
-		<p th:each="year : ${years}"><span th:text="${year[0]} + ': ' + ${year[1]}"></span></p>
-		
-		<p><span th:text="'0 wordcount' + ': ' + ${nokeyssize}"></span>
-			<a href="#" th:text="' (' + 'show/hide' + ')'" onclick="show()"></a></p>
-		<div id="keys" hidden="true">
-		<p th:each="nokey : ${nokeys}"><span th:text="'id ' + ${nokey} + ' - '"></span>
-			<a th:href="@{/stat/analizeDoc(id=${nokey})}" th:text="'analize'"></a></p>
+		<div class="row"><div class="two-buttons">
+			<p th:text="'Start date'"></p>
+			<input type="date" class="form-control" th:value="${startDate}" name='startDate' id='startDate'
+				min="1910-01-01" max="2200-01-01"/>
 		</div>
-		<a href="#" id="plusButton" th:text="'analize all'"></a>
+		<div class="two-buttons">
+			<p th:text="'End date'"></p>
+			<input type="date" class="form-control" th:value="${finishDate}" name='finishDate' id='finishDate'
+				min="1910-01-01" max="2200-01-01"/>
+		</div></div>
+		<p><span class="btn btn-primary btn-block" onClick="apply()">Apply</span></p>
+		<div id="graph0"  style="width:800px;height:300px;position:relative;"></div>
 		
-		<p><a href="#" id="updDC" th:text="'Update document categories'"></a></p>
-		<p><a href="#" id="updDT" th:text="'Update document trends'"></a></p>
-		<p><a href="#" id="loadDocs" th:text="'Upload new articles'"></a></p>
+		<p><span th:text="'Total number of documents in the database' + ': ' + ${amount}"></span></p>
+		<p><span th:text="'Last extraction of documents from websites' + ': ' + ${parsed}"></span></p>
+		
 		<p id="curStatus"></p>
 			<script th:inline="javascript">
 			/*<![CDATA[*/
-				function show() {
-					if ($("#keys").is(':hidden'))
-						$("#keys").show();
-					else $("#keys").hide();
-				}
+				
+			function changeCat(id) {
+				var catid = id;
+				startDate = $("#startDate").val();
+				finishDate = $("#finishDate").val();
+				document.location.href = rootPath + 'stat/docs?catid=' + catid +
+						'&startDate=' + startDate + '&finishDate=' + finishDate;
+			}
+			function apply() {
+				var catid = /*[[${catid}]]*/ 0;
+				changeCat(catid);
+			}
+			function drawBars(sums, lab) {
+				var d1 = [], t = [];
+				var catid = /*[[${catid}]]*/ 0;
+		    	
+    			var i = 0;
+    			for (let key of sums.keys()) {
+    				//if (i % 4 == 0)
+    					t.push([i, key.split(" (id:")[0]]);
+    				d1.push([i, sums.get(key)]);
+    				i++;
+    			}
 
-				function ajaxGroup(requestUrl) {
-					
-					var inputArgs = [];
-					var i;
-					for (i = 1; i < arguments.length; i++) {
-						inputArgs.push(arguments[i]);
-					}
-					
-					 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-				     var csrfToken = $("meta[name='_csrf']").attr("content");
-				     var headers = {};
-				     headers[csrfHeader] = csrfToken;
-
-			        if ($("#curStatus").html() === '' || $("#curStatus").html() === 'success')
-				    	$("#curStatus").html('executing...');
-					$.ajax({
-						url : requestUrl,
-						type: 'POST',
-						dataType: 'json',
-						contentType: 'application/json; charset=utf-8',
-						data : JSON.stringify(inputArgs),
-						headers: headers,
-						success: function (res) {
-							if (res.success)
-					         $("#curStatus").html('success');
-					        else {
-						        $("#curStatus").html(res.res);
-					         	ajaxGroup(requestUrl);
-					        }
-						},
-						error: function (xhRequest, ErrorText, thrownError) {
-					         $("#curStatus").html('ERROR!!!');
-							console.log('xhRequest: ' + xhRequest + "\n");
-							console.log('ErrorText: ' + ErrorText + "\n");
-							console.log('thrownError: ' + thrownError + "\n");
-							console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
-						}
-					});
-				}
-				$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'stat/analizeAllDoc')});
-				$("#updDC").on("click", function() {ajaxGroup(rootPath + 'stat/insertDC?cat=true')});
-				$("#updDT").on("click", function() {ajaxGroup(rootPath + 'stat/insertDC?cat=false')});
-				$("#loadDocs").on("click", function() {ajaxGroup(rootPath + 'stat/loadDocs')});
+    			$.plot("#graph0", [
+    				{ label: lab, data: d1 }
+    			], {
+    				series: {
+						color: "black",
+    					bars: {
+    						show: true,
+    						fillColor: "#94acd9",
+    						barWidth: 0.6,
+    						align: "center"
+    					}
+    				},
+    				xaxis: {
+    	                autoScale: "exact",
+    					ticks: t
+    				},
+    				grid: {
+    					backgroundColor: { colors: [ "#fff", "#eee" ] }
+    				}
+    			});
+			}
+		      $(document).ready(function() {
+				var obj = /*[[${stats}]]*/ [];
+				var sums = new Map(Object.entries(obj));
+				drawBars(sums, "");
+		      });
 			/*]]>*/
 			</script>
 		</div>

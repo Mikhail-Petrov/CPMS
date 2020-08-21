@@ -1,6 +1,7 @@
 	<!-- link rel="stylesheet" type="text/css" th:href="@{/resources/css/viewer.css}" href="/resources/css/viewer.css" /-->
 		<div class="row">
 		
+		<div class="row text-right"><p id="curStatus"></p><div id="statusLinks"></div></div>
 		<p><h2>Categories</h2>
 		<span id="getTerms" class="btn btn-primary" th:text="'All'"></span>
 		<span th:each="categ : ${categs}" th:id="'getTerms' + ${categ.id}" class="btn btn-primary" th:text="${categ.name}"></span></p>
@@ -20,7 +21,6 @@
 			<span id="clear" class="btn btn-danger" ><i class="fa fa-remove"></i></span>
 			<span id="add" class="btn btn-primary" th:text="'Add'"></span>
 		</div></p>
-		<div class="row"><p id="curStatus"></p><div id="statusLinks"></div></div>
 		<div id="termsBlock" class="row">
 	    <!--div class="two-buttons">.</div>
 	    <div class="two-buttons">
@@ -179,18 +179,18 @@
 						} else {
 							var chID = "ch" + (isInn ? '1' : '2') + i;//ids[i];
 							line += "<td><input id='" + chID + "' type='checkbox' disabled onclick='changeFlag(" + i +", \"" + chID +
-								"\", " +isInn + ");'" + (kids[i] === '' ? "" : " checked") + "></td>";
-							//line += "<td><select id='s" + chID + "' onclick='changeFlag(" + i +", \"" + chID +"\", " +
-								//isInn + ");'" + (flags[i] === '' ? " hidden='true'" : "") + ">";
-							if (kids[i] !== '')
+								"\", " +isInn + ");'" + (kids[i] === 0 ? "" : " checked") + "></td>";
+							/*line += "<td><select id='s" + chID + "' onclick='changeFlag(" + i +", \"" + chID +"\", " +
+								isInn + ");'" + (flags[i] === '' ? " hidden='true'" : "") + ">";
+							for (j = 0; j < categories.length; j++)
+								line += "<option " + (kids[i] === categories[j] ? "selected='true' " : "") + 
+									"value='" + categories[j] + "'>" + categories[j] + "</option>";
+							line += "</select></td>";*/
+							if (kids[i] > 0)
 								line += "<td></td>";
 							else
 								line += "<td><a target='_blank' href='" + rootPath + "editor/task?term=" +
 									ids[i] + "&var=" + terms[i] + "'>create innovation</a></td>";
-							for (j = 0; j < categories.length; j++)
-								line += "<option " + (kids[i] === categories[j] ? "selected='true' " : "") + 
-									"value='" + categories[j] + "'>" + categories[j] + "</option>";
-							line += "</select></td>";
 						}
 						if (isInn) {
 							// description

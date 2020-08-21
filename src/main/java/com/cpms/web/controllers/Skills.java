@@ -120,7 +120,7 @@ public class Skills {
 				answer.getFlags().add(flag);
 				//Set<Skill> kids = child.getChildren(skillDao);
 				//answer.getKids().add(kids == null ? 0 : kids.size());
-				answer.getKids().add(skillDao.countChildren(child));
+				answer.getKids().add((long) skillDao.countChildren(child));
 			}
 			return answer;
 		} else {

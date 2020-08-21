@@ -32,8 +32,138 @@
 		<div id="graph0"  style="width:600px;height:300px;position:relative;"></div>
 		<div id="graph1"  style="width:600px;height:300px;position:relative;"></div>
 		<div id="graph2"  style="width:600px;height:300px;position:relative;"></div>
+		<h3>Documents with term</h3>
+		<a th:href="@{/stat/term(id=${termid},order=1)}" class="two-buttons" th:text="'sort by document date'">sort</a>
+		<a th:href="@{/stat/term(id=${termid},order=0)}" class="two-buttons" th:text="'sort by occurrance'">sort</a>
+		<table class="table table-responsive table-striped">
+		<tr>
+			<th>Title</th>
+			<th>Date</th>
+			<th>Occurrence</th>
+			<th>Categories</th>
+			<th>Trends</th>
+			<th>Highlighted</th>
+			<th>URL</th>
+		</tr>
+		<tr th:each="key : ${keys}">
+		    <td><p th:text="${key.doc.title}">title</p>
+				<p hidden='true' th:id="'save'+${key.doc.id}"><span class="btn btn-primary btn-block"
+					th:onClick="'ajaxGroup(\''+ @{/stat/saveDocChange} +'\', '+${key.doc.id}+')'">Save changes</span></p></td>
+		    <td th:text="${#dates.format(key.doc.creationDate, 'dd MMMM yyyy')}">creationDate</td>
+		    <td th:text="${key.count}">0</td>
+			<td><p th:id="'dcats'+${key.doc.id}">
+			</p><select th:id="'sel'+${key.doc.id}" th:onchange="'changeSel('+${key.doc.id}+')'"><option></option>
+					<option th:each="categ : ${categs}" th:value="${categ.id}" th:text="${categ.name}"></option></select></td>
+			<td><p th:id="'dtrends'+${key.doc.id}">
+			</p><select th:id="'selTr'+${key.doc.id}" th:onchange="'changeSelTr('+${key.doc.id}+')'"><option></option>
+					<option th:each="trend : ${trends}" th:value="${trend.id}" th:text="${trend.name}"></option></select></td>
+		    <td><a th:href="@{/stat/doc(docid=${key.doc.id},termid=${termid})}" th:text="'view'" target="_blank">URL</a></td>
+		    <td><a th:href="${key.doc.url}" th:text="'view'" target="_blank">URL</a></td>
+		</tr>
+		</table>
+		</div>
 			<script th:inline="javascript">
 			/*<![CDATA[*/
+				
+			
+			function ajaxGroup(requestUrl, id) {
+				
+				var inputArgs = [];
+				var i;
+				for (i = 1; i < arguments.length; i++) {
+					inputArgs.push(arguments[i]);
+				}
+				
+				var cats = '';
+				var categs = $("[id^=dcat" + id + "-]");
+				for (var i = 0; i < categs.length; i++) {
+					var split = categs[i].id.split('-');
+					if (split.length < 2) continue;
+					cats += (cats === '' ? '' : ',') + split[1];
+				}
+				inputArgs.push(cats);
+				var trs = '';
+				var trends = $("[id^=dtrend" + id + "-]");
+				for (var i = 0; i < trends.length; i++) {
+					var split = trends[i].id.split('-');
+					if (split.length < 2) continue;
+					trs += (trs === '' ? '' : ',') + split[1];
+				}
+				inputArgs.push(trs);
+				
+				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			     var csrfToken = $("meta[name='_csrf']").attr("content");
+			     var headers = {};
+			     headers[csrfHeader] = csrfToken;
+	            
+				$.ajax({
+					url : requestUrl,
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf-8',
+					data : JSON.stringify(inputArgs),
+					headers: headers,
+					success: function (res) {
+						$("#save" + id).hide();
+					},
+					error: function (xhRequest, ErrorText, thrownError) {
+						console.log('xhRequest: ' + xhRequest + "\n");
+						console.log('ErrorText: ' + ErrorText + "\n");
+						console.log('thrownError: ' + thrownError + "\n");
+						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+					}
+				});
+			}
+			
+			function addCategory(id, name, show) {
+				if (name === '') return;
+				if ($("#dcat" + id).length > 0) return;
+				var split = id.split('-');
+				if (split.length < 2) return;
+				$("#dcats" + split[0]).html($("#dcats" + split[0]).html() +
+						"<span class='btn-warning btn btn-primary' id='dcat" + id + "'>" +
+			    		"<a href='#a' onclick='removeCategory(\"" + id + "\")' class='fa fa-remove'></a> " + name + "</span>");
+				if (show)
+					$("#save" + split[0]).show();
+			}
+			function changeSel(docId) {
+				addCategory(docId + '-' + $("#sel" + docId + " option:selected").val(),
+						$("#sel" + docId + " option:selected").text(), true);
+			}
+			function removeCategory(id) {
+				$("#dcat" + id).remove();
+				var split = id.split('-');
+				if (split.length < 2) return;
+				$("#save" + split[0]).show();
+			}
+			var docCats = /*[[${docCats}]]*/ [];
+			for (var i = 0; i < docCats.length; i++)
+				addCategory(docCats[i][0], docCats[i][1], false);
+
+			function addTrend(id, name, show) {
+				if (name === '') return;
+				if ($("#dtrend" + id).length > 0) return;
+				var split = id.split('-');
+				if (split.length < 2) return;
+				$("#dtrends" + split[0]).html($("#dtrends" + split[0]).html() +
+						"<span class='btn-warning btn btn-primary' id='dtrend" + id + "'>" +
+			    		"<a href='#a' onclick='removeTrend(\"" + id + "\")' class='fa fa-remove'></a> " + name + "</span>");
+				if (show)
+					$("#save" + split[0]).show();
+			}
+			function changeSelTr(docId) {
+				addTrend(docId + '-' + $("#selTr" + docId + " option:selected").val(),
+						$("#selTr" + docId + " option:selected").text(), true);
+			}
+			function removeTrend(id) {
+				$("#dtrend" + id).remove();
+				var split = id.split('-');
+				if (split.length < 2) return;
+				$("#save" + split[0]).show();
+			}
+			var docTrends = /*[[${docTrends}]]*/ [];
+			for (var i = 0; i < docTrends.length; i++)
+				addTrend(docTrends[i][0], docTrends[i][1], false);
 				
 			function drawBars(sums, index, lab) {
 				var d1 = [], t = [];
@@ -53,7 +183,11 @@
     				{ label: lab, data: d1 }
     			], {
     				series: {
-    					bars: { show: true }
+						color: "#94acd9",
+    					bars: {
+    						show: true,
+    						fillColor: "#94acd9"
+    					}
     				},
     				xaxis: {
     	                autoScale: "exact",
@@ -71,27 +205,12 @@
 				drawBars(sums, 1, "Number of documents with term");
 				drawBars(sums, 2, "Relative number of documents");
 		      });
+		      
+		      function save(docId) {
+		    	  
+		    	  $("#save" + docId).hide();
+		      }
 			/*]]>*/
 			</script>
-		<h3>Documents with term</h3>
-		<a th:href="@{/stat/term(id=${termid},order=1)}" class="two-buttons" th:text="'sort by document date'">sort</a>
-		<a th:href="@{/stat/term(id=${termid},order=0)}" class="two-buttons" th:text="'sort by occurrance'">sort</a>
-		<table class="table table-responsive table-striped">
-		<tr>
-			<th>Title</th>
-			<th>Date</th>
-			<th>Occurrence</th>
-			<th>Highlighted</th>
-			<th>URL</th>
-		</tr>
-		<tr th:each="key : ${keys}">
-		    <td th:text="${key.doc.title}">title</td>
-		    <td th:text="${#dates.format(key.doc.creationDate, 'dd MMMM yyyy')}">creationDate</td>
-		    <td th:text="${key.count}">0</td>
-		    <td><a th:href="@{/stat/doc(docid=${key.doc.id},termid=${termid})}" th:text="'view doc'" target="_blank">URL</a></td>
-		    <td><a th:href="${key.doc.url}" th:text="${key.doc.url}" target="_blank">URL</a></td>
-		</tr>
-		</table>
-		</div>
 		
 		

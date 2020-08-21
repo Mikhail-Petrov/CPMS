@@ -3,10 +3,18 @@
 	<div class="col-md-12">
 		<div class="x_panel">
 			<div class="x_content">
+		<h2>Categories</h2>
 				<p><a th:href="@{/stat/documents}" id="getTerms"
 					th:class="'btn btn-' + (${catid}==null?'success':'primary')" th:text="'All'"></a>
 				<a th:each="categ : ${categs}" th:id="'getTerms' + ${categ.id}" th:href="@{/stat/documents(catid=${categ.id})}"
 					th:text="${categ.name}" th:class="'btn btn-' + (${catid==categ.id}?'success':'primary')"></a></p>
+		<div th:each="cak : ${catKids}" th:id="'cak' + ${cak.key}" th:if="${cak.key}==${catid}">
+			<h2>Subcategories</h2>
+			<a th:href="@{/stat/documents(catid=${catid})}" th:class="'btn btn-' + (${childid} > 0 ? 'primary':'success')"
+				th:text="'All'"></a>
+			<a th:each="categ : ${cak.value}" th:id="'getTerms' + ${categ.id}" th:href="@{/stat/documents(catid=${categ.id})}"
+				th:class="'btn btn-' + (${childid==categ.id}?'success':'primary')" th:text="${categ.name}"></a>
+		</div>
 				<table class="table table-responsive table-striped">
 					<thead>
 						<tr>

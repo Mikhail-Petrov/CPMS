@@ -1,5 +1,6 @@
 package com.cpms.dao.interfaces;
 
+import java.util.Date;
 import java.util.List;
 
 import com.cpms.data.AbstractDomainObject;
@@ -115,5 +116,7 @@ public interface IDAO<T extends AbstractDomainObject> {
 	public void rebuildIndex();
 
 	public default int getInt(T instances) {return 0;}
+
+	public default Date getDate(boolean last) {return null;}
 	
 }

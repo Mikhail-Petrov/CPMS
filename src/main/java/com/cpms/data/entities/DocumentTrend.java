@@ -41,6 +41,9 @@ public class DocumentTrend extends AbstractDomainObject {
 	@NotNull
 	private Article document;
 	
+	@Column(name = "manual", nullable = true)
+	private Integer manual;
+	
 	public DocumentTrend(Trend trend, Article document) {
 		this.setTrend(trend);
 		this.setDocument(document);
@@ -91,6 +94,14 @@ public class DocumentTrend extends AbstractDomainObject {
 
 	public void setTrend(Trend trend) {
 		this.category = trend;
+	}
+
+	public Integer getManual() {
+		return manual;
+	}
+
+	public void setManual(Integer manual) {
+		this.manual = manual;
 	}
 	
 }

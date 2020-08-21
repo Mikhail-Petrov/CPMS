@@ -133,7 +133,7 @@ public class Trends {
 				answer.getFlags().add(flag);
 				//Set<Trend> kids = child.getChildren(trendDAO.getAll());
 				//answer.getKids().add(kids == null ? 0 : kids.size());
-				answer.getKids().add(trendDAO.getInt(child));
+				answer.getKids().add((long) trendDAO.getInt(child));
 			}
 			return answer;
 		} else {

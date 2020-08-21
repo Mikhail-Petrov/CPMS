@@ -79,22 +79,22 @@ public class JPATermInnovationDAO extends JPATermDAO
 	}
 	
 	@Override
-	public int getTermSum(Term term, Date startDate, Date finishDate) {
+	public int getTermSum(List<Long> terms, Date startDate, Date finishDate) {
 		String start_date, finish_date;
 		start_date = getDate(startDate);
 		finish_date = getDate(finishDate);
-		Integer ret = termRepo.getTermSum(term.getId(), start_date, finish_date);
+		Integer ret = termRepo.getTermSum(terms, start_date, finish_date);
 		if (ret == null)
 			ret = 0;
 		return ret;
 	}
 
 	@Override
-	public int getTermDocCount(Term term, Date startDate, Date finishDate) {
+	public int getTermDocCount(List<Long> terms, Date startDate, Date finishDate) {
 		String start_date, finish_date;
 		start_date = getDate(startDate);
 		finish_date = getDate(finishDate);
-		Integer ret = termRepo.getTermDocCount(term.getId(), start_date, finish_date);
+		Integer ret = termRepo.getTermDocCount(terms, start_date, finish_date);
 		if (ret == null)
 			ret = 0;
 		return ret;
@@ -112,8 +112,8 @@ public class JPATermInnovationDAO extends JPATermDAO
 	}
 
 	@Override
-	public List<BigInteger> getTermDocsIDs(Term term, int order) {
-		return order > 0 ? termRepo.getTermKeysIDs(term.getId()) : termRepo.getTermDocsIDs(term.getId());
+	public List<BigInteger> getTermDocsIDs(List<Long> terms, int order) {
+		return order > 0 ? termRepo.getTermKeysIDs(terms) : termRepo.getTermDocsIDs(terms);
 	}
 
 	@Override
@@ -122,8 +122,8 @@ public class JPATermInnovationDAO extends JPATermDAO
 	}
 
 	@Override
-	public int getTermCount(Long termid, Long docid) {
-		Integer res = termRepo.getTermCount(termid, docid);
+	public int getTermCount(List<Long> terms, Long docid) {
+		Integer res = termRepo.getTermCount(terms, docid);
 		if (res == null) res = 0;
 		return res;
 	}

@@ -88,12 +88,63 @@
                             <div class="x_content" th:include="fragments/websiteTree :: websiteTree"></div>
                         </div>
                     </div>
+		<p id="curStatus"></p>
+		<p><a href="#" id="loadDocs" th:text="'Upload new articles'" class="btn btn-primary"></a></p>
+		<p><a href="#" id="plusButton" th:text="'Build keywords index'" class="btn btn-primary"></a></p>
+		<p><a href="#" id="updDC" th:text="'Update document categories'" class="btn btn-primary"></a></p>
+		<p><a href="#" id="updDT" th:text="'Update document trends'" class="btn btn-primary"></a></p>
                 </div>
+		
 	<script th:inline="javascript">
 			/*<![CDATA[*/
 	function clickWebsite(id) {
 				ajaxWebsiteDialog(rootPath + 'website/ajaxWebsite', id);
 			}
 	$("#plusButton").on("click", function() {ajaxWebsiteDialog(rootPath + 'website/ajaxWebsite', '0')});
+
+	function ajaxGroup(requestUrl) {
+		
+		var inputArgs = [];
+		var i;
+		for (i = 1; i < arguments.length; i++) {
+			inputArgs.push(arguments[i]);
+		}
+		
+		 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	     var csrfToken = $("meta[name='_csrf']").attr("content");
+	     var headers = {};
+	     headers[csrfHeader] = csrfToken;
+
+        if ($("#curStatus").html() === '' || $("#curStatus").html() === 'success')
+	    	$("#curStatus").html('executing...');
+		$.ajax({
+			url : requestUrl,
+			type: 'POST',
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+			data : JSON.stringify(inputArgs),
+			headers: headers,
+			success: function (res) {
+				if (res.success)
+		         $("#curStatus").html('success');
+		        else {
+			        $("#curStatus").html(res.res + "...");
+		         	ajaxGroup(requestUrl);
+		        }
+			},
+			error: function (xhRequest, ErrorText, thrownError) {
+		         $("#curStatus").html('ERROR!!!');
+				console.log('xhRequest: ' + xhRequest + "\n");
+				console.log('ErrorText: ' + ErrorText + "\n");
+				console.log('thrownError: ' + thrownError + "\n");
+				console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+			}
+		});
+	}
+
+	$("#updDC").on("click", function() {ajaxGroup(rootPath + 'stat/insertDC?cat=true')});
+	$("#updDT").on("click", function() {ajaxGroup(rootPath + 'stat/insertDC?cat=false')});
+	$("#loadDocs").on("click", function() {ajaxGroup(rootPath + 'stat/loadDocs')});
+	$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'stat/analizeAllDoc')});
 	/*]]>*/
 	</script>

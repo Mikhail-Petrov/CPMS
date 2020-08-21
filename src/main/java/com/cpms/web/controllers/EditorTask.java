@@ -232,6 +232,7 @@ public class EditorTask {
 		}
 		existedTask = null;
 		// fill some fields for innovation
+		String termVariant = "";
 		if (termid != null && var != null) {
 			Term term = termDAO.getOne(termid);
 			if (term != null) {
@@ -250,6 +251,7 @@ public class EditorTask {
 							term.setInn(true);
 							termDAO.update(term);
 						}
+						termVariant = String.format("%d:%d", term.getId(), tv.getId());
 						break;
 					}
 				// get categories and trends for the task
@@ -268,6 +270,7 @@ public class EditorTask {
 				}*/
 			}
 		}
+		model.addAttribute("termVariant", termVariant);
 		model.addAttribute("task", task);
 		model.addAttribute("create", create);
 		List<Language> langs = facade.getLanguageDAO().getAll();
@@ -296,9 +299,23 @@ public class EditorTask {
 		for (ProjectTermvariant tvar : task.getVariants())
 			terms.add(tvar.getVariant().getTerm().getId() + "~!@" + tvar.getVariant().getId() + "~!@" + tvar.getVariant().getText());
 		model.addAttribute("terms", terms);
+		List<String> trends = new ArrayList<>();
+		for (Task_Trend tt : task.getTrends())
+			trends.add(tt.getTrend().getId() + "~!@" + tt.getTrend().getName());
+		model.addAttribute("trends", trends);
+		List<String> categories = new ArrayList<>();
+		for (Task_Category tt : task.getCategories())
+			categories.add(tt.getCategory().getId() + "~!@" + tt.getCategory().getName());
+		model.addAttribute("categories", categories);
+		List<String[]> reqs = new ArrayList<>();
+		for (TaskRequirement tr : task.getRequirements()) {
+			String[] req = {String.format("|%s (%d)", tr.getSkill().getName(), tr.getSkill().getId()), tr.getLevel() + ""};
+			reqs.add(req);
+		}
+		model.addAttribute("reqs", reqs);
 		return "editTask";
 	}
-	
+
 	private void updateVariants(Task task, List<String> terms) {
 		Set<ProjectTermvariant> oldVars = task.getVariants();
 		task.clearVariants();
@@ -328,17 +345,53 @@ public class EditorTask {
 				}
 		}
 	}
+	private void updateTrendsCategories(Task task, List<String> trends, boolean isTrend) {
+		Set<Task_Trend> oldVars = task.getTrends();
+		Set<Task_Category> oldCats = task.getCategories();
+		if (isTrend)
+			task.clearTrends();
+		else
+			task.clearCategories();
+		if (trends != null)
+		for (String strend : trends) {
+			long trendid = 0, varid = 0;
+			try {
+				trendid = Long.parseLong(strend);
+			} catch (NumberFormatException e) {}
+			boolean isOld = false;
+			if (isTrend) {
+				Trend trend = facade.getTrendDAO().getOne(trendid);
+				if (trend == null) continue;
+				for (Task_Trend tt : oldVars)
+					if (tt.getTrend().getId() == trend.getId()) {
+						task.addTrend(tt);
+						isOld = true;
+						break;
+					}
+				if (!isOld)
+					task.addTrend(new Task_Trend(trend, task));
+			} else {
+				Category category = facade.getCategoryDAO().getOne(trendid);
+				if (category == null) continue;
+				for (Task_Category tc : oldCats)
+					if (tc.getCategory().getId() == category.getId()) {
+						task.addCategory(tc);
+						isOld = true;
+						break;
+					}
+				if (!isOld)
+					task.addCategory(new Task_Category(category, task));
+			}
+		}
+	}
 	@RequestMapping(path = "/task", method = RequestMethod.POST)
 	public String taskCreate(Model model, HttpServletRequest request
 			, @ModelAttribute("task") @Valid Task recievedTask, @RequestParam(required=false, name="file") MultipartFile file,
 			BindingResult bindingResult, Principal principal, @RequestParam(required=false, name="skills") String skills
-			, @RequestParam(required=false, name="trendIDs") String[] trendIDs
-			, @RequestParam(required=false, name="categoryIDs") String[] categoryIDs
+			, @RequestParam(required=false, name="termVariant") String termVariant
+			, @RequestParam(required=false, name="trendIDs") List<String> trendIDs
+			, @RequestParam(required=false, name="categoryIDs") List<String> categoryIDs
 			, @RequestParam(required=false, name="terms") List<String> terms) {
-		if (trendIDs != null && trendIDs.length > 0)
-			trendIDs = trendIDs[0].split("[|]");
-		if (categoryIDs != null && categoryIDs.length > 0)
-			categoryIDs = categoryIDs[0].split("[|]");
 		if (recievedTask == null) {
 			throw new SessionExpiredException(null, messageSource);
 		}
@@ -362,6 +415,22 @@ public class EditorTask {
 				recievedTask.setImageType(file.getContentType());
 			}
 			updateVariants(recievedTask, terms);
+			updateTrendsCategories(recievedTask, trendIDs, true);
+			updateTrendsCategories(recievedTask, categoryIDs, false);
+			if (termVariant != null) {
+				String[] split = termVariant.split(":");
+				long termID = 0, varID = 0;
+				if (split.length > 1)
+				try {
+					termID = Long.parseLong(split[0]);
+					varID = Long.parseLong(split[1]);
+				} catch (NumberFormatException e) {}
+				Term term = facade.getTermDAO().getOne(termID);
+				if (term != null)
+					for (TermVariant tv : term.getVariants())
+						if (tv.getId() == varID)
+							recievedTask.setVariant(tv);
+			}
 			task = facade.getTaskDAO().insert(recievedTask);
 		} else {
 			task = facade.getTaskDAO().getOne(recievedTask.getId());
@@ -375,6 +444,8 @@ public class EditorTask {
 				task.setImageType(file.getContentType());
 			}
 			updateVariants(task, terms);
+			updateTrendsCategories(task, trendIDs, true);
+			updateTrendsCategories(task, categoryIDs, false);
 			task = facade.getTaskDAO().update(task);
 		}
 
@@ -423,37 +494,6 @@ public class EditorTask {
 				Skill skill = facade.getSkillDAO().getOne(skillID);
 				task.addRequirement(new TaskRequirement(skill, level));
 			} catch (Exception e) {}
-		}
-		// add trends and categories
-		task.getTrends();
-		for (String trID : trendIDs) {
-			long trendID = 0;
-			try {
-				trendID = Long.parseLong(trID.replace("|", ""));
-			} catch (NumberFormatException e) {
-				continue;
-			}
-			Trend trend = facade.getTrendDAO().getOne(trendID);
-			if (trend == null)
-				continue;
-			if (!task.getTrends().stream().anyMatch(x -> x.getTrend().equals(trend))) {
-				task.addTrend(new Task_Trend(trend, task));
-			}
-		}
-		task.getCategories();
-		for (String catID : categoryIDs) {
-			long categID = 0;
-			try {
-				categID = Long.parseLong(catID.replace("|", ""));
-			} catch (NumberFormatException e) {
-				continue;
-			}
-			Category category = facade.getCategoryDAO().getOne(categID);
-			if (category == null)
-				continue;
-			if (!task.getCategories().stream().anyMatch(x -> x.getCategory().equals(category))) {
-				task.addCategory(new Task_Category(category, task));
-			}
 		}
 		
 		task.getRecipients();

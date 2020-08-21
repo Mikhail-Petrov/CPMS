@@ -18,17 +18,17 @@ public interface IInnovationTermDAO {
 
 	public List<Term> find(String query);
 	
-	public int getTermSum(Term term, Date startDate, Date finishDate);
+	public int getTermSum(List<Long> terms, Date startDate, Date finishDate);
 	
-	public int getTermDocCount(Term term, Date startDate, Date finishDate);
+	public int getTermDocCount(List<Long> terms, Date startDate, Date finishDate);
 	
 	public int getDocCount(Date startDate, Date finishDate, List<Long> cats, List<Long> trends);
 	
-	public List<BigInteger> getTermDocsIDs(Term term, int order);
+	public List<BigInteger> getTermDocsIDs(List<Long> terms, int order);
 	
 	public Term getTermByStem(String stem);
 	
-	public int getTermCount(Long termid, Long docid);
+	public int getTermCount(List<Long> terms, Long docid);
 
 	public List<TermAnswer> getTermAnswers(Date startDate, Date endDate, Date oldStartDate, List<Long> cats, List<Long> trends);
 	

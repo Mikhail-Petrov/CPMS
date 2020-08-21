@@ -29,15 +29,15 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 			"order by ISinnovation desc, LEN(preferabletext), preferabletext", nativeQuery = true)
 	public List<Term> findBySearch(@Param("query") String query);
 	
-	@Query(value = "select sum(k.count) from Document d inner join Keyword k on k.documentid = d.ID and k.termid = :term " + 
+	@Query(value = "select sum(k.count) from Document d inner join Keyword k on k.documentid = d.ID and k.termid in (:terms) " + 
 			"where d.creationDate >= convert(datetime, :start_date, 20) and d.creationDate < convert(datetime, :finish_date, 20)",
 			nativeQuery = true)
-	public Integer getTermSum(@Param("term") long term, @Param("start_date") String start_date, @Param("finish_date") String finish_date);
+	public Integer getTermSum(@Param("terms") List<Long> terms, @Param("start_date") String start_date, @Param("finish_date") String finish_date);
 
-	@Query(value = "select count(d.id) from Document d inner join Keyword k on k.documentid = d.ID and k.termid = :term " + 
+	@Query(value = "select count(d.id) from Document d inner join Keyword k on k.documentid = d.ID and k.termid in (:terms) " + 
 			"where d.creationDate >= convert(datetime, :start_date, 20) and d.creationDate < convert(datetime, :finish_date, 20)",
 			nativeQuery = true)
-	public Integer getTermDocCount(@Param("term") long term, @Param("start_date") String start_date, @Param("finish_date") String finish_date);
+	public Integer getTermDocCount(@Param("terms") List<Long> terms, @Param("start_date") String start_date, @Param("finish_date") String finish_date);
 
 	@Query(value = "select count(d.id) from Document d " + 
 			"inner join DocumentCategory dc on (d.id = dc.documentid and dc.categoryid in (:cats))\n" + 
@@ -47,19 +47,19 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 	public Integer getDocCount(@Param("start_date") String start_date, @Param("finish_date") String finish_date,
 			@Param("cats") List<Long> cats, @Param("trends") List<Long> trends);
 
-	@Query(value = "select top 25 d.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid = :term " + 
+	@Query(value = "select top 25 d.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid in (:terms) " + 
 			"group by d.id order by sum(k.count) desc",
 			nativeQuery = true)
-	public List<BigInteger> getTermDocsIDs(@Param("term") long term);
+	public List<BigInteger> getTermDocsIDs(@Param("terms") List<Long> terms);
 	
-	@Query(value = "select top 25 d.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid = :term " + 
+	@Query(value = "select top 25 d.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid in (:terms) " + 
 			"group by d.id order by max(d.creationDate) desc",
 			nativeQuery = true)
-	public List<BigInteger> getTermKeysIDs(@Param("term") long term);
+	public List<BigInteger> getTermKeysIDs(@Param("terms") List<Long> terms);
 
-	@Query(value = "Select k.count from Keyword k where k.termid = :term and k.documentid = :doc",
+	@Query(value = "Select k.count from Keyword k where k.termid in (:terms) and k.documentid = :doc",
 			nativeQuery = true)
-	public Integer getTermCount(@Param("term") long term, @Param("doc") long doc);
+	public Integer getTermCount(@Param("terms") List<Long> terms, @Param("doc") long doc);
 
 	@Query(value = "select * from " + 
 			"(select t.preferabletext as preferabletext, count(d.id) as N_new, count(dold.id) as N_old, t.id as term_id " +

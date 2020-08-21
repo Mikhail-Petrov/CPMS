@@ -41,6 +41,9 @@ public class DocumentCategory extends AbstractDomainObject {
 	@NotNull
 	private Article document;
 	
+	@Column(name = "manual", nullable = true)
+	private Integer manual;
+	
 	public DocumentCategory(Category category, Article document) {
 		this.setCategory(category);
 		this.setDocument(document);
@@ -91,6 +94,14 @@ public class DocumentCategory extends AbstractDomainObject {
 
 	public void setCategory(Category category) {
 		this.category = category;
+	}
+
+	public Integer getManual() {
+		return manual;
+	}
+
+	public void setManual(Integer manual) {
+		this.manual = manual;
 	}
 	
 }

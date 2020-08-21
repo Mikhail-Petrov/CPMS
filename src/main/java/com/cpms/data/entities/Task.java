@@ -159,12 +159,12 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<ProjectTermvariant> variants;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "task", orphanRemoval = true)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "task", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<Task_Trend> trends;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "task", orphanRemoval = true)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "task", orphanRemoval = true)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE,
         CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
 	private Set<Task_Category> categories;
@@ -201,10 +201,18 @@ public class Task extends AbstractDomainObject implements Comparable<Task> {
 		if (requirements == null) {
 			getRequirements();
 		}
-		if (requirements.stream()
+		/*if (requirements.stream()
 				.anyMatch(x -> x.duplicates(newRequirement))) {
 			throw new DataAccessException("Duplicate competency insertion.", null);
-		} else {
+		} else {*/
+		boolean isOld = false;
+		for (TaskRequirement tr : requirements)
+			if (tr.getSkill().getId() == newRequirement.getSkill().getId()) {
+				isOld = true;
+				tr.setLevel(newRequirement.getLevel());
+				break;
+			}
+		if (!isOld) {
 			this.requirements.add(newRequirement);
 			newRequirement.setTask(this);
 		}

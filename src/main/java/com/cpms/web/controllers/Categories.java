@@ -137,7 +137,7 @@ public class Categories {
 				answer.getFlags().add(flag);
 				//Set<Category> kids = child.getChildren(categoryDAO.getAll());
 				//answer.getKids().add(kids == null ? 0 : kids.size());
-				answer.getKids().add(categoryDAO.getInt(child));
+				answer.getKids().add((long) categoryDAO.getInt(child));
 			}
 			return answer;
 		} else {

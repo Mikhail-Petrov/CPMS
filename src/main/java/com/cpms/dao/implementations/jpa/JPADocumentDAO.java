@@ -1,6 +1,7 @@
 package com.cpms.dao.implementations.jpa;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -60,8 +61,8 @@ public class JPADocumentDAO extends AbstractDAO<Article> implements ICleanable {
 	public Article getOne(long id) {
 		Article target = docsRepo.findOne(id);
 		if (target != null) {
-			Hibernate.initialize(target.getTrends());
-			Hibernate.initialize(target.getCats());
+			//Hibernate.initialize(target.getTrends());
+			//Hibernate.initialize(target.getCats());
 		}
 		return target;
 	}
@@ -156,6 +157,14 @@ public class JPADocumentDAO extends AbstractDAO<Article> implements ICleanable {
 	public int getInt(Article doc) {
 		Integer ret = docsRepo.getSumCount(doc.getId());
 		return ret == null ? 0 : ret;
+	}
+	
+	@Override
+	public Date getDate(boolean last) {
+		if (last)
+			return docsRepo.getLastParse();
+		else
+			return docsRepo.getFirstCreated();
 	}
 
 }

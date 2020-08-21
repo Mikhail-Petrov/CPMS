@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +46,8 @@ import com.cpms.dao.interfaces.IInnovationTermDAO;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Category;
+import com.cpms.data.entities.DocumentCategory;
+import com.cpms.data.entities.DocumentTrend;
 import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.ProjectTermvariant;
 import com.cpms.data.entities.Skill;
@@ -337,7 +340,7 @@ public class Statistic {
 	
 	@RequestMapping(path = "/innovations", method = RequestMethod.GET)
 	public String innovations(Model model) {
-		model.addAttribute("_VIEW_TITLE", "im.title.innovations");
+		model.addAttribute("_VIEW_TITLE", "Innovations");
 		model.addAttribute("_FORCE_CSRF", true);
 		
 		List<Category> cats = categoryDAO.getAll(), categs = new ArrayList<>();
@@ -369,6 +372,42 @@ public class Statistic {
 		return "innovations";
 	}
 
+	@RequestMapping(path = "/radar", method = RequestMethod.GET)
+	public String radar(Model model) {
+		model.addAttribute("_VIEW_TITLE", "im.title.innovations");
+		model.addAttribute("_FORCE_CSRF", true);
+
+		List<List<List<String>>> catList = new ArrayList<>();
+		List<Category> cats = categoryDAO.getAll();
+		Map<Long, Integer> catIndexes = new HashMap<>();
+		for (int i = 0; i < cats.size(); i++) {
+			if (cats.get(i).getParent() != null)
+				continue;
+			List<List<String>> cat = new ArrayList<>();
+			List<String> name = new ArrayList<>();
+			name.add(cats.get(i).getName());
+			cat.add(name);
+			for (int j = 0; j < 3; j++)
+				cat.add(new ArrayList<>());
+			catList.add(cat);
+			catIndexes.put(cats.get(i).getId(), catList.size() - 1);
+		}
+		List<Task> all = facade.getTaskDAO().getAll();
+		for (Task task : all)
+			if (task.getVariant() != null)
+				for (Task_Category tc : task.getCategories()) {
+					long catId = tc.getCategory().getId();
+					if (tc.getCategory().getParent() != null)
+						catId = tc.getCategory().getParent().getId();
+					List<String> toAdd = catList.get(catIndexes.get(catId)).get(task.getImpact()+1);
+					if (!toAdd.contains(task.getName()))
+						toAdd.add(task.getName());
+				}
+		model.addAttribute("catList", catList);
+		
+		return "radar";
+	}
+
 	@RequestMapping(path = "/documents", method = RequestMethod.GET)
 	public String documents(Model model, @RequestParam(value = "catid", required = false) Long catid) {
 		model.addAttribute("_VIEW_TITLE", "Last documents");
@@ -378,19 +417,39 @@ public class Statistic {
 		List<Article> docsList = new ArrayList<>();
 		getCatsTrends();
 		List<Long> cats = allCats, trends = allTrends;
+		Category cat = null;
 		if (catid != null) {
-			cats = getCatChildIDs(categoryDAO.getOne(catid));
+			cat = categoryDAO.getOne(catid);
+			cats = getCatChildIDs(cat);
 		}
 		for (BigInteger id : innDAO.getLastDocs(changeDate(new Date(System.currentTimeMillis()), 0, 0, -ldDays), cats, trends))
 			docsList.add(docDAO.getOne(id.longValue()));
 		model.addAttribute("docsList", docsList);
 		List<Category> categories = categoryDAO.getAll(), categs = new ArrayList<>();
 		Collections.sort(categories);
-		for (Category cat : categories)
-			if (cat.getParent() == null)
-				categs.add(cat);
+		for (Category categ : categories)
+			if (categ.getParent() == null)
+				categs.add(categ);
 		model.addAttribute("categs", categs);
-		model.addAttribute("catid", catid);
+		// get categories and kids
+		Map<Long, List<Category>> cak = new HashMap<>();
+		for (Category category : categories) {
+			Set<Category> children = category.getChildren(categoryDAO);
+			if (children.size() > 0 || category.getParent() == null) {
+				List<Category> kids = new ArrayList<>();
+				for (Category child : children)
+					kids.add(child);
+				cak.put(category.getId(), kids);
+			}
+		}
+		model.addAttribute("catKids", cak);
+		if (cat == null || cat.getParent() == null) {
+			model.addAttribute("catid", catid);
+			model.addAttribute("childid", 0);
+		} else {
+			model.addAttribute("catid", cat.getParent().getId());
+			model.addAttribute("childid", catid);
+		}
 		return "documents";
 	}
 	
@@ -423,7 +482,25 @@ public class Statistic {
 		String text = mask == null || mask.isEmpty() ? document.body().html() : document.select(mask).html();
 		String[] prefixes = {" ", "(", "\"", "[", ">", "-", ",", ".", "\n"},
 				postfixes = {" ", ",", ".", ";", "!", "?", "-", ":", "\"", "\n", ")", "]", "<"};
-		for (TermVariant var : term.getVariants())
+		List<Term> terms = new ArrayList<>();
+		terms.add(term);
+		// find associated terms
+		for (Task task : facade.getTaskDAO().getAll())
+			if (task.getVariant() != null && task.getVariant().getTerm().getId() == term.getId()) {
+				Task innTask = facade.getTaskDAO().getOne(task.getId());
+				for (ProjectTermvariant ptv : innTask.getVariants()) {
+					boolean contains = false;
+					for (Term asTerm : terms)
+						if (asTerm.getId() == ptv.getVariant().getTerm().getId()) {
+							contains = true;
+							break;
+						}
+					if (!contains)
+						terms.add(ptv.getVariant().getTerm());
+				}
+			}
+		for (Term asTerm : terms)
+		for (TermVariant var : asTerm.getVariants())
 			for (String prefix : prefixes)
 				for (String postfix : postfixes)
 					text = text.replaceAll("(?i)\\" + prefix + var.getPresentationName() + "\\" + postfix,
@@ -460,7 +537,7 @@ public class Statistic {
 		List<Task> all = facade.getTaskDAO().getAll();
 		for (Task task : all)
 			if (task.getVariant() != null)
-				tasks.put(task.getVariant().getTerm().getId(), facade.getTaskDAO().getOne(task.getId()));
+				tasks.put(task.getVariant().getTerm().getId(), task);//facade.getTaskDAO().getOne(task.getId()));
 		for (Term term : res)
 			ans.addTerm(term, tasks);
 		return ans;
@@ -553,6 +630,58 @@ public class Statistic {
 	}
 
 	@ResponseBody
+	@RequestMapping(value = "/saveDocChange",
+			method = RequestMethod.POST)
+	public IAjaxAnswer ajaxSaveDoc(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		// get doc
+		long id = values.size() > 0 ? (Integer) values.get(0) : 0;
+		if (id <= 0) return null;
+		Article doc = docDAO.getOne(id);
+		// update categories
+		Set<DocumentCategory> oldCats = doc.getCats();
+		doc.clearCats();
+		String cats = values.size() > 1 ? (String) values.get(1) : "";
+		String[] split = cats.split(",");
+		for (int i = 0; i < split.length; i++) {
+			long catId = 0;
+			try {catId = Long.parseLong(split[i]); } catch(NumberFormatException e) {continue;}
+			DocumentCategory dc = null;
+			for (DocumentCategory oldCat : oldCats)
+				if (oldCat.getCategory().getId() == catId)
+					dc = oldCat;
+			if (dc == null) {
+				Category category = facade.getCategoryDAO().getOne(catId);
+				dc = new DocumentCategory(category, doc);
+			}
+			dc.setManual(1);
+			doc.addCat(dc);
+		}
+		// update trends
+		Set<DocumentTrend> oldTrends = doc.getTrends();
+		doc.clearTrends();
+		String trends = values.size() > 2 ? (String) values.get(2) : "";
+		split = trends.split(",");
+		for (int i = 0; i < split.length; i++) {
+			long trendId = 0;
+			try {trendId = Long.parseLong(split[i]); } catch(NumberFormatException e) {continue;}
+			DocumentTrend dt = null;
+			for (DocumentTrend oldTrend : oldTrends)
+				if (oldTrend.getTrend().getId() == trendId)
+					dt = oldTrend;
+			if (dt == null) {
+				Trend trend = facade.getTrendDAO().getOne(trendId);
+				dt = new DocumentTrend(trend, doc);
+			}
+			dt.setManual(1);
+			doc.addTrend(dt);
+		}
+		docDAO.update(doc);
+		return new GroupAnswer();
+	}
+
+	@ResponseBody
 	@RequestMapping(value = "/ajaxSearch",
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxSearch(
@@ -573,7 +702,7 @@ public class Statistic {
 		List<Task> all = facade.getTaskDAO().getAll();
 		for (Task task : all)
 			if (task.getVariant() != null)
-				tasks.put(task.getVariant().getTerm().getId(), facade.getTaskDAO().getOne(task.getId()));
+				tasks.put(task.getVariant().getTerm().getId(), task);//facade.getTaskDAO().getOne(task.getId()));
 		for (Term term : res)
 			ans.addTerm(term, tasks);
 		return ans;
@@ -672,57 +801,65 @@ public class Statistic {
 		return ans;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@RequestMapping(path = "/docs", method = RequestMethod.GET)
-	public String docs(Model model) {
+	public String docs(Model model, @RequestParam(value = "catid", required = false) Long catid
+			, @RequestParam(value = "startDate", required = false) String start_Date
+			, @RequestParam(value = "finishDate", required = false) String finish_Date) {
 		model.addAttribute("_VIEW_TITLE", "im.title.docs");
 		model.addAttribute("_FORCE_CSRF", true);
-
-		List<Article> all = docDAO.getAll();
-		long maxID = 0;
-		Date parsed = null;
-		int maxcount = -1, mincount = 0;
-		Map<Integer, Integer> yearMap = new HashMap<>();
-		int curYear = new Date(System.currentTimeMillis()).getYear();
-		for (int i = 0; i < 6; i++)
-			yearMap.put(curYear - i, 0);
-		yearMap.put(0, 0);
-		nokeysDocs.clear();
-		for (Article obj : all) {
-			if (obj.getId() > maxID)
-				maxID = obj.getId();
-			if (parsed == null || obj.getParseDate() != null && obj.getParseDate().after(parsed))
-				parsed = obj.getParseDate();
-			if (maxcount < 0 || obj.getWordcount() > maxcount)
-				maxcount = obj.getWordcount();
-			if (mincount < 0 || obj.getWordcount() < mincount)
-				mincount = obj.getWordcount();
-			if (obj.getWordcount() == 0)
-				nokeysDocs.add(obj.getId());
-			// detect year
-			if (obj.getCreationDate() == null) continue;
-			int y = obj.getCreationDate().getYear();
-			if (!yearMap.containsKey(y))
-				y = 0;
-			yearMap.put(y, yearMap.get(y) + 1);
+		
+		model.addAttribute("amount", docDAO.count());
+		model.addAttribute("parsed", docDAO.getDate(true));
+		
+		// get statistics for graph
+		Map<String, Integer> stats = new LinkedHashMap<>();
+		getCatsTrends();
+		List<Long> trends = allTrends;
+		if (catid == null) catid = 0L;
+		Map<Long, List<Long>> catMap = new LinkedHashMap<>();
+		if (catid > 0)
+			catMap.put(catid, new ArrayList<>());
+		List<Category> allCategs = facade.getCategoryDAO().getAll(), categs = new ArrayList<>();
+		// find root categories or subcategories
+		for (Category cat : allCategs) {
+			if (catid <= 0 && cat.getParent() == null || cat.getParent() != null && cat.getParent().getId() == catid)
+				catMap.put(cat.getId(), new ArrayList<>());
+			if (cat.getParent() == null)
+				categs.add(cat);
 		}
-		
-		model.addAttribute("amount", all.size());
-		model.addAttribute("maxid", maxID);
-		model.addAttribute("parsed", parsed);
-		model.addAttribute("maxcount", maxcount);
-		model.addAttribute("mincount", mincount);
-		
-		if (nokeysDocs.size() > 10)
-			model.addAttribute("nokeys", nokeysDocs.subList(0, 10));
-		else
-			model.addAttribute("nokeys", nokeysDocs);
-		model.addAttribute("nokeyssize", nokeysDocs.size());
-		
-		List<String[]> years = new ArrayList<>();
-		for (Entry<Integer, Integer> e : yearMap.entrySet())
-			years.add(new String[]{e.getKey() > 0 ? "" + (1900 + e.getKey()) : "other", "" + e.getValue()});
-		model.addAttribute("years", years);
+		model.addAttribute("categs", categs);
+		// create categories id map
+		for (Category cat : allCategs) {
+			long curID = cat.getId();
+			if (catMap.containsKey(curID) && !catMap.get(curID).contains(cat.getId()))
+				catMap.get(curID).add(cat.getId());
+			if (cat.getParent() != null) {
+				curID = cat.getParent().getId();
+				if (catMap.containsKey(curID) && !catMap.get(curID).contains(cat.getId()))
+					catMap.get(curID).add(cat.getId());
+			}
+		}
+		Date startDate = docDAO.getDate(false), finishDate = new Date(System.currentTimeMillis());
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+		try {
+			if (start_Date != null && !start_Date.isEmpty()) startDate = df.parse(start_Date);
+			if (finish_Date != null && !finish_Date.isEmpty()) finishDate = df.parse(finish_Date);
+		} catch (ParseException e) {}
+		model.addAttribute("startDate", df.format(startDate));
+		model.addAttribute("finishDate", df.format(finishDate));
+		if (catid > 0) {
+			Category curCat = facade.getCategoryDAO().getOne(catid);
+			int count = innDAO.getDocCount(startDate , finishDate, catMap.get(catid), trends);
+			stats.put(String.format("%s (%d) (id:%d)", curCat.getName(), count, curCat.getId()), count);
+		}
+		for (Category cat : allCategs)
+			if (cat.getId() != catid && catMap.containsKey(cat.getId())) {
+				int count = innDAO.getDocCount(startDate , finishDate, catMap.get(cat.getId()), trends);
+				stats.put(String.format("%s (%d) (id:%d)", cat.getName(), count, cat.getId()), count);
+			}
+
+		model.addAttribute("stats", stats);
+		model.addAttribute("catid", catid);
 		return "docs";
 	}
 	
@@ -798,24 +935,33 @@ public class Statistic {
 		Date today = new Date(System.currentTimeMillis());
 		// get statistics for last 30 days, 3 months, year
 		getCatsTrends();
-		List<Long> cats = allCats, trends = allTrends;
-		int tdc30 = innDAO.getTermDocCount(term, changeDate(today, 0, 0, -30), today),
-				tdc3 = innDAO.getTermDocCount(term, changeDate(today, 0, -3, 0), today),
-				tdc1 = innDAO.getTermDocCount(term, changeDate(today, -1, 0, 0), today),
+		List<Long> cats = allCats, trends = allTrends, terms = new ArrayList<>();
+		terms.add(term.getId());
+		// find associated terms
+		for (Task task : facade.getTaskDAO().getAll())
+			if (task.getVariant() != null && task.getVariant().getTerm().getId() == term.getId()) {
+				Task innTask = facade.getTaskDAO().getOne(task.getId());
+				for (ProjectTermvariant ptv : innTask.getVariants())
+					if (!terms.contains(ptv.getVariant().getTerm().getId()))
+						terms.add(ptv.getVariant().getTerm().getId());
+			}
+		int tdc30 = innDAO.getTermDocCount(terms, changeDate(today, 0, 0, -30), today),
+				tdc3 = innDAO.getTermDocCount(terms, changeDate(today, 0, -3, 0), today),
+				tdc1 = innDAO.getTermDocCount(terms, changeDate(today, -1, 0, 0), today),
 				dc30 = innDAO.getDocCount(changeDate(today, 0, 0, -30), today, cats, trends),
 				dc3 = innDAO.getDocCount(changeDate(today, 0, -3, 0), today, cats, trends),
 				dc1 = innDAO.getDocCount(changeDate(today, -1, 0, 0), today, cats, trends);
 		int[][] stat = {
 				{
-					innDAO.getTermSum(term, changeDate(today, 0, 0, -30), today),
+					innDAO.getTermSum(terms, changeDate(today, 0, 0, -30), today),
 					tdc30,
 					dc30 == 0 ? 0 : (int)((float) tdc30 / (float) dc30 * 100.0)
 				}, {
-					innDAO.getTermSum(term, changeDate(today, 0, -3, 0), today),
+					innDAO.getTermSum(terms, changeDate(today, 0, -3, 0), today),
 					tdc3,
 					dc3 == 0 ? 0 : (int)((float) tdc3 / (float) dc3 * 100.0)
 				}, {
-					innDAO.getTermSum(term, changeDate(today, -1, 0, 0), today),
+					innDAO.getTermSum(terms, changeDate(today, -1, 0, 0), today),
 					tdc1,
 					dc1 == 0 ? 0 : (int)((float) tdc1 / (float) dc1 * 100.0)
 				}
@@ -833,8 +979,8 @@ public class Statistic {
 					break;
 				today.setMonth(curMonth);
 				List<Float> sum = new ArrayList<>();
-				sum.add((float) innDAO.getTermSum(term, today, getPlusMonth(today)));
-				float termDocCount = (float) innDAO.getTermDocCount(term, today, getPlusMonth(today));
+				sum.add((float) innDAO.getTermSum(terms, today, getPlusMonth(today)));
+				float termDocCount = (float) innDAO.getTermDocCount(terms, today, getPlusMonth(today));
 				sum.add(termDocCount);
 				float docCount = (float) innDAO.getDocCount(today, getPlusMonth(today), cats, trends);
 				sum.add(docCount == 0 ? 0 : (termDocCount / docCount));
@@ -846,20 +992,40 @@ public class Statistic {
 		
 		// get keywords list
 		List<Keyword> keys = new ArrayList<>();
-		for (BigInteger docID : innDAO.getTermDocsIDs(term, order))
+		for (BigInteger docID : innDAO.getTermDocsIDs(terms, order))
 			//keys.add(keyDAO.getOne(docID.longValue()));
-			keys.add(getKeyword(term.getId(), docID.longValue()));
+			keys.add(getKeyword(terms, docID.longValue()));
 		model.addAttribute("keys", keys);
 		time("keys");
+		List<String[]> docCats = new ArrayList<>();
+		for (Keyword key : keys)
+			for (DocumentCategory dc : key.getDoc().getCats()) {
+				String docCatID = String.format("%d-%d", dc.getDocument().getId(), dc.getCategory().getId()),
+						name = dc.getCategory().getName();
+				String[] docCat = {docCatID, name};
+				docCats.add(docCat);
+		}
+		model.addAttribute("docCats", docCats);
+		List<String[]> docTrends = new ArrayList<>();
+		for (Keyword key : keys)
+			for (DocumentTrend dt : key.getDoc().getTrends()) {
+				String docTrID = String.format("%d-%d", dt.getDocument().getId(), dt.getTrend().getId()),
+						name = dt.getTrend().getName();
+				String[] docTr = {docTrID, name};
+				docTrends.add(docTr);
+		}
+		model.addAttribute("docTrends", docTrends);
 		model.addAttribute("order", order);
-		
+
 		model.addAttribute("termid", id);
+		model.addAttribute("categs", facade.getCategoryDAO().getAll());
+		model.addAttribute("trends", facade.getTrendDAO().getAll());
 		return "viewTerm";
 	}
 	
-	private Keyword getKeyword(long termid, long docid) {
+	private Keyword getKeyword(List<Long> terms, long docid) {
 		Keyword res = new Keyword();
-		res.setCount(innDAO.getTermCount(termid, docid));
+		res.setCount(innDAO.getTermCount(terms, docid));
 		res.setDoc(docDAO.getOne(docid));
 		return res;
 	}
@@ -1260,7 +1426,7 @@ public class Statistic {
 	public String clearFlags(Model model) {
 		termExtraction = false;
 		extraction = false;
-		return docs(model);
+		return docs(model, null, null, null);
 	}
 	
 	private boolean termExtraction = false;

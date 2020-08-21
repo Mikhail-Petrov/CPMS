@@ -174,7 +174,7 @@ public class CommonModelAttributes {
 		Users user = Security.getUser(principal, userDAO);
 		long userId = user == null ? 0 : user.getId();
 		int result = newMes.containsKey(userId) ? newMes.get(userId) : -1;
-		if (result >= 0) return result;/*
+		if (result >= 0) return result; result = 0;/*
 		Set<MessageCenter> centers = null;
 		if (user == null) {
 			List<Message> messages = messageDAO.getAll();

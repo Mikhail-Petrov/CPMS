@@ -1,0 +1,29 @@
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="x_panel">
+			<div class="x_title">
+				<h3 th:text="'Trend radar'"></h3>
+			</div>
+			<div class="x_content">
+				<table class="table table-responsive table-striped">
+					<thead>
+						<tr>
+							<th><span th:text="'Category'"></span></th>
+							<th><span th:text="'Low impact'"></span></th>
+							<th><span th:text="'Medium impact'"></span></th>
+							<th><span th:text="'High impact'"></span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="category : ${catList}">
+							<td th:each="td : ${category}"><p th:each="p : ${td}" th:text="${p}"></p></td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+
+		</div>
+	</div>
+</div>
