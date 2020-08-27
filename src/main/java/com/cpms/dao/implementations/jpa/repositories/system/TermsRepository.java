@@ -40,12 +40,19 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 	public Integer getTermDocCount(@Param("terms") List<Long> terms, @Param("start_date") String start_date, @Param("finish_date") String finish_date);
 
 	@Query(value = "select count(d.id) from Document d " + 
-			"inner join DocumentCategory dc on (d.id = dc.documentid and dc.categoryid in (:cats))\n" + 
-			"inner join DocumentTrend dt on (d.id = dt.documentid and dt.trendid in (:trends))\n" + 
-			"where d.creationDate >= convert(datetime, :start_date, 20) and d.creationDate < convert(datetime, :finish_date, 20)",
+		"where d.id in (select dc.documentid from DocumentCategory dc where (d.id = dc.documentid and dc.categoryid in (:cats))) " + 
+		"and d.id in (select dt.documentid from DocumentTrend dt where (d.id = dt.documentid and dt.trendid in (:trends))) " + 
+		"and d.creationDate >= convert(datetime, :start_date, 20) and d.creationDate < convert(datetime, :finish_date, 20)",
 			nativeQuery = true)
 	public Integer getDocCount(@Param("start_date") String start_date, @Param("finish_date") String finish_date,
 			@Param("cats") List<Long> cats, @Param("trends") List<Long> trends);
+	
+	@Query(value = "select count(d.id) from Document d " + 
+		"where d.id in (select dc.documentid from DocumentCategory dc where (d.id = dc.documentid and dc.categoryid in (:cats))) " + 
+		"and d.creationDate >= convert(datetime, :start_date, 20) and d.creationDate < convert(datetime, :finish_date, 20)",
+			nativeQuery = true)
+	public Integer getDocCount(@Param("start_date") String start_date, @Param("finish_date") String finish_date,
+			@Param("cats") List<Long> cats);
 
 	@Query(value = "select top 25 d.id from Document d inner join Keyword k on k.documentid = d.ID and k.termid in (:terms) " + 
 			"group by d.id order by sum(k.count) desc",
@@ -102,13 +109,18 @@ public interface TermsRepository  extends JpaRepository<Term, Long> {
 			nativeQuery = true)
 	public void insertDT();
 
-	@Query(value = "select d.id from Document d " +
+	@Query(value = "select top 50 d.id from Document d " +
 			"inner join DocumentCategory dc on (d.id = dc.documentid and dc.categoryid in (:cats)) " + 
-			"inner join DocumentTrend dt on (d.id = dt.documentid and dt.trendid in (:trends)) " + 
+			"left join DocumentTrend dt on (d.id = dt.documentid and dt.trendid in (:trends)) " + 
 			"where d.creationDate >= convert(datetime, :start_date, 20) group by d.id, d.creationDate order by d.creationDate desc",
 			nativeQuery = true)
 	public List<BigInteger> getLastDocs(@Param("start_date") String start_date,
 			@Param("cats") List<Long> cats, @Param("trends") List<Long> trends);
+	
+	@Query(value = "select top 50 d.id from Document d " +
+			"where d.creationDate >= convert(datetime, :start_date, 20) group by d.id, d.creationDate order by d.creationDate desc",
+			nativeQuery = true)
+	public List<BigInteger> getLastDocs(@Param("start_date") String start_date);
 	
 	@Query(value = "select dc.categoryid, 'cat' from Keyword k, Document d, DocumentCategory dc\n" + 
 			"where k.termid = :term and k.documentid = d.id and dc.documentid = d.ID\n" + 

@@ -166,5 +166,10 @@ public class JPADocumentDAO extends AbstractDAO<Article> implements ICleanable {
 		else
 			return docsRepo.getFirstCreated();
 	}
+	
+	@Override
+	public List<Long> getIDs() {
+		return docsRepo.getNoKey();
+	}
 
 }

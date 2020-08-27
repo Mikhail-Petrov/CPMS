@@ -1,6 +1,7 @@
 package com.cpms.dao.implementations.jpa.repositories.system;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,7 @@ public interface DocsRepository  extends JpaRepository<Article, Long> {
 
 	@Query("select min(creationDate) from Article")
 	public Date getFirstCreated();
+
+	@Query("select id from Article where wordcount = 0 order by creationDate desc")
+	public List<Long> getNoKey();
 }

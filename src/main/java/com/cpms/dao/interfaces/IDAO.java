@@ -119,4 +119,6 @@ public interface IDAO<T extends AbstractDomainObject> {
 
 	public default Date getDate(boolean last) {return null;}
 	
+	public default List<Long> getIDs() {return null;}
+	
 }

@@ -90,7 +90,7 @@
                     </div>
 		<p id="curStatus"></p>
 		<p><a href="#" id="loadDocs" th:text="'Upload new articles'" class="btn btn-primary"></a></p>
-		<p><a href="#" id="plusButton" th:text="'Build keywords index'" class="btn btn-primary"></a></p>
+		<p><a href="#" id="index" th:text="'Build keywords index'" class="btn btn-primary"></a></p>
 		<p><a href="#" id="updDC" th:text="'Update document categories'" class="btn btn-primary"></a></p>
 		<p><a href="#" id="updDT" th:text="'Update document trends'" class="btn btn-primary"></a></p>
                 </div>
@@ -128,7 +128,8 @@
 				if (res.success)
 		         $("#curStatus").html('success');
 		        else {
-			        $("#curStatus").html(res.res + "...");
+		        	if (res.res != null)
+			        	$("#curStatus").html(res.res + (res.res === "" ? "" : "..."));
 		         	ajaxGroup(requestUrl);
 		        }
 			},
@@ -145,6 +146,6 @@
 	$("#updDC").on("click", function() {ajaxGroup(rootPath + 'stat/insertDC?cat=true')});
 	$("#updDT").on("click", function() {ajaxGroup(rootPath + 'stat/insertDC?cat=false')});
 	$("#loadDocs").on("click", function() {ajaxGroup(rootPath + 'stat/loadDocs')});
-	$("#plusButton").on("click", function() {ajaxGroup(rootPath + 'stat/analizeAllDoc')});
+	$("#index").on("click", function() {ajaxGroup(rootPath + 'stat/analizeAllDoc')});
 	/*]]>*/
 	</script>

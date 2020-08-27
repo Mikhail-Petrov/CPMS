@@ -342,6 +342,7 @@ public class Statistic {
 	public String innovations(Model model) {
 		model.addAttribute("_VIEW_TITLE", "Innovations");
 		model.addAttribute("_FORCE_CSRF", true);
+		model.addAttribute("_NAMED_TITLE", true);
 		
 		List<Category> cats = categoryDAO.getAll(), categs = new ArrayList<>();
 		List<String> categories = new ArrayList<>(), catIDs = new ArrayList<>();
@@ -415,8 +416,9 @@ public class Statistic {
 		model.addAttribute("_NAMED_TITLE", true);
 		
 		List<Article> docsList = new ArrayList<>();
-		getCatsTrends();
-		List<Long> cats = allCats, trends = allTrends;
+		//getCatsTrends();
+		List<Long> cats = null //allCats
+				, trends = null; //allTrends;
 		Category cat = null;
 		if (catid != null) {
 			cat = categoryDAO.getOne(catid);
@@ -813,8 +815,8 @@ public class Statistic {
 		
 		// get statistics for graph
 		Map<String, Integer> stats = new LinkedHashMap<>();
-		getCatsTrends();
-		List<Long> trends = allTrends;
+		//getCatsTrends();
+		List<Long> trends = null;//allTrends;
 		if (catid == null) catid = 0L;
 		Map<Long, List<Long>> catMap = new LinkedHashMap<>();
 		if (catid > 0)
@@ -850,12 +852,12 @@ public class Statistic {
 		if (catid > 0) {
 			Category curCat = facade.getCategoryDAO().getOne(catid);
 			int count = innDAO.getDocCount(startDate , finishDate, catMap.get(catid), trends);
-			stats.put(String.format("%s (%d) (id:%d)", curCat.getName(), count, curCat.getId()), count);
+			stats.put(String.format("<b><p>%s</p><p>%d</p></b> (id:%d)", curCat.getName(), count, curCat.getId()), count);
 		}
 		for (Category cat : allCategs)
 			if (cat.getId() != catid && catMap.containsKey(cat.getId())) {
 				int count = innDAO.getDocCount(startDate , finishDate, catMap.get(cat.getId()), trends);
-				stats.put(String.format("%s (%d) (id:%d)", cat.getName(), count, cat.getId()), count);
+				stats.put(String.format("<p>%s</p><p>%d</p> (id:%d)", cat.getName(), count, cat.getId()), count);
 			}
 
 		model.addAttribute("stats", stats);
@@ -1075,16 +1077,18 @@ public class Statistic {
 			method = RequestMethod.POST)
 	public IAjaxAnswer ajaxAnalizeDocs(
 			@RequestBody String json) {
-		nokeysDocs.clear();
-		for (Article obj : docDAO.getAll())
-			if (obj.getWordcount() == 0)
-				nokeysDocs.add(obj.getId());
+		//nokeysDocs.clear();
+		if (nokeysDocs.isEmpty())
+			for (Long obj : docDAO.getIDs())
+			//if (obj.getWordcount() == 0)
+				nokeysDocs.add(obj);
 		//for (Long id : nokeysDocs)
 			//extractTerms(docDAO.getOne(id));
 		if (nokeysDocs.isEmpty())
 			return new GroupAnswer(true);
 		extractTerms(docDAO.getOne(nokeysDocs.get(0)));
-		return new GroupAnswer();
+		nokeysDocs.remove(0);
+		return new GroupAnswer(String.format("Unindexed documents left: %d", nokeysDocs.size()));
 	}
 	@ResponseBody
 	@RequestMapping(value = "/insertDC",
@@ -1175,7 +1179,7 @@ public class Statistic {
 			}*/
 			Article article = getArticle(
 					curUrl, curWeb.getArticleMask(), curWeb.getDateFormat(), curWeb.getDateMask(), curWeb.getDateAttribute());
-			if (article.getCreationDate().before(compareDate)) {
+			if (article == null || article.getCreationDate() == null || article.getCreationDate().before(compareDate)) {
 				// too old articles
 				sites.clear();
 				urls.clear();
@@ -1398,6 +1402,8 @@ public class Statistic {
 		if (minDate != null)
 			newDoc.setCreationDate(minDate);
 		
+		if (oldUrls != null)
+			oldUrls.add(newDoc.getUrl());
 		return newDoc;
 	}
 	

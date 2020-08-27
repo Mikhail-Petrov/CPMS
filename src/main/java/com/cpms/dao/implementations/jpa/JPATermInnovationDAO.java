@@ -105,7 +105,8 @@ public class JPATermInnovationDAO extends JPATermDAO
 		String start_date, finish_date;
 		start_date = getDate(startDate);
 		finish_date = getDate(finishDate);
-		Integer ret = termRepo.getDocCount(start_date, finish_date, cats, trends);
+		Integer ret = trends == null ? termRepo.getDocCount(start_date, finish_date, cats) :
+			termRepo.getDocCount(start_date, finish_date, cats, trends);
 		if (ret == null)
 			ret = 0;
 		return ret;
@@ -141,7 +142,8 @@ public class JPATermInnovationDAO extends JPATermDAO
 
 	@Override
 	public List<BigInteger> getLastDocs(Date startDate, List<Long> cats, List<Long> trends) {
-		return termRepo.getLastDocs(getDate(startDate), cats, trends);
+		return cats == null ? termRepo.getLastDocs(getDate(startDate)) :
+			termRepo.getLastDocs(getDate(startDate), cats, trends);
 	}
 
 	@Override
