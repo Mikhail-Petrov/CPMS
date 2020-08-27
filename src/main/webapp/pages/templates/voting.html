@@ -1,0 +1,50 @@
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="x_panel">
+			<div class="x_title">
+				<h3 th:text="'Innovation voting'"></h3>
+			</div>
+			<div class="x_content">
+				<p><span th:text="'Budget'"></span>: <span th:text="${budget}+' FestoCOINS'"></span></p>
+				<p><span th:text="'Available Budget'"></span>: <span th:text="${available}+' FestoCOINS'"></span></p>
+				<table class="table table-responsive table-striped">
+					<thead>
+						<tr>
+							<th><span th:text="'Topics'"></span></th>
+							<th><span th:text="'Category'"></span></th>
+							<th><span th:text="'Spending'"></span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="inn, iStat : ${innList}">
+							<td><b><p th:text="${inn.name}"></p></b><p th:text="${inn.original}"></p></td>
+							<td><p th:each="tc : ${inn.categories}" th:text="${tc.category.name}"></p></td>
+							<td><input type="number" min="0" max="100" th:id="'spend-'+${inn.id}"
+								th:value="${spends[iStat.index]}"/></td>
+						</tr>
+					</tbody>
+				</table>
+				<span id="save" class="btn btn-primary btn-block" onclick="save();" th:text="'Save'"></span>
+			</div>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+			function save() {
+				var budget = /*[[${budget}]]*/ 0;
+				var spends = $("[id^=spend-]");
+				var spendings = "0:0";
+				for (var i = 0; i < spends.length; i++) {
+					var split = spends[i].id.split('spend-');
+					if (split.length < 2) continue;
+					var value = spends[i].value;
+					if (value === null || value === "" || value < 0)
+						value = 0;
+					spendings += ',' + split[1] + ":" + value;
+				}
+				document.location.href = rootPath + 'voting/save?spendings=' + spendings;
+			}
+			/*]]>*/
+			</script>
+		</div>
+	</div>
+</div>

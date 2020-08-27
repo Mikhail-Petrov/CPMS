@@ -38,6 +38,7 @@ import com.cpms.dao.implementations.jpa.JPATermInnovationDAO;
 import com.cpms.dao.implementations.jpa.JPATopicDAO;
 import com.cpms.dao.implementations.jpa.JPATrendDAO;
 import com.cpms.dao.implementations.jpa.JPAUserDAO;
+import com.cpms.dao.implementations.jpa.JPAVSessionDAO;
 import com.cpms.dao.implementations.jpa.JPAWebsiteDAO;
 import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
@@ -56,6 +57,7 @@ import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.Topic;
 import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.VotingSession;
 import com.cpms.data.entities.Website;
 import com.cpms.security.CustomUserDetailsService;
 import com.cpms.web.controllers.CommonModelAttributes;
@@ -293,6 +295,16 @@ public class PersistencyConfig {
     @Bean(name = "keywordDAO")
     public IDAO<Keyword> getKeywordDAO() {
     	return new JPAKeywordDAO();
+    }
+    
+    /**
+     * @return implementation of IDAO interface for Keyword entity
+     * @see IDAO
+     * @see Task
+     */
+    @Bean(name = "votingSessionDAO")
+    public IDAO<VotingSession> getVotingSessionDAO() {
+    	return new JPAVSessionDAO();
     }
     
     /**

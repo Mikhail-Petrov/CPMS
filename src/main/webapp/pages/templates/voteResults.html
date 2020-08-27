@@ -1,0 +1,58 @@
+		<div class="row">
+		<h2>Results</h2>
+		<div id="graph0"  style="width:800px;height:300px;position:relative;"></div>
+		</div><div class="two-buttons">
+		<table class="table table-responsive table-striped">
+		<thead>
+			<th th:text="'Topics'"></th>
+			<th th:text="'Spendings'"></th>
+		</thead>
+		<tbody>
+			<tr th:each="line, iStat : ${voteResults}">
+				<td th:text="${iStat.count}"></td>
+				<td th:text="${line.name}"></td>
+				<td th:text="${line.value}"></td>
+			</tr>
+		</tbody>
+		</table>
+		
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+	function labelFormatter(label, series) {
+		return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+	}	
+			function drawBars(sums, lab) {
+				var d1 = [];
+				for (var i = 0; i < sums.length; i++) {
+					d1.push({ label: sums[i].name,  data: sums[i].percent});
+				}
+
+    			$.plot("#graph0", d1, {
+    				series: {
+    					pie: {
+    						show: true,
+    			            radius: 1,
+        					label: {
+        						show: true,
+        		                radius: 3/4,
+        		                formatter: labelFormatter,
+        						background: { 
+        		                    opacity: 0.5,
+        		                    color: '#000'
+        		                }
+        					}
+    					}
+    				},
+				    legend: {
+				        show: false
+				    }
+    			});
+			}
+		      $(document).ready(function() {
+				var res = /*[[${voteResults}]]*/ 0;
+				drawBars(res, "");
+		      });
+			/*]]>*/
+			</script>
+		</div>

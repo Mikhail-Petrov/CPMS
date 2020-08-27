@@ -20,6 +20,7 @@ import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.Topic;
 import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.VotingSession;
 import com.cpms.data.entities.Website;
 import com.cpms.operations.interfaces.*;
 
@@ -46,6 +47,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Autowired
 	@Qualifier(value = "keywordDAO")
 	private IDAO<Keyword> keywordDAO;
+	
+	@Autowired
+	@Qualifier(value = "votingSessionDAO")
+	private IDAO<VotingSession> votingSessionDAO;
 	
 	@Autowired
 	@Qualifier(value = "docDAO")
@@ -154,6 +159,10 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	public void setKeywordDAO(IDAO<Keyword> keywordDAO) {
 		this.keywordDAO = keywordDAO;
 	}
+
+	public void setVotingSessionDAO(IDAO<VotingSession> votingSessionDAO) {
+		this.votingSessionDAO = votingSessionDAO;
+	}
 	
 	public void setSubprofiler(ISubprofiler subprofiler) {
 		this.subprofiler = subprofiler;
@@ -222,6 +231,11 @@ public class BasicFacade implements ICPMSFacade, InitializingBean {
 	@Override
 	public IDAO<Keyword> getKeywordDAO() {
 		return keywordDAO;
+	}
+
+	@Override
+	public IDAO<VotingSession> getVotingSessionDAO() {
+		return votingSessionDAO;
 	}
 
 	@Override

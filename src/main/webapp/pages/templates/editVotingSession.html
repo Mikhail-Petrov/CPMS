@@ -1,0 +1,86 @@
+		<div class="collection-object">
+		<form action="#" th:action="@{'/voting/session?' + ${_csrf.parameterName} + '=' + ${_csrf.token}}"
+				th:object="${votingSession}" method="post" id="sessionEditForm" enctype="multipart/form-data">
+			<h3 th:if="${create}" th:text="'Start new session'">Start new session</h3>
+			<h3 th:if="${!create}" th:text="'Update session'">Update session</h3>
+			<hr/>
+			<input type="hidden" th:field="*{id}" />
+   			<p th:text="'Start date'"></p>
+            <div class="row"><div class="col-md-12">
+            	<input type="date" class="form-control" th:field="*{startDate}" min="1970-01-01" max="2200-01-01"/>
+            </div></div>
+   			<p th:text="'End date'"></p>
+            <div class="row"><div class="col-md-12">
+            	<input type="date" class="form-control" th:field="*{endDate}" min="1970-01-01" max="2200-01-01"/>
+            </div></div>
+   			<p th:text="'Budget'"></p>
+            <div class="row"><div class="col-md-12">
+            	<input type="number" class="form-control" th:field="*{budget}" min="0" />
+            </div></div>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+	    $( "#startDate" ).datepicker({
+	    	  dateFormat: "yy-mm-dd"
+	    });
+	  } );
+  $( function() {
+	    $( "#endDate" ).datepicker({
+	    	  dateFormat: "yy-mm-dd"
+	    });
+	  } );
+  
+  $(document).ready(function() {
+      $("#sessionEditForm").keydown(function(event){
+        if(event.keyCode == 13) {
+          event.preventDefault();
+          return false;
+      }
+   });
+});
+  </script>
+
+   			<p th:text="'Experts'"></p>
+			<div class="row">
+				<div class="col-md-12">
+					<select id="performers" name="performers" size="6" multiple="true">
+						<option value="all" th:text="'All'">All</option>
+						<option th:each="expert : ${experts}" th:value="${expert.id}" th:text="${expert.name}">admin</option>
+					</select>
+				</div>
+			</div>
+   			<p th:text="'Innovations'"></p>
+   			<div class="row">
+   				<div class="col-md-12">
+   					<select id="innovations" name="innovations" size="6" multiple="true">
+   						<option value="all" th:text="'All'">All</option>
+   						<option th:each="inn : ${innovations}" th:value="${inn.id}" th:text="${inn.name}">admin</option>
+   					</select>
+   				</div>
+   			</div>
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+				var performers = /*[[${performers}]]*/ [];
+				$("#performers").val(performers);
+				var inns = /*[[${inns}]]*/ [];
+				$("#innovations").val(inns);
+			/*]]>*/
+			</script>
+			<p><input type="submit" class="btn btn-primary btn-block" th:value="${create}? #{editor.create} : #{editor.update}"
+				value="submit" id="submitBut" /></p>
+	<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			function hideOrShowElement(element, show) {
+				if (show) element.show();
+				else element.hide();
+			}
+
+            $("#taskEditForm").on('submit', function() {
+            });
+			
+			/*]]>*/
+			</script>
+		</form>
+		</div>

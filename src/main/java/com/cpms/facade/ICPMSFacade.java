@@ -14,6 +14,7 @@ import com.cpms.data.entities.Task;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.Topic;
 import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.VotingSession;
 import com.cpms.data.entities.Website;
 import com.cpms.operations.interfaces.*;
 
@@ -42,6 +43,8 @@ public interface ICPMSFacade {
 	public IDAO<Term> getTermDAO();
 	
 	public IDAO<Keyword> getKeywordDAO();
+	
+	public IDAO<VotingSession> getVotingSessionDAO();
 	
 	public IDAO<Motivation> getMotivationDAO();
 	
