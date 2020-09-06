@@ -87,7 +87,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               			"/editor/skill/delete", "/editor/skill/delete/force",
               			"/editor/profile",
               			"/editor/task", "/editor/task/status", "/editor/task/send",
-              			"/editor/skill/alternativeAsync")
+              			"/editor/skill/alternativeAsync",
+              			"/voting/session")
               	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
             	//.permitAll()
           	.antMatchers("/editor","/editor/**")

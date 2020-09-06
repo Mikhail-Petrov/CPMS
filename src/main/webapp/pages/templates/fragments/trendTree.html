@@ -228,10 +228,10 @@
 							$("#delId").val(res.id);
 							document.getElementById('createChildButton').setAttribute(
 									'onclick', 'ajaxTrendDialog(\'' + rootPath + 'trend/ajaxTrend\', -' + res.id + '); return false;');
-							$("#deleteLink").show();
+							$("#deleteTrendLink").show();
 							$("#createChildButton").show();
 						} else {
-							$("#deleteLink").hide();
+							$("#deleteTrendLink").hide();
 							$("#createChildButton").hide();
 						}
 						$("#del0").hide();

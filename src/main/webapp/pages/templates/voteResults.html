@@ -1,4 +1,9 @@
 		<div class="row">
+		<p th:text="'Select a session: '"></p>
+		<select id="sesSel">
+			<option th:each="ses : ${sesList}" th:value="${ses.key}" th:text="${ses.value}">session</option>
+		</select>
+		<button type="button" class="btn btn-primary btn-block" th:text="'Select'" onclick="selectButton()"></button>
 		<h2>Results</h2>
 		<div id="graph0"  style="width:800px;height:300px;position:relative;"></div>
 		</div><div class="two-buttons">
@@ -18,6 +23,13 @@
 		
 			<script th:inline="javascript">
 			/*<![CDATA[*/
+			
+			function selectButton(){
+				var id = $("#sesSel").val();
+				document.location.href = rootPath + 'voting/results?sessionId=' + id;
+			}
+			var sessionId = /*[[${sessionId}]]*/ 0;
+			$("#sesSel").val(sessionId);
 			
 	function labelFormatter(label, series) {
 		return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";

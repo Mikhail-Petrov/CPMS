@@ -147,4 +147,14 @@ public class JPATaskDAO extends AbstractDAO<Task> implements ICleanable {
 		super.rebuildIndex(entityManager, Task.class);
 	}
 
+	@Override
+	public List<Long> getIDs() {
+		return taskRepo.getInnovations();
+	}
+
+	@Override
+	public String getNameByID(long id) {
+		return taskRepo.getNameByID(id);
+	}
+
 }

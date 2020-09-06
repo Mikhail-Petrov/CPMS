@@ -37,9 +37,10 @@
                   <li><a th:href="@{/stat/radar}"><i class="fa fa-edit"></i> <span th:text="#{im.title.innovations}">Radar</span></a></li>
                   <li><a th:href="@{/viewer}"><i class="fa fa-edit"></i> <span th:text="#{navbar.experts}">Experts</span></a></li>
                   <li><a th:href="@{/skills}"><i class="fa fa-edit"></i> <span th:text="#{navbar.block1}">Skills</span></a></li>
+                  <li th:if="${isAdmin}"><a th:href="@{/skills/suggested}"><i class="fa fa-edit"></i> <span th:text="'Suggested skills'">Suggested Skills</span></a></li>
                   <li><a><i class="fa fa-info"></i><span th:text="'Community Voting'">Community Voting</span> <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
-                      <li><a th:href="@{/voting/session}"><span th:text="'Session Management'">Session Management</span></a></li>
+                      <li th:if="${isAdmin or isResident}"><a th:href="@{/voting/session}"><span th:text="'Session Management'">Session Management</span></a></li>
                       <li><a th:href="@{/voting}"><span th:text="'Innovation Voting'">Innovation Voting</span></a></li>
                       <li><a th:href="@{/voting/results}"><span th:text="'Voting Result'">Voting Result</span></a></li>
                     </ul>

@@ -34,6 +34,7 @@ import com.cpms.dao.interfaces.IDAO;
 import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Article;
+import com.cpms.data.entities.Competency;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
@@ -76,6 +77,92 @@ public class Skills {
 
     @Autowired
     private MessageSource messageSource;
+    
+	@RequestMapping(value = "/suggested",
+			method = RequestMethod.GET)
+	public String getDraft(Model model, HttpServletRequest request, Principal principal) {
+		model.addAttribute("_VIEW_TITLE", "Suggested skills");
+		model.addAttribute("_NAMED_TITLE", true);
+		model.addAttribute("_FORCE_CSRF", true);
+		
+		List<Skill> drafts = skillDao.getDraftsOfUser(0L);
+		List<String[]> skillsList = new ArrayList<>();
+		for (Skill draft : drafts) {
+			Long owner = draft.getOwner();
+			String userName = "admin";
+			if (owner != null && owner > 0) {
+				Users user = userDAO.getByUserID(owner);
+				if (user != null)
+					userName = user.getUsername();
+			}
+			String[] skill = {draft.getId() + "", draft.getName(), userName};
+			skillsList.add(skill);
+		}
+		model.addAttribute("skillsList", skillsList);
+		
+		return "suggested";
+	}
+	
+	@RequestMapping(value = "/addDraft",
+			method = RequestMethod.GET)
+	public String addDraft(Model model, HttpServletRequest request, Principal principal
+			, @RequestParam(name = "name", required = true) String name) {
+		Skill skill = new Skill(name, "");
+		long userId = 0;
+		Users user = Security.getUser(principal, userDAO);
+		if (user != null)
+			userId = user.getId();
+		skill.setDelUser(userId);
+		skill.setDelDate(new Date(System.currentTimeMillis()));
+		skill.setOwner(userId);
+		facade.getSkillDAO().insert(skill);
+		
+		if (user != null) {
+			Long profileId = user.getProfileId();
+			if (profileId != null && profileId > 0) {
+				Profile expert = facade.getProfileDAO().getOne(profileId);
+				if (expert != null) {
+					expert.addCompetency(new Competency(skill, 6));
+					facade.getProfileDAO().update(expert);
+				}
+			}
+		}
+		
+		return "redirect:/skills";
+	}
+	
+	@RequestMapping(value = "/saveDraft",
+			method = RequestMethod.GET)
+	public String saveDraft(@RequestParam(name = "id", required = true) Long id,
+			@RequestParam(name = "name", required = false) String name,
+			@RequestParam(name = "parentId", required = false) Long parentId) {
+		Skill skill = facade.getSkillDAO().getOne(id);
+		if (skill != null) {
+			skill.setDelDate(null);
+			skill.setDelUser(null);
+			skill.setOwner(null);
+			if (name != null && !name.isEmpty())
+				skill.setName(name);
+			if (parentId != null && parentId > 0 && parentId != id) {
+				Skill parent = facade.getSkillDAO().getOne(parentId);
+				if (parent != null)
+					skill.setParent(parent);
+			}
+			facade.getSkillDAO().update(skill);
+		}
+
+		return "redirect:/skills/suggested";
+	}
+	
+	@RequestMapping(value = "/deleteDraft",
+			method = RequestMethod.GET)
+	public String deleteDraft(@RequestParam(name = "id", required = true) Long id) {
+		Skill skill = facade.getSkillDAO().getOne(id);
+		if (skill != null)
+			facade.getSkillDAO().delete(skill);
+
+		return "redirect:/skills/suggested";
+	}
 
 	@ResponseBody
 	@RequestMapping(value = "/ajaxSearch",

@@ -2,10 +2,14 @@ package com.cpms.web.controllers;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -84,20 +88,26 @@ public class Voting {
 		return values;
 	}
 	
-	private long getExpertId() {
+	private long getExpertId(Principal principal) {
+		Users curUser = Security.getUser(principal, userDAO);
+		if (curUser != null && curUser.getProfileId() > 0) {
+			Profile pr = getExpert(curUser.getProfileId());
+			if (pr != null)
+				return pr.getId();
+		}
 		List<Users> all = userDAO.getAll();
 		for (Users user : all)
 			if (user.getProfileId() != null)
 				if (user.getProfileId() > 0) {
-					Profile pr = facade.getProfileDAO().getOne(user.getProfileId());
+					Profile pr = getExpert(user.getProfileId());
 					if (pr != null)
 						return pr.getId();
 				}
 		return 0;
 	}
 	
-	private VotingSession getSession(long expertId) {
-		VotingSession session = null;
+	private Long getSession() {
+		/*VotingSession session = null;
 		for (VotingSession vs : facade.getVotingSessionDAO().getAll()) {
 			session = vs;
 			for (VotingSessionUser vsu : vs.getUsers())
@@ -106,7 +116,13 @@ public class Voting {
 					break;
 				}
 		}
-		return session;
+		return session;*/
+		List<Long> ids = facade.getVotingSessionDAO().getIDs();
+		if (ids.isEmpty())
+			return 0L;
+		if (ids.get(0) == null)
+			ids.set(0, 0L);
+		return ids.get(0);
 	}
 	
 	@RequestMapping(value = {"/", ""},
@@ -115,30 +131,34 @@ public class Voting {
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", "Innovation Voting");
 		model.addAttribute("_FORCE_CSRF", true);
-		
-		long expertId = getExpertId();
+
+		long expertId = getExpertId(principal);
 		// define session
-		VotingSession session = getSession(expertId);
+		long sessionId = getSession();
 		// define session parameters for the user
 		List<Task> innList = new ArrayList<>();
 		List<Integer> spends = new ArrayList<>();
-		int budget = 100, available = 20;
-		if (session == null) {
-			List<Task> tasks = facade.getTaskDAO().getAll();
-			for (Task task : tasks)
-				if (task.getVariant() != null)
-					innList.add(task);
+		int budget = 0;
+		if (sessionId == 0) {
+			return "redirect:/voting/results";
 		} else {
-			session = facade.getVotingSessionDAO().getOne(session.getId());
-			budget = session.getBudget();
-			available = budget;
-			for (SessionInnovation si : session.getInnovations()) {
-				innList.add(si.getInnovation());
-				for (com.cpms.data.entities.Voting vote : si.getVotes())
-					if (vote.getExpert().getId() == expertId) {
-						available -= vote.getSpending();
-						spends.add(vote.getSpending());
-					}
+			VotingSession session = facade.getVotingSessionDAO().getOne(sessionId);
+			boolean inSession = principal == null;
+			if (!inSession)
+				for (VotingSessionUser vsu : session.getUsers())
+					if (vsu.getExpert().getId() == expertId) {
+						inSession = true;
+						break;
+			}
+			if (inSession) {
+				budget = session.getBudget();
+				for (SessionInnovation si : session.getInnovations()) {
+					innList.add(si.getInnovation());
+					for (com.cpms.data.entities.Voting vote : si.getVotes())
+						if (vote.getExpert().getId() == expertId) {
+							spends.add(vote.getSpending());
+						}
+				}
 			}
 		}
 		while (spends.size() < innList.size())
@@ -146,55 +166,68 @@ public class Voting {
 		model.addAttribute("innList", innList);
 		model.addAttribute("spends", spends);
 		model.addAttribute("budget", budget);
-		model.addAttribute("available", available);
 		
 		return "voting";
 	}
 	@RequestMapping(path = {"/results"}, 
 			method = RequestMethod.GET)
-	public String results(Model model, Principal principal) {
+	public String results(Model model, Principal principal, @RequestParam(name = "sessionId", required = false) Long sessionId) {
 		model.addAttribute("_NAMED_TITLE", true);
 		model.addAttribute("_VIEW_TITLE", "Voting Results");
 		model.addAttribute("_FORCE_CSRF", true);
-
-		long expertId = getExpertId();
-		// define session
-		VotingSession session = getSession(expertId);
-		if (session == null)
-			return "redirect:/voting";
-		session = facade.getVotingSessionDAO().getOne(session.getId());
-
-		// get results
-		List<VoteResults> voteResults = new ArrayList<>();
-		int sum = 0;
-		for (SessionInnovation si : session.getInnovations()) {
-			VoteResults res = new VoteResults();
-			res.setName(si.getInnovation().getName());
-			int value = 0;
-			for (com.cpms.data.entities.Voting vote : si.getVotes())
-				value += vote.getSpending();
-			res.setValue(value);
-			sum += value;
-			voteResults.add(res);
+		
+		// get sessions list
+		Map<Long, String> sesList = new HashMap<>();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+		for (VotingSession session : facade.getVotingSessionDAO().getAll()) {
+			String startDate = "null", endDate = "null";
+			if (session.getStartDate() != null)
+				startDate = df.format(session.getStartDate());
+			if (session.getEndDate() != null)
+				endDate = df.format(session.getEndDate());
+			sesList.put(session.getId(), String.format("%s - %s", startDate , endDate));
 		}
-		if (sum > 0)
-			for (VoteResults res : voteResults)
-				res.setPercent(res.getValue() * 100 / sum);
-		Collections.sort(voteResults);
+		model.addAttribute("sesList", sesList);
+
+		List<VoteResults> voteResults = new ArrayList<>();
+		// define session
+		if (sessionId == null || sessionId == 0)
+			sessionId = getSession();
+	
+		if (sessionId > 0) {
+			// get results
+			VotingSession session = facade.getVotingSessionDAO().getOne(sessionId);
+			int sum = 0;
+			for (SessionInnovation si : session.getInnovations()) {
+				VoteResults res = new VoteResults();
+				res.setName(si.getInnovation().getName());
+				int value = 0;
+				for (com.cpms.data.entities.Voting vote : si.getVotes())
+					value += vote.getSpending();
+				res.setValue(value);
+				sum += value;
+				voteResults.add(res);
+			}
+			if (sum > 0)
+				for (VoteResults res : voteResults)
+					res.setPercent(res.getValue() * 100 / sum);
+			Collections.sort(voteResults);
+		}
 		model.addAttribute("voteResults", voteResults);
+		model.addAttribute("sessionId", sessionId);
 		return "voteResults";
 	}
 	
 	@RequestMapping(path = {"/save"}, 
 			method = RequestMethod.GET)
 	public String skillDelete(Model model, Principal principal, @RequestParam(name = "spendings", required = false) String spendings) {
-		long expertId = getExpertId();
-		Profile expert = facade.getProfileDAO().getOne(expertId);
+		long expertId = getExpertId(principal);
+		Profile expert = getExpert(expertId);
 		// define session
-		VotingSession session = getSession(expertId);
-		if (session == null)
+		long sessionId = getSession();
+		if (sessionId == 0)
 			return "redirect:/voting";
-		session = facade.getVotingSessionDAO().getOne(session.getId());
+		VotingSession session = facade.getVotingSessionDAO().getOne(sessionId);
 
 		String[] spends = spendings.split(",");
 		for (int i = 0; i < spends.length; i++) {
@@ -222,20 +255,48 @@ public class Voting {
 				}
 		}
 		facade.getVotingSessionDAO().update(session);
-		return "redirect:/voting/session";
+		return "redirect:/voting";
 	}
 	
+	List<Profile> experts = new ArrayList<>();
+	List<Task> innovations = new ArrayList<>();
 	private List<Profile> getExperts() {
-		List<Users> users = userDAO.getAll();
-		List<Profile> experts = new ArrayList<>();
-		Collections.sort(users);
-		for (Users user : users)
-			if (user.getProfileId() != null) {
-				Profile expert = facade.getProfileDAO().getOne(user.getProfileId());
-				if (expert != null)
-					experts.add(expert);
+		List<Long> ids = facade.getProfileDAO().getIDs();
+		boolean change = ids.size() != experts.size();
+		if (!change)
+			for (Profile expert : experts)
+				if (!ids.contains(expert.getId())) {
+					change = true;
+					break;
+				}
+		if (change) {
+			experts.clear();
+			for (Long id : ids) {
+					Profile expert = facade.getProfileDAO().getOne(id);
+					if (expert != null)
+						experts.add(expert);
 			}
+		}
 		return experts;
+	}
+	private List<Task> getInnovations() {
+		List<Long> ids = facade.getTaskDAO().getIDs();
+		boolean change = ids.size() != innovations.size();
+		if (!change)
+			for (Task inn : innovations)
+				if (!ids.contains(inn.getId())) {
+					change = true;
+					break;
+				}
+		if (change) {
+			innovations.clear();
+			for (Long id : ids) {
+					Task inn = facade.getTaskDAO().getOne(id);
+					if (inn != null)
+						innovations.add(inn);
+			}
+		}
+		return innovations;
 	}
 	@RequestMapping(path = "/session", method = RequestMethod.GET)
 	public String task(Model model, Principal principal, @RequestParam(name = "id", required = false) Long id) {
@@ -246,11 +307,9 @@ public class Voting {
 		boolean create = false;
 		// temp: get last session
 		if (id == null) {
-			List<VotingSession> all = facade.getVotingSessionDAO().getAll();
-			if (!all.isEmpty())
-				id = all.get(all.size() - 1).getId();
+			id = getSession();
 		}
-		if (id == null) {
+		if (id == 0) {
 			session = new VotingSession();
 			create = true;
 		} else {
@@ -260,11 +319,21 @@ public class Voting {
 		
 		model.addAttribute("votingSession", session);
 		model.addAttribute("create", create);
-		model.addAttribute("experts", getExperts());
+		List<Profile> experts = new ArrayList<>();
+		for (Long taskId : facade.getProfileDAO().getIDs()) {
+			Profile expert = new Profile();
+			expert.setId(taskId);
+			expert.setName(facade.getProfileDAO().getNameByID(taskId));
+			experts.add(expert);
+		}
+		model.addAttribute("experts", experts);
 		List<Task> innovations = new ArrayList<>();
-		for (Task task : facade.getTaskDAO().getAll())
-			if (task.getVariant() != null)
-				innovations.add(task);
+		for (Long taskId : facade.getTaskDAO().getIDs()) {
+			Task task = new Task();
+			task.setId(taskId);
+			task.setName(facade.getTaskDAO().getNameByID(taskId));
+			innovations.add(task);
+		}
 		model.addAttribute("innovations", innovations);
 
 		List<Long> performers = new ArrayList<>();
@@ -279,12 +348,27 @@ public class Voting {
 		return "editVotingSession";
 	}
 
+	private Profile getExpert(long id) {
+		for (Profile expert : experts)
+			if (expert.getId() == id)
+				return expert;
+		return facade.getProfileDAO().getOne(id);
+	}
+
+	private Task getInnovation(long id) {
+		for (Task inn : innovations)
+			if (inn.getId() == id)
+				return inn;
+		return facade.getTaskDAO().getOne(id);
+	}
+	
 	private void updateUsers(VotingSession session, String users) {
 		Set<VotingSessionUser> oldVars = session.getUsers();
 		session.clearUsers();
 		if (users == null)
 			return;
 		String[] split = users.split(",");
+		boolean getExp = false;
 		for (int i = 0; i < split.length; i++) {
 			long userid = 0;
 			try {
@@ -292,16 +376,19 @@ public class Voting {
 			} catch (NumberFormatException e) {}
 			if (userid <= 0) continue;
 			boolean isOld = false;
-			Profile user = facade.getProfileDAO().getOne(userid);
-			if (user == null) continue;
 			for (VotingSessionUser tt : oldVars)
 				if (tt.getExpert().getId() == userid) {
 					session.addUser(tt);
 					isOld = true;
 					break;
 				}
-			if (!isOld)
+			if (!isOld) {
+				if (!getExp)
+					getExperts();
+				Profile user = getExpert(userid);
+				if (user == null) continue;
 				session.addUser(new VotingSessionUser(session, user));
+			}
 		}
 	}
 
@@ -311,6 +398,7 @@ public class Voting {
 		if (inns == null)
 			return;
 		String[] split = inns.split(",");
+		boolean getInn = false;
 		for (int i = 0; i < split.length; i++) {
 			long innid = 0;
 			try {
@@ -318,16 +406,19 @@ public class Voting {
 			} catch (NumberFormatException e) {}
 			if (innid <= 0) continue;
 			boolean isOld = false;
-			Task innovation = facade.getTaskDAO().getOne(innid);
-			if (innovation == null) continue;
 			for (SessionInnovation tt : oldVars)
 				if (tt.getInnovation().getId() == innid) {
 					session.addInnovation(tt);
 					isOld = true;
 					break;
 				}
-			if (!isOld)
+			if (!isOld) {
+				if (!getInn)
+					getInnovations();
+				Task innovation = getInnovation(innid);
+				if (innovation == null) continue;
 				session.addInnovation(new SessionInnovation(session, innovation));
+			}
 		}
 	}
 	
@@ -341,6 +432,7 @@ public class Voting {
 		}
 		boolean create = (recievedSession.getId() == 0);
 		if (users == null) users = "";
+		if (innovations == null) innovations = "";
 		
 		if (users.contains("all")) {
 			List<Profile> experts = getExperts();
@@ -366,7 +458,7 @@ public class Voting {
 			updateInnovations(session, innovations);
 			session = facade.getVotingSessionDAO().update(session);
 		}
-		return "redirect:/voting";
+		return "redirect:/voting/session";
 	}
 
 }

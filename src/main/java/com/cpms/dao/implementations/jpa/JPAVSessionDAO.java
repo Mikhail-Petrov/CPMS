@@ -1,6 +1,7 @@
 package com.cpms.dao.implementations.jpa;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -148,6 +149,11 @@ public class JPAVSessionDAO extends AbstractDAO<VotingSession> implements IClean
 	@Override
 	public void rebuildIndex() {
 		super.rebuildIndex(entityManager, VotingSession.class);
+	}
+
+	@Override
+	public List<Long> getIDs() {
+		return votingSessionRepo.getLastSession(new Date(System.currentTimeMillis()));
 	}
 
 }

@@ -29,10 +29,10 @@
   </script>
 	            </div>
 	        </div>
-			<p th:text="#{profile.availability}"></p>
+			<p th:text="#{profile.availability}" hidden="true"></p>
 			<!--p><input class="form-control" type="text" th:field="*{availability}" placeholder="Expert availability" th:placeholder="#{editor.placeholder.availability}"/>
 				<span th:if="${#fields.hasErrors('availability')}" th:errors="*{availability}">Name Error</span></p-->
-			<p class="row col-md-12">
+			<p class="row col-md-12" hidden="true">
 			<select th:field="*{availability}" size="4">
 				<option th:text="#{profile.availability.always}" value='1'>Always</option>
 				<option th:text="#{profile.availability.special}" value='2'>Only for special language questions</option>

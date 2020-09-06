@@ -16,12 +16,19 @@
 			<a id="createChildButton" href="#"><span class="input-group-btn two-buttons">
 				<button class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.child}">Create child</button>
 			</span></a>
-			<form action="#" th:action="@{/website/delete}" method="post" id="deleteLink">
+			<form action="#" th:action="@{/website/delete}" method="post" id="deleteWebsiteLink">
   		<textarea hidden="true" type="textarea" class="form-control" id="del0" name="del0"></textarea>
   		<input type="hidden" id='delId' name='delId'/>
 			<span class="input-group-btn two-buttons">
 				<button id="delButton" class="btn btn-primary btn-block" type="submit" th:text="#{skillPopup.delete}">Delete</button>
 			</span></form>
+		<script>
+		$("#deleteWebsiteLink").click(function(event){
+			if (!confirm("Are you sure you want to delete this website?")){
+	          event.preventDefault();
+	          return false;
+			}});
+		</script>
   		<form action="#" th:action="@{/website/alternativeAsync}" th:object="${website}" method="post" id="websiteCreate">
   		<select hidden="true" multiple="true" id="webSel" name="terms"></select>
   		<textarea type="textarea" hidden="true" class="form-control" id="html0" name="html0"></textarea>

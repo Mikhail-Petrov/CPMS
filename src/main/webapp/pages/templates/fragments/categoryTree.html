@@ -228,10 +228,10 @@
 							$("#delId").val(res.id);
 							document.getElementById('createChildButton').setAttribute(
 									'onclick', 'ajaxCategoryDialog(\'' + rootPath + 'category/ajaxCategory\', -' + res.id + '); return false;');
-							$("#deleteLink").show();
+							$("#deleteCategoryLink").show();
 							$("#createChildButton").show();
 						} else {
-							$("#deleteLink").hide();
+							$("#deleteCategoryLink").hide();
 							$("#createChildButton").hide();
 						}
 						$("#del0").hide();

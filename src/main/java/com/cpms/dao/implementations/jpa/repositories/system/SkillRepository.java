@@ -18,6 +18,9 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 	@Query("Select skill from Skill skill where skill.owner = :owner")
 	public List<Skill> findByDraftAndOwner(@Param("owner") Long owner);
 	
+	@Query("Select skill from Skill skill where skill.owner is not null")
+	public List<Skill> findDraft();
+	
 	@Query("Select skill from Skill skill where skill.parent = :parent and delDate is null")
 	public List<Skill> getChildren(@Param("parent") Skill parent);
 	

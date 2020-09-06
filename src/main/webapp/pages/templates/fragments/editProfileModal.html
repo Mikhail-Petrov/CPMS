@@ -51,8 +51,8 @@
 								</script>
 			<div class="row">
 			<!--<div class="two-buttons">-->
-   			<p th:text="#{editor.availability}"></p>
-                                <div class="row">
+   			<p th:text="#{editor.availability}" hidden="true"></p>
+                                <div class="row" hidden="true">
                                     <div class="col-md-12">
                                         <!-- input type="text" class="form-control" placeholder="Availability" th:field="*{availability}" th:placeholder="#{editor.placeholder.availability}"/-->
 									<select th:field="*{availability}" size="4">

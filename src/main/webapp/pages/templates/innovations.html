@@ -215,12 +215,18 @@
 						}
 						line += "<td><a target='_blank' href='" + rootPath + "stat/term?id=" + ids[i] + "'>analize</td>";
 						if (isInn) {
-							line += "<td><a href='" + rootPath + "stat/removeInn?id=" + ids[i] + "'>" +
+							line += "<td><a href='#a' onclick='deleteInn(" + ids[i] + ")'>" +
 									"<span class='btn btn-danger'><i class='fa fa-remove'></i></span></a></td>";
 						}
 						line += "</tr";
 						$("#" + tableName).append(line);
 					}
+				}
+				
+				function deleteInn(id) {
+					var conf = confirm("Are you sure you want to delete this innovation?");
+					if (conf)
+						document.location.href = rootPath + 'stat/removeInn?id=' + id;
 				}
 
 				// terms (by query) and innovations (by flag) search

@@ -33,7 +33,9 @@ public class JPASkillDraftableDAO extends JPASkillDAO
 	
 	@Override
 	public List<Skill> getDraftsOfUser(Long id) {
-		return skillRepo.findByDraftAndOwner(id);
+		if (id > 0)
+			return skillRepo.findByDraftAndOwner(id);
+		return skillRepo.findDraft();
 	}
 
 	@Override

@@ -12,7 +12,8 @@
 						<input type="text" class="form-control" id="skillFilter"/>
 					</div><div class="two-buttons">
 						<span id="find" class="btn btn-primary" th:text="'Find'" onclick="applySkFilter();"></span>
-					<span onclick='clearSkFilter();' class="btn btn-danger"><i class="fa fa-remove"></i></span>
+						<span onclick='clearSkFilter();' class="btn btn-danger"><i class="fa fa-remove"></i></span>
+						<span id="skillAdd" class="btn btn-primary" th:text="'Add'" onclick="addSkillDraft()"></span>
 					</div></div>
 					<p><span id="sss"></span></p>
 					
@@ -21,6 +22,11 @@
 	<script th:inline="javascript">
 	/*<![CDATA[*/
 
+		function addSkillDraft() {
+			var skillName = $("#skillFilter").val();
+			if (skillName != "")
+				document.location.href = rootPath + 'skills/addDraft?name=' + skillName;
+		}
 		function addSkChild(id, flag, term, kids) {
 			var html = "";
 			html += "<div id='sb" + id + "'>";

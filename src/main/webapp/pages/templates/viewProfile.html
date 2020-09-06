@@ -34,7 +34,7 @@
                                         </a>
                                     </div>
                                     <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
-                                    	<a th:href="@{/editor/profile/delete(id=${profile.id})}">
+                                    	<a th:onclick="'deleteProfile(' + ${profile.id} + ')'" href="#a">
                                         	<button type="button" class="btn btn-danger btn-block" th:text="#{profile.delete}"></button>
                                         </a>
                                     </div>
@@ -49,6 +49,11 @@
 				function changeData(compId) {
 					var newData = compId + "," + $("#" + compId).val();
 					$(competenciesData).val($(competenciesData).val() + ";" + newData);
+				}
+				function deleteProfile(id) {
+					var conf = confirm("Are you sure you want to delete this profile?");
+					if (conf)
+						document.location.href = rootPath + 'editor/profile/delete?id=' + id;
 				}
 			</script>
                                 <table class="table table-responsive table-striped">

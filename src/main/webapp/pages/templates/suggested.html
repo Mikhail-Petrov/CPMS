@@ -1,0 +1,80 @@
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="x_panel" th:if="${isAdmin}">
+			<div class="x_title">
+				<h3 th:text="'Suggested skills management'"></h3>
+			</div>
+			<div class="x_content">
+				<table class="table table-responsive table-striped">
+					<thead>
+						<tr>
+							<th><span th:text="'Suggested skill'"></span></th>
+							<th><span th:text="'User'"></span></th>
+							<th><span th:text="'Skill Category'"></span></th>
+							<th><span th:text="'Skill name'"></span></th>
+							<th><span th:text="'Actions'"></span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="skill : ${skillsList}">
+							<td th:text="${skill[1]}"></td>
+							<td th:text="${skill[2]}"></td>
+							<td><input type="number" th:id="'parent'+${skill[0]}" value="0" /><button type="button"
+								class="btn btn-primary" th:text="'Change'" th:onclick="'openTree('+${skill[0]}+')'"></button></td>
+							<td><input type="text" th:id="'name'+${skill[0]}" th:value="${skill[1]}"/></td>
+							<td><button type="button" class="btn btn-success" th:onclick="'saveDraft('+${skill[0]}+')'">✓</button>
+								<button type="button" class="btn btn-danger" th:onclick="'deleteDraft('+${skill[0]}+')'">
+									<i class="fa fa-remove"></i></button></td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="modal fade" id="parentSkillTree" tabindex="-1" role="dialog" aria-labelledby="parentSkillTree" aria-hidden="true">
+				    <div class="modal-dialog" role="document">
+				    <div class="modal-content">
+					<div class="modal-body">
+                    	<div th:replace="fragments/skillTree2 :: skillTree"></div>
+				  	</div>
+				  	</div>
+					</div>
+                </div>
+				<script>
+				var curSkill = 0;
+				function clickSkill(id) {
+					if ($("#parent" + curSkill).length > 0)
+						$("#parent" + curSkill).val(id);
+					$("#parentSkillTree").modal('hide');
+				}
+				function openTree(id) {
+					curSkill = id;
+					$("#parentSkillTree").modal('show');
+				}
+				function saveDraft(id) {
+					var name = $("#name" + id).val();
+					var href = rootPath + 'skills/saveDraft?id=' + id;
+					  // <!--
+					if (name != null && name != '')
+						href += '&name=' + name;
+					var parent = $("#parent" + id).val();
+					if (parent != null && parent != '')
+						href += '&parentId=' + parent;
+					  // -->
+					document.location.href = href;
+				}
+				function deleteDraft(id) {
+					document.location.href = rootPath + 'skills/deleteDraft?id=' + id;
+				}
+				</script>
+			</div>
+
+		</div>
+		<div class="x_panel" th:if="!${isAdmin}">
+			<div class="x_title">
+				<h3 th:text="#{users.management.unauth.title}"></h3>
+			</div>
+			<div class="x_content">
+				<span th:text="#{users.management.unauth.content}"></span>
+			</div>
+		</div>
+	</div>
+</div>

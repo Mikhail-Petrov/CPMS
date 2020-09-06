@@ -228,10 +228,10 @@
 							$("#delId").val(res.id);
 							document.getElementById('createChildButton').setAttribute(
 									'onclick', 'ajaxWebsiteDialog(\'' + rootPath + 'website/ajaxWebsite\', -' + res.id + '); return false;');
-							$("#deleteLink").show();
+							$("#deleteWebsiteLink").show();
 							$("#createChildButton").show();
 						} else {
-							$("#deleteLink").hide();
+							$("#deleteWebsiteLink").hide();
 							$("#createChildButton").hide();
 						}
 						$("#del0").hide();

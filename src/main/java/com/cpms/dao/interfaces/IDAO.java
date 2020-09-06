@@ -121,4 +121,6 @@ public interface IDAO<T extends AbstractDomainObject> {
 	
 	public default List<Long> getIDs() {return null;}
 	
+	public default String getNameByID(long id) {return null;}
+	
 }

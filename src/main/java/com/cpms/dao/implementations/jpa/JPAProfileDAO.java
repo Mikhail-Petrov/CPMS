@@ -131,4 +131,13 @@ public class JPAProfileDAO extends AbstractDAO<Profile> implements ICleanable {
 		super.rebuildIndex(entityManager, Profile.class);
 	}
 
+	@Override
+	public List<Long> getIDs() {
+		return profilesRepo.getExperts();
+	}
+
+	@Override
+	public String getNameByID(long id) {
+		return profilesRepo.getNameByID(id);
+	}
 }
