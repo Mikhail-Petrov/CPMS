@@ -394,4 +394,11 @@ public class Profile extends AbstractDomainObject implements Comparable<Profile>
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
+	
+	public boolean hasCompetency(Skill skill, int level) {
+		for (Competency comp : getCompetencies())
+			if (comp.getSkill().getId() == skill.getId() && comp.getLevel() >= level)
+				return true;
+		return false;
+	}
 }

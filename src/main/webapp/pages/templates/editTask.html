@@ -24,6 +24,7 @@
                                         <input type="date" class="form-control" th:field="*{dueDate}" min="1970-01-01" max="2100-01-01"/>
                                     </div>
                                 </div>
+       <div th:hidden="${task.variant == null}">
    			<p th:text="'Impact'"></p>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -48,6 +49,7 @@
 		</div></p>
 		<p id="taskSearchSS"></p>
 		<p id="taskSearchTerms"></p>
+		</div>
 		</div>
                                 <hr class="separator"/>
    			<h2 th:text="'Megatrends'"></h2>
@@ -92,6 +94,10 @@
 });
   </script>
    			<h2 th:text="'Skill requirements'"></h2>
+   				<a onclick="extractReq(0)" href="#a">
+   					<button type="button" class="btn btn-success btn-block" th:text="'Extract requirements'"></button>
+   				</a>
+   				<p id="extractStat"></p>
                                 <div class="row">
                                     <div class="col-md-12">
 									<!-- select id="skillSelector" size="7">
@@ -118,6 +124,63 @@
                             </div>
 							<script th:inline="javascript">
 							/*<![CDATA[*/
+								
+	// extracting requirements
+       	var statuses = ["Getting skills", "Extracting data", "Processing data", "Calculating requirements", "Adding requirements"];
+       	var curSt = 0;
+       	function extractReq(id) {
+       		var url = rootPath + 'skills/extractReq';
+			var inputArgs = [];
+			$("#extractStat").html("");
+			if (curSt > statuses.length || $("#name").val() === '')
+				return;
+			
+			$("#extractStat").html(statuses[curSt] + "...");
+			inputArgs.push(0);
+			inputArgs.push(curSt);
+			inputArgs.push($("#name").val());
+			
+			 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+		     var csrfToken = $("meta[name='_csrf']").attr("content");
+		     var headers = {};
+		     headers[csrfHeader] = csrfToken;
+	     
+			$.ajax({
+				url : url,
+				type: 'POST',
+				dataType: 'json',
+				contentType: 'application/json; charset=utf-8',
+				data : JSON.stringify(inputArgs),
+				headers: headers,
+				success: function (res) {
+					if (res.length == 1) {
+						$("#extractStat").html(res[0]);
+						curSt = 0;
+						return;
+					}
+					curSt++;
+					if (curSt == statuses.length) {
+						// add skills
+						for (var i = 1; i < res.length; i++) {
+							var vals = res[i].split("\n");
+							$("#skillSelector").val(vals[0]);
+							$("#reqLvl").val(vals[1]);
+							addSkill();
+						}
+						$("#skillSelector").val('');
+						$("#reqLvl").val(1);
+					}
+					extractReq(id);
+				},
+				error: function (xhRequest, ErrorText, thrownError) {
+					curSt = 0;
+					console.log('xhRequest: ' + xhRequest + "\n");
+					console.log('ErrorText: ' + ErrorText + "\n");
+					console.log('thrownError: ' + thrownError + "\n");
+					console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+				}
+			});
+       	}
 	// editing trends in project
 	function addTrend(id, name) {
 		if ($('#trendSel').children('option[value="' + id + '"]').length > 0) return;
@@ -200,6 +263,11 @@
 			for (var i = 0; i < skills.length; i++) {
 				var skill = skills[i];
 				if (skill === "") continue;
+				var split = skill.split("(");
+				if (split.length > 1) {
+					var id = split[split.length - 1].split(")")[0];
+					clickSkill(id);
+				}
 				skill = skill + //" (" + $("#skillSelector option:selected").val() + ")
 					": " + level;
 				buttonCode = /*[[#{editor.remove}]]*/ "";
@@ -231,7 +299,7 @@
 				<th data-field="group"><span th:text="#{motivations.group}"></span></th>
 				<th data-field="experts"><span th:text="#{navbar.experts}"></span></th>
 				<th data-field="gsl"><span th:text="#{profile.gsl}"></span></th>
-				<th data-field="availability"><span th:text="#{profile.availability}"></span></th>
+				<!--th data-field="availability"><span th:text="#{profile.availability}"></span></th-->
 				<th data-field="tasks"><span th:text="#{profile.gsl.1}"></span></th>
 				<th data-field="button"></th>
 			</tr>
@@ -322,7 +390,16 @@
             });
             $("#type").trigger('input');
             
-            
+            function choseGroup(idsStr) {
+				var ids = idsStr.split(',');
+				// Clear performers
+				$("#performers").val('');
+				$('#performers :first').prop('selected', false);
+				// Select recepients
+				for (var i = 1; i < ids.length; i++)
+					$('#performers option[value="' + ids[i] + '"]').prop('selected', true);
+			}
+
 
 			function ajaxGroup(requestUrl) {
 				
@@ -376,7 +453,7 @@
 								avgG += res.solutions[i][j].gsl[0];
 								curAva = res.solutions[i][j].availability;
 								//avgA += Math.floor(curAva);
-								avail += '<p>' + (curAva == "1" ? available1 : curAva = "2" ? available2 : curAva = "3" ? available3 : available4) + '</p>';
+								//avail += '<p>' + (curAva == "1" ? available1 : curAva = "2" ? available2 : curAva = "3" ? available3 : available4) + '</p>';
 								tasks += '<p>' + res.solutions[i][j].tasks + '</p>';
 								avgT += res.solutions[i][j].tasks;
 								ids += ',' + res.solutions[i][j].userId;
@@ -392,9 +469,9 @@
 									'<td>' + names + '<p><b>' + average + '</b></p></td>' +
 									'<td>' + gsl + '<p><b>' + Math.floor(avgG*100) + '%</b></p></td>' +
 									//'<td>' + avail + '<p>' + Math.floor(avgA) + '</p></td>' +
-									'<td>' + avail + '<p>-</p></td>' +
+									//'<td>' + avail + '<p>-</p></td>' +
 									'<td>' + tasks + '<p><b>' + Math.floor(avgT*10)/10 + '</b></p></td>' +
-									'<td><button type="button" class="btn btn-primary btn-block" onclick="choseGroup(\'' + ids + '\')">Chose</button></td></tr>');
+									'<td><button type="button" class="btn btn-primary btn-block" onclick="choseGroup(\'' + ids + '\')">Select</button></td></tr>');
 						}
 						$('#groupModal').show();
 			            $("#curStatus").html('');

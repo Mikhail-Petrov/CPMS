@@ -77,11 +77,6 @@
 											<input type="hidden" name="isFinal" id="isFinal" value="0"/>
 											<script>
 											$("#saveas").on('click', function() {$("#isFinal").val("1");});
-											function deleteTask(id) {
-												var conf = confirm("Are you sure you want to delete this task?");
-												if (conf)
-													document.location.href = rootPath + 'editor/task/delete?id=' + id;
-											}
 											</script>
                             </form>
 	                                <div class="row"
@@ -99,6 +94,13 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
                             	</table>
                             </div>
                             </div>
+											<script>
+											function deleteTask(id) {
+												var conf = confirm("Are you sure you want to delete this task?");
+												if (conf)
+													document.location.href = rootPath + 'editor/task/delete?id=' + id;
+											}
+											</script>
 	                                <div class="row" th:if="${isAdmin}">
 	                                    <div hidden='true' class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
 	                                        <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#createRequirementModal" th:text="#{task.requirement.add}"></button>
@@ -113,12 +115,18 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
 	                                        	<button type="button" class="btn btn-danger btn-block" th:text="#{task.delete}"></button>
 	                                        </a>
 	                                    </div>
+	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+	                                    	<a th:onclick="'extractReq(' + ${task.id} + ')'" href="#a">
+	                                        	<button type="button" class="btn btn-success btn-block" th:text="'Extract requirements'"></button>
+	                                        </a>
+	                                    </div>
 	                                </div>
 	                                <!--p><a th:href="@{/viewer/task/analize(id=${task.id})}">
 										<button id="analize" class="btn btn-primary btn-block" type="submit" th:text="'Analize'"></button>
 											</a></p>
 									<p id="statusLbl"></p-->
 	                                <br/>
+								<p id="extractStat"></p>
 								<p><b><span th:text="#{task.requirements}"></span></b></p>
                                 <form action="#" th:action="@{/editor/task/saveChanges}" th:object="${requirements}" method="post">
 			<!-- p th:if="${isAdmin}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p-->
@@ -204,5 +212,49 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
                 	            console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
                 	      }
                 	});
+                	}
+                	var statuses = ["Getting skills", "Extracting data", "Processing data", "Calculating requirements", "Adding requirements"];
+                	var curSt = 0;
+                	function extractReq(id) {
+                		var url = rootPath + 'skills/extractReq';
+        				var inputArgs = [];
+        				if (curSt > statuses.length) {
+        					document.location.href = rootPath + "viewer/task?id=" + id;
+        					return;
+        				}
+        				
+        				$("#extractStat").html(statuses[curSt] + "...");
+        				inputArgs.push(id);
+        				inputArgs.push(curSt);
+        				
+	       				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	       			     var csrfToken = $("meta[name='_csrf']").attr("content");
+	       			     var headers = {};
+	       			     headers[csrfHeader] = csrfToken;
+       			     
+        				$.ajax({
+        					url : url,
+        					type: 'POST',
+        					dataType: 'json',
+        					contentType: 'application/json; charset=utf-8',
+        					data : JSON.stringify(inputArgs),
+        					headers: headers,
+        					success: function (res) {
+        						if (res.length > 0) {
+        							$("#extractStat").html(res[0]);
+        							curSt = 0;
+        							return;
+        						}
+        						curSt++;
+        						extractReq(id);
+        					},
+        					error: function (xhRequest, ErrorText, thrownError) {
+        						curSt = 0;
+        						console.log('xhRequest: ' + xhRequest + "\n");
+        						console.log('ErrorText: ' + ErrorText + "\n");
+        						console.log('thrownError: ' + thrownError + "\n");
+        						console.log('JSON request: ' + JSON.stringify(inputArgs) + "\n");
+        					}
+        				});
                 	}
                 	</script>

@@ -185,7 +185,8 @@ public class Viewer {
 	}
 
 	@RequestMapping(value = "/tasks", method = RequestMethod.GET)
-	public String task(Model model, HttpServletRequest request, Principal principal) {
+	public String task(Model model, HttpServletRequest request, Principal principal
+			, @RequestParam(value = "type", required = false) Integer projectType) {
 		model.addAttribute("_VIEW_TITLE", "navbar.task");
 		model.addAttribute("_FORCE_CSRF", true);
 		List<Task> tasks = new ArrayList<>();
@@ -193,7 +194,12 @@ public class Viewer {
 		if (owner == null || !CommonModelAttributes.userHasRole(request, RoleTypes.EXPERT))
 			tasks = facade.getTaskDAO().getAll();
 		else for (TaskCenter center : owner.getTasks())
-			tasks.add(center.getTask());
+			if (center.getTask().getDelDate() == null)
+				tasks.add(center.getTask());
+		if (projectType != null)
+			for (int i = tasks.size() - 1; i >= 0; i--)
+				if (tasks.get(i).getProjectType() != projectType)
+					tasks.remove(i);
 		Collections.sort(tasks);
 		model.addAttribute("tasks", tasks);
 		return "tasks";
@@ -232,7 +238,8 @@ public class Viewer {
 		model.addAttribute("profile", attrProfile);
 		List<String> competencies = new ArrayList<String>();
 		for (Competency comp : profile.getCompetencies())
-			competencies.add(comp.getSkill().getPresentationName());
+			if (comp.getSkill().getDelDate() == null)
+				competencies.add(comp.getSkill().getPresentationName());
 		model.addAttribute("presentationProofs", profile.getPresentationProofs());
 		model.addAttribute("profileCompetencies", competencies);
 		model.addAttribute("_FORCE_CSRF", true);
@@ -339,7 +346,8 @@ public class Viewer {
 		model.addAttribute("task", task);
 		List<String> requirements = new ArrayList<String>();
 		for (TaskRequirement req : task.getRequirements())
-			requirements.add(req.getSkill().getPresentationName());
+			if (req.getSkill().getDelDate() == null)
+				requirements.add(req.getSkill().getPresentationName());
 		model.addAttribute("taskRequirements", requirements);
 		model.addAttribute("residentsCount", facade.getProfileDAO().count() + generatedProfiles.size());
 		model.addAttribute("requirementsCount", task.getRequirements().size());
@@ -391,9 +399,10 @@ public class Viewer {
 			ProfileActualization pa = new ProfileActualization(profile);
 			// add each competency that was required
 			for (TaskRequirement curReq : task.getRequirements())
-				for (Competency comp : profile.getCompetencies())
-					if (curReq.getSkill().equals(comp.getSkill()))
-						pa.addCompetency(comp, comp.getLevel());
+				if (curReq.getSkill().getDelDate() == null)
+					for (Competency comp : profile.getCompetencies())
+						if (curReq.getSkill().equals(comp.getSkill()))
+							pa.addCompetency(comp, comp.getLevel());
 			if (!pa.getCompetencies().isEmpty())
 				experts.add(pa);
 		}

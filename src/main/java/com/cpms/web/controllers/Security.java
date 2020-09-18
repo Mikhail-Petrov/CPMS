@@ -42,10 +42,12 @@ import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Task;
+import com.cpms.data.entities.TaskCenter;
 import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TestConfig;
 import com.cpms.exceptions.SessionExpiredException;
 import com.cpms.exceptions.WrongUserProfileException;
+import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RegistrationForm;
 import com.cpms.security.RoleTypes;
 import com.cpms.security.entities.Role;
@@ -64,6 +66,10 @@ import com.cpms.web.UserSessionData;
 public class Security {
 
 	public static String adminName = "admin", adminPassword = "admin";
+
+	@Autowired
+	@Qualifier(value = "facade")
+	private ICPMSFacade facade;
 
 	@Autowired
 	@Qualifier("userDAO")
@@ -242,12 +248,27 @@ public class Security {
 	}
 
 	@RequestMapping(path = { "/delete" }, method = RequestMethod.GET)
-	public String profileDelete(Model model, @RequestParam(name = "userId", required = true) Long id) {
+	public String profileDelete(Model model, Principal principal, @RequestParam(name = "userId", required = true) Long id) {
 		Users user = userDAO.getByUserID(id);
 		for (MessageCenter messageCenter : user.getInMessages()) {
 			Message message = messageCenter.getMessage();
 			message.removeRecipient(messageCenter);
 			messageDAO.update(message);
+		}
+		List<Task> tasks = new ArrayList<>();
+		List<Long> taskIDs = new ArrayList<>();
+		for (TaskCenter tc : user.getTasks())
+			if (!taskIDs.contains(tc.getTask().getId())) {
+				taskIDs.add(tc.getTask().getId());
+				tasks.add(tc.getTask());
+			}
+		for (Task task : tasks) {
+			task.removeRecepient(user);
+			taskDAO.update(task);
+		}
+		for (Task task : user.getOwnTasks()) {
+			task.setUser(null);
+			EditorTask.deleteTask(task, facade, principal, userDAO);
 		}
 		user = userDAO.getByUserID(id);
 		userDAO.deleteUser(user);

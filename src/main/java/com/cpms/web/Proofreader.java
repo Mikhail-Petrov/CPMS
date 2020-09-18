@@ -27,7 +27,7 @@ public class Proofreader {
 		setAllIndex(allIndex);
 		setCompletedDate(null);
 		for (TaskCenter center : tasks) {
-			if (center.getTask().getTarget().contains(lang.getCode())) {
+			if (lang != null && center.getTask().getTarget().contains(lang.getCode())) {
 				Date curDate;
 				if (center.getTask().getCompletedDate() == null)
 					curDate = new Date(System.currentTimeMillis());

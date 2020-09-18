@@ -2,7 +2,9 @@ package com.cpms.web.ajax;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.cpms.dao.interfaces.IUserDAO;
@@ -26,6 +28,7 @@ import com.cpms.web.Proofreader;
 public class GroupAnswer implements IAjaxAnswer {
 
 	private List<List<Proofreader>> solutions;
+	private Map<Long, Profile> profMap;
 	private List<String> groupNames;
 	private boolean success;
 	private String res;
@@ -45,6 +48,7 @@ public class GroupAnswer implements IAjaxAnswer {
 	public GroupAnswer(ICPMSFacade facade, IUserDAO userDAO, Task task) {
 		solutions = new ArrayList<>();
 		setGroupNames(new ArrayList<>());
+		profMap = new HashMap<>();
 		//int curSize = 1, curInd = 0;
 		List<Profile> profiles = facade.getProfileDAO().getAll();
 		String[] names = {"Most effective group", "Most available group", "Experienced group", "Group for learning"};
@@ -62,63 +66,62 @@ public class GroupAnswer implements IAjaxAnswer {
 		List<Integer> covered = new ArrayList<>();
 		//for (TaskRequirement req : task.getRequirements())
 			//covered.add(false);
-		String[] langCodes = task.getTarget().split(";");
+		/*String[] langCodes = task.getTarget().split(";");
 		List<Language> targets = new ArrayList<>(), langs = facade.getLanguageDAO().getAll();
 		for (int i = 0; i < langCodes.length; i++) {
 			targets.add(Language.findByCode(langCodes[i], langs));
+			covered.add(0);
+		}*/
+		List<TaskRequirement> reqs = new ArrayList<>();
+		for (TaskRequirement req : task.getRequirements()) {
+			reqs.add(req);
 			covered.add(0);
 		}
 		List<Proofreader> all = new ArrayList<>();
 		
 		// create competency matrix
 		List<List<Proofreader>> matrix = new ArrayList<>();
-		for (Language lan : targets)
+		for (int i = 0; i < reqs.size(); i++)
 			matrix.add(new ArrayList<>());
 		
 		while (!profiles.isEmpty()) {
 			// expert assessment
 			boolean isGood = true;
 			for (TaskRequirement req : task.getRequirements()) {
-				boolean match = false;
 				for (Competency comp : profiles.get(curIndex).getCompetencies())
-					if (comp.getSkill().getId() == req.getSkill().getId())
-						match = true;
-				if (!match) {
-					isGood = false;
+					if (comp.getSkill().getId() == req.getSkill().getId()){
+						isGood = true;
+						break;
+					}
+				if (isGood)
 					break;
-				}
 			}
+			
+			Users user = null;
 			if (isGood) {
-				isGood = false;
-				for (Language lan : targets) {
-					for (Proofreading pr : profiles.get(curIndex).getProofs())
-						if (pr.getTo().equals(lan)) {
-							isGood = true;
-							break;
-						}
-				}
+				user = userDAO.getByProfile(profiles.get(curIndex));
+				if (user == null)
+					isGood = false;
 			}
 			if (!isGood) {
 				profiles.remove(curIndex);
 				continue;
 			}
 			
-			Users user = userDAO.getByProfile(profiles.get(curIndex));
 			Set<TaskCenter> tasks = user.getTasks();
 			
-			// language cover check
-			for (int i = 0; i < targets.size(); i++) {
-				for (Proofreading pr : profiles.get(curIndex).getProofs())
-					if (pr.getTo().equals(targets.get(i))) {
-						covered.set(i, covered.get(i) + 1);
-						matrix.get(i).add(new Proofreader(all.size(), tasks, pr.getTo()));
-						break;
-					}
+			// competency cover check
+			for (int i = 0; i < reqs.size(); i++) {
+				if (profiles.get(curIndex).hasCompetency(reqs.get(i).getSkill(), reqs.get(i).getLevel())) {
+					covered.set(i, covered.get(i) + 1);
+					matrix.get(i).add(new Proofreader(all.size(), tasks, null));
+				}
 			}
 			
 			// need to add
 			Proofreader toAdd = new Proofreader(profiles.get(curIndex), facade, user);
 			all.add(toAdd);
+			profMap.put(toAdd.getId(), profiles.get(curIndex));
 			profiles.remove(curIndex);
 		}
 		
@@ -132,8 +135,8 @@ public class GroupAnswer implements IAjaxAnswer {
 		groupNames.add(names[1]);
 		// remove extra experts
 		double[] bestCoefs = {0,0,1,1,1,1}, worseCoefs = {1,1,0,0,0,0,0}, allCoefs = {1,1,1,1,1,1};
-		optimizeGroup(0, bestCoefs, covered, targets);
-		optimizeGroup(1, worseCoefs, covered, targets);
+		optimizeGroup(0, bestCoefs, covered, reqs);
+		optimizeGroup(1, worseCoefs, covered, reqs);
 
 		solutions.add(new ArrayList<>());
 		solutions.add(new ArrayList<>());
@@ -172,8 +175,8 @@ public class GroupAnswer implements IAjaxAnswer {
 				added1.set(line.get(bestIndex2).getAllIndex(), true);
 			}
 		}
-		optimizeGroup(2, allCoefs, null, targets);
-		optimizeGroup(3, allCoefs, null, targets);
+		optimizeGroup(2, allCoefs, null, reqs);
+		optimizeGroup(3, allCoefs, null, reqs);
 		
 		for (int i = solutions.size() - 1; i >= 0; i--)
 			if (solutions.get(i).isEmpty()) {
@@ -182,18 +185,21 @@ public class GroupAnswer implements IAjaxAnswer {
 			}
 	}
 	
-	private void optimizeGroup(int groupIndex, double[] coefs, List<Integer> covered, List<Language> targets) {
+	private void optimizeGroup(int groupIndex, double[] coefs, List<Integer> covered, List<TaskRequirement> reqs) {
 		ArrayList<Integer> covers;
 		if (covered == null) {
 			covers = new ArrayList<>();
-			for (int i = 0; i < targets.size(); i++)
+			for (int i = 0; i < reqs.size(); i++)
 				covers.add(0);
-			for (int i = 0; i < targets.size(); i++) {
-				for (Proofreader expert : solutions.get(groupIndex))
-					if (expert.getTargets().contains(targets.get(i).getCode())) {
+			for (int i = 0; i < reqs.size(); i++) {
+				for (Proofreader expert : solutions.get(groupIndex)) {
+					if (!profMap.containsKey(expert.getId()))
+						continue;
+					if (profMap.get(expert.getId()).hasCompetency(reqs.get(i).getSkill(), reqs.get(i).getLevel())) {
 						covers.set(i, covers.get(i) + 1);
 						break;
 					}
+				}
 			}
 		} else covers = new ArrayList<>(covered);
 		// find extra experts
@@ -201,8 +207,10 @@ public class GroupAnswer implements IAjaxAnswer {
 			List<Proofreader> toRemove = new ArrayList<>();
 			for (Proofreader expert : solutions.get(groupIndex)) {
 				boolean remove = true;
+				if (profMap.containsKey(expert.getId()))
 				for (int i = 0; i < covers.size(); i++) {
-					if (covers.get(i) == 1 && expert.getTargets().contains(targets.get(i).getCode())) {
+					if (covers.get(i) == 1 && profMap.get(expert.getId()).hasCompetency(
+							reqs.get(i).getSkill(), reqs.get(i).getLevel())) {
 						remove = false;
 						break;
 					}
@@ -223,8 +231,9 @@ public class GroupAnswer implements IAjaxAnswer {
 				}
 			}
 			// remove the worst
-			for (int i = 0; i < targets.size(); i++)
-				if (toRemove.get(worstIndex).getTargets().contains(targets.get(i).getCode()))
+			for (int i = 0; i < reqs.size(); i++)
+				if (profMap.containsKey(toRemove.get(worstIndex).getId()) &&
+						profMap.get(toRemove.get(worstIndex).getId()).hasCompetency(reqs.get(i).getSkill(), reqs.get(i).getLevel()))
 					covers.set(i, covers.get(i) - 1);
 			solutions.get(groupIndex).remove(toRemove.get(worstIndex));
 		}

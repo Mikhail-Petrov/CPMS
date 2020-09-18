@@ -1622,7 +1622,7 @@ public class Statistic {
 		return toReturn;
 	}
 	
-	private static String stemTermSt(String term, PorterStemmer stemmer) {
+	public static String stemTermSt(String term, PorterStemmer stemmer) {
 		term = term.toLowerCase();
 		stemmer.setCurrent(term);
 		stemmer.stem();
@@ -1653,7 +1653,7 @@ public class Statistic {
 		return stemmed;
 	}
 	
-	private String prepareToTokenize(String corpus) {
+	public static String prepareToTokenize(String corpus) {
 		// remove symbols and digits
 		/*String[] noizeSymbs = {",", ";", ".", "[", "]", "\"", "{", "}", "/", "\\", "!", "?", "#", "$", "‘", "’", "…",
 				"“", "”", "(", ")", "<", ">", "- ", " -", "+", "%", "*", ":", "--", "–", "—–", "&", "|", "~", "•"};

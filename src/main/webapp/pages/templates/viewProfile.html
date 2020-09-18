@@ -42,7 +42,7 @@
                                 <br/>
                                 <p><b><span th:text="#{profile.skills}"></span></b></p>
                                 <form action="#" th:action="@{/editor/profile/saveChanges}" th:object="${competencies}" method="post">
-			<p th:if="${isResident}"><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
+			<p><input type="submit" id="saveChangeSubmitButton" class="btn btn-primary btn-block" value="Save changes" th:value="#{profile.save}"/></p>
 			<input type="hidden" th:field="*{data}" id="competenciesData"/>
 			<input type="hidden" th:field="*{profileId}" th:value="${profile.id}"/>
 			<script>
@@ -57,10 +57,10 @@
 				}
 			</script>
                                 <table class="table table-responsive table-striped">
-                                    <tr th:each="competency : ${profile.competencies}">
+                                    <tr th:each="competency : ${profile.competencies}" th:if="${competency.skill.delDate==null}">
                                         <td>
                                             <span th:text="${competency.skill.presentationName} + ' - ' + ${competency.level} + ' / ' + ${competency.skill.maxLevel}"></span>
-                                            <div class="btn-group" role="group" style="margin-left: 10px;" th:if="${isResident}">
+                                            <div class="btn-group" role="group" style="margin-left: 10px;">
                                             	<a th:href="@{/editor/competency/delete(id=${competency.id}, profileId=${profile.id})}">
                                             		<button type="button" class="btn btn-danger"><i class="fa fa-remove"></i></button>
                                                 </a>

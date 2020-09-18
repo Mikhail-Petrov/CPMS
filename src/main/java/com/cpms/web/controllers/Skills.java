@@ -3,15 +3,19 @@ package com.cpms.web.controllers;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.util.Version;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.tartarus.snowball.ext.PorterStemmer;
 
 import com.cpms.dao.interfaces.IApplicationsService;
 import com.cpms.dao.interfaces.IDAO;
@@ -35,9 +40,11 @@ import com.cpms.dao.interfaces.IDraftableSkillDaoExtension;
 import com.cpms.dao.interfaces.IUserDAO;
 import com.cpms.data.entities.Article;
 import com.cpms.data.entities.Competency;
+import com.cpms.data.entities.Keyword;
 import com.cpms.data.entities.Profile;
 import com.cpms.data.entities.Skill;
 import com.cpms.data.entities.Task;
+import com.cpms.data.entities.TaskRequirement;
 import com.cpms.exceptions.WrongJsonException;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.RoleTypes;
@@ -77,6 +84,228 @@ public class Skills {
 
     @Autowired
     private MessageSource messageSource;
+
+    private List<String> skillTerms = new ArrayList<>(), texts = new ArrayList<>();
+    private Map<Long, Map<Integer, Integer>> X = new HashMap<>();
+    private List<Map<Integer, Integer>> Y = new ArrayList<>();
+    private List<Skill> reqsToAdd = new ArrayList<>();
+    
+    private class SkillCos implements Comparable<SkillCos> {
+    	private double cos;
+    	private Skill skill;
+
+    	public SkillCos(Skill skill, double cos) {
+    		setSkill(skill);
+    		setCos(cos);
+    	}
+		@Override
+		public int compareTo(SkillCos o) {
+			return Double.compare(o.getCos(), getCos());
+		}
+
+		public double getCos() {
+			return cos;
+		}
+
+		public void setCos(double cos) {
+			this.cos = cos;
+		}
+
+		public Skill getSkill() {
+			return skill;
+		}
+
+		public void setSkill(Skill skill) {
+			this.skill = skill;
+		}
+    	
+    }
+	@ResponseBody
+	@RequestMapping(value = "/extractReq",
+			method = RequestMethod.POST)
+	public List<Object> extractReq(
+			@RequestBody String json) {
+		List<Object> values = DashboardAjax.parseJson(json, messageSource);
+		Long taskId = values.size() > 0 ? Long.parseLong(values.get(0).toString()) : 0;
+		Integer curSt = values.size() > 1 ? (Integer) values.get(1) : 0;
+		String taskName = values.size() > 2 ? (String) values.get(2) : "";
+		switch(curSt) {
+		case 0:
+			// get skills
+			List<Skill> skills = facade.getSkillDAO().getAll();
+			skillTerms.clear();
+			X.clear();
+			PorterStemmer stemmer = new PorterStemmer();
+			List<String> stopWords = Arrays.asList(new String[]{"a", "about", "above", "after", "again", "against", "ain", "all", "am", "an", "and", "any", "are", "aren", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can", "couldn", "couldn't", "d", "did", "didn", "didn't", "do", "does", "doesn", "doesn't", "doing", "don", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn", "hadn't", "has", "hasn", "hasn't", "have", "haven", "haven't", "having", "he", "her", "here", "hers", "herself", "him", "himself", "his", "how", "i", "if", "in", "into", "is", "isn", "isn't", "it", "it's", "its", "itself", "just", "ll", "m", "ma", "me", "mightn", "mightn't", "more", "most", "mustn", "mustn't", "my", "myself", "needn", "needn't", "no", "nor", "not", "now", "o", "of", "off", "on", "once", "only", "or", "other", "our", "ours", "ourselves", "out", "over", "own", "re", "s", "same", "shan", "shan't", "she", "she's", "should", "should've", "shouldn", "shouldn't", "so", "some", "such", "t", "than", "that", "that'll", "the", "their", "theirs", "them", "themselves", "then", "there", "these", "they", "this", "those", "through", "to", "too", "under", "until", "up", "ve", "very", "was", "wasn", "wasn't", "we", "were", "weren", "weren't", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "won", "won't", "wouldn", "wouldn't", "y", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves", "could", "he'd", "he'll", "he's", "here's", "how's", "i'd", "i'll", "i'm", "i've", "let's", "ought", "she'd", "she'll", "that's", "there's", "they'd", "they'll", "they're", "they've", "we'd", "we'll", "we're", "we've", "what's", "when's", "where's", "who's", "why's", "would"});
+			for (Skill skill : skills) {
+				if (skill.getDelDate() != null) continue;
+				if (skill.getParent() == null) continue;
+			// calculate terms for skill
+				String[] tokens = Statistic.prepareToTokenize(skill.getName()).split(" ");
+				Map<Integer, Integer> counts = new HashMap<>();
+				for (int i = 0; i < tokens.length; i++) {
+					if (stopWords.contains(tokens[i].toLowerCase())) continue;
+					String word = Statistic.stemTermSt(tokens[i], stemmer).trim();
+					if (skillTerms.contains(word)) {
+						int index = skillTerms.indexOf(word), value = 0;
+						if (counts.containsKey(index))
+							value = counts.get(index);
+						counts.put(index, value + 1);
+					} else {
+						counts.put(skillTerms.size(), 1);
+						skillTerms.add(word);
+					}
+				}
+				X.put(skill.getId(), counts);
+			}
+			break;
+		case 1:
+			if (taskId > 0) {
+				Task innovation = facade.getTaskDAO().getOne(taskId);
+				if (innovation == null)
+					return returnError("innovation not found");
+				taskName = innovation.getName();
+			}
+			// google this innovation in monster.com
+			texts.clear();
+			for (int page = 0; page < 5 && texts.size() < 10; page++) {
+				String res = googleMonster(taskName.replace(" ", "+"), 0);
+				if (!res.isEmpty()) {
+					return returnError(res);
+				}
+			}
+			if (texts.isEmpty())
+				return returnError("dice.com is not available");
+				//return returnError("monster.com is not available");
+			break;
+		case 2:
+			// calculate terms for the innovation
+			Y.clear();
+			stemmer = new PorterStemmer();
+			for (String text : texts) {
+			// calculate terms for text
+				String[] tokens = Statistic.prepareToTokenize(text).split(" ");
+				Map<Integer, Integer> counts = new HashMap<>();
+				for (int i = 0; i < tokens.length; i++) {
+					String word = Statistic.stemTermSt(tokens[i], stemmer).trim();
+					if (skillTerms.contains(word)) {
+						int index = skillTerms.indexOf(word), value = 0;
+						if (counts.containsKey(index))
+							value = counts.get(index);
+						counts.put(index, value + 1);
+					}
+				}
+				Y.add(counts);
+			}
+			texts.clear();
+			skillTerms.clear();
+			break;
+		case 3:
+			// calculate cos sum for each skill and get the best ones
+			skills = facade.getSkillDAO().getAll();
+			List<SkillCos> skillsCos = new ArrayList<>();
+			for (Skill skill : skills) {
+				if (!X.containsKey(skill.getId()))
+					continue;
+				double cos = 0;
+				Map<Integer, Integer> x = X.get(skill.getId());
+				for (Map<Integer, Integer> y : Y) {
+					double ab = 0, a2 = 0, b2 = 0;
+					for (Entry<Integer, Integer> aa : x.entrySet()) {
+						int a = aa.getValue();
+						a2 += a*a;
+						if (y.containsKey(aa.getKey()))
+							ab += a * y.get(aa.getKey());
+					}
+					if (ab == 0)
+						continue;
+					for (Entry<Integer, Integer> bb : y.entrySet())
+						b2 += bb.getValue() * bb.getValue();
+					if (a2 > 0 && b2 > 0)
+						cos += ab / Math.sqrt(a2) / Math.sqrt(b2);
+				}
+				SkillCos skillCos = new SkillCos(skill, cos);
+				skillsCos.add(skillCos);
+			}
+			X.clear();
+			Y.clear();
+			Collections.sort(skillsCos);
+			reqsToAdd.clear();
+			for (int i = 0; i < 5 && i < skillsCos.size(); i++)
+				if (skillsCos.get(i).getCos() > 0)
+					reqsToAdd.add(skillsCos.get(i).getSkill());
+			break;
+		case 4:
+			// add requirements to the task
+			if (taskId > 0) {
+				// add to the existed task
+				Task innovation = facade.getTaskDAO().getOne(taskId);
+				if (innovation == null)
+					return returnError("innovation not found");
+				for (int i = 0; i < reqsToAdd.size(); i++) {
+					Skill skill = reqsToAdd.get(i);
+					if (skill == null) continue;
+					int level = skill.getMaxLevel() - i;
+					if (level < 1)
+						level = 1;
+					TaskRequirement req = new TaskRequirement(skill, level);
+					innovation.addRequirement(req);
+				}
+				reqsToAdd.clear();
+				facade.getTaskDAO().update(innovation);
+			} else {
+				// return for the new task
+				List<Object> res = new ArrayList<>();
+				res.add("");
+				for (int i = 0; i < reqsToAdd.size(); i++) {
+					Skill skill = reqsToAdd.get(i);
+					if (skill == null) continue;
+					int level = skill.getMaxLevel() - i;
+					if (level < 1)
+						level = 1;
+					//res.add(String.format("%d:%d", skill.getId(), level));
+					res.add(String.format("|%s (%d)\n%d", skill.getName(), skill.getId(), level));
+				}
+				return res;
+			}
+		}
+		return new ArrayList<>();
+	}
+	
+	private List<Object> returnError(String mes) {
+		List<Object> error = new ArrayList<>();
+		error.add(mes);
+		return error;
+	}
+	
+	private String googleMonster(String name, int page) {
+		//String URL = "https://www.google.com/search?q=site:job-openings.monster.com+%22" + name + "%22&hl=en";
+		//String URL = "https://www.google.com/search?q=site:dice.com/jobs/detail+%22" + name + "%22&hl=en";
+		String URL = "https://www.indeed.com/jobs?q=" + name + "&l=";
+		if (page > 0)
+			URL += "&start=" + (page * 10);
+		Document google = Statistic.getDoc(URL);
+		if (google == null)
+			return "indeed.com is not available";
+			//return "Google is not available";
+		//Elements links = google.select("div[class='r'] a");
+		//Elements links = google.select("a[href^='/url']");
+		Elements links = google.select("a[class='jobtitle turnstileLink ']");
+		for (Element link : links) {
+			Document doc = Statistic.getDoc(link.absUrl("href"));
+			if (doc == null)
+				continue;
+			/*Elements text = doc.select("div[name='sanitizedHtml']");
+			if (text != null && !text.isEmpty())
+				texts.add(text.text());
+			if (doc.text() != null && !doc.text().isEmpty())
+				texts.add(doc.text());*/
+			Elements text = doc.select("div[class='jobsearch-jobDescriptionText']");
+			if (text != null && !text.isEmpty())
+				texts.add(text.text());
+		}
+		return "";
+	}
     
 	@RequestMapping(value = "/suggested",
 			method = RequestMethod.GET)
@@ -117,6 +346,7 @@ public class Skills {
 		skill.setOwner(userId);
 		facade.getSkillDAO().insert(skill);
 		
+		String ret = "redirect:/skills";
 		if (user != null) {
 			Long profileId = user.getProfileId();
 			if (profileId != null && profileId > 0) {
@@ -124,11 +354,12 @@ public class Skills {
 				if (expert != null) {
 					expert.addCompetency(new Competency(skill, 6));
 					facade.getProfileDAO().update(expert);
+					ret = "redirect:/viewer/profile?id=" + expert.getId();
 				}
 			}
 		}
 		
-		return "redirect:/skills";
+		return ret;
 	}
 	
 	@RequestMapping(value = "/saveDraft",

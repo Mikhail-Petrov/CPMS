@@ -24,6 +24,7 @@ import com.cpms.data.AbstractDomainObject;
 import com.cpms.data.entities.Language;
 import com.cpms.data.entities.Message;
 import com.cpms.data.entities.MessageCenter;
+import com.cpms.data.entities.Task;
 import com.cpms.data.entities.TaskCenter;
 import com.cpms.exceptions.DataAccessException;
 import com.cpms.security.RoleTypes;
@@ -76,6 +77,10 @@ public class Users extends AbstractDomainObject implements Comparable<Users> {
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "uid")
 	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
 	private Set<TaskCenter> tasks;
+
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+	@Cascade({CascadeType.DELETE, CascadeType.DETACH})
+	private Set<Task> ownTasks;
 	
 	public boolean isHashed() {
 		return hashed;
@@ -254,6 +259,14 @@ public class Users extends AbstractDomainObject implements Comparable<Users> {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Set<Task> getOwnTasks() {
+		return ownTasks;
+	}
+
+	public void setOwnTasks(Set<Task> ownTasks) {
+		this.ownTasks = ownTasks;
 	}
 
 }

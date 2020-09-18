@@ -245,7 +245,7 @@ public class EditorTask {
 						task.setStatus("1");
 						task.setCost(0);
 						task.setImpact(0);
-						task.setProjectType(0);
+						task.setProjectType(1);
 						task.setVariant(tv);
 						if (!term.isInn()) {
 							term.setInn(true);
@@ -284,7 +284,7 @@ public class EditorTask {
 		model.addAttribute("users", users);
 		List<String> names = new ArrayList<>();
 		for (Task curTask : facade.getTaskDAO().getAll())
-			if (!curTask.equals(task))
+			if (curTask.getDelDate() == null && !curTask.equals(task))
 				names.add(curTask.getName());
 		model.addAttribute("names", names);
 		List<Long> performers = new ArrayList<>();
@@ -309,6 +309,8 @@ public class EditorTask {
 		model.addAttribute("categories", categories);
 		List<String[]> reqs = new ArrayList<>();
 		for (TaskRequirement tr : task.getRequirements()) {
+			if (tr.getSkill().getDelDate() != null)
+				continue;
 			String[] req = {String.format("|%s (%d)", tr.getSkill().getName(), tr.getSkill().getId()), tr.getLevel() + ""};
 			reqs.add(req);
 		}
@@ -490,7 +492,8 @@ public class EditorTask {
 			if (reqs[i].isEmpty()) continue;
 			try {
 				int level = Integer.parseInt(reqs[i].split("\\): ")[1]);
-				long skillID = Long.parseLong(reqs[i].split("\\): ")[0].split("\\(")[1]);
+				String[] split = reqs[i].split("\\): ")[0].split("\\(");
+				long skillID = Long.parseLong(split[split.length - 1]);
 				Skill skill = facade.getSkillDAO().getOne(skillID);
 				task.addRequirement(new TaskRequirement(skill, level));
 			} catch (Exception e) {}

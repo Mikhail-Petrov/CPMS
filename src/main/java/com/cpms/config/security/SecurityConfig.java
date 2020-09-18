@@ -80,7 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           	.antMatchers("/").permitAll()
           	.antMatchers("/api","/api/**")
           	.permitAll()
-          	.antMatchers("/viewer","/viewer/**")
+          	.antMatchers("/viewer/**")
           	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
           		//.permitAll()
              .antMatchers("/editor/skill", "/editor/skill/alternative",
@@ -88,7 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
               			"/editor/profile",
               			"/editor/task", "/editor/task/status", "/editor/task/send",
               			"/editor/skill/alternativeAsync",
-              			"/voting/session")
+              			"/voting", "/voting/results")
               	.hasAnyRole(RoleTypes.EXPERT.toString(), RoleTypes.MANAGER.toString())
             	//.permitAll()
           	.antMatchers("/editor","/editor/**")
@@ -105,7 +105,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       			.authenticated()
           	.antMatchers("/security/me")
           		.authenticated()
-          	.antMatchers("/security/register")
+          	.antMatchers("/viewer", "/skills", "/security/register", "/voting/session")
           		.hasRole(RoleTypes.MANAGER.toString())
           	.and()
       .formLogin()

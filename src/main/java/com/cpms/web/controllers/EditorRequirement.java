@@ -60,7 +60,8 @@ public class EditorRequirement {
 		Task task = facade.getTaskDAO().getOne(taskId);
 		List<String> requirements = new ArrayList<String>();
 		for (TaskRequirement req : task.getRequirements())
-			requirements.add(req.getSkill().getPresentationName());
+			if (req.getSkill().getDelDate() == null)
+				requirements.add(req.getSkill().getPresentationName());
 		model.addAttribute("profileCompetencies", requirements);
 		TaskRequirement requirement;
 		boolean create;

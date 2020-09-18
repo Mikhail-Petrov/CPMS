@@ -20,8 +20,12 @@
 						<tr th:each="skill : ${skillsList}">
 							<td th:text="${skill[1]}"></td>
 							<td th:text="${skill[2]}"></td>
-							<td><input type="number" th:id="'parent'+${skill[0]}" value="0" /><button type="button"
-								class="btn btn-primary" th:text="'Change'" th:onclick="'openTree('+${skill[0]}+')'"></button></td>
+							<td><input type="number" th:id="'parent'+${skill[0]}" value="0" hidden="true" />
+								<span th:id="'parName'+${skill[0]}"></span>
+								<button type="button" class="btn btn-primary" th:onclick="'openTree('+${skill[0]}+')'"
+								th:text="'Change'"></button>
+								<button type="button" class="btn btn-danger" th:onclick="'deleteParent('+${skill[0]}+')'">
+									<i class="fa fa-remove"></i></button></td>
 							<td><input type="text" th:id="'name'+${skill[0]}" th:value="${skill[1]}"/></td>
 							<td><button type="button" class="btn btn-success" th:onclick="'saveDraft('+${skill[0]}+')'">✓</button>
 								<button type="button" class="btn btn-danger" th:onclick="'deleteDraft('+${skill[0]}+')'">
@@ -43,7 +47,12 @@
 				function clickSkill(id) {
 					if ($("#parent" + curSkill).length > 0)
 						$("#parent" + curSkill).val(id);
+					$("#parName" + curSkill).html($("#ask" + id).text());
 					$("#parentSkillTree").modal('hide');
+				}
+				function deleteParent(id) {
+					$("#parent" + id).val(0);
+					$("#parName" + id).html("");
 				}
 				function openTree(id) {
 					curSkill = id;
