@@ -58,6 +58,7 @@ import com.cpms.data.entities.Term;
 import com.cpms.data.entities.TermAnswer;
 import com.cpms.data.entities.TermVariant;
 import com.cpms.data.entities.Trend;
+import com.cpms.data.entities.VoteResults;
 import com.cpms.data.entities.Website;
 import com.cpms.facade.ICPMSFacade;
 import com.cpms.security.entities.Users;
@@ -128,7 +129,7 @@ public class Statistic {
 	List<Long> nokeysDocs = new ArrayList<>();
 	
 	public static double sensitivity = 0.01;
-	public static int tlimit = 50, sdDelay = 3, osdDelay = 5, ldDays = 30;
+	public static int tlimit = 50, sdDelay = 3, osdDelay = 5, ldDays = 30, suggestedSk = 5;
 	@ResponseBody
 	@RequestMapping(value = "/ajaxSettings",
 			method = RequestMethod.POST)
@@ -378,6 +379,93 @@ public class Statistic {
 		model.addAttribute("_VIEW_TITLE", "im.title.innovations");
 		model.addAttribute("_FORCE_CSRF", true);
 
+		model.addAttribute("catList", getCatListOld());
+		
+		List<VoteResults> categs = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+		List<Double[]> data = new ArrayList<>();
+		
+		List<Long> catIDs = new ArrayList<>();
+		List<List<List<Integer>>> N = new ArrayList<>();
+		// get all parent categories
+		for (Category cat : facade.getCategoryDAO().getAll()) {
+			if (cat.getParent() != null)
+				continue;
+			VoteResults res = new VoteResults();
+			res.setName(cat.getName());
+			res.setValue(1);
+			res.setPercent(1);
+			categs.add(res);
+			catIDs.add(cat.getId());
+			List<List<Integer>> impacts = new ArrayList<>();
+			for (int i = 0; i < 3; i++)
+				impacts.add(new ArrayList<>());
+			N.add(impacts);
+		}
+		// get and count all innovations
+		List<Task> inns = new ArrayList<>();
+		List<Double> k = new ArrayList<>();
+		for (long innID : facade.getTaskDAO().getIDs()) {
+			Task inn = facade.getTaskDAO().getOne(innID);
+			Set<Task_Category> categories = inn.getCategories();
+			if (categories == null || categories.isEmpty())
+				continue;
+			inns.add(inn);
+			Category parent = null;
+			for (Task_Category tc : categories) {
+				parent = tc.getCategory();
+				break;
+			}
+			while (parent.getParent() != null)
+				parent = parent.getParent();
+			Integer impact = inn.getImpact();
+			if (impact == null)
+				impact = 0;
+			int indexOf = catIDs.indexOf(parent.getId());
+			k.add((double) indexOf);
+			N.get(indexOf).get(impact).add(inns.size() - 1);
+		}
+		// get coordinates for innovations
+		Date startDate = docDAO.getDate(false);
+		Date finishDate = new Date(System.currentTimeMillis());
+		for (List<List<Integer>> catN : N) {
+			for (List<Integer> impN : catN) {
+				double axe, r = 0;
+				do axe = Math.ceil(impN.size() / ++r);
+				while (axe / r > 3);
+				double ai = 0, ri = 0;
+				for (Integer innIndex : impN) {
+					Task inn = inns.get(innIndex);
+					double dr = (ri + 0.5)/r,
+							rad = 2.15 * ((double) inn.getImpact() + 1.0 + dr) / 4.0,
+							da = (ai + 0.5) / axe;
+					double angle = Math.PI * 2 / (double) catIDs.size() * (k.get(innIndex) + da);
+					double x = Math.sin(angle) * rad,
+							y = Math.cos(angle) * rad;
+					if (++ai >= axe) {
+						ai = 0;
+						ri++;
+					}
+					Double[] xy = {x, y};
+					data.add(xy);
+					List<Long> terms = new ArrayList<>();
+					terms.add(inn.getVariant().getTerm().getId());
+					for (ProjectTermvariant ptv : inn.getVariants())
+						terms.add(ptv.getVariant().getTerm().getId());
+					labels.add(String.format("%s\nNumber of documents: %d", inn.getName(),
+							innDAO.getTermDocCount(terms, startDate, finishDate)));
+				}
+			}
+		}
+
+		model.addAttribute("categs", categs);
+		model.addAttribute("labels", labels);
+		model.addAttribute("data", data);
+		
+		return "radar";
+	}
+	
+	private List<List<List<String>>> getCatListOld() {
 		List<List<List<String>>> catList = new ArrayList<>();
 		List<Category> cats = categoryDAO.getAll();
 		Map<Long, Integer> catIndexes = new HashMap<>();
@@ -404,9 +492,7 @@ public class Statistic {
 					if (!toAdd.contains(task.getName()))
 						toAdd.add(task.getName());
 				}
-		model.addAttribute("catList", catList);
-		
-		return "radar";
+		return catList;
 	}
 
 	@RequestMapping(path = "/documents", method = RequestMethod.GET)

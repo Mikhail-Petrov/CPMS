@@ -6,7 +6,7 @@
 				<h3 th:text="'Trend radar'"></h3>
 			</div>
 			<div class="x_content">
-				<table class="table table-responsive table-striped">
+				<table class="table table-responsive table-striped" hidden="true">
 					<thead>
 						<tr>
 							<th><span th:text="'Category'"></span></th>
@@ -21,6 +21,117 @@
 						</tr>
 					</tbody>
 				</table>
+		<div id="graph1"  style="width:800px;height:600px;position: unset;"></div>
+		<div id="graph2"  style="width:800px;height:600px;position: unset;"></div>
+		<div id="graph3"  style="width:800px;height:600px;position: unset;"></div>
+		<div id="graph0"  style="width:800px;height:600px;position: unset;"></div>
+			<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			var labels = [];
+	function labelFormatter(label, series) {
+		return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/></div>";
+	}	
+			function drawBars(sums, lab, d3) {
+				var d1 = [];
+				for (var i = 0; i < sums.length; i++) {
+					d1.push({ label: sums[i].name,  data: sums[i].percent});
+				}
+				//var d3 = [[0.2,0.6], [0.4,0], [-0.1,-1.6]];
+				
+				var plot = $.plot("#graph0", [
+					{ data: d3, label: "innovations"}
+				], {
+					series: {
+						points: {
+							show: true,
+							radius: 5
+						}
+					},
+					grid: {
+						show: false,
+						clickable: true
+					},
+					xaxis: {
+						show: false,
+						min: -3,
+						max: 3
+					},
+					yaxis: {
+						show: false,
+						min: -2.15,
+						max: 2.15
+					},
+					pan: {
+						interactive: true,
+						enableTouch: true
+					},
+				    legend: {
+				        show: false
+				    }
+				});
+
+				$("<div id='tooltip'></div>").css({
+					position: "absolute",
+					display: "none",
+					border: "1px solid #fdd",
+					padding: "2px",
+					"background-color": "#fee",
+					opacity: 0.80
+				}).appendTo("body");
+
+				$("#graph0").bind("plotclick", function (event, pos, item) {
+					if (item) {
+						$("#tooltip").html(labels[item.dataIndex])
+							.css({top: item.pageY+5, left: item.pageX+5})
+							.fadeIn(200);
+					} else {
+						$("#tooltip").hide();
+					}
+				});
+				
+				for (var i = 1; i <= 3; i++) {
+					var rad = (i+1)/4, inner = i/4;
+					var show = i == 3;
+					if (show)
+						rad = 1;
+    			$.plot("#graph"+i, d1, {
+    				series: {
+    					pie: {
+    						show: true,
+    			            radius: rad,
+    		                innerRadius: inner,
+        					label: {
+        						show: show,
+        		                radius: 4/4,
+        		                formatter: labelFormatter,
+        		                background: { 
+        		                    opacity: 0.5,
+        		                    color: '#000'
+        		                }
+        					}
+    					}
+    				},
+				    legend: {
+				        show: false
+				    }
+    			});
+				}
+			}
+		      $(document).ready(function() {
+		  		var res = /*[[${categs}]]*/ [];
+				/*var res = [{'name':'cat1','percent':20,'value':20},{'name':'cat2','percent':20,'value':20},
+					{'name':'cat3','percent':20,'value':20},{'name':'cat4','percent':20,'value':20},
+					{'name':'cat5','percent':20,'value':20}]*/
+				labels = ["point1", "point2", "point3"];
+				labels = /*[[${labels}]]*/ [];
+		  		var data = /*[[${data}]]*/ [];
+				drawBars(res, "", data);
+				for (var i = 0; i < 4; i++)
+					$("#graph"+i).css('position','unset');
+		      });
+			/*]]>*/
+			</script>
 
 			</div>
 
