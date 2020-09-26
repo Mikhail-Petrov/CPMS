@@ -5,6 +5,9 @@
 			<div class="x_title">
 				<h3 th:text="'Trend radar'"></h3>
 			</div>
+			<div style="position: absolute; left: 284pt; top: 280pt;">
+				<img th:src="@{/resources/images/Logo_Festo.png}"></img>
+			</div>
 			<div class="x_content">
 				<table class="table table-responsive table-striped" hidden="true">
 					<thead>
@@ -82,7 +85,13 @@
 
 				$("#graph0").bind("plotclick", function (event, pos, item) {
 					if (item) {
-						$("#tooltip").html(labels[item.dataIndex])
+						var label = labels[item.dataIndex].split("\n");
+						if (label.length > 2) {
+							var href = rootPath + 'viewer/task?id=' + label[0];
+							var name = label[1];
+							label = "<a target='_blank' href='" + href + "'>" + name + "</a><br>" + label[2];
+						}
+						$("#tooltip").html(label)
 							.css({top: item.pageY+5, left: item.pageX+5})
 							.fadeIn(200);
 					} else {

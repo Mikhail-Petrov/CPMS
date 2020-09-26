@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -407,6 +408,7 @@ public class Statistic {
 		List<Double> k = new ArrayList<>();
 		for (long innID : facade.getTaskDAO().getIDs()) {
 			Task inn = facade.getTaskDAO().getOne(innID);
+			inn.setImpact(Math.abs(2 - inn.getImpact()));		// change low and high impact, so high is closer to the center
 			Set<Task_Category> categories = inn.getCategories();
 			if (categories == null || categories.isEmpty())
 				continue;
@@ -452,7 +454,7 @@ public class Statistic {
 					terms.add(inn.getVariant().getTerm().getId());
 					for (ProjectTermvariant ptv : inn.getVariants())
 						terms.add(ptv.getVariant().getTerm().getId());
-					labels.add(String.format("%s\nNumber of documents: %d", inn.getName(),
+					labels.add(String.format("%d\n%s\nNumber of documents: %d", inn.getId(), inn.getName(),
 							innDAO.getTermDocCount(terms, startDate, finishDate)));
 				}
 			}
@@ -1161,8 +1163,10 @@ public class Statistic {
 	@ResponseBody
 	@RequestMapping(value = "/analizeAllDoc",
 			method = RequestMethod.POST)
-	public IAjaxAnswer ajaxAnalizeDocs(
+	public IAjaxAnswer ajaxAnalizeDocs(HttpServletRequest request,
 			@RequestBody String json) {
+		if (request.getSession().getMaxInactiveInterval() > 0)
+			request.getSession().setMaxInactiveInterval(0);
 		//nokeysDocs.clear();
 		if (nokeysDocs.isEmpty())
 			for (Long obj : docDAO.getIDs())
@@ -1237,8 +1241,10 @@ public class Statistic {
 	@ResponseBody
 	@RequestMapping(value = "/loadDocs",
 			method = RequestMethod.POST)
-	public IAjaxAnswer loadDocs(@RequestBody String json) {
+	public IAjaxAnswer loadDocs(@RequestBody String json, HttpServletRequest request) {
 		if (curWebsites == null) {
+			if (request.getSession().getMaxInactiveInterval() > 0)
+				request.getSession().setMaxInactiveInterval(0);
 			// initialization
 			curWebsites = facade.getWebsiteDAO().getAll();
 			curSite = 1;
@@ -1278,7 +1284,7 @@ public class Statistic {
 			facade.getDocumentDAO().insert(article);
 			sites.remove(curUrl);
 			urls.remove(0);
-			return new GroupAnswer("Article extraction from " + curWeb.getName());
+			return new GroupAnswer(String.format("Article extraction from %s<br>Articles left: %d", curWeb.getName(), urls.size()));
 		}
 		// analyze current page for current website
 		getPosts(curWeb.getUrl(), curWeb.getLinkMask(), curSite++ + " " + curWeb.getPageFormat());

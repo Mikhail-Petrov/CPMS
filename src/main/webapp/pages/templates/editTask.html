@@ -94,10 +94,6 @@
 });
   </script>
    			<h2 th:text="'Skill requirements'"></h2>
-   				<a onclick="extractReq(0)" href="#a">
-   					<button type="button" class="btn btn-success btn-block" th:text="'Extract requirements'"></button>
-   				</a>
-   				<p id="extractStat"></p>
                                 <div class="row">
                                     <div class="col-md-12">
 									<!-- select id="skillSelector" size="7">
@@ -122,6 +118,10 @@
                             	<input type="hidden" name="skills" id="skills"/>
                             	</div>
                             </div>
+   				<a onclick="extractReq(0)" href="#a">
+   					<button type="button" class="btn btn-success btn-block" th:text="'Suggest Skills'"></button>
+   				</a>
+   				<p id="extractStat"></p>
 							<script th:inline="javascript">
 							/*<![CDATA[*/
 								
@@ -131,7 +131,6 @@
        	function extractReq(id) {
        		var url = rootPath + 'skills/extractReq';
 			var inputArgs = [];
-			$("#extractStat").html("");
 			if (curSt > statuses.length || $("#name").val() === '')
 				return;
 			
@@ -159,9 +158,21 @@
 						return;
 					}
 					curSt++;
+					$("#extractStat").html("");
 					if (curSt == statuses.length) {
+						// show suggested
+						var html = "";
+						var i = 1;
+						if (res.length > 0) {
+							var len = res[0];
+							for (; i <= len; i++)
+								html += "<br>" + res[i];
+							if (html !== "")
+								html = "<b>Suggested new skills:</b>" + html;
+						}
+						$("#extractStat").html(html);
 						// add skills
-						for (var i = 1; i < res.length; i++) {
+						for (; i < res.length; i++) {
 							var vals = res[i].split("\n");
 							$("#skillSelector").val(vals[0]);
 							$("#reqLvl").val(vals[1]);
@@ -169,8 +180,9 @@
 						}
 						$("#skillSelector").val('');
 						$("#reqLvl").val(1);
-					}
-					extractReq(id);
+						curSt = 0;
+					} else
+						extractReq(id);
 				},
 				error: function (xhRequest, ErrorText, thrownError) {
 					curSt = 0;
@@ -270,6 +282,8 @@
 				}
 				skill = skill + //" (" + $("#skillSelector option:selected").val() + ")
 					": " + level;
+				if ($("td:contains('" + skill + "')").length > 0)
+					continue;
 				buttonCode = /*[[#{editor.remove}]]*/ "";
 				buttonCode = "<span class='btn btn-danger' onclick='$(this).parents(\"tr\").remove();'>" + buttonCode + "</span>";
 				$("#skillTable").append("<tr><td>" + skill + "</td><td>" + buttonCode + "</td></tr>");
@@ -284,6 +298,7 @@
 			$("#reqLvl").val(lvl);
 			addSkill();
 		}
+		$("#skillTable td").css('font-weight','bold');
 		$("#skillSelector").val('');
 		$("#reqLvl").val(1);
 		/*]]>*/

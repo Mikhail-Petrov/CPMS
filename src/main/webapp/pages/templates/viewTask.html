@@ -117,7 +117,7 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
 	                                    </div>
 	                                    <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
 	                                    	<a th:onclick="'extractReq(' + ${task.id} + ')'" href="#a">
-	                                        	<button type="button" class="btn btn-success btn-block" th:text="'Extract requirements'"></button>
+	                                        	<button type="button" class="btn btn-success btn-block" th:text="'Suggest Skills'"></button>
 	                                        </a>
 	                                    </div>
 	                                </div>
@@ -154,6 +154,17 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
 										</td>
 									</tr>
 								</table>
+				<div class="modal fade" id="suggestedReqModal" tabindex="-1" role="dialog" aria-labelledby="suggestedReqModal" aria-hidden="true">
+				    <div class="modal-dialog" role="document">
+				    <div class="modal-content">
+					<div class="modal-body">
+                    	<div id="suggestedReqs"></div>
+                    	<button type="button" class="btn btn-primary btn-block" th:text="'Save'"
+                    		th:onclick="'extractReq('+${task.id}+');'"></button>
+				  	</div>
+				  	</div>
+					</div>
+                </div>
                                 </form>
 							</div>
 						</div>
@@ -184,7 +195,9 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
                     	<div th:replace="fragments/editRequirementModal :: requirementModalForm"></div>
                 	</div>
                 	<script type="text/javascript" th:src="@{/resources/js/competencyEditorAssistant.js}"></script>
-                	<script>
+					<script th:inline="javascript">
+					/*<![CDATA[*/
+								
                 	var submitRequirementForm = function() {
                 	  	var $form = $('#requirementCreate');
                 	    
@@ -213,8 +226,10 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
                 	      }
                 	});
                 	}
-                	var statuses = ["Getting skills", "Extracting data", "Processing data", "Calculating requirements", "Adding requirements"];
+                	var statuses = ["Getting skills", "Extracting data", "Processing data", "Calculating requirements",
+                		"Adding requirements", "Adding requirements"];
                 	var curSt = 0;
+                	var suggestIndex = 5;
                 	function extractReq(id) {
                 		var url = rootPath + 'skills/extractReq';
         				var inputArgs = [];
@@ -226,6 +241,11 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
         				$("#extractStat").html(statuses[curSt] + "...");
         				inputArgs.push(id);
         				inputArgs.push(curSt);
+						if (curSt == suggestIndex) {
+							var ch = $("input[id^=sugCh]:checked");
+							for (var i = 0; i < ch.length; i++)
+	        					inputArgs.push(ch[i].id.replace('sugCh',''));
+						}
         				
 	       				 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 	       			     var csrfToken = $("meta[name='_csrf']").attr("content");
@@ -240,13 +260,51 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
         					data : JSON.stringify(inputArgs),
         					headers: headers,
         					success: function (res) {
-        						if (res.length > 0) {
+        						if (res.length == 1) {
         							$("#extractStat").html(res[0]);
         							curSt = 0;
         							return;
         						}
         						curSt++;
-        						extractReq(id);
+        						$("#extractStat").html("");
+        						if (curSt == suggestIndex) {
+        							// show suggested
+        							var html = "";
+        							var i = 1;
+        							if (res.length > 0) {
+        								var len = res[0];
+        								for (; i <= len; i++)
+        									html += "<br>" + res[i];
+        								if (html !== "")
+        									html = "<b>Suggested skills:</b>" + html;
+        							}
+        							// add skills
+        							var html2 = "";
+        							for (; i < res.length; i++) {
+        								var vals = res[i].split("\n");
+        								var name = vals[0];
+        								// remove | and )
+        								name = name.substr(1, name.length - 2);
+        								// parse data
+        								var nameSplit = name.split("(");
+        								name = "";
+        								var skId = 0;
+        								for (var j = 0; j < nameSplit.length; j++)
+        									if (j == nameSplit.length - 1)
+        										skId = nameSplit[j];
+        									else
+        										name = name + "(" + nameSplit[j];
+        								name = name.substr(1);
+        								var lvl = vals[1];
+    									html2 += "<br><input type='checkbox' id='sugCh" + skId + "' checked/> <span id='sugSpan'>" +
+    										name + ": " + lvl + "</span>";
+        							}
+    								if (html2 !== "")
+    									html = html + "<br><b>Skills to add:</b>" + html2;
+        							$("#suggestedReqs").html(html);
+        							$("#suggestedReqModal").modal('show');
+        						} else
+        							extractReq(id);
         					},
         					error: function (xhRequest, ErrorText, thrownError) {
         						curSt = 0;
@@ -257,4 +315,5 @@ th:if="${username=='admin' and (task.status!='3') or #lists.contains(performerNa
         					}
         				});
                 	}
+            		/*]]>*/
                 	</script>

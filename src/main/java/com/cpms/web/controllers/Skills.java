@@ -89,6 +89,8 @@ public class Skills {
     private Map<Long, Map<Integer, Integer>> X = new HashMap<>();
     private List<Map<Integer, Integer>> Y = new ArrayList<>();
     private List<Skill> reqsToAdd = new ArrayList<>();
+    private Map<Integer, Integer> tokMap = new HashMap<>();
+    private List<String> allTokens = new ArrayList<>();
     
     private class SkillCos implements Comparable<SkillCos> {
     	private double cos;
@@ -181,21 +183,49 @@ public class Skills {
 		case 2:
 			// calculate terms for the innovation
 			Y.clear();
+			allTokens.clear();
+			tokMap.clear();
 			stemmer = new PorterStemmer();
+			stopWords = Arrays.asList(new String[]{"a", "about", "above", "after", "again", "against", "ain", "all", "am", "an", "and", "any", "are", "aren", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can", "couldn", "couldn't", "d", "did", "didn", "didn't", "do", "does", "doesn", "doesn't", "doing", "don", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn", "hadn't", "has", "hasn", "hasn't", "have", "haven", "haven't", "having", "he", "her", "here", "hers", "herself", "him", "himself", "his", "how", "i", "if", "in", "into", "is", "isn", "isn't", "it", "it's", "its", "itself", "just", "ll", "m", "ma", "me", "mightn", "mightn't", "more", "most", "mustn", "mustn't", "my", "myself", "needn", "needn't", "no", "nor", "not", "now", "o", "of", "off", "on", "once", "only", "or", "other", "our", "ours", "ourselves", "out", "over", "own", "re", "s", "same", "shan", "shan't", "she", "she's", "should", "should've", "shouldn", "shouldn't", "so", "some", "such", "t", "than", "that", "that'll", "the", "their", "theirs", "them", "themselves", "then", "there", "these", "they", "this", "those", "through", "to", "too", "under", "until", "up", "ve", "very", "was", "wasn", "wasn't", "we", "were", "weren", "weren't", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "won", "won't", "wouldn", "wouldn't", "y", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves", "could", "he'd", "he'll", "he's", "here's", "how's", "i'd", "i'll", "i'm", "i've", "let's", "ought", "she'd", "she'll", "that's", "there's", "they'd", "they'll", "they're", "they've", "we'd", "we'll", "we're", "we've", "what's", "when's", "where's", "who's", "why's", "would",
+					"diploma", "degree", "away", "school"});
 			for (String text : texts) {
 			// calculate terms for text
+				List<String> curTokens = new ArrayList<>();
 				String[] tokens = Statistic.prepareToTokenize(text).split(" ");
 				Map<Integer, Integer> counts = new HashMap<>();
+				ArrayList<String> prevWords = new ArrayList<>();
 				for (int i = 0; i < tokens.length; i++) {
 					String word = Statistic.stemTermSt(tokens[i], stemmer).trim();
+					// add token to Y
 					if (skillTerms.contains(word)) {
 						int index = skillTerms.indexOf(word), value = 0;
 						if (counts.containsKey(index))
 							value = counts.get(index);
 						counts.put(index, value + 1);
 					}
+					// add tokens to all tokens
+					word = tokens[i].trim().toLowerCase();
+					if (stopWords.contains(word))
+						continue;
+					prevWords.add(word);
+					for (int j = prevWords.size() - 2; j >= 0; j--) {
+						word = prevWords.get(j) + " " + word;
+						if (!curTokens.contains(word))
+							curTokens.add(word);
+					}
+					while (prevWords.size() > 3)
+						prevWords.remove(0);
 				}
 				Y.add(counts);
+				for (String token : curTokens)
+					if (allTokens.contains(token)) {
+						int index = allTokens.indexOf(token);
+						int count = 2;
+						if (tokMap.containsKey(index))
+							count = tokMap.get(index) + 1;
+						tokMap.put(index, count);
+					} else
+						allTokens.add(token);
 			}
 			texts.clear();
 			skillTerms.clear();
@@ -231,12 +261,61 @@ public class Skills {
 			Y.clear();
 			Collections.sort(skillsCos);
 			reqsToAdd.clear();
-			for (int i = 0; i < 5 && i < skillsCos.size(); i++)
-				if (skillsCos.get(i).getCos() > 0)
+			List<Long> curReqs = new ArrayList<>();
+			if (taskId > 0) {
+				Task innovation = facade.getTaskDAO().getOne(taskId);
+				if (innovation != null)
+					for (TaskRequirement req : innovation.getRequirements())
+						curReqs.add(req.getSkill().getId());
+			}
+			for (int i = 0; reqsToAdd.size() < 5 && i < skillsCos.size(); i++)
+				if (skillsCos.get(i).getCos() > 0 && !curReqs.contains(skillsCos.get(i).getSkill().getId()))
 					reqsToAdd.add(skillsCos.get(i).getSkill());
 			break;
 		case 4:
-			// add requirements to the task
+			List<Object> res = new ArrayList<>();
+			// sort values of tokens map
+			List<Integer> mapValues = new ArrayList<>();
+			int minValue = 0;
+			for (Entry<Integer, Integer> e : tokMap.entrySet())
+				mapValues.add(e.getValue());
+			Collections.sort(mapValues);
+			res.add("");
+			for (int i = 1; i <= Statistic.suggestedSk; i++) {
+			if (mapValues.size() >= i)
+				if (minValue == mapValues.get(mapValues.size() - i))
+					continue;
+				minValue = mapValues.get(mapValues.size() - i);
+				// add suggested skills
+				for (Entry<Integer, Integer> e : tokMap.entrySet()) {
+					if (e.getValue() == minValue)
+						res.add(allTokens.get(e.getKey()));
+					if (res.size() >= Statistic.suggestedSk)
+						break;
+				}
+			}
+			if (res.size() > 1)
+				res.set(0, res.size() - 1);
+			allTokens.clear();
+			tokMap.clear();
+			
+			// return suggested requirements
+			for (int i = 0; i < reqsToAdd.size(); i++) {
+				Skill skill = reqsToAdd.get(i);
+				if (skill == null) continue;
+				int level = skill.getMaxLevel() - i;
+				if (level < 1)
+					level = 1;
+				//res.add(String.format("%d:%d", skill.getId(), level));
+				res.add(String.format("|%s (%d)\n%d", skill.getName(), skill.getId(), level));
+			}
+			return res;
+		case 5:
+			if (values.size() <= 2)
+				break;
+			List<Long> checkedReqs = new ArrayList<>();
+			for (int i = 2; i < values.size(); i++)
+				checkedReqs.add(Long.parseLong(values.get(i).toString()));
 			if (taskId > 0) {
 				// add to the existed task
 				Task innovation = facade.getTaskDAO().getOne(taskId);
@@ -244,30 +323,18 @@ public class Skills {
 					return returnError("innovation not found");
 				for (int i = 0; i < reqsToAdd.size(); i++) {
 					Skill skill = reqsToAdd.get(i);
-					if (skill == null) continue;
+					if (skill == null || !checkedReqs.contains(skill.getId()))
+						continue;
 					int level = skill.getMaxLevel() - i;
 					if (level < 1)
 						level = 1;
 					TaskRequirement req = new TaskRequirement(skill, level);
 					innovation.addRequirement(req);
 				}
-				reqsToAdd.clear();
 				facade.getTaskDAO().update(innovation);
-			} else {
-				// return for the new task
-				List<Object> res = new ArrayList<>();
-				res.add("");
-				for (int i = 0; i < reqsToAdd.size(); i++) {
-					Skill skill = reqsToAdd.get(i);
-					if (skill == null) continue;
-					int level = skill.getMaxLevel() - i;
-					if (level < 1)
-						level = 1;
-					//res.add(String.format("%d:%d", skill.getId(), level));
-					res.add(String.format("|%s (%d)\n%d", skill.getName(), skill.getId(), level));
-				}
-				return res;
 			}
+			reqsToAdd.clear();
+			break;
 		}
 		return new ArrayList<>();
 	}
@@ -295,14 +362,17 @@ public class Skills {
 			Document doc = Statistic.getDoc(link.absUrl("href"));
 			if (doc == null)
 				continue;
+			String text = "";
 			/*Elements text = doc.select("div[name='sanitizedHtml']");
 			if (text != null && !text.isEmpty())
 				texts.add(text.text());
 			if (doc.text() != null && !doc.text().isEmpty())
 				texts.add(doc.text());*/
-			Elements text = doc.select("div[class='jobsearch-jobDescriptionText']");
+			Elements points = doc.select("div[class='jobsearch-jobDescriptionText'] li");
+			for (Element point : points)
+				text += point.text() + " ";
 			if (text != null && !text.isEmpty())
-				texts.add(text.text());
+				texts.add(text);
 		}
 		return "";
 	}
